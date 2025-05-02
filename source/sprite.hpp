@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 
+class Sprite;
 
 struct Variable {
     std::string id;
@@ -69,7 +70,6 @@ struct Broadcast{
     std::string id;
     std::string name;
 };
-
 
 class Sprite {
     public:

@@ -31,7 +31,7 @@ void loadSprites(const nlohmann::json& json){
         newSprite.layer = target["layerOrder"].get<int>();}
         if(target.contains("rotationStyle")){
         newSprite.rotationStyle = target["rotationStyle"].get<std::string>();}
-        std::cout<<"name = "<< newSprite.name << std::endl;
+       // std::cout<<"name = "<< newSprite.name << std::endl;
 
 
         // set variables
@@ -54,7 +54,7 @@ void loadSprites(const nlohmann::json& json){
             if (data.contains("next") && !data["next"].is_null()){
             newBlock.next = data["next"].get<std::string>();}
             //else newBlock.next = "";
-            std::cout<<"next = "<< newBlock.next << std::endl;
+           // std::cout<<"next = "<< newBlock.next << std::endl;
             if (data.contains("parent") && !data["parent"].is_null()){
             newBlock.parent = data["parent"].get<std::string>();}
             if (data.contains("fields")){
@@ -126,7 +126,7 @@ void loadSprites(const nlohmann::json& json){
             newBroadcast.id = id;
             newBroadcast.name = data;
             newSprite.broadcasts[newBroadcast.id] = newBroadcast;
-            std::cout<<"broadcast name = "<< newBroadcast.name << std::endl;
+           // std::cout<<"broadcast name = "<< newBroadcast.name << std::endl;
         }
 
         sprites.push_back(newSprite);
@@ -138,7 +138,7 @@ Block findBlock(std::string blockId){
     for(Sprite currentSprite : sprites){
         auto block = currentSprite.blocks.find(blockId);
         if(block != currentSprite.blocks.end()){
-            std::cout << "Found Block " << block->second.id << "\n";
+           // std::cout << "Found Block " << block->second.id << "\n";
             return block->second;
         }
     }
@@ -147,22 +147,32 @@ Block findBlock(std::string blockId){
     return null;
 }
 
-void runBlock(Block block){
+void runBlock(Block block,Sprite*sprite){
+    if (block.opcode == "motion_gotoxy") {
+        std::string xVal = block.inputs["X"][1][1];
+        std::string yVal = block.inputs["Y"][1][1];
+
+
+        sprite->xPosition = std::stoi(xVal);
+        sprite->yPosition = std::stoi(yVal);
+        goto nextBlock;
+    }
+nextBlock:
 if(!block.next.empty()){
     Block nextBlock = findBlock(block.next);
     if (nextBlock.id != "null"){
-        runBlock(nextBlock);
+        runBlock(nextBlock,sprite);
     }
 }
-else std::cout << "Empty. " << "\n";
+//else std::cout << "Empty. " << "\n";
 }
 
 void runAllBlocksByOpcode(std::string opcodeToFind){
     std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
-    for(Sprite currentSprite : sprites){
-        for(const auto &[id,data] : currentSprite.blocks){
+    for(Sprite &currentSprite : sprites){
+        for(auto &[id,data] : currentSprite.blocks){
             if(data.opcode == opcodeToFind){
-                runBlock(data);
+                runBlock(data,&currentSprite);
             }
         }
     }

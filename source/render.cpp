@@ -22,7 +22,7 @@ void renderSprites(){
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
     C2D_SceneBegin(topScreen);
-    for(Sprite currentSprite : sprites){
+    for(Sprite& currentSprite : sprites){
         if(currentSprite.isStage || !currentSprite.visible)continue;
         //std::cout << "Rendering: " << currentSprite.name << "at x: " << currentSprite.xPosition << "y: " << currentSprite.yPosition << "\n";
         //C2D_DrawLine(SCREEN_WIDTH / 2,0,clrBlack,SCREEN_WIDTH/2,SCREEN_HEIGHT,clrBlack,3,0);
