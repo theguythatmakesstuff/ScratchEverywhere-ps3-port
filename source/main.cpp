@@ -89,6 +89,8 @@ int main(int argc, char **argv)
     //     }
     // }
 
+	runAllBlocksByOpcode("event_whenflagclicked");
+
 	// Main loop
 	while (aptMainLoop())
 	{

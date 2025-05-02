@@ -53,8 +53,10 @@ void loadSprites(const nlohmann::json& json){
             newBlock.opcode = data["opcode"].get<std::string>();}
             if (data.contains("next") && !data["next"].is_null()){
             newBlock.next = data["next"].get<std::string>();}
+            //else newBlock.next = "";
+            std::cout<<"next = "<< newBlock.next << std::endl;
             if (data.contains("parent") && !data["parent"].is_null()){
-            newBlock.next = data["parent"].get<std::string>();}
+            newBlock.parent = data["parent"].get<std::string>();}
             if (data.contains("fields")){
             newBlock.fields = data["fields"];}
             if (data.contains("inputs")){
@@ -128,5 +130,40 @@ void loadSprites(const nlohmann::json& json){
         }
 
         sprites.push_back(newSprite);
+    }
+}
+
+
+Block findBlock(std::string blockId){
+    for(Sprite currentSprite : sprites){
+        auto block = currentSprite.blocks.find(blockId);
+        if(block != currentSprite.blocks.end()){
+            std::cout << "Found Block " << block->second.id << "\n";
+            return block->second;
+        }
+    }
+    Block null;
+    null.id = "null";
+    return null;
+}
+
+void runBlock(Block block){
+if(!block.next.empty()){
+    Block nextBlock = findBlock(block.next);
+    if (nextBlock.id != "null"){
+        runBlock(nextBlock);
+    }
+}
+else std::cout << "Empty. " << "\n";
+}
+
+void runAllBlocksByOpcode(std::string opcodeToFind){
+    std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
+    for(Sprite currentSprite : sprites){
+        for(const auto &[id,data] : currentSprite.blocks){
+            if(data.opcode == opcodeToFind){
+                runBlock(data);
+            }
+        }
     }
 }

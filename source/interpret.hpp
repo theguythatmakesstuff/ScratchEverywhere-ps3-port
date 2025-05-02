@@ -9,5 +9,8 @@
 extern std::vector<Sprite> sprites;
 
 void loadSprites(const nlohmann::json& json);
+void runBlock(std::string blockId);
+Block findBlock(std::string blockId);
+void runAllBlocksByOpcode(std::string opcode);
 
 #endif
