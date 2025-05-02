@@ -58,6 +58,8 @@
 		"text_encoding": "cpp",
 		"numbers": "cpp",
 		"typeinfo": "cpp",
-		"ranges": "cpp"
+		"ranges": "cpp",
+		"ratio": "cpp",
+		"any": "cpp"
 	}
 }

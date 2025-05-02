@@ -2,6 +2,23 @@
 
 std::vector<Sprite> sprites;
 
+bool isNumber(const std::string& str) {
+    // i rewrote this function like 5 times vro if ts dont work...
+    if (str.empty()) return false; // Reject empty strings
+
+    size_t start = 0;
+    if (str[0] == '-') { // Allow negative numbers
+        if (str.size() == 1) return false; // just "-" alone is invalid
+        start = 1; // Skip '-' for digit checking
+    }
+
+    return std::count(str.begin() + start, str.end(), '.') <= 1 && // At most one decimal point
+           std::any_of(str.begin() + start, str.end(), ::isdigit) && // At least one digit
+           std::all_of(str.begin() + start, str.end(), [](char c) { return std::isdigit(c) || c == '.'; });
+}
+
+
+
 void loadSprites(const nlohmann::json& json){
     std::cout<<"Beginning to load sprites..."<< std::endl;
     for (const auto& target : json["targets"]){ // "target" is sprite in Scratch speak, so for every sprite in sprites
@@ -40,7 +57,16 @@ void loadSprites(const nlohmann::json& json){
             Variable newVariable;
             newVariable.id = id;
             newVariable.name = data[0];
-            newVariable.value = data[1];
+            //newVariable.value = std::to_string(data[1]);
+            if (data[1].is_number_integer()) {
+                newVariable.value = std::to_string(data[1].get<int>());
+            } else if (data[1].is_number_float()) {
+                newVariable.value = std::to_string(data[1].get<double>());
+            } else if (data[1].is_string()) {
+                newVariable.value = data[1].get<std::string>();
+            } else {
+                newVariable.value = "0";
+            }
             newSprite.variables[newVariable.id] = newVariable; // add variable to sprite
         }
 
@@ -133,6 +159,15 @@ void loadSprites(const nlohmann::json& json){
     }
 }
 
+auto getValueOfBlock(Block block,Sprite*sprite){
+    if (block.opcode == "motion_xposition") {
+        return sprite->xPosition;
+    }
+    if (block.opcode == "motion_yposition") {
+        return sprite->yPosition;
+    }
+    return 0;
+}
 
 Block findBlock(std::string blockId){
     for(Sprite currentSprite : sprites){
@@ -149,14 +184,38 @@ Block findBlock(std::string blockId){
 
 void runBlock(Block block,Sprite*sprite){
     if (block.opcode == "motion_gotoxy") {
-        std::string xVal = block.inputs["X"][1][1];
-        std::string yVal = block.inputs["Y"][1][1];
+        std::string xVal;
+        std::string yVal;
 
-
+        // if the block has no variable inside of the input 
+        xVal = getInputValue(block.inputs["X"],&block,sprite);
+        yVal = getInputValue(block.inputs["Y"],&block,sprite);
+        if (isNumber(xVal))
         sprite->xPosition = std::stoi(xVal);
+        else{std::cout<<"ERRRRM GURRRRT "<< std::endl;}
+        if (isNumber(yVal))
         sprite->yPosition = std::stoi(yVal);
         goto nextBlock;
     }
+    if(block.opcode == "data_setvariableto"){
+        std::string val;
+        std::string varId = block.fields["VARIABLE"][1];
+        val = getInputValue(block.inputs["VALUE"],&block,sprite);
+        std::cout<<"Setting Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
+        setVariableValue(varId,val,sprite,false);
+        goto nextBlock;
+    }
+    if(block.opcode == "data_changevariableby"){
+        std::string val;
+        std::string varId = block.fields["VARIABLE"][1];
+        val = getInputValue(block.inputs["VALUE"],&block,sprite);
+        std::cout<<"Changing Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
+        setVariableValue(varId,val,sprite,true);
+        goto nextBlock;
+    }
+
+
+
 nextBlock:
 if(!block.next.empty()){
     Block nextBlock = findBlock(block.next);
@@ -164,8 +223,100 @@ if(!block.next.empty()){
         runBlock(nextBlock,sprite);
     }
 }
-//else std::cout << "Empty. " << "\n";
 }
+
+
+
+void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){
+    if(sprite->variables.find(variableId) != sprite->variables.end()){ // if not a global sprite
+        Variable& var = sprite->variables[variableId];
+        if (!isNumber(var.value)){
+            var.value = "0";
+        }
+
+        if(!isChangingBy){
+            var.value = value;
+        }
+        else{
+            var.value += value;
+        }
+
+        std::cout<<"Local Variable set. " << sprite->variables[variableId].value << std::endl;
+
+    }
+    else{
+        for(Sprite &currentSprite : sprites){
+            if (currentSprite.isStage){
+                Variable& var = currentSprite.variables[variableId];
+                if (!isNumber(var.value)){
+                    var.value = "0";
+                }
+        
+                if(!isChangingBy){
+                    var.value = value;
+                }
+                else{
+                    var.value += value;
+                }
+        
+                std::cout<<"Global Variable set. " << var.value << std::endl;
+            }
+        }
+    }
+
+    // for(Sprite &currentSprite : sprites){
+    //     for(const auto &[id,data] : currentSprite.variables){
+    //         if (id == variableId) {
+    //             if (isNumber(id)){
+    //                 std::cout<<"Setting Variable..."<< std::endl;
+    //             } 
+    //         }
+    //     }
+    // }
+
+}
+
+std::string getVariableValue(std::string variableId){
+    for(Sprite &currentSprite : sprites){
+        for(const auto &[id,data] : currentSprite.variables){
+            if (id == variableId) {
+                return data.value; // Assuming `Variable` has a `value` field
+            }
+        }
+    }
+    return "";
+}
+
+std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
+    // 1 is just a plain number
+    if (item[0] == 1) {
+        return item[1][1].get<std::string>(); // Convert JSON to string
+    }
+    // 3 is if there is a variable of some kind inside
+    if (item[0] == 3) {
+        if (item[1].is_array()) {
+            return getVariableValue(item[1][2]);
+        } else {
+            return std::to_string(getValueOfBlock(findBlock(item[1]), sprite));
+        }
+    }
+    return "0";
+}
+
+
+
+
+std::vector<Sprite*> findSprite(std::string spriteId){
+    std::vector<Sprite*> sprts;
+    for(Sprite currentSprite : sprites){
+        if(currentSprite.name == spriteId){
+            sprts.push_back(&currentSprite);
+        }
+    }
+    return sprts;
+}
+
+
 
 void runAllBlocksByOpcode(std::string opcodeToFind){
     std::cout << "Running all " << opcodeToFind << " blocks." << "\n";

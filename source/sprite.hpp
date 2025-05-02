@@ -9,7 +9,7 @@ class Sprite;
 struct Variable {
     std::string id;
     std::string name;
-    nlohmann::json value;
+    std::string value;
 };
 
 struct Block {

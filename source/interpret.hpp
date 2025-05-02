@@ -9,8 +9,14 @@
 extern std::vector<Sprite> sprites;
 
 void loadSprites(const nlohmann::json& json);
-void runBlock(std::string blockId);
+auto getValueOfBlock(Block block,Sprite*sprite);
+void runBlock(Block block,Sprite*sprite);
 Block findBlock(std::string blockId);
-void runAllBlocksByOpcode(std::string opcode);
+std::vector<Sprite*> findSprite(std::string spriteId);
+void runAllBlocksByOpcode(std::string opcodeToFind);
+std::string getInputValue(nlohmann::json item,Block* block,Sprite* sprite);
+std::string getVariableValue(std::string variableId);
+bool isNumber(const std::string& id);
+void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);
 
 #endif
