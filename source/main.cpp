@@ -1,39 +1,90 @@
 #ifdef __3DS__
+#include "miniz.h"
 #include <3ds.h>
 #include <stdio.h>
 #include <citro2d.h>
-#include "miniz.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <nlohmann/json.hpp>
+#include "interpret.hpp"
+#include "render.hpp"
 // C:/Users/Wiz/Documents/CodingProjects/Scratch
 
+static void exitApp(){
+	// Deinit libs
+	//C2D_SpriteSheetFree(spriteSheet); // delete sprites
+	//freeText(); // kill text
+	renderDeInit(); // from render.hpp
+	//ndspExit(); // unload audio
+	romfsExit(); // unload the filesystem
+	//cfguExit(); // i think kills text
+	gfxExit();
+}
 
 int main(int argc, char **argv)
 {
 	gfxInitDefault();
 
 	//Initialize console on top screen.
-	consoleInit(GFX_TOP, NULL);
-
-	//printf("\x1b[16;20 yo press the fucking A button you twerp. NOW.");
-
-	//printf("\x1b[30;16HPress Start to exit.");
-
+	consoleInit(GFX_BOTTOM, NULL);
 
 	// load Scratch project into memory
 	const char* filename = "project.sb3";
 	std::ifstream file(filename, std::ios::binary | std::ios::ate); // loads file from root(?) of SD card
 	if (!file){
 		printf("\x1b[16;20 Errrm well this is awkward... couldnt find the file... jinkies...");
-		goto exit;
+		exitApp();
 	}
-	else{
-		printf("\x1b[16;20 BAAAAAAAAAAANG FOUND THAT SHIT BAAAAAAAANG ANOTHER DAY IN THE OFFICE BABY");
+	// else{
+	// 	printf("\x1b[16;20 BAAAAAAAAAAANG FOUND THAT SHIT BAAAAAAAANG ANOTHER DAY IN THE OFFICE BABY");
+	// }
+
+	std::cout<<"Unzipping Scratch Project..."<<std::endl;
+
+
+	// read the file
+	std::streamsize size = file.tellg(); // gets the size of the file
+	file.seekg(0,std::ios::beg); // go to the beginning of the file
+	std::vector<char> buffer(size);
+	if (!file.read(buffer.data(), size)){
+		exitApp();
 	}
 
 	// open ZIP file from the thing that we just did
+	mz_zip_archive zip;
+	memset(&zip,0,sizeof(zip));
+	if (!mz_zip_reader_init_mem(&zip,buffer.data(),buffer.size(),0)){
+		exitApp();
+	}
 
+	// extract project.json
+	int file_index = mz_zip_reader_locate_file(&zip,"project.json",NULL,0);
+	if (file_index < 0){
+		exitApp();
+	}
 
+	size_t json_size;
+	const char* json_data = static_cast<const char*>(mz_zip_reader_extract_to_heap(&zip, file_index, &json_size, 0));
+
+	// Parse JSON file
+	nlohmann::json project_json = nlohmann::json::parse(std::string(json_data,json_size));
+	mz_free((void*)json_data);
+	mz_zip_reader_end(&zip);
+
+	loadSprites(project_json);
+	renderInit();
+
+	// for (const auto& target : project_json["targets"]) {
+    //     if (target["isStage"]) {
+    //         for (auto& [id, var] : target["variables"].items()) {
+	// 			std::string name = var[0];
+	// 			auto value = var[1];
+	// 			std::cout << name << " = " << value << std::endl;
+
+    //         }
+    //     }
+    // }
 
 	// Main loop
 	while (aptMainLoop())
@@ -59,9 +110,8 @@ int main(int argc, char **argv)
 		//Wait for VBlank
 		gspWaitForVBlank();
 	}
-	exit:
 
-	gfxExit();
+	exitApp();
 	return 0;
 }
 
