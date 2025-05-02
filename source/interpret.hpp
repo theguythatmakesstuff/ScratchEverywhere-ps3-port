@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 
-static std::vector<Sprite> sprites;
+extern std::vector<Sprite> sprites;
 
 void loadSprites(const nlohmann::json& json);
 

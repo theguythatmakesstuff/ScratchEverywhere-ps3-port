@@ -3,12 +3,14 @@
 #include <3ds.h>
 #include <stdio.h>
 #include <citro2d.h>
+#include <citro3d.h>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "interpret.hpp"
 #include "render.hpp"
+
 // C:/Users/Wiz/Documents/CodingProjects/Scratch
 
 static void exitApp(){
@@ -25,22 +27,21 @@ static void exitApp(){
 int main(int argc, char **argv)
 {
 	gfxInitDefault();
-
-	//Initialize console on top screen.
 	consoleInit(GFX_BOTTOM, NULL);
+	renderInit();
+
+	std::cout<<"Unzipping Scratch Project..."<<std::endl;
 
 	// load Scratch project into memory
 	const char* filename = "project.sb3";
 	std::ifstream file(filename, std::ios::binary | std::ios::ate); // loads file from root(?) of SD card
 	if (!file){
 		printf("\x1b[16;20 Errrm well this is awkward... couldnt find the file... jinkies...");
+		svcBreak(USERBREAK_PANIC);
 		exitApp();
 	}
-	// else{
-	// 	printf("\x1b[16;20 BAAAAAAAAAAANG FOUND THAT SHIT BAAAAAAAANG ANOTHER DAY IN THE OFFICE BABY");
-	// }
 
-	std::cout<<"Unzipping Scratch Project..."<<std::endl;
+
 
 
 	// read the file
@@ -48,6 +49,7 @@ int main(int argc, char **argv)
 	file.seekg(0,std::ios::beg); // go to the beginning of the file
 	std::vector<char> buffer(size);
 	if (!file.read(buffer.data(), size)){
+		svcBreak(USERBREAK_PANIC);
 		exitApp();
 	}
 
@@ -55,12 +57,14 @@ int main(int argc, char **argv)
 	mz_zip_archive zip;
 	memset(&zip,0,sizeof(zip));
 	if (!mz_zip_reader_init_mem(&zip,buffer.data(),buffer.size(),0)){
+		svcBreak(USERBREAK_PANIC);
 		exitApp();
 	}
 
 	// extract project.json
 	int file_index = mz_zip_reader_locate_file(&zip,"project.json",NULL,0);
 	if (file_index < 0){
+		svcBreak(USERBREAK_PANIC);
 		exitApp();
 	}
 
@@ -73,7 +77,6 @@ int main(int argc, char **argv)
 	mz_zip_reader_end(&zip);
 
 	loadSprites(project_json);
-	renderInit();
 
 	// for (const auto& target : project_json["targets"]) {
     //     if (target["isStage"]) {
@@ -97,18 +100,12 @@ int main(int argc, char **argv)
 
 		if (kDown & KEY_START) break; // break in order to return to hbmenu
 
-		if (kDown & KEY_A)
-		{
-			consoleInit(GFX_TOP, NULL);
-			printf("\x1b[16;20 good boy.");
-		}
+		renderSprites();
 
-		// Flush and swap framebuffers
-		gfxFlushBuffers();
-		gfxSwapBuffers();
 
-		//Wait for VBlank
-		gspWaitForVBlank();
+		//gfxFlushBuffers();
+		//gfxSwapBuffers();
+		//gspWaitForVBlank();
 	}
 
 	exitApp();

@@ -1,5 +1,7 @@
 #include "interpret.hpp"
 
+std::vector<Sprite> sprites;
+
 void loadSprites(const nlohmann::json& json){
     std::cout<<"Beginning to load sprites..."<< std::endl;
     for (const auto& target : json["targets"]){ // "target" is sprite in Scratch speak, so for every sprite in sprites
@@ -101,20 +103,20 @@ void loadSprites(const nlohmann::json& json){
             newSprite.costumes[newCostume.id] = newCostume;
         }
 
-        // set comments
-        // for(const auto &[id,data] : target["comments"].items()){
-        //     Comment newComment;
-        //     newComment.id = id;
-        //     if(data.contains("blockId") && !data["blockId"].is_null()){
-        //     newComment.blockId = data["blockId"];}
-        //     newComment.width = data["width"];
-        //     newComment.height = data["height"];
-        //     newComment.minimized = data["minimized"];
-        //     newComment.x = data["x"];
-        //     newComment.y = data["y"];
-        //     newComment.text = data["text"];
-        //     newSprite.comments[newComment.id] = newComment;
-        // } haha get it comments because its commented out hahaha ok
+       // set comments
+        for(const auto &[id,data] : target["comments"].items()){
+            Comment newComment;
+            newComment.id = id;
+            if(data.contains("blockId") && !data["blockId"].is_null()){
+            newComment.blockId = data["blockId"];}
+            newComment.width = data["width"];
+            newComment.height = data["height"];
+            newComment.minimized = data["minimized"];
+            newComment.x = data["x"];
+            newComment.y = data["y"];
+            newComment.text = data["text"];
+            newSprite.comments[newComment.id] = newComment;
+        }
 
         // set Broadcasts
         for(const auto &[id,data] : target["broadcasts"].items()){
