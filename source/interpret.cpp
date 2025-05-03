@@ -1,6 +1,8 @@
 #include "interpret.hpp"
 
 std::vector<Sprite> sprites;
+double timer = 0;
+
 
 bool isNumber(const std::string& str) {
     // i rewrote this function like 5 times vro if ts dont work...
@@ -99,7 +101,9 @@ void loadSprites(const nlohmann::json& json){
             List newList;
             newList.id = id;
             newList.name = data[0];
-            newList.items = data[1];
+            for(const auto &listItem : data[1]){
+            newList.items.push_back(listItem.dump());
+            }
             newSprite.lists[newList.id] = newList; // add list
         }
 
@@ -159,14 +163,26 @@ void loadSprites(const nlohmann::json& json){
     }
 }
 
-auto getValueOfBlock(Block block,Sprite*sprite){
+std::string getValueOfBlock(Block block,Sprite*sprite){
     if (block.opcode == "motion_xposition") {
-        return sprite->xPosition;
+        return std::to_string(sprite->xPosition);
     }
     if (block.opcode == "motion_yposition") {
-        return sprite->yPosition;
+        return std::to_string(sprite->yPosition);
     }
-    return 0;
+    if(block.opcode == "motion_direction"){
+        return std::to_string(sprite->rotation);
+    }
+    if(block.opcode == "looks_size"){
+        return std::to_string(sprite->size);
+    }
+    if(block.opcode == "sound_volume"){
+        return std::to_string(sprite->volume);
+    }
+    if(block.opcode == "sensing_timer"){
+        return std::to_string(timer);
+    }
+    return "";
 }
 
 Block findBlock(std::string blockId){
@@ -187,14 +203,15 @@ void runBlock(Block block,Sprite*sprite){
         std::string xVal;
         std::string yVal;
 
-        // if the block has no variable inside of the input 
+
         xVal = getInputValue(block.inputs["X"],&block,sprite);
         yVal = getInputValue(block.inputs["Y"],&block,sprite);
         if (isNumber(xVal))
         sprite->xPosition = std::stoi(xVal);
-        else{std::cout<<"ERRRRM GURRRRT "<< std::endl;}
+        else{std::cout<<"Set X Position invalid with pos " << xVal<< std::endl;}
         if (isNumber(yVal))
         sprite->yPosition = std::stoi(yVal);
+        else{std::cout<<"Set Y Position invalid with pos " << xVal<< std::endl;}
         goto nextBlock;
     }
     if(block.opcode == "data_setvariableto"){
@@ -213,6 +230,10 @@ void runBlock(Block block,Sprite*sprite){
         setVariableValue(varId,val,sprite,true);
         goto nextBlock;
     }
+    if(block.opcode == "sensing_resettimer"){
+        timer = 0;
+        goto nextBlock;
+    }
 
 
 
@@ -228,51 +249,49 @@ if(!block.next.empty()){
 
 
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){
-    if(sprite->variables.find(variableId) != sprite->variables.end()){ // if not a global sprite
+    if(sprite->variables.find(variableId) != sprite->variables.end()){ // if not a global Variable
         Variable& var = sprite->variables[variableId];
-        if (!isNumber(var.value)){
-            var.value = "0";
-        }
+
 
         if(!isChangingBy){
             var.value = value;
         }
         else{
-            var.value += value;
+            if(isNumber(var.value) && isNumber(value)){
+            var.value = std::to_string(std::stod(var.value) + std::stod(value));
+            }
+            else{
+                if(!isNumber(value)) return;
+                var.value = value;
+            }
         }
 
         std::cout<<"Local Variable set. " << sprite->variables[variableId].value << std::endl;
 
     }
+    // global Variable (TODO fix redundant code later :grin:)
     else{
         for(Sprite &currentSprite : sprites){
             if (currentSprite.isStage){
                 Variable& var = currentSprite.variables[variableId];
-                if (!isNumber(var.value)){
-                    var.value = "0";
-                }
         
                 if(!isChangingBy){
                     var.value = value;
                 }
                 else{
-                    var.value += value;
+                    if(isNumber(var.value) && isNumber(value)){
+                    var.value = std::to_string(std::stod(var.value) + std::stod(value));
+                    }
+                    else{
+                        if(!isNumber(value)) return;
+                        var.value = value;
+                    }
                 }
         
                 std::cout<<"Global Variable set. " << var.value << std::endl;
             }
         }
     }
-
-    // for(Sprite &currentSprite : sprites){
-    //     for(const auto &[id,data] : currentSprite.variables){
-    //         if (id == variableId) {
-    //             if (isNumber(id)){
-    //                 std::cout<<"Setting Variable..."<< std::endl;
-    //             } 
-    //         }
-    //     }
-    // }
 
 }
 
@@ -282,6 +301,20 @@ std::string getVariableValue(std::string variableId){
             if (id == variableId) {
                 return data.value; // Assuming `Variable` has a `value` field
             }
+        }
+        // check if it's a list instead
+        std::cout<<"Checking list " << variableId << std::endl;
+        for(const auto &[id,data] : currentSprite.lists){
+            if(id == variableId){
+                std::string finalValue;
+                for(const auto &listItem : data.items){
+                    std::cout<<"Found one " << std::endl;
+                    finalValue += listItem + " ";
+                }
+                finalValue.pop_back(); // remove extra space
+                return finalValue;
+            }
+
         }
     }
     return "";
@@ -297,7 +330,7 @@ std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
         if (item[1].is_array()) {
             return getVariableValue(item[1][2]);
         } else {
-            return std::to_string(getValueOfBlock(findBlock(item[1]), sprite));
+            return getValueOfBlock(findBlock(item[1]), sprite);
         }
     }
     return "0";

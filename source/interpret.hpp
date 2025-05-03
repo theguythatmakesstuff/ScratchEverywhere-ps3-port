@@ -7,9 +7,11 @@
 #include <iostream>
 
 extern std::vector<Sprite> sprites;
+extern double timer;
+
 
 void loadSprites(const nlohmann::json& json);
-auto getValueOfBlock(Block block,Sprite*sprite);
+std::string getValueOfBlock(Block block,Sprite*sprite);
 void runBlock(Block block,Sprite*sprite);
 Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteId);

@@ -18,6 +18,7 @@ void renderInit(){
 }
 
 void renderSprites(){
+    timer += 1.0 / 60.0;
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
