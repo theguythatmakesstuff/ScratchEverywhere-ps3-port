@@ -25,7 +25,10 @@ struct Block {
 
 struct Conditional{
     std::string id;
+    std::string blockId;
+    Sprite* hostSprite;
     bool isTrue;
+    int times;
 };
 
 struct List{

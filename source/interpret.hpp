@@ -7,11 +7,15 @@
 #include <iostream>
 
 extern std::vector<Sprite> sprites;
+extern std::unordered_map<std::string,Conditional> conditionals;
 extern double timer;
 
 
 void loadSprites(const nlohmann::json& json);
+void runRepeatBlocks();
+std::string removeQuotations(std::string value);
 std::string getValueOfBlock(Block block,Sprite*sprite);
+bool runConditionalStatement(std::string blockId,Sprite* sprite);
 void runBlock(Block block,Sprite*sprite);
 Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteId);

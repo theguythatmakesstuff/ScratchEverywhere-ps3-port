@@ -102,7 +102,9 @@ int main(int argc, char **argv)
 
 		if (kDown & KEY_START) break; // break in order to return to hbmenu
 
+		runRepeatBlocks();
 		renderSprites();
+		
 
 
 		//gfxFlushBuffers();

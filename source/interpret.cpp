@@ -1,6 +1,7 @@
 #include "interpret.hpp"
 
 std::vector<Sprite> sprites;
+std::unordered_map<std::string,Conditional> conditionals;
 double timer = 0;
 
 
@@ -267,6 +268,18 @@ Block findBlock(std::string blockId){
     return null;
 }
 
+bool runConditionalStatement(std::string blockId,Sprite* sprite){
+    Block block = findBlock(blockId);
+    if(block.opcode == "operator_equals"){
+        std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);
+        if(value1 == value2){
+            return true;
+        }
+    }
+return false;
+}
+
 void runBlock(Block block,Sprite*sprite){
     if (block.opcode == "motion_gotoxy") {
         std::string xVal;
@@ -369,6 +382,79 @@ void runBlock(Block block,Sprite*sprite){
         goto nextBlock;
 
     }
+    if(block.opcode == "control_if"){
+        if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
+            if(!block.inputs["SUBSTACK"][1].is_null()){
+                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                runBlock(subBlock,sprite);
+            }
+        }
+        goto nextBlock;
+    }
+    if(block.opcode == "control_if_else"){
+        if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
+            if(!block.inputs["SUBSTACK"][1].is_null()){
+                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                runBlock(subBlock,sprite);
+            }
+        }
+            else{
+                if(!block.inputs["SUBSTACK2"][1].is_null()){
+                    Block subBlock = findBlock(block.inputs["SUBSTACK2"][1]);
+                    runBlock(subBlock,sprite);
+                }
+            }
+        
+        goto nextBlock;
+    }
+    if(block.opcode == "control_forever"){
+        // add conditional if there isn't one
+        if(conditionals.find(block.id) == conditionals.end()){
+            Conditional newConditional;
+            newConditional.id = block.id;
+            newConditional.blockId = block.id;
+            newConditional.hostSprite = sprite;
+            newConditional.isTrue = false;
+            newConditional.times = -1;
+            conditionals[newConditional.id] = newConditional;
+        }
+
+        // run the block inside the forever loop
+        if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
+            Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+           runBlock(subBlock,sprite);
+        }
+        conditionals[block.id].isTrue = true;
+        goto nextBlock;
+    }
+    if(block.opcode == "control_repeat"){
+         // add conditional if there isn't one
+        if(conditionals.find(block.id) == conditionals.end()){
+             Conditional newConditional;
+             newConditional.id = block.id;
+              newConditional.blockId = block.id;
+              newConditional.hostSprite = sprite;
+             newConditional.isTrue = false;
+             newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"],&block,sprite));
+             conditionals[newConditional.id] = newConditional;
+         }
+         std::cout<<"Running repeat block " << conditionals[block.id].times << std::endl;
+
+         // run the block inside the repeat loop
+        if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
+            Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+           runBlock(subBlock,sprite);
+        }
+        // run block if times is over 0
+        if(conditionals[block.id].times > 0){
+            conditionals[block.id].isTrue = true;
+            conditionals[block.id].times--;
+        }
+        else{
+            conditionals[block.id].isTrue = false;
+        }
+        goto nextBlock;
+    }
     if(block.opcode == "data_setvariableto"){
         std::string val;
         std::string varId = block.fields["VARIABLE"][1];
@@ -401,7 +487,15 @@ if(!block.next.empty()){
 }
 }
 
-
+void runRepeatBlocks(){
+    //std::cout<<"Running repeat blocks..."<< std::endl;
+    for(const auto &[id,data] : conditionals){
+        if(data.isTrue){
+            runBlock(findBlock(data.blockId),data.hostSprite);
+            
+        }
+    }
+}
 
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){
     if(sprite->variables.find(variableId) != sprite->variables.end()){ // if not a global Variable
