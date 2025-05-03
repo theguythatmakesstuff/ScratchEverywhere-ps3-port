@@ -282,6 +282,8 @@ return false;
 
 void runBlock(Block block,Sprite*sprite){
     if (block.opcode == "motion_gotoxy") {
+        std::cout << "Setting X and Y position with sprite " << sprite->name
+          << " at address: " << sprite << std::endl;
         std::string xVal;
         std::string yVal;
 
@@ -404,9 +406,60 @@ void runBlock(Block block,Sprite*sprite){
                     runBlock(subBlock,sprite);
                 }
             }
-        
         goto nextBlock;
     }
+    if(block.opcode == "control_repeat_until"){
+    // add conditional if there isn't one
+    if(conditionals.find(block.id) == conditionals.end()){
+       Conditional newConditional;
+        newConditional.id = block.id;
+        newConditional.blockId = block.id;
+        newConditional.hostSprite = sprite;
+        newConditional.isTrue = false;
+        newConditional.times = -1;
+        conditionals[newConditional.id] = newConditional;
+}
+        // set to true if the condition is false
+        if(!runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
+            conditionals[block.id].isTrue = true;
+        }
+        else{
+            conditionals[block.id].isTrue = false;
+        }
+
+        // run the block inside the repeat loop
+        if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
+            Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+           runBlock(subBlock,sprite);
+        }
+        goto nextBlock;
+    }
+    if(block.opcode == "control_while"){
+        // add conditional if there isn't one
+        if(conditionals.find(block.id) == conditionals.end()){
+           Conditional newConditional;
+            newConditional.id = block.id;
+            newConditional.blockId = block.id;
+            newConditional.hostSprite = sprite;
+            newConditional.isTrue = false;
+            newConditional.times = -1;
+            conditionals[newConditional.id] = newConditional;
+    }
+            // set to true if the condition is true
+            if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
+                conditionals[block.id].isTrue = true;
+            }
+            else{
+                conditionals[block.id].isTrue = false;
+            }
+    
+            // run the block inside the repeat loop
+            if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
+                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+               runBlock(subBlock,sprite);
+            }
+            goto nextBlock;
+        }
     if(block.opcode == "control_forever"){
         // add conditional if there isn't one
         if(conditionals.find(block.id) == conditionals.end()){
@@ -452,6 +505,35 @@ void runBlock(Block block,Sprite*sprite){
         }
         else{
             conditionals[block.id].isTrue = false;
+        }
+        goto nextBlock;
+    }
+    if(block.opcode == "control_create_clone_of"){
+        std::cout<<"Cloning sprite... " << sprite->name << std::endl;
+        std::cout<<"Sprite count = " << sprites.size() << std::endl;
+        Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
+        Sprite spriteToClone;
+        if(cloneOptions.fields["CLONE_OPTION"][0] == "_myself_"){
+            spriteToClone = *sprite;
+            std::cout<<"AIOUEYAIOWUEYAE " << spriteToClone.name << std::endl;
+        }
+        else{
+            for(Sprite &currentSprite : sprites){
+                if(currentSprite.name == cloneOptions.fields["CLONE_OPTION"][0] && !currentSprite.isClone){
+                   spriteToClone = currentSprite;
+                }
+            }
+        }
+        if (!spriteToClone.name.empty()){
+            for(auto &[id,conditional]: spriteToClone.conditionals){
+                conditional.hostSprite = &spriteToClone;
+            }
+            spriteToClone.isClone = true;
+            spriteToClone.isStage = false;
+            spriteToClone.blocks.clear(); // TODO Change this later to all block except clone hat and underneath
+            sprites.push_back(spriteToClone);
+            std::cout<<"Cloned sprite " << spriteToClone.name << std::endl;
+            std::cout<<"Sprite count = " << sprites.size() << std::endl;
         }
         goto nextBlock;
     }
@@ -588,10 +670,10 @@ std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
 
 
 
-std::vector<Sprite*> findSprite(std::string spriteId){
+std::vector<Sprite*> findSprite(std::string spriteName){
     std::vector<Sprite*> sprts;
     for(Sprite currentSprite : sprites){
-        if(currentSprite.name == spriteId){
+        if(currentSprite.name == spriteName){
             sprts.push_back(&currentSprite);
         }
     }

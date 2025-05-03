@@ -32,11 +32,14 @@ void renderSprites(){
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
     C2D_SceneBegin(topScreen);
+    int times = 1;
     for(Sprite& currentSprite : sprites){
         if(currentSprite.isStage || !currentSprite.visible)continue;
         //std::cout << "Rendering: " << currentSprite.name << "at x: " << currentSprite.xPosition << "y: " << currentSprite.yPosition << "\n";
         //C2D_DrawLine(SCREEN_WIDTH / 2,0,clrBlack,SCREEN_WIDTH/2,SCREEN_HEIGHT,clrBlack,3,0);
         C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
+        //std::cout << "rendring sprite number " << times << std::endl;
+        times++;
     }
     //C2D_Flush();
     C3D_FrameEnd(0);

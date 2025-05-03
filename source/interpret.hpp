@@ -18,7 +18,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite);
 bool runConditionalStatement(std::string blockId,Sprite* sprite);
 void runBlock(Block block,Sprite*sprite);
 Block findBlock(std::string blockId);
-std::vector<Sprite*> findSprite(std::string spriteId);
+std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(std::string opcodeToFind);
 std::string getInputValue(nlohmann::json item,Block* block,Sprite* sprite);
 std::string getVariableValue(std::string variableId);
