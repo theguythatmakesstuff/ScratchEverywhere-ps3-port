@@ -357,7 +357,7 @@ void runBlock(Block block,Sprite*sprite){
 
         value = getInputValue(block.inputs["DY"],&block,sprite);
         if(isNumber(value)){
-            sprite->xPosition += std::stod(value);
+            sprite->yPosition += std::stod(value);
             std::cout<<"Successfuly Changed Y position by " << value << " to " << sprite->yPosition << std::endl;
         }
         else{
@@ -540,11 +540,37 @@ void runBlock(Block block,Sprite*sprite){
             }
             spriteToClone.isClone = true;
             spriteToClone.isStage = false;
+            std::unordered_map<std::string,Block> newBlocks;
+            for(auto &[id,block] : spriteToClone.blocks){
+                if(block.opcode == "control_start_as_clone" || block.opcode == "event_whenbroadcastreceived"){
+                    std::vector<Block> blockChain = getBlockChain(block.id);
+                    for (const Block& block : blockChain) {
+                        newBlocks[block.id] = block;
+                    }
+            }
+        }
             spriteToClone.blocks.clear(); // TODO Change this later to all block except clone hat and underneath
+            spriteToClone.blocks = newBlocks;
+            spriteToClone.variables.clear();
             sprites.push_back(spriteToClone);
             std::cout<<"Cloned sprite " << spriteToClone.name << std::endl;
             std::cout<<"Sprite count = " << sprites.size() << std::endl;
+            
+            // stuff to run when i start as clone block
+           Sprite* addedSprite = &sprites.back();
+          
+           for(Sprite &currentSprite : sprites){
+            if(&currentSprite == addedSprite){
+                std::cout<<"Found sprite " << currentSprite.name << std::endl;
+                for(auto &[id,block] : currentSprite.blocks){
+                    if(block.opcode == "control_start_as_clone"){
+                        std::cout<<"Running start as clone block " << block.id << std::endl;
+                        runBlock(block,&currentSprite);
+                    }
+                }
+           }
         }
+    }
         goto nextBlock;
     }
     if(block.opcode == "data_setvariableto"){
