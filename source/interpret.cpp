@@ -19,6 +19,10 @@ bool isNumber(const std::string& str) {
            std::all_of(str.begin() + start, str.end(), [](char c) { return std::isdigit(c) || c == '.'; });
 }
 
+std::string removeQuotations(std::string value) {
+    value.erase(std::remove_if(value.begin(),value.end(),[](char c){return c == '"';}),value.end());
+    return value;
+}
 
 
 void loadSprites(const nlohmann::json& json){
@@ -182,6 +186,71 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
     if(block.opcode == "sensing_timer"){
         return std::to_string(timer);
     }
+    if (block.opcode == "data_itemoflist") {
+        // Get the index input (evaluate it)
+        std::string indexStr = getInputValue(block.inputs["INDEX"], &block, sprite);
+        int index = std::stoi(indexStr) - 1; // Scratch uses 1-based indexing
+    
+        // Get the list ID from the block's fields
+        std::string listName = block.fields["LIST"][1];
+    
+        // Search every sprite for the list
+        for (Sprite& currentSprite : sprites) {
+            for (auto& [id, list] : currentSprite.lists) {
+                if (id == listName) {
+                    // Found the list
+                    if (index >= 0 && index < static_cast<int>(list.items.size())) {
+                        return removeQuotations(list.items[index]); // or assign to something if not returning
+                    } else {
+                        std::cerr << "Index out of bounds for list: " << listName << std::endl;
+                        return "";
+                    }
+                }
+            }
+        }
+    }
+
+    if(block.opcode == "data_itemnumoflist"){
+        std::cout << "Item num of list! " << std::endl;
+        std::string listName = block.fields["LIST"][1];
+        std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
+        // Search every sprite for the list
+        for (Sprite& currentSprite : sprites) {
+            for (auto& [id, list] : currentSprite.lists) {
+                if (id == listName) {
+                    // Found the list, search every list item for the item to find
+                    std::cout << "Found the list! " << std::endl;
+                    int index = 1;
+                    for(auto &item : list.items){
+                        std::cout << "item = " << item << "to find = " << itemToFind << std::endl;
+                        if(removeQuotations(item) == itemToFind){
+                            std::cout << "Found it! " << std::endl;
+                            return std::to_string(index);
+                            index++;
+                        }
+                    }
+                }
+            }
+    }
+    return "0";
+}
+
+if(block.opcode== "data_lengthoflist"){
+    std::cout << "Length of List! " << std::endl;
+    std::string listName = block.fields["LIST"][1];
+    // Search every sprite for the list
+    for (Sprite& currentSprite : sprites) {
+        for (auto& [id, list] : currentSprite.lists) {
+            if (id == listName) {
+                // Found the list
+                std::cout << "List size = " <<list.items.size()<< std::endl;
+                return std::to_string(list.items.size());
+            }
+        }
+    }
+    return "";
+}
+
     return "";
 }
 
@@ -207,12 +276,98 @@ void runBlock(Block block,Sprite*sprite){
         xVal = getInputValue(block.inputs["X"],&block,sprite);
         yVal = getInputValue(block.inputs["Y"],&block,sprite);
         if (isNumber(xVal))
-        sprite->xPosition = std::stoi(xVal);
-        else{std::cout<<"Set X Position invalid with pos " << xVal<< std::endl;}
+        sprite->xPosition = std::stod(xVal);
+        else{std::cerr<<"Set X Position invalid with pos " << xVal<< std::endl;}
         if (isNumber(yVal))
-        sprite->yPosition = std::stoi(yVal);
-        else{std::cout<<"Set Y Position invalid with pos " << xVal<< std::endl;}
+        sprite->yPosition = std::stod(yVal);
+        else{std::cerr<<"Set Y Position invalid with pos " << xVal<< std::endl;}
         goto nextBlock;
+    }
+    if(block.opcode == "motion_pointindirection"){
+        std::string value;
+        value = getInputValue(block.inputs["DIRECTION"],&block,sprite);
+        if(isNumber(value)){
+            sprite->rotation = std::stoi(value);
+            std::cout<<"Successfuly pointing in direction " << value << std::endl;
+        }
+        else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
+        goto nextBlock;
+    }
+    if(block.opcode == "motion_turnright"){
+        std::string value;
+        value = getInputValue(block.inputs["DEGREES"],&block,sprite);
+        if(isNumber(value)){
+            std::cout<<"Successfuly turned right " << value << " degrees."<< std::endl;
+            sprite->rotation += std::stoi(value);
+        }
+        else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
+        goto nextBlock;
+    }
+    if(block.opcode == "motion_turnleft"){
+        std::string value;
+        value = getInputValue(block.inputs["DEGREES"],&block,sprite);
+        if(isNumber(value)){
+            std::cout<<"Successfuly turned left " << value << " degrees."<< std::endl;
+            sprite->rotation += std::stoi(value);
+        }
+        else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
+        goto nextBlock;
+    }
+    if(block.opcode == "motion_changexby"){
+        std::string value;
+
+        value = getInputValue(block.inputs["DX"],&block,sprite);
+        if(isNumber(value)){
+            sprite->xPosition += std::stod(value);
+            std::cout<<"Successfuly Changed X position by " << value << " to " << sprite->xPosition << std::endl;
+        }
+        else{
+            std::cerr<<"invalid X position " << value << std::endl;
+        }
+        goto nextBlock;
+
+    }
+    if(block.opcode == "motion_changeyby"){
+        std::string value;
+
+        value = getInputValue(block.inputs["DY"],&block,sprite);
+        if(isNumber(value)){
+            sprite->xPosition += std::stod(value);
+            std::cout<<"Successfuly Changed Y position by " << value << " to " << sprite->yPosition << std::endl;
+        }
+        else{
+            std::cerr<<"invalid Y position " << value << std::endl;
+        }
+        goto nextBlock;
+
+    }
+    if(block.opcode == "motion_setx"){
+        std::string value;
+
+        value = getInputValue(block.inputs["X"],&block,sprite);
+        if(isNumber(value)){
+            sprite->xPosition = std::stod(value);
+            std::cout<<"Successfuly Changed X to " << sprite->xPosition << std::endl;
+        }
+        else{
+            std::cerr<<"invalid X position " << value << std::endl;
+        }
+        goto nextBlock;
+
+    }
+    if(block.opcode == "motion_sety"){
+        std::string value;
+
+        value = getInputValue(block.inputs["Y"],&block,sprite);
+        if(isNumber(value)){
+            sprite->yPosition = std::stod(value);
+            std::cout<<"Successfuly Changed Y to " << sprite->yPosition << std::endl;
+        }
+        else{
+            std::cerr<<"invalid Y position " << value << std::endl;
+        }
+        goto nextBlock;
+
     }
     if(block.opcode == "data_setvariableto"){
         std::string val;
