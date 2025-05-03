@@ -528,8 +528,10 @@ void runBlock(Block block,Sprite*sprite){
             std::cout<<"AIOUEYAIOWUEYAE " << spriteToClone.name << std::endl;
         }
         else{
+            
             for(Sprite &currentSprite : sprites){
-                if(currentSprite.name == cloneOptions.fields["CLONE_OPTION"][0] && !currentSprite.isClone){
+                std::cout<<"Cloning other sprite" << removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) << "with" << currentSprite.name << std::endl;
+                if(currentSprite.name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite.isClone == sprite->isClone){
                    spriteToClone = currentSprite;
                 }
             }
