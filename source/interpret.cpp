@@ -1,6 +1,6 @@
 #include "interpret.hpp"
 
-std::vector<Sprite> sprites;
+std::list<Sprite> sprites;
 std::unordered_map<std::string,Conditional> conditionals;
 double timer = 0;
 
@@ -266,6 +266,16 @@ Block findBlock(std::string blockId){
     Block null;
     null.id = "null";
     return null;
+}
+
+std::vector<Block> getBlockChain(std::string blockId){
+    std::vector<Block> blockChain;
+    Block currentBlock = findBlock(blockId);
+    while(currentBlock.id != "null"){
+        blockChain.push_back(currentBlock);
+        currentBlock = findBlock(currentBlock.next);
+    }
+    return blockChain;
 }
 
 bool runConditionalStatement(std::string blockId,Sprite* sprite){

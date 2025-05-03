@@ -5,8 +5,9 @@
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <list>
 
-extern std::vector<Sprite> sprites;
+extern std::list<Sprite> sprites;
 extern std::unordered_map<std::string,Conditional> conditionals;
 extern double timer;
 
