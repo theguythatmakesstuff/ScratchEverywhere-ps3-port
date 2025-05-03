@@ -623,7 +623,8 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
 
 
         if(!isChangingBy){
-            var.value = value;
+            double val = std::stod(value); // to make it consistent with changing variables
+            var.value = std::to_string(val);
         }
         else{
             if(isNumber(var.value) && isNumber(value)){
@@ -631,7 +632,8 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
             }
             else{
                 if(!isNumber(value)) return;
-                var.value = value;
+                double val = std::stod(value); // to make it consistent with changing variables
+                var.value = std::to_string(val);
             }
         }
 
@@ -645,7 +647,8 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                 Variable& var = currentSprite.variables[variableId];
         
                 if(!isChangingBy){
-                    var.value = value;
+                    double val = std::stod(value); // to make it consistent with changing variables
+                    var.value = std::to_string(val);
                 }
                 else{
                     if(isNumber(var.value) && isNumber(value)){
@@ -653,11 +656,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                     }
                     else{
                         if(!isNumber(value)) return;
-                        var.value = value;
+                        double val = std::stod(value); // to make it consistent with changing variables
+                        var.value = std::to_string(val);;
                     }
                 }
         
-                std::cout<<"Global Variable set. " << var.value << std::endl;
+                std::cout<<"Global Variable set to " << var.value << std::endl;
             }
         }
     }
