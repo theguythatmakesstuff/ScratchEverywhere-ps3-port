@@ -1,3 +1,7 @@
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #ifndef INTERPRET_H
 #define INTERPRET_H
 #include "sprite.hpp"
@@ -6,6 +10,8 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <list>
+#include <cmath>
+#include <vector>
 
 extern std::list<Sprite> sprites;
 extern std::vector<std::string> broadcastQueue;

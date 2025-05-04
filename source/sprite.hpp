@@ -77,6 +77,7 @@ struct Broadcast{
 class Sprite {
     public:
         std::string name;
+        std::string id;
         bool isStage;
         bool draggable;
         bool visible;

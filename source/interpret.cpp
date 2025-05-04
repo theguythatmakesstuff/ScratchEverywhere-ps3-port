@@ -21,6 +21,18 @@ bool isNumber(const std::string& str) {
            std::all_of(str.begin() + start, str.end(), [](char c) { return std::isdigit(c) || c == '.'; });
 }
 
+std::string generateRandomString(int length) {
+    std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    std::string result;
+    srand(time(0)); // Seed the random number generator
+
+    for (int i = 0; i < length; i++) {
+        result += chars[rand() % chars.size()];
+    }
+    
+    return result;
+}
+
 std::string removeQuotations(std::string value) {
     value.erase(std::remove_if(value.begin(),value.end(),[](char c){return c == '"';}),value.end());
     return value;
@@ -34,6 +46,7 @@ void loadSprites(const nlohmann::json& json){
         Sprite newSprite;
         if(target.contains("name")){
         newSprite.name = target["name"].get<std::string>();}
+        newSprite.id = generateRandomString(15);
         if(target.contains("isStage")){
         newSprite.isStage = target["isStage"].get<bool>();}
         if(target.contains("draggable")){
@@ -187,6 +200,142 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
     if(block.opcode == "sensing_timer"){
         return std::to_string(timer);
     }
+    if(block.opcode == "operator_add"){
+        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            return std::to_string(std::stod(value1) + std::stod(value2));
+        }
+    }
+    if(block.opcode == "operator_subtract"){
+        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            return std::to_string(std::stod(value1) - std::stod(value2));
+        }
+    }
+    if(block.opcode == "operator_multiply"){
+        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            return std::to_string(std::stod(value1) * std::stod(value2));
+        }
+    }
+    if(block.opcode == "operator_divide"){
+        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            return std::to_string(std::stod(value1) / std::stod(value2));
+        }
+    }
+    if(block.opcode == "operator_random"){
+        std::string value1 = getInputValue(block.inputs["FROM"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["TO"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            // if they are both integers
+           if(value1.find('.') == std::string::npos && value2.find('.') == std::string::npos){;
+            std::cout<<"Both are integers!"<< std::endl;
+            int from = std::stoi(value1);
+            int to = std::stoi(value2);
+            return std::to_string(rand() % (to - from + 1) + from);
+        }
+        else{
+            // if they are both floats
+            double from = std::stod(value1);
+            double to = std::stod(value2);
+            return std::to_string(from + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (to - from))));
+        }
+    }
+    if(block.opcode == "operator_join"){
+        std::string value1 = getInputValue(block.inputs["STRING1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["STRING2"],&block,sprite);
+        return value1 + value2;}
+    }
+    if(block.opcode == "operator_letter_of"){
+        std::string value1 = getInputValue(block.inputs["LETTER"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["STRING"],&block,sprite);
+        if(isNumber(value1) && !value2.empty()){
+            int index = std::stoi(value1) - 1; // -1 for Scratch's 1-based indexing :yawn:
+            if(index >= 0 && index < static_cast<int>(value2.size())){
+                return std::string(1,value2[index]);
+            }
+            else{
+                std::cerr << "Index out of bounds for string: " << value2 << std::endl;
+                return "";
+            }
+        }
+    }
+    if(block.opcode == "operator_length"){
+        std::string value1 = getInputValue(block.inputs["STRING"],&block,sprite);
+        if(!value1.empty()){
+            return std::to_string(value1.size());
+        }
+    }
+    if(block.opcode == "operator_mod"){
+        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            return std::to_string(std::fmod(std::stod(value1),std::stod(value2)));
+        }
+    }
+    if(block.opcode == "operator_round"){
+        std::string value1 = getInputValue(block.inputs["NUM"],&block,sprite);
+        if(isNumber(value1)){
+            return std::to_string(std::round(std::stod(value1)));
+        }
+    }
+    // the monstorous math operator block 🤒🤒
+    if(block.opcode == "operator_mathop"){
+        std::string inputValue = getInputValue(block.inputs["NUM"],&block,sprite);
+        if(isNumber(inputValue)){
+            if(block.fields["OPERATOR"][0] == "abs"){
+                return std::to_string(abs(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "floor"){
+                return std::to_string(floor(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "ceiling"){
+                return std::to_string(ceil(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "sqrt"){
+                return std::to_string(sqrt(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "sin"){
+                // c++ uses radians and scratch uses degrees so we have to convert
+                return std::to_string(sin(std::stod(inputValue) * M_PI / 180.0));
+            }
+            if(block.fields["OPERATOR"][0] == "cos"){
+                // same for this one
+                return std::to_string(cos(std::stod(inputValue) * M_PI / 180.0));
+            }
+            if(block.fields["OPERATOR"][0] == "tan"){
+                // and this one
+                return std::to_string(tan(std::stod(inputValue) * M_PI / 180.0));
+            }
+            if(block.fields["OPERATOR"][0] == "asin"){
+                // ok this is getting ridiculous
+                return std::to_string(asin(std::stod(inputValue)) * 180.0 / M_PI);
+            }
+            if(block.fields["OPERATOR"][0] == "acos"){
+                return std::to_string(acos(std::stod(inputValue)) * 180.0 / M_PI);
+            }
+            if(block.fields["OPERATOR"][0] == "atan"){
+                return std::to_string(atan(std::stod(inputValue)) * 180.0 / M_PI);
+            }
+            if(block.fields["OPERATOR"][0] == "ln"){
+                return std::to_string(log(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "log"){
+                return std::to_string(log10(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "e ^"){
+                return std::to_string(exp(std::stod(inputValue)));
+            }
+            if(block.fields["OPERATOR"][0] == "10 ^"){
+                return std::to_string(pow(10,std::stod(inputValue)));
+            }
+        }
+    }
     if (block.opcode == "data_itemoflist") {
         // Get the index input (evaluate it)
         std::string indexStr = getInputValue(block.inputs["INDEX"], &block, sprite);
@@ -325,6 +474,13 @@ bool runConditionalStatement(std::string blockId,Sprite* sprite){
             return true;
         }
     }
+    if(block.opcode == "operator_contains"){
+        std::string value1 = getInputValue(block.inputs["STRING1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["STRING2"],&block,sprite);
+        if(value1.find(value2) != std::string::npos){
+            return true;
+        }
+    }
 return false;
 }
 
@@ -346,8 +502,8 @@ void runBroadcasts(){
 
 void runBlock(Block block,Sprite*sprite){
     if (block.opcode == "motion_gotoxy") {
-        std::cout << "Setting X and Y position with sprite " << sprite->name
-          << " at address: " << sprite << std::endl;
+       // std::cout << "Setting X and Y position with sprite " << sprite->name
+       //   << " at address: " << sprite << std::endl;
         std::string xVal;
         std::string yVal;
 
@@ -483,9 +639,7 @@ void runBlock(Block block,Sprite*sprite){
         goto nextBlock;
     }
     if(block.opcode == "control_repeat_until"){
-        if(block.inputs["CONDITION"][1].is_null()){
-            goto nextBlock;
-        }
+
     // add conditional if there isn't one
     if(conditionals.find(block.id) == conditionals.end()){
        Conditional newConditional;
@@ -497,7 +651,7 @@ void runBlock(Block block,Sprite*sprite){
         conditionals[newConditional.id] = newConditional;
 }
         // set to true if the condition is false
-        if(!runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
+        if(block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
             conditionals[block.id].isTrue = true;
         }
         else{
@@ -509,6 +663,10 @@ void runBlock(Block block,Sprite*sprite){
             Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
            runBlock(subBlock,sprite);
            return;
+        }
+        // if the inside of the repeat loop is empty
+        if(conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()){
+            return;
         }
         goto nextBlock;
     }
@@ -539,6 +697,9 @@ void runBlock(Block block,Sprite*sprite){
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                runBlock(subBlock,sprite);
                return;
+            }
+            if(conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()){
+                return;
             }
             goto nextBlock;
         }
@@ -615,6 +776,7 @@ void runBlock(Block block,Sprite*sprite){
             }
             spriteToClone.isClone = true;
             spriteToClone.isStage = false;
+            spriteToClone.id = generateRandomString(15);
             std::unordered_map<std::string,Block> newBlocks;
             // only save start as clone and when broadcast received blocks.. this is REAAALY slow though so TODO change this later
             for(auto &[id,block] : spriteToClone.blocks){
@@ -626,9 +788,9 @@ void runBlock(Block block,Sprite*sprite){
                     }
             }
         }
-            spriteToClone.blocks.clear(); // TODO Change this later to all block except clone hat and underneath
+            spriteToClone.blocks.clear();
             spriteToClone.blocks = newBlocks;
-            spriteToClone.variables.clear();
+            //spriteToClone.variables.clear();
             sprites.push_back(spriteToClone);
             std::cout<<"Cloned sprite " << spriteToClone.name << std::endl;
             std::cout<<"Sprite count = " << sprites.size() << std::endl;
@@ -649,6 +811,11 @@ void runBlock(Block block,Sprite*sprite){
         }
     }
         goto nextBlock;
+    }
+    if(block.opcode == "control_delete_this_clone"){
+        std::cout<<"Deleting clone... " << sprite->name << std::endl;
+        sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [&](const Sprite& s) { return s.id == sprite->id && s.isClone; }), sprites.end());
+        return;
     }
     if(block.opcode == "data_setvariableto"){
         std::string val;

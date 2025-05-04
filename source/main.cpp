@@ -10,6 +10,7 @@
 #include <nlohmann/json.hpp>
 #include "interpret.hpp"
 #include "render.hpp"
+#include "input.hpp"
 
 // C:/Users/Wiz/Documents/CodingProjects/Scratch
 
@@ -83,21 +84,10 @@ int main(int argc, char **argv)
 	// Main loop
 	while (aptMainLoop())
 	{
-		//Scan all the inputs. This should be done once for each frame
-		hidScanInput();
-
-		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
-		u32 kDown = hidKeysDown();
-
-		if (kDown & KEY_START) break; // break in order to return to hbmenu
-
+		getInput();
 		runRepeatBlocks();
 		renderSprites();
 		
-
-
-		//gfxFlushBuffers();
-		//gfxSwapBuffers();
 		gspWaitForVBlank();
 	}
 
