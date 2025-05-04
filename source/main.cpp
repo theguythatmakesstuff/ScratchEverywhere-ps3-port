@@ -78,17 +78,6 @@ int main(int argc, char **argv)
 
 	loadSprites(project_json);
 
-	// for (const auto& target : project_json["targets"]) {
-    //     if (target["isStage"]) {
-    //         for (auto& [id, var] : target["variables"].items()) {
-	// 			std::string name = var[0];
-	// 			auto value = var[1];
-	// 			std::cout << name << " = " << value << std::endl;
-
-    //         }
-    //     }
-    // }
-
 	runAllBlocksByOpcode("event_whenflagclicked");
 
 	// Main loop
@@ -109,7 +98,7 @@ int main(int argc, char **argv)
 
 		//gfxFlushBuffers();
 		//gfxSwapBuffers();
-		//gspWaitForVBlank();
+		gspWaitForVBlank();
 	}
 
 	exitApp();

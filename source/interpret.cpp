@@ -86,8 +86,6 @@ void loadSprites(const nlohmann::json& json){
             newBlock.opcode = data["opcode"].get<std::string>();}
             if (data.contains("next") && !data["next"].is_null()){
             newBlock.next = data["next"].get<std::string>();}
-            //else newBlock.next = "";
-           // std::cout<<"next = "<< newBlock.next << std::endl;
             if (data.contains("parent") && !data["parent"].is_null()){
             newBlock.parent = data["parent"].get<std::string>();}
             if (data.contains("fields")){
@@ -166,6 +164,7 @@ void loadSprites(const nlohmann::json& json){
 
         sprites.push_back(newSprite);
     }
+    std::cout<<"Loaded " << sprites.size() << " sprites."<< std::endl;
 }
 
 std::string getValueOfBlock(Block block,Sprite*sprite){
@@ -287,6 +286,44 @@ bool runConditionalStatement(std::string blockId,Sprite* sprite){
             return true;
         }
     }
+    if(block.opcode == "operator_gt"){
+        std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            if(std::stod(value1) > std::stod(value2)){
+                return true;
+            }
+        }
+    }
+    if(block.opcode == "operator_lt"){
+        std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
+        std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);
+        if(isNumber(value1) && isNumber(value2)){
+            if(std::stod(value1) < std::stod(value2)){
+                return true;
+            }
+        }
+    }
+    if(block.opcode == "operator_and"){
+        bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1],sprite);
+        bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1],sprite);
+        if(value1&&value2){
+            return true;
+        }
+    }
+    if(block.opcode == "operator_or"){
+        bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1],sprite);
+        bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1],sprite);
+        if(value1||value2){
+            return true;
+        }
+    }
+    if(block.opcode == "operator_not"){
+        bool value = runConditionalStatement(block.inputs["OPERAND"][1],sprite);
+        if(!value){
+            return true;
+        }
+    }
 return false;
 }
 
@@ -395,6 +432,9 @@ void runBlock(Block block,Sprite*sprite){
 
     }
     if(block.opcode == "control_if"){
+        if(block.inputs["CONDITION"][1].is_null()){
+            goto nextBlock;
+        }
         if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
             if(!block.inputs["SUBSTACK"][1].is_null()){
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
@@ -404,6 +444,9 @@ void runBlock(Block block,Sprite*sprite){
         goto nextBlock;
     }
     if(block.opcode == "control_if_else"){
+        if(block.inputs["CONDITION"][1].is_null()){
+            goto nextBlock;
+        }
         if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
             if(!block.inputs["SUBSTACK"][1].is_null()){
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
@@ -419,6 +462,9 @@ void runBlock(Block block,Sprite*sprite){
         goto nextBlock;
     }
     if(block.opcode == "control_repeat_until"){
+        if(block.inputs["CONDITION"][1].is_null()){
+            goto nextBlock;
+        }
     // add conditional if there isn't one
     if(conditionals.find(block.id) == conditionals.end()){
        Conditional newConditional;
@@ -445,6 +491,9 @@ void runBlock(Block block,Sprite*sprite){
         goto nextBlock;
     }
     if(block.opcode == "control_while"){
+        if(block.inputs["CONDITION"][1].is_null()){
+            goto nextBlock;
+        }
         // add conditional if there isn't one
         if(conditionals.find(block.id) == conditionals.end()){
            Conditional newConditional;
@@ -512,6 +561,7 @@ void runBlock(Block block,Sprite*sprite){
         if(conditionals[block.id].times > 0){
             conditionals[block.id].isTrue = true;
             conditionals[block.id].times--;
+            return;
         }
         else{
             conditionals[block.id].isTrue = false;
