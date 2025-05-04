@@ -110,12 +110,33 @@ void loadSprites(const nlohmann::json& json){
             newBlock.topLevel = data["topLevel"].get<bool>();}
             if (data.contains("shadow")){
             newBlock.shadow = data["shadow"].get<bool>();}
+            if (data.contains("mutation")){
+                newBlock.mutation = data["mutation"];
+            }
             newSprite.blocks[newBlock.id] = newBlock; // add block
 
             // add custom function blocks
             if(newBlock.opcode == "procedures_prototype"){
                 CustomBlock newCustomBlock;
                 newCustomBlock.name = data["mutation"]["proccode"];
+                newCustomBlock.blockId = newBlock.id;
+
+                // custom blocks uses a different json structure for some reason?? have to parse them.
+                std::string rawArgumentNames = data["mutation"]["argumentnames"];
+                nlohmann::json parsedAN = nlohmann::json::parse(rawArgumentNames);
+                newCustomBlock.argumentNames = parsedAN.get<std::vector<std::string>>();
+
+                std::string rawArgumentDefaults = data["mutation"]["argumentdefaults"];
+                nlohmann::json parsedAD = nlohmann::json::parse(rawArgumentDefaults);
+                newCustomBlock.argumentDefaults = parsedAD.get<std::vector<std::string>>();
+
+                std::string rawArgumentIds = data["mutation"]["argumentids"];
+                nlohmann::json parsedAID = nlohmann::json::parse(rawArgumentIds);
+                newCustomBlock.argumentIds = parsedAID.get<std::vector<std::string>>();
+
+                if(data["mutation"]["warp"] == "true"){
+                newCustomBlock.runWithoutScreenRefresh = true;}
+                else newCustomBlock.runWithoutScreenRefresh = false;
 
                 newSprite.customBlocks[newCustomBlock.name] = newCustomBlock; // add custom block
             }
@@ -191,6 +212,11 @@ void loadSprites(const nlohmann::json& json){
 }
 
 std::string getValueOfBlock(Block block,Sprite*sprite){
+    if(block.opcode == "argument_reporter_string_number"){ // string from a custom block
+        std::cout<< "finding "  <<block.fields["VALUE"][0] <<std::endl;
+        return findCustomValue(block.fields["VALUE"][0],sprite,block);
+
+    } 
     if (block.opcode == "motion_xposition") {
         return std::to_string(sprite->xPosition);
     }
@@ -438,6 +464,17 @@ std::vector<Block> getBlockChain(std::string blockId){
 
 bool runConditionalStatement(std::string blockId,Sprite* sprite){
     Block block = findBlock(blockId);
+    
+    if(block.opcode == "argument_reporter_boolean"){ // string from a custom block
+        std::cout<< "B B BBB BBAAAAANG  "  <<block.fields["VALUE"][0] <<std::endl;
+       std::string value = findCustomValue(block.fields["VALUE"][0],sprite,block);
+       if(value == "1"){
+        return true;
+       }
+       else return false;
+
+    } 
+    
     if(block.opcode == "sensing_keypressed"){
         Block inputBlock = findBlock(block.inputs["KEY_OPTION"][1]);
         for(std::string button : inputButtons){
@@ -518,7 +555,71 @@ void runBroadcasts(){
     }
 }
 
-void runBlock(Block block,Sprite*sprite){
+std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) {
+    for (auto& [custId, custBlock] : sprite->customBlocks) {
+        // Find the index of valueName in argumentNames
+        auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
+        
+        if (it != custBlock.argumentNames.end()) {
+            // Get the index of the found argument name
+            size_t index = std::distance(custBlock.argumentNames.begin(), it);
+
+            // Ensure index is within bounds of argumentIds
+            if (index < custBlock.argumentIds.size()) {
+                std::string argumentId = custBlock.argumentIds[index];
+
+                // Find the value in argumentValues using argumentId
+                auto valueIt = custBlock.argumentValues.find(argumentId);
+                if (valueIt != custBlock.argumentValues.end()) {
+                    std::cout << "FOUND that shit BAAANG: " << valueIt->second << std::endl;
+                    return valueIt->second;
+                } else {
+                    std::cout << "Argument ID found, but no value exists for it." << std::endl;
+                }
+            } else {
+                std::cout << "Index out of bounds for argumentIds!" << std::endl;
+            }
+        }
+    }
+    return "";
+}
+
+
+void runCustomBlock(Sprite*sprite,Block block){
+    for(auto &[id,data] : sprite->customBlocks){
+        if(id == block.mutation["proccode"]){
+            std::cout<<"burrrrp"<<std::endl;
+            for(std::string arg : data.argumentIds){
+                if(!block.inputs[arg].is_null()){
+                    data.argumentValues[arg] = getInputValue(block.inputs[arg],&block,sprite);
+                    std::cout<<"yes! " << data.argumentValues[arg] <<std::endl;
+                }
+            }
+            std::cout<<data.blockId<<std::endl;
+            // run the parent of the prototype block since that block is the definition, containing all the blocks
+            runBlock(findBlock(findBlock(data.blockId).parent),sprite);
+        }
+    }
+
+}
+
+void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool withoutScreenRefresh = false){
+    if(block.opcode == "procedures_call"){
+        // add conditional if there isn't one
+    if(conditionals.find(block.id) == conditionals.end()){
+       Conditional newConditional;
+        newConditional.id = block.id;
+        newConditional.blockId = block.id;
+        newConditional.hostSprite = sprite;
+        newConditional.isTrue = false;
+        newConditional.times = -1;
+        conditionals[newConditional.id] = newConditional;
+    }
+
+        runCustomBlock(sprite,block);
+
+        goto nextBlock;
+    }
     if (block.opcode == "motion_gotoxy") {
        // std::cout << "Setting X and Y position with sprite " << sprite->name
        //   << " at address: " << sprite << std::endl;
@@ -862,7 +963,7 @@ nextBlock:
 if(!block.next.empty()){
     Block nextBlock = findBlock(block.next);
     if (nextBlock.id != "null"){
-        runBlock(nextBlock,sprite);
+        runBlock(nextBlock,sprite,waitingBlock,withoutScreenRefresh);
     }
 }
 else{
@@ -984,6 +1085,10 @@ std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
         } else {
             return getValueOfBlock(findBlock(item[1]), sprite);
         }
+    }
+    // 2 SEEMS to be a boolean
+    if(item[0] == 2){
+        return std::to_string(runConditionalStatement(findBlock(item[1]).id, sprite));
     }
     return "0";
 }

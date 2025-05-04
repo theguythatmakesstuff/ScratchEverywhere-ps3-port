@@ -60,6 +60,10 @@
 		"typeinfo": "cpp",
 		"ranges": "cpp",
 		"ratio": "cpp",
-		"any": "cpp"
+		"any": "cpp",
+		"deque": "cpp",
+		"forward_list": "cpp",
+		"list": "cpp",
+		"valarray": "cpp"
 	}
 }

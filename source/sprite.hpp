@@ -19,6 +19,7 @@ struct Block {
     std::string parent;
     std::unordered_map<std::string, nlohmann::json> inputs;
     std::unordered_map<std::string, nlohmann::json> fields;
+    std::unordered_map<std::string, nlohmann::json> mutation;
     bool shadow;
     bool topLevel;
 };
@@ -27,9 +28,11 @@ struct CustomBlock{
 
     std::string name;
     std::string tagName;
+    std::string blockId;
     std::vector<std::string> argumentIds;
     std::vector<std::string> argumentNames;
     std::vector<std::string> argumentDefaults;
+    std::unordered_map<std::string,std::string> argumentValues;
     bool runWithoutScreenRefresh;
 
 };
