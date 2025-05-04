@@ -6,7 +6,7 @@
 #include <3ds.h>
 
 
-std::vector<std::string> inputButtons;
+extern std::vector<std::string> inputButtons;
 
 void getInput();
 

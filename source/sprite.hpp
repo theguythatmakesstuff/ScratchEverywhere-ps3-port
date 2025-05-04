@@ -23,6 +23,17 @@ struct Block {
     bool topLevel;
 };
 
+struct CustomBlock{
+
+    std::string name;
+    std::string tagName;
+    std::vector<std::string> argumentIds;
+    std::vector<std::string> argumentNames;
+    std::vector<std::string> argumentDefaults;
+    bool runWithoutScreenRefresh;
+
+};
+
 struct Conditional{
     std::string id;
     std::string blockId;
@@ -100,6 +111,7 @@ class Sprite {
         std::unordered_map<std::string, Comment> comments;
         std::unordered_map<std::string, Broadcast> broadcasts;
         std::unordered_map<std::string, Conditional> conditionals;
+        std::unordered_map<std::string, CustomBlock> customBlocks;
     
         void loadFromJson(const nlohmann::json& json);
         void runScript(const std::string& blockId);

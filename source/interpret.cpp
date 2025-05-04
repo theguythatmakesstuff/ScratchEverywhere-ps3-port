@@ -111,6 +111,15 @@ void loadSprites(const nlohmann::json& json){
             if (data.contains("shadow")){
             newBlock.shadow = data["shadow"].get<bool>();}
             newSprite.blocks[newBlock.id] = newBlock; // add block
+
+            // add custom function blocks
+            if(newBlock.opcode == "procedures_prototype"){
+                CustomBlock newCustomBlock;
+                newCustomBlock.name = data["mutation"]["proccode"];
+
+                newSprite.customBlocks[newCustomBlock.name] = newCustomBlock; // add custom block
+            }
+
         }
 
         // set Lists
@@ -429,6 +438,15 @@ std::vector<Block> getBlockChain(std::string blockId){
 
 bool runConditionalStatement(std::string blockId,Sprite* sprite){
     Block block = findBlock(blockId);
+    if(block.opcode == "sensing_keypressed"){
+        Block inputBlock = findBlock(block.inputs["KEY_OPTION"][1]);
+        for(std::string button : inputButtons){
+            if(inputBlock.fields["KEY_OPTION"][0] == button){
+                return true;
+            }
+        }
+
+    }
     if(block.opcode == "operator_equals"){
         std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
         std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);

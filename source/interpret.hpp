@@ -12,6 +12,7 @@
 #include <list>
 #include <cmath>
 #include <vector>
+#include "input.hpp"
 
 extern std::list<Sprite> sprites;
 extern std::vector<std::string> broadcastQueue;
