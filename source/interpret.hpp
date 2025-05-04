@@ -28,7 +28,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite);
 bool runConditionalStatement(std::string blockId,Sprite* sprite);
 void runBroadcasts();
 void runCustomBlock(Sprite*sprite,Block block);
-void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool withoutScreenRefresh);
+void runBlock(Block block,Sprite*sprite,Block waitingBlock = Block(), bool withoutScreenRefresh = false);
 Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(std::string opcodeToFind);

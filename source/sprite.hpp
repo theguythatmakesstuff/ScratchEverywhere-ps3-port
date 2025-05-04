@@ -41,6 +41,7 @@ struct Conditional{
     std::string id;
     std::string blockId;
     Sprite* hostSprite;
+    Block waitingBlock;
     bool isTrue;
     int times;
 };

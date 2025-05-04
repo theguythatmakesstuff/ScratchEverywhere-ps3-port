@@ -597,13 +597,14 @@ void runCustomBlock(Sprite*sprite,Block block){
             }
             std::cout<<data.blockId<<std::endl;
             // run the parent of the prototype block since that block is the definition, containing all the blocks
-            runBlock(findBlock(findBlock(data.blockId).parent),sprite);
+
+            runBlock(findBlock(findBlock(data.blockId).parent),sprite,conditionals[block.id].waitingBlock);
         }
     }
 
 }
 
-void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool withoutScreenRefresh = false){
+void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRefresh){
     if(block.opcode == "procedures_call"){
         // add conditional if there isn't one
     if(conditionals.find(block.id) == conditionals.end()){
@@ -613,10 +614,14 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         newConditional.hostSprite = sprite;
         newConditional.isTrue = false;
         newConditional.times = -1;
+        newConditional.waitingBlock = findBlock(block.next);
         conditionals[newConditional.id] = newConditional;
     }
-
+        waitingBlock = findBlock(block.next);
+        std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
         runCustomBlock(sprite,block);
+        return;
+        
 
         goto nextBlock;
     }
@@ -673,7 +678,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         value = getInputValue(block.inputs["DX"],&block,sprite);
         if(isNumber(value)){
             sprite->xPosition += std::stod(value);
-            std::cout<<"Successfuly Changed X position by " << value << " to " << sprite->xPosition << std::endl;
+           // std::cout<<"Successfuly Changed X position by " << value << " to " << sprite->xPosition << std::endl;
         }
         else{
             std::cerr<<"invalid X position " << value << std::endl;
@@ -687,7 +692,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         value = getInputValue(block.inputs["DY"],&block,sprite);
         if(isNumber(value)){
             sprite->yPosition += std::stod(value);
-            std::cout<<"Successfuly Changed Y position by " << value << " to " << sprite->yPosition << std::endl;
+         //   std::cout<<"Successfuly Changed Y position by " << value << " to " << sprite->yPosition << std::endl;
         }
         else{
             std::cerr<<"invalid Y position " << value << std::endl;
@@ -701,7 +706,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         value = getInputValue(block.inputs["X"],&block,sprite);
         if(isNumber(value)){
             sprite->xPosition = std::stod(value);
-            std::cout<<"Successfuly Changed X to " << sprite->xPosition << std::endl;
+        //   std::cout<<"Successfuly Changed X to " << sprite->xPosition << std::endl;
         }
         else{
             std::cerr<<"invalid X position " << value << std::endl;
@@ -715,7 +720,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         value = getInputValue(block.inputs["Y"],&block,sprite);
         if(isNumber(value)){
             sprite->yPosition = std::stod(value);
-            std::cout<<"Successfuly Changed Y to " << sprite->yPosition << std::endl;
+          //  std::cout<<"Successfuly Changed Y to " << sprite->yPosition << std::endl;
         }
         else{
             std::cerr<<"invalid Y position " << value << std::endl;
@@ -767,6 +772,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         newConditional.hostSprite = sprite;
         newConditional.isTrue = false;
         newConditional.times = -1;
+        newConditional.waitingBlock = waitingBlock;
         conditionals[newConditional.id] = newConditional;
 }
         // set to true if the condition is false
@@ -775,6 +781,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         }
         else{
             conditionals[block.id].isTrue = false;
+            waitingBlock = conditionals[block.id].waitingBlock;
         }
 
         // run the block inside the repeat loop
@@ -801,6 +808,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
             newConditional.hostSprite = sprite;
             newConditional.isTrue = false;
             newConditional.times = -1;
+            newConditional.waitingBlock = waitingBlock;
             conditionals[newConditional.id] = newConditional;
     }
             // set to true if the condition is true
@@ -809,6 +817,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
             }
             else{
                 conditionals[block.id].isTrue = false;
+                waitingBlock = conditionals[block.id].waitingBlock;
             }
     
             // run the block inside the repeat loop
@@ -831,6 +840,7 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
             newConditional.hostSprite = sprite;
             newConditional.isTrue = false;
             newConditional.times = -1;
+            newConditional.waitingBlock = waitingBlock;
             conditionals[newConditional.id] = newConditional;
         }
 
@@ -851,9 +861,10 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
               newConditional.hostSprite = sprite;
              newConditional.isTrue = false;
              newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"],&block,sprite));
+             newConditional.waitingBlock = waitingBlock;
              conditionals[newConditional.id] = newConditional;
          }
-         std::cout<<"Running repeat block " << conditionals[block.id].times << std::endl;
+        // std::cout<<"Running repeat block " << conditionals[block.id].times << std::endl;
 
          // run the block inside the repeat loop
         if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
@@ -868,6 +879,8 @@ void runBlock(Block block,Sprite*sprite,Block* waitingBlock = nullptr, bool with
         }
         else{
             conditionals[block.id].isTrue = false;
+            waitingBlock = conditionals[block.id].waitingBlock;
+            std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
         }
         goto nextBlock;
     }
@@ -968,6 +981,9 @@ if(!block.next.empty()){
 }
 else{
     runBroadcasts();
+    if(!waitingBlock.id.empty()){
+        runBlock(waitingBlock,sprite,Block(),withoutScreenRefresh);
+    }
 }
 }
 
