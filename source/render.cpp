@@ -7,6 +7,8 @@ C3D_RenderTarget* topScreen = nullptr;
 C3D_RenderTarget* bottomScreen = nullptr;
 u32 clrWhite = C2D_Color32f(1,1,1,1);
 u32 clrBlack = C2D_Color32f(0,0,0,1);
+std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
 
 void renderInit(){
@@ -43,6 +45,11 @@ void renderSprites(){
     }
     //C2D_Flush();
     C3D_FrameEnd(0);
+    endTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = endTime - startTime;
+    int FPS = 1000.0 / std::round(duration.count());
+    std::cout << "\x1b[8;0HCPU: " <<C3D_GetProcessingTime()*6.0f<<"\nGPU: "<< C3D_GetDrawingTime()*6.0f << "\nCmdBuf: " <<C3D_GetCmdBufUsage()*100.0f << "\nFPS: " << FPS <<  std::endl;
+    startTime = std::chrono::high_resolution_clock::now();
 }
 
 void renderDeInit(){

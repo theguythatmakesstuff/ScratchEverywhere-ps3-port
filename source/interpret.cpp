@@ -213,7 +213,7 @@ void loadSprites(const nlohmann::json& json){
 
 std::string getValueOfBlock(Block block,Sprite*sprite){
     if(block.opcode == "argument_reporter_string_number"){ // string from a custom block
-        std::cout<< "finding "  <<block.fields["VALUE"][0] <<std::endl;
+       // std::cout<< "finding "  <<block.fields["VALUE"][0] <<std::endl;
         return findCustomValue(block.fields["VALUE"][0],sprite,block);
 
     } 
@@ -269,7 +269,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         if(isNumber(value1) && isNumber(value2)){
             // if they are both integers
            if(value1.find('.') == std::string::npos && value2.find('.') == std::string::npos){;
-            std::cout<<"Both are integers!"<< std::endl;
+           // std::cout<<"Both are integers!"<< std::endl;
             int from = std::stoi(value1);
             int to = std::stoi(value2);
             return std::to_string(rand() % (to - from + 1) + from);
@@ -396,7 +396,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
     }
 
     if(block.opcode == "data_itemnumoflist"){
-        std::cout << "Item num of list! " << std::endl;
+        //std::cout << "Item num of list! " << std::endl;
         std::string listName = block.fields["LIST"][1];
         std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
         // Search every sprite for the list
@@ -404,12 +404,12 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             for (auto& [id, list] : currentSprite.lists) {
                 if (id == listName) {
                     // Found the list, search every list item for the item to find
-                    std::cout << "Found the list! " << std::endl;
+                   // std::cout << "Found the list! " << std::endl;
                     int index = 1;
                     for(auto &item : list.items){
-                        std::cout << "item = " << item << "to find = " << itemToFind << std::endl;
+                     //   std::cout << "item = " << item << "to find = " << itemToFind << std::endl;
                         if(removeQuotations(item) == itemToFind){
-                            std::cout << "Found it! " << std::endl;
+                           // std::cout << "Found it! " << std::endl;
                             return std::to_string(index);
                             index++;
                         }
@@ -421,14 +421,14 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
 }
 
 if(block.opcode== "data_lengthoflist"){
-    std::cout << "Length of List! " << std::endl;
+   // std::cout << "Length of List! " << std::endl;
     std::string listName = block.fields["LIST"][1];
     // Search every sprite for the list
     for (Sprite& currentSprite : sprites) {
         for (auto& [id, list] : currentSprite.lists) {
             if (id == listName) {
                 // Found the list
-                std::cout << "List size = " <<list.items.size()<< std::endl;
+               // std::cout << "List size = " <<list.items.size()<< std::endl;
                 return std::to_string(list.items.size());
             }
         }
@@ -466,7 +466,7 @@ bool runConditionalStatement(std::string blockId,Sprite* sprite){
     Block block = findBlock(blockId);
     
     if(block.opcode == "argument_reporter_boolean"){ // string from a custom block
-        std::cout<< "B B BBB BBAAAAANG  "  <<block.fields["VALUE"][0] <<std::endl;
+      //  std::cout<< "B B BBB BBAAAAANG  "  <<block.fields["VALUE"][0] <<std::endl;
        std::string value = findCustomValue(block.fields["VALUE"][0],sprite,block);
        if(value == "1"){
         return true;
@@ -542,11 +542,11 @@ return false;
 void runBroadcasts(){
     while(!broadcastQueue.empty()){
         std::string broadcastName = broadcastQueue.front();
-        std::cout<<"Broadcasting " << broadcastName << std::endl;
+       // std::cout<<"Broadcasting " << broadcastName << std::endl;
         for(Sprite &currentSprite : sprites){
                     for(auto &[id,block] : currentSprite.blocks){
                         if(block.opcode == "event_whenbroadcastreceived" && block.fields["BROADCAST_OPTION"][0] == broadcastName){
-                            std::cout<<"Running broadcast block " << block.id << std::endl;
+                           // std::cout<<"Running broadcast block " << block.id << std::endl;
                             runBlock(block,&currentSprite);
                         }
                     }
@@ -571,13 +571,13 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
                 // Find the value in argumentValues using argumentId
                 auto valueIt = custBlock.argumentValues.find(argumentId);
                 if (valueIt != custBlock.argumentValues.end()) {
-                    std::cout << "FOUND that shit BAAANG: " << valueIt->second << std::endl;
+                   // std::cout << "FOUND that shit BAAANG: " << valueIt->second << std::endl;
                     return valueIt->second;
                 } else {
-                    std::cout << "Argument ID found, but no value exists for it." << std::endl;
+                   // std::cout << "Argument ID found, but no value exists for it." << std::endl;
                 }
             } else {
-                std::cout << "Index out of bounds for argumentIds!" << std::endl;
+              //  std::cout << "Index out of bounds for argumentIds!" << std::endl;
             }
         }
     }
@@ -588,14 +588,14 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
 void runCustomBlock(Sprite*sprite,Block block){
     for(auto &[id,data] : sprite->customBlocks){
         if(id == block.mutation["proccode"]){
-            std::cout<<"burrrrp"<<std::endl;
+           // std::cout<<"burrrrp"<<std::endl;
             for(std::string arg : data.argumentIds){
                 if(!block.inputs[arg].is_null()){
                     data.argumentValues[arg] = getInputValue(block.inputs[arg],&block,sprite);
-                    std::cout<<"yes! " << data.argumentValues[arg] <<std::endl;
+                    //std::cout<<"yes! " << data.argumentValues[arg] <<std::endl;
                 }
             }
-            std::cout<<data.blockId<<std::endl;
+           // std::cout<<data.blockId<<std::endl;
             // run the parent of the prototype block since that block is the definition, containing all the blocks
             
             runBlock(findBlock(findBlock(data.blockId).parent),sprite,conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
@@ -605,6 +605,9 @@ void runCustomBlock(Sprite*sprite,Block block){
 }
 
 void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRefresh){
+   
+    auto start = std::chrono::high_resolution_clock::now();
+
     if(block.opcode == "procedures_call"){
         // add conditional if there isn't one
     if(conditionals.find(block.id) == conditionals.end()){
@@ -618,7 +621,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         conditionals[newConditional.id] = newConditional;
     }
         waitingBlock = findBlock(block.next);
-        std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
+       // std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
         runCustomBlock(sprite,block);
         return;
         
@@ -647,7 +650,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         value = getInputValue(block.inputs["DIRECTION"],&block,sprite);
         if(isNumber(value)){
             sprite->rotation = std::stoi(value);
-            std::cout<<"Successfuly pointing in direction " << value << std::endl;
+            //std::cout<<"Successfuly pointing in direction " << value << std::endl;
         }
         else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
         goto nextBlock;
@@ -656,7 +659,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         std::string value;
         value = getInputValue(block.inputs["DEGREES"],&block,sprite);
         if(isNumber(value)){
-            std::cout<<"Successfuly turned right " << value << " degrees."<< std::endl;
+           // std::cout<<"Successfuly turned right " << value << " degrees."<< std::endl;
             sprite->rotation += std::stoi(value);
         }
         else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
@@ -666,7 +669,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         std::string value;
         value = getInputValue(block.inputs["DEGREES"],&block,sprite);
         if(isNumber(value)){
-            std::cout<<"Successfuly turned left " << value << " degrees."<< std::endl;
+           // std::cout<<"Successfuly turned left " << value << " degrees."<< std::endl;
             sprite->rotation += std::stoi(value);
         }
         else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
@@ -884,23 +887,23 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         else{
             conditionals[block.id].isTrue = false;
             waitingBlock = conditionals[block.id].waitingBlock;
-            std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
+           // std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
         }
         goto nextBlock;
     }
     if(block.opcode == "control_create_clone_of"){
-        std::cout<<"Cloning sprite... " << sprite->name << std::endl;
-        std::cout<<"Sprite count = " << sprites.size() << std::endl;
+       // std::cout<<"Cloning sprite... " << sprite->name << std::endl;
+       // std::cout<<"Sprite count = " << sprites.size() << std::endl;
         Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
         Sprite spriteToClone;
         if(cloneOptions.fields["CLONE_OPTION"][0] == "_myself_"){
             spriteToClone = *sprite;
-            std::cout<<"Cloning Myself " << spriteToClone.name << std::endl;
+        //    std::cout<<"Cloning Myself " << spriteToClone.name << std::endl;
         }
         else{
             
             for(Sprite &currentSprite : sprites){
-                std::cout<<"Cloning other sprite" << removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) << "with" << currentSprite.name << std::endl;
+             //   std::cout<<"Cloning other sprite" << removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) << "with" << currentSprite.name << std::endl;
                 if(currentSprite.name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite.isClone == sprite->isClone){
                    spriteToClone = currentSprite;
                 }
@@ -928,18 +931,18 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
             spriteToClone.blocks = newBlocks;
             //spriteToClone.variables.clear();
             sprites.push_back(spriteToClone);
-            std::cout<<"Cloned sprite " << spriteToClone.name << std::endl;
-            std::cout<<"Sprite count = " << sprites.size() << std::endl;
+           // std::cout<<"Cloned sprite " << spriteToClone.name << std::endl;
+           // std::cout<<"Sprite count = " << sprites.size() << std::endl;
             
             // stuff to run when i start as clone block
            Sprite* addedSprite = &sprites.back();
           
            for(Sprite &currentSprite : sprites){
             if(&currentSprite == addedSprite){
-                std::cout<<"Found sprite " << currentSprite.name << std::endl;
+            //    std::cout<<"Found sprite " << currentSprite.name << std::endl;
                 for(auto &[id,block] : currentSprite.blocks){
                     if(block.opcode == "control_start_as_clone"){
-                        std::cout<<"Running start as clone block " << block.id << std::endl;
+                    //    std::cout<<"Running start as clone block " << block.id << std::endl;
                         runBlock(block,&currentSprite);
                     }
                 }
@@ -949,7 +952,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         goto nextBlock;
     }
     if(block.opcode == "control_delete_this_clone"){
-        std::cout<<"Deleting clone... " << sprite->name << std::endl;
+       // std::cout<<"Deleting clone... " << sprite->name << std::endl;
         sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [&](const Sprite& s) { return s.id == sprite->id && s.isClone; }), sprites.end());
         return;
     }
@@ -957,7 +960,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         std::string val;
         std::string varId = block.fields["VARIABLE"][1];
         val = getInputValue(block.inputs["VALUE"],&block,sprite);
-        std::cout<<"Setting Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
+       // std::cout<<"Setting Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
         setVariableValue(varId,val,sprite,false);
         goto nextBlock;
     }
@@ -965,7 +968,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         std::string val;
         std::string varId = block.fields["VARIABLE"][1];
         val = getInputValue(block.inputs["VALUE"],&block,sprite);
-        std::cout<<"Changing Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
+       // std::cout<<"Changing Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
         setVariableValue(varId,val,sprite,true);
         goto nextBlock;
     }
@@ -977,6 +980,10 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
 
 
 nextBlock:
+auto end = std::chrono::high_resolution_clock::now();
+std::chrono::duration<double, std::milli> duration = end - start;
+if(duration.count() > 10){
+std::cout << "\x1b[14;0H" << block.opcode << " took " << duration.count() << " milliseconds!";}
 if(!block.next.empty()){
     Block nextBlock = findBlock(block.next);
     if (nextBlock.id != "null"){
@@ -1036,7 +1043,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
             }
         }
 
-        std::cout<<"Local Variable set. " << sprite->variables[variableId].value << std::endl;
+        //std::cout<<"Local Variable set. " << sprite->variables[variableId].value << std::endl;
 
     }
     // global Variable (TODO fix redundant code later :grin:)
@@ -1068,7 +1075,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                     }
                 }
         
-                std::cout<<"Global Variable set to " << var.value << std::endl;
+               // std::cout<<"Global Variable set to " << var.value << std::endl;
             }
         }
     }
@@ -1083,12 +1090,12 @@ std::string getVariableValue(std::string variableId){
             }
         }
         // check if it's a list instead
-        std::cout<<"Checking list " << variableId << std::endl;
+      //  std::cout<<"Checking list " << variableId << std::endl;
         for(const auto &[id,data] : currentSprite.lists){
             if(id == variableId){
                 std::string finalValue;
                 for(const auto &listItem : data.items){
-                    std::cout<<"Found one " << std::endl;
+               //     std::cout<<"Found one " << std::endl;
                     finalValue += listItem + " ";
                 }
                 finalValue.pop_back(); // remove extra space
@@ -1136,7 +1143,7 @@ std::vector<Sprite*> findSprite(std::string spriteName){
 
 
 void runAllBlocksByOpcode(std::string opcodeToFind){
-    std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
+    //std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
     for(Sprite &currentSprite : sprites){
         for(auto &[id,data] : currentSprite.blocks){
             if(data.opcode == opcodeToFind){

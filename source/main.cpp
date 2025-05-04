@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 		runRepeatBlocks();
 		renderSprites();
 		
-		gspWaitForVBlank();
+		//gspWaitForVBlank();
 	}
 
 	exitApp();

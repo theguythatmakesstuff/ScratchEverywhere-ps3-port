@@ -13,6 +13,7 @@
 #include <cmath>
 #include <vector>
 #include "input.hpp"
+#include <chrono>
 
 extern std::list<Sprite> sprites;
 extern std::vector<std::string> broadcastQueue;
