@@ -597,8 +597,8 @@ void runCustomBlock(Sprite*sprite,Block block){
             }
             std::cout<<data.blockId<<std::endl;
             // run the parent of the prototype block since that block is the definition, containing all the blocks
-
-            runBlock(findBlock(findBlock(data.blockId).parent),sprite,conditionals[block.id].waitingBlock);
+            
+            runBlock(findBlock(findBlock(data.blockId).parent),sprite,conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
         }
     }
 
@@ -773,6 +773,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
         newConditional.isTrue = false;
         newConditional.times = -1;
         newConditional.waitingBlock = waitingBlock;
+        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
         conditionals[newConditional.id] = newConditional;
 }
         // set to true if the condition is false
@@ -809,6 +810,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
             newConditional.isTrue = false;
             newConditional.times = -1;
             newConditional.waitingBlock = waitingBlock;
+            newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
             conditionals[newConditional.id] = newConditional;
     }
             // set to true if the condition is true
@@ -841,6 +843,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
             newConditional.isTrue = false;
             newConditional.times = -1;
             newConditional.waitingBlock = waitingBlock;
+            newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
             conditionals[newConditional.id] = newConditional;
         }
 
@@ -862,6 +865,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRe
              newConditional.isTrue = false;
              newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"],&block,sprite));
              newConditional.waitingBlock = waitingBlock;
+             newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
              conditionals[newConditional.id] = newConditional;
          }
         // std::cout<<"Running repeat block " << conditionals[block.id].times << std::endl;
@@ -991,7 +995,14 @@ void runRepeatBlocks(){
     //std::cout<<"Running repeat blocks..."<< std::endl;
     for(const auto &[id,data] : conditionals){
         if(data.isTrue){
+            if(data.runWithoutScreenRefresh){
+                while(data.isTrue){
+                    runBlock(findBlock(data.blockId),data.hostSprite);
+                }
+            }
+            else{
             runBlock(findBlock(data.blockId),data.hostSprite);
+            }
             
         }
     }

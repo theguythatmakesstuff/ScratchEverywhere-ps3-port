@@ -42,6 +42,7 @@ struct Conditional{
     std::string blockId;
     Sprite* hostSprite;
     Block waitingBlock;
+    bool runWithoutScreenRefresh;
     bool isTrue;
     int times;
 };
