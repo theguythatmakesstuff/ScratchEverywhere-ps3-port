@@ -1,6 +1,7 @@
 #include "interpret.hpp"
 
 std::list<Sprite> sprites;
+std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string,Conditional> conditionals;
 double timer = 0;
 
@@ -327,6 +328,22 @@ bool runConditionalStatement(std::string blockId,Sprite* sprite){
 return false;
 }
 
+void runBroadcasts(){
+    while(!broadcastQueue.empty()){
+        std::string broadcastName = broadcastQueue.front();
+        std::cout<<"Broadcasting " << broadcastName << std::endl;
+        for(Sprite &currentSprite : sprites){
+                    for(auto &[id,block] : currentSprite.blocks){
+                        if(block.opcode == "event_whenbroadcastreceived" && block.fields["BROADCAST_OPTION"][0] == broadcastName){
+                            std::cout<<"Running broadcast block " << block.id << std::endl;
+                            runBlock(block,&currentSprite);
+                        }
+                    }
+        }
+        broadcastQueue.erase(broadcastQueue.begin());
+    }
+}
+
 void runBlock(Block block,Sprite*sprite){
     if (block.opcode == "motion_gotoxy") {
         std::cout << "Setting X and Y position with sprite " << sprite->name
@@ -431,6 +448,10 @@ void runBlock(Block block,Sprite*sprite){
         goto nextBlock;
 
     }
+    if(block.opcode == "event_broadcast"){
+        broadcastQueue.push_back(getInputValue(block.inputs["BROADCAST_INPUT"],&block,sprite));
+        goto nextBlock;
+    }
     if(block.opcode == "control_if"){
         if(block.inputs["CONDITION"][1].is_null()){
             goto nextBlock;
@@ -487,6 +508,7 @@ void runBlock(Block block,Sprite*sprite){
         if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
             Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
            runBlock(subBlock,sprite);
+           return;
         }
         goto nextBlock;
     }
@@ -516,6 +538,7 @@ void runBlock(Block block,Sprite*sprite){
             if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                runBlock(subBlock,sprite);
+               return;
             }
             goto nextBlock;
         }
@@ -575,7 +598,7 @@ void runBlock(Block block,Sprite*sprite){
         Sprite spriteToClone;
         if(cloneOptions.fields["CLONE_OPTION"][0] == "_myself_"){
             spriteToClone = *sprite;
-            std::cout<<"AIOUEYAIOWUEYAE " << spriteToClone.name << std::endl;
+            std::cout<<"Cloning Myself " << spriteToClone.name << std::endl;
         }
         else{
             
@@ -585,7 +608,7 @@ void runBlock(Block block,Sprite*sprite){
                    spriteToClone = currentSprite;
                 }
             }
-        }
+        } 
         if (!spriteToClone.name.empty()){
             for(auto &[id,conditional]: spriteToClone.conditionals){
                 conditional.hostSprite = &spriteToClone;
@@ -593,8 +616,10 @@ void runBlock(Block block,Sprite*sprite){
             spriteToClone.isClone = true;
             spriteToClone.isStage = false;
             std::unordered_map<std::string,Block> newBlocks;
+            // only save start as clone and when broadcast received blocks.. this is REAAALY slow though so TODO change this later
             for(auto &[id,block] : spriteToClone.blocks){
                 if(block.opcode == "control_start_as_clone" || block.opcode == "event_whenbroadcastreceived"){
+                    // problem code. TODO fix this later :grin:
                     std::vector<Block> blockChain = getBlockChain(block.id);
                     for (const Block& block : blockChain) {
                         newBlocks[block.id] = block;
@@ -655,6 +680,9 @@ if(!block.next.empty()){
         runBlock(nextBlock,sprite);
     }
 }
+else{
+    runBroadcasts();
+}
 }
 
 void runRepeatBlocks(){
@@ -673,8 +701,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
 
 
         if(!isChangingBy){
+            if(isNumber(value)){
             double val = std::stod(value); // to make it consistent with changing variables
-            var.value = std::to_string(val);
+            var.value = std::to_string(val);}
+            else{
+                var.value = value;
+            }
         }
         else{
             if(isNumber(var.value) && isNumber(value)){
@@ -682,8 +714,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
             }
             else{
                 if(!isNumber(value)) return;
-                double val = std::stod(value); // to make it consistent with changing variables
-                var.value = std::to_string(val);
+                if(isNumber(value)){
+                    double val = std::stod(value); // to make it consistent with changing variables
+                    var.value = std::to_string(val);}
+                    else{
+                        var.value = value;
+                    }
             }
         }
 
@@ -697,8 +733,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                 Variable& var = currentSprite.variables[variableId];
         
                 if(!isChangingBy){
-                    double val = std::stod(value); // to make it consistent with changing variables
-                    var.value = std::to_string(val);
+                    if(isNumber(value)){
+                        double val = std::stod(value); // to make it consistent with changing variables
+                        var.value = std::to_string(val);}
+                        else{
+                            var.value = value;
+                        }
                 }
                 else{
                     if(isNumber(var.value) && isNumber(value)){
@@ -706,8 +746,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                     }
                     else{
                         if(!isNumber(value)) return;
-                        double val = std::stod(value); // to make it consistent with changing variables
-                        var.value = std::to_string(val);;
+                        if(isNumber(value)){
+                            double val = std::stod(value); // to make it consistent with changing variables
+                            var.value = std::to_string(val);}
+                            else{
+                                var.value = value;
+                            }
                     }
                 }
         

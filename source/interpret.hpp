@@ -8,6 +8,7 @@
 #include <list>
 
 extern std::list<Sprite> sprites;
+extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string,Conditional> conditionals;
 extern double timer;
 
@@ -17,6 +18,7 @@ void runRepeatBlocks();
 std::string removeQuotations(std::string value);
 std::string getValueOfBlock(Block block,Sprite*sprite);
 bool runConditionalStatement(std::string blockId,Sprite* sprite);
+void runBroadcasts();
 void runBlock(Block block,Sprite*sprite);
 Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
