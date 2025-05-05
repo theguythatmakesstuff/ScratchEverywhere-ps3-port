@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 
 	loadSprites(project_json);
 
-	runAllBlocksByOpcode("event_whenflagclicked");
+	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
 	// Main loop
 	while (aptMainLoop())

@@ -97,7 +97,7 @@ void loadSprites(const nlohmann::json& json){
             Block newBlock;
             newBlock.id = id;
             if (data.contains("opcode")){
-            newBlock.opcode = data["opcode"].get<std::string>();}
+            newBlock.opcode = newBlock.stringToOpcode(data["opcode"].get<std::string>());}
             if (data.contains("next") && !data["next"].is_null()){
             newBlock.next = data["next"].get<std::string>();}
             if (data.contains("parent") && !data["parent"].is_null()){
@@ -116,7 +116,7 @@ void loadSprites(const nlohmann::json& json){
             newSprite.blocks[newBlock.id] = newBlock; // add block
 
             // add custom function blocks
-            if(newBlock.opcode == "procedures_prototype"){
+            if(newBlock.opcode == newBlock.PROCEDURES_PROTOTYPE){
                 CustomBlock newCustomBlock;
                 newCustomBlock.name = data["mutation"]["proccode"];
                 newCustomBlock.blockId = newBlock.id;
@@ -212,232 +212,225 @@ void loadSprites(const nlohmann::json& json){
 }
 
 std::string getValueOfBlock(Block block,Sprite*sprite){
-    if(block.opcode == "argument_reporter_string_number"){ // string from a custom block
-       // std::cout<< "finding "  <<block.fields["VALUE"][0] <<std::endl;
-        return findCustomValue(block.fields["VALUE"][0],sprite,block);
-
-    } 
-    if (block.opcode == "motion_xposition") {
-        return std::to_string(sprite->xPosition);
-    }
-    if (block.opcode == "motion_yposition") {
-        return std::to_string(sprite->yPosition);
-    }
-    if(block.opcode == "motion_direction"){
-        return std::to_string(sprite->rotation);
-    }
-    if(block.opcode == "looks_size"){
-        return std::to_string(sprite->size);
-    }
-    if(block.opcode == "sound_volume"){
-        return std::to_string(sprite->volume);
-    }
-    if(block.opcode == "sensing_timer"){
-        return std::to_string(timer);
-    }
-    if(block.opcode == "operator_add"){
-        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            return std::to_string(std::stod(value1) + std::stod(value2));
+    switch (block.opcode) {
+        case Block::ARGUMENT_REPORTER_STRING_NUMBER: {
+            return findCustomValue(block.fields["VALUE"][0], sprite, block);
         }
-    }
-    if(block.opcode == "operator_subtract"){
-        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            return std::to_string(std::stod(value1) - std::stod(value2));
+        case Block::MOTION_XPOSITION: {
+            return std::to_string(sprite->xPosition);
         }
-    }
-    if(block.opcode == "operator_multiply"){
-        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            return std::to_string(std::stod(value1) * std::stod(value2));
+        case Block::MOTION_YPOSITION: {
+            return std::to_string(sprite->yPosition);
         }
-    }
-    if(block.opcode == "operator_divide"){
-        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            return std::to_string(std::stod(value1) / std::stod(value2));
+        case Block::MOTION_DIRECTION: {
+            return std::to_string(sprite->rotation);
         }
-    }
-    if(block.opcode == "operator_random"){
-        std::string value1 = getInputValue(block.inputs["FROM"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["TO"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            // if they are both integers
-           if(value1.find('.') == std::string::npos && value2.find('.') == std::string::npos){;
-           // std::cout<<"Both are integers!"<< std::endl;
-            int from = std::stoi(value1);
-            int to = std::stoi(value2);
-            return std::to_string(rand() % (to - from + 1) + from);
+        case Block::LOOKS_SIZE: {
+            return std::to_string(sprite->size);
         }
-        else{
-            // if they are both floats
-            double from = std::stod(value1);
-            double to = std::stod(value2);
-            return std::to_string(from + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (to - from))));
+        case Block::SOUND_VOLUME: {
+            return std::to_string(sprite->volume);
         }
-    }
-    if(block.opcode == "operator_join"){
-        std::string value1 = getInputValue(block.inputs["STRING1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["STRING2"],&block,sprite);
-        return value1 + value2;}
-    }
-    if(block.opcode == "operator_letter_of"){
-        std::string value1 = getInputValue(block.inputs["LETTER"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["STRING"],&block,sprite);
-        if(isNumber(value1) && !value2.empty()){
-            int index = std::stoi(value1) - 1; // -1 for Scratch's 1-based indexing :yawn:
-            if(index >= 0 && index < static_cast<int>(value2.size())){
-                return std::string(1,value2[index]);
-            }
-            else{
-                std::cerr << "Index out of bounds for string: " << value2 << std::endl;
-                return "";
-            }
+        case Block::SENSING_TIMER: {
+            return std::to_string(timer);
         }
-    }
-    if(block.opcode == "operator_length"){
-        std::string value1 = getInputValue(block.inputs["STRING"],&block,sprite);
-        if(!value1.empty()){
-            return std::to_string(value1.size());
+        case Block::OPERATOR_ADD: {
+            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::to_string(std::stod(value1) + std::stod(value2));
+            }
+            break;
         }
-    }
-    if(block.opcode == "operator_mod"){
-        std::string value1 = getInputValue(block.inputs["NUM1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["NUM2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            return std::to_string(std::fmod(std::stod(value1),std::stod(value2)));
+        case Block::OPERATOR_SUBTRACT: {
+            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::to_string(std::stod(value1) - std::stod(value2));
+            }
+            break;
         }
-    }
-    if(block.opcode == "operator_round"){
-        std::string value1 = getInputValue(block.inputs["NUM"],&block,sprite);
-        if(isNumber(value1)){
-            return std::to_string(std::round(std::stod(value1)));
+        case Block::OPERATOR_MULTIPLY: {
+            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::to_string(std::stod(value1) * std::stod(value2));
+            }
+            break;
         }
-    }
-    // the monstorous math operator block 🤒🤒
-    if(block.opcode == "operator_mathop"){
-        std::string inputValue = getInputValue(block.inputs["NUM"],&block,sprite);
-        if(isNumber(inputValue)){
-            if(block.fields["OPERATOR"][0] == "abs"){
-                return std::to_string(abs(std::stod(inputValue)));
+        case Block::OPERATOR_DIVIDE: {
+            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::to_string(std::stod(value1) / std::stod(value2));
             }
-            if(block.fields["OPERATOR"][0] == "floor"){
-                return std::to_string(floor(std::stod(inputValue)));
-            }
-            if(block.fields["OPERATOR"][0] == "ceiling"){
-                return std::to_string(ceil(std::stod(inputValue)));
-            }
-            if(block.fields["OPERATOR"][0] == "sqrt"){
-                return std::to_string(sqrt(std::stod(inputValue)));
-            }
-            if(block.fields["OPERATOR"][0] == "sin"){
-                // c++ uses radians and scratch uses degrees so we have to convert
-                return std::to_string(sin(std::stod(inputValue) * M_PI / 180.0));
-            }
-            if(block.fields["OPERATOR"][0] == "cos"){
-                // same for this one
-                return std::to_string(cos(std::stod(inputValue) * M_PI / 180.0));
-            }
-            if(block.fields["OPERATOR"][0] == "tan"){
-                // and this one
-                return std::to_string(tan(std::stod(inputValue) * M_PI / 180.0));
-            }
-            if(block.fields["OPERATOR"][0] == "asin"){
-                // ok this is getting ridiculous
-                return std::to_string(asin(std::stod(inputValue)) * 180.0 / M_PI);
-            }
-            if(block.fields["OPERATOR"][0] == "acos"){
-                return std::to_string(acos(std::stod(inputValue)) * 180.0 / M_PI);
-            }
-            if(block.fields["OPERATOR"][0] == "atan"){
-                return std::to_string(atan(std::stod(inputValue)) * 180.0 / M_PI);
-            }
-            if(block.fields["OPERATOR"][0] == "ln"){
-                return std::to_string(log(std::stod(inputValue)));
-            }
-            if(block.fields["OPERATOR"][0] == "log"){
-                return std::to_string(log10(std::stod(inputValue)));
-            }
-            if(block.fields["OPERATOR"][0] == "e ^"){
-                return std::to_string(exp(std::stod(inputValue)));
-            }
-            if(block.fields["OPERATOR"][0] == "10 ^"){
-                return std::to_string(pow(10,std::stod(inputValue)));
-            }
+            break;
         }
-    }
-    if (block.opcode == "data_itemoflist") {
-        // Get the index input (evaluate it)
-        std::string indexStr = getInputValue(block.inputs["INDEX"], &block, sprite);
-        int index = std::stoi(indexStr) - 1; // Scratch uses 1-based indexing
-    
-        // Get the list ID from the block's fields
-        std::string listName = block.fields["LIST"][1];
-    
-        // Search every sprite for the list
-        for (Sprite& currentSprite : sprites) {
-            for (auto& [id, list] : currentSprite.lists) {
-                if (id == listName) {
-                    // Found the list
-                    if (index >= 0 && index < static_cast<int>(list.items.size())) {
-                        return removeQuotations(list.items[index]); // or assign to something if not returning
-                    } else {
-                        std::cerr << "Index out of bounds for list: " << listName << std::endl;
-                        return "";
+        case Block::OPERATOR_RANDOM: {
+            std::string value1 = getInputValue(block.inputs["FROM"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["TO"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                if (value1.find('.') == std::string::npos && value2.find('.') == std::string::npos) {
+                    int from = std::stoi(value1);
+                    int to = std::stoi(value2);
+                    return std::to_string(rand() % (to - from + 1) + from);
+                } else {
+                    double from = std::stod(value1);
+                    double to = std::stod(value2);
+                    return std::to_string(from + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (to - from))));
+                }
+            }
+            break;
+        }
+        case Block::OPERATOR_JOIN: {
+            std::string value1 = getInputValue(block.inputs["STRING1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["STRING2"], &block, sprite);
+            return value1 + value2;
+        }
+        case Block::OPERATOR_LETTER_OF: {
+            std::string value1 = getInputValue(block.inputs["LETTER"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["STRING"], &block, sprite);
+            if (isNumber(value1) && !value2.empty()) {
+                int index = std::stoi(value1) - 1;
+                if (index >= 0 && index < static_cast<int>(value2.size())) {
+                    return std::string(1, value2[index]);
+                } else {
+                    std::cerr << "Index out of bounds for string: " << value2 << std::endl;
+                    return "";
+                }
+            }
+            break;
+        }
+        case Block::OPERATOR_LENGTH: {
+            std::string value1 = getInputValue(block.inputs["STRING"], &block, sprite);
+            if (!value1.empty()) {
+                return std::to_string(value1.size());
+            }
+            break;
+        }
+        case Block::OPERATOR_MOD: {
+            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::to_string(std::fmod(std::stod(value1), std::stod(value2)));
+            }
+            break;
+        }
+        case Block::OPERATOR_ROUND: {
+            std::string value1 = getInputValue(block.inputs["NUM"], &block, sprite);
+            if (isNumber(value1)) {
+                return std::to_string(std::round(std::stod(value1)));
+            }
+            break;
+        }
+        case Block::OPERATOR_MATHOP: {
+            std::string inputValue = getInputValue(block.inputs["NUM"], &block, sprite);
+            if (isNumber(inputValue)) {
+                if (block.fields["OPERATOR"][0] == "abs") {
+                    return std::to_string(abs(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "floor") {
+                    return std::to_string(floor(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "ceiling") {
+                    return std::to_string(ceil(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "sqrt") {
+                    return std::to_string(sqrt(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "sin") {
+                    return std::to_string(sin(std::stod(inputValue) * M_PI / 180.0));
+                }
+                if (block.fields["OPERATOR"][0] == "cos") {
+                    return std::to_string(cos(std::stod(inputValue) * M_PI / 180.0));
+                }
+                if (block.fields["OPERATOR"][0] == "tan") {
+                    return std::to_string(tan(std::stod(inputValue) * M_PI / 180.0));
+                }
+                if (block.fields["OPERATOR"][0] == "asin") {
+                    return std::to_string(asin(std::stod(inputValue)) * 180.0 / M_PI);
+                }
+                if (block.fields["OPERATOR"][0] == "acos") {
+                    return std::to_string(acos(std::stod(inputValue)) * 180.0 / M_PI);
+                }
+                if (block.fields["OPERATOR"][0] == "atan") {
+                    return std::to_string(atan(std::stod(inputValue)) * 180.0 / M_PI);
+                }
+                if (block.fields["OPERATOR"][0] == "ln") {
+                    return std::to_string(log(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "log") {
+                    return std::to_string(log10(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "e ^") {
+                    return std::to_string(exp(std::stod(inputValue)));
+                }
+                if (block.fields["OPERATOR"][0] == "10 ^") {
+                    return std::to_string(pow(10, std::stod(inputValue)));
+                }
+            }
+            break;
+        }
+        case Block::DATA_ITEMOFLIST: {
+            std::string indexStr = getInputValue(block.inputs["INDEX"], &block, sprite);
+            int index = std::stoi(indexStr) - 1;
+            std::string listName = block.fields["LIST"][1];
+            for (Sprite& currentSprite : sprites) {
+                for (auto& [id, list] : currentSprite.lists) {
+                    if (id == listName) {
+                        if (index >= 0 && index < static_cast<int>(list.items.size())) {
+                            return removeQuotations(list.items[index]);
+                        } else {
+                            std::cerr << "Index out of bounds for list: " << listName << std::endl;
+                            return "";
+                        }
                     }
                 }
             }
+            break;
         }
-    }
-
-    if(block.opcode == "data_itemnumoflist"){
-        //std::cout << "Item num of list! " << std::endl;
-        std::string listName = block.fields["LIST"][1];
-        std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
-        // Search every sprite for the list
-        for (Sprite& currentSprite : sprites) {
-            for (auto& [id, list] : currentSprite.lists) {
-                if (id == listName) {
-                    // Found the list, search every list item for the item to find
-                   // std::cout << "Found the list! " << std::endl;
-                    int index = 1;
-                    for(auto &item : list.items){
-                     //   std::cout << "item = " << item << "to find = " << itemToFind << std::endl;
-                        if(removeQuotations(item) == itemToFind){
-                           // std::cout << "Found it! " << std::endl;
-                            return std::to_string(index);
+        case Block::DATA_ITEMNUMOFLIST: {
+            std::string listName = block.fields["LIST"][1];
+            std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
+            for (Sprite& currentSprite : sprites) {
+                for (auto& [id, list] : currentSprite.lists) {
+                    if (id == listName) {
+                        int index = 1;
+                        for (auto& item : list.items) {
+                            if (removeQuotations(item) == itemToFind) {
+                                return std::to_string(index);
+                            }
                             index++;
                         }
                     }
                 }
             }
-    }
-    return "0";
-}
-
-if(block.opcode== "data_lengthoflist"){
-   // std::cout << "Length of List! " << std::endl;
-    std::string listName = block.fields["LIST"][1];
-    // Search every sprite for the list
-    for (Sprite& currentSprite : sprites) {
-        for (auto& [id, list] : currentSprite.lists) {
-            if (id == listName) {
-                // Found the list
-               // std::cout << "List size = " <<list.items.size()<< std::endl;
-                return std::to_string(list.items.size());
-            }
+            return "0";
         }
+
+        case Block::DATA_LENGTHOFLIST:{
+   // std::cout << "Length of List! " << std::endl;
+   std::string listName = block.fields["LIST"][1];
+   // Search every sprite for the list
+   for (Sprite& currentSprite : sprites) {
+       for (auto& [id, list] : currentSprite.lists) {
+           if (id == listName) {
+               // Found the list
+              // std::cout << "List size = " <<list.items.size()<< std::endl;
+               return std::to_string(list.items.size());
+           }
+       }
+   }
+   return "";
+}
+    
+        default:
+            break;
     }
     return "";
 }
 
-    return "";
-}
+
 
 Block findBlock(std::string blockId){
     for(Sprite currentSprite : sprites){
@@ -462,81 +455,77 @@ std::vector<Block> getBlockChain(std::string blockId){
     return blockChain;
 }
 
-bool runConditionalStatement(std::string blockId,Sprite* sprite){
+bool runConditionalStatement(std::string blockId, Sprite* sprite) {
     Block block = findBlock(blockId);
-    
-    if(block.opcode == "argument_reporter_boolean"){ // string from a custom block
-      //  std::cout<< "B B BBB BBAAAAANG  "  <<block.fields["VALUE"][0] <<std::endl;
-       std::string value = findCustomValue(block.fields["VALUE"][0],sprite,block);
-       if(value == "1"){
-        return true;
-       }
-       else return false;
 
-    } 
-    
-    if(block.opcode == "sensing_keypressed"){
-        Block inputBlock = findBlock(block.inputs["KEY_OPTION"][1]);
-        for(std::string button : inputButtons){
-            if(inputBlock.fields["KEY_OPTION"][0] == button){
-                return true;
-            }
+    switch (block.opcode) {
+        case Block::ARGUMENT_REPORTER_BOOLEAN: { // string from a custom block
+            std::string value = findCustomValue(block.fields["VALUE"][0], sprite, block);
+            return value == "1";
         }
 
-    }
-    if(block.opcode == "operator_equals"){
-        std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);
-        if(value1 == value2){
-            return true;
-        }
-    }
-    if(block.opcode == "operator_gt"){
-        std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            if(std::stod(value1) > std::stod(value2)){
-                return true;
+        case Block::SENSING_KEYPRESSED: {
+            Block inputBlock = findBlock(block.inputs["KEY_OPTION"][1]);
+            for (std::string button : inputButtons) {
+                if (inputBlock.fields["KEY_OPTION"][0] == button) {
+                    return true;
+                }
             }
+            break;
         }
-    }
-    if(block.opcode == "operator_lt"){
-        std::string value1 = getInputValue(block.inputs["OPERAND1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["OPERAND2"],&block,sprite);
-        if(isNumber(value1) && isNumber(value2)){
-            if(std::stod(value1) < std::stod(value2)){
-                return true;
+
+        case Block::OPERATOR_EQUALS: {
+            std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            return value1 == value2;
+        }
+
+        case Block::OPERATOR_GT: {
+            std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::stod(value1) > std::stod(value2);
             }
+            break;
         }
-    }
-    if(block.opcode == "operator_and"){
-        bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1],sprite);
-        bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1],sprite);
-        if(value1&&value2){
-            return true;
+
+        case Block::OPERATOR_LT: {
+            std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            if (isNumber(value1) && isNumber(value2)) {
+                return std::stod(value1) < std::stod(value2);
+            }
+            break;
         }
-    }
-    if(block.opcode == "operator_or"){
-        bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1],sprite);
-        bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1],sprite);
-        if(value1||value2){
-            return true;
+
+        case Block::OPERATOR_AND: {
+            bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1], sprite);
+            bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1], sprite);
+            return value1 && value2;
         }
-    }
-    if(block.opcode == "operator_not"){
-        bool value = runConditionalStatement(block.inputs["OPERAND"][1],sprite);
-        if(!value){
-            return true;
+
+        case Block::OPERATOR_OR: {
+            bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1], sprite);
+            bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1], sprite);
+            return value1 || value2;
         }
-    }
-    if(block.opcode == "operator_contains"){
-        std::string value1 = getInputValue(block.inputs["STRING1"],&block,sprite);
-        std::string value2 = getInputValue(block.inputs["STRING2"],&block,sprite);
-        if(value1.find(value2) != std::string::npos){
-            return true;
+
+        case Block::OPERATOR_NOT: {
+            bool value = runConditionalStatement(block.inputs["OPERAND"][1], sprite);
+            return !value;
         }
+
+        case Block::OPERATOR_CONTAINS: {
+            std::string value1 = getInputValue(block.inputs["STRING1"], &block, sprite);
+            std::string value2 = getInputValue(block.inputs["STRING2"], &block, sprite);
+            return value1.find(value2) != std::string::npos;
+        }
+
+        default:
+            break;
     }
-return false;
+
+    return false;
 }
 
 void runBroadcasts(){
@@ -545,7 +534,7 @@ void runBroadcasts(){
        // std::cout<<"Broadcasting " << broadcastName << std::endl;
         for(Sprite &currentSprite : sprites){
                     for(auto &[id,block] : currentSprite.blocks){
-                        if(block.opcode == "event_whenbroadcastreceived" && block.fields["BROADCAST_OPTION"][0] == broadcastName){
+                        if(block.opcode == block.EVENT_WHENBROADCASTRECEIVED && block.fields["BROADCAST_OPTION"][0] == broadcastName){
                            // std::cout<<"Running broadcast block " << block.id << std::endl;
                             runBlock(block,&currentSprite);
                         }
@@ -604,398 +593,317 @@ void runCustomBlock(Sprite*sprite,Block block){
 
 }
 
-void runBlock(Block block,Sprite*sprite,Block waitingBlock, bool withoutScreenRefresh){
-   
+void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScreenRefresh) {
     auto start = std::chrono::high_resolution_clock::now();
 
-    if(block.opcode == "procedures_call"){
-        // add conditional if there isn't one
-    if(conditionals.find(block.id) == conditionals.end()){
-       Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.blockId = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.waitingBlock = findBlock(block.next);
-        conditionals[newConditional.id] = newConditional;
-    }
-        waitingBlock = findBlock(block.next);
-       // std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
-        runCustomBlock(sprite,block);
-        return;
-        
-
-        goto nextBlock;
-    }
-    if (block.opcode == "motion_gotoxy") {
-       // std::cout << "Setting X and Y position with sprite " << sprite->name
-       //   << " at address: " << sprite << std::endl;
-        std::string xVal;
-        std::string yVal;
-
-
-        xVal = getInputValue(block.inputs["X"],&block,sprite);
-        yVal = getInputValue(block.inputs["Y"],&block,sprite);
-        if (isNumber(xVal))
-        sprite->xPosition = std::stod(xVal);
-        else{std::cerr<<"Set X Position invalid with pos " << xVal<< std::endl;}
-        if (isNumber(yVal))
-        sprite->yPosition = std::stod(yVal);
-        else{std::cerr<<"Set Y Position invalid with pos " << xVal<< std::endl;}
-        goto nextBlock;
-    }
-    if(block.opcode == "motion_pointindirection"){
-        std::string value;
-        value = getInputValue(block.inputs["DIRECTION"],&block,sprite);
-        if(isNumber(value)){
-            sprite->rotation = std::stoi(value);
-            //std::cout<<"Successfuly pointing in direction " << value << std::endl;
-        }
-        else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
-        goto nextBlock;
-    }
-    if(block.opcode == "motion_turnright"){
-        std::string value;
-        value = getInputValue(block.inputs["DEGREES"],&block,sprite);
-        if(isNumber(value)){
-           // std::cout<<"Successfuly turned right " << value << " degrees."<< std::endl;
-            sprite->rotation += std::stoi(value);
-        }
-        else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
-        goto nextBlock;
-    }
-    if(block.opcode == "motion_turnleft"){
-        std::string value;
-        value = getInputValue(block.inputs["DEGREES"],&block,sprite);
-        if(isNumber(value)){
-           // std::cout<<"Successfuly turned left " << value << " degrees."<< std::endl;
-            sprite->rotation += std::stoi(value);
-        }
-        else{std::cerr<<"Invalid Turn direction " << value<< std::endl;}
-        goto nextBlock;
-    }
-    if(block.opcode == "motion_changexby"){
-        std::string value;
-
-        value = getInputValue(block.inputs["DX"],&block,sprite);
-        if(isNumber(value)){
-            sprite->xPosition += std::stod(value);
-           // std::cout<<"Successfuly Changed X position by " << value << " to " << sprite->xPosition << std::endl;
-        }
-        else{
-            std::cerr<<"invalid X position " << value << std::endl;
-        }
-        goto nextBlock;
-
-    }
-    if(block.opcode == "motion_changeyby"){
-        std::string value;
-
-        value = getInputValue(block.inputs["DY"],&block,sprite);
-        if(isNumber(value)){
-            sprite->yPosition += std::stod(value);
-         //   std::cout<<"Successfuly Changed Y position by " << value << " to " << sprite->yPosition << std::endl;
-        }
-        else{
-            std::cerr<<"invalid Y position " << value << std::endl;
-        }
-        goto nextBlock;
-
-    }
-    if(block.opcode == "motion_setx"){
-        std::string value;
-
-        value = getInputValue(block.inputs["X"],&block,sprite);
-        if(isNumber(value)){
-            sprite->xPosition = std::stod(value);
-        //   std::cout<<"Successfuly Changed X to " << sprite->xPosition << std::endl;
-        }
-        else{
-            std::cerr<<"invalid X position " << value << std::endl;
-        }
-        goto nextBlock;
-
-    }
-    if(block.opcode == "motion_sety"){
-        std::string value;
-
-        value = getInputValue(block.inputs["Y"],&block,sprite);
-        if(isNumber(value)){
-            sprite->yPosition = std::stod(value);
-          //  std::cout<<"Successfuly Changed Y to " << sprite->yPosition << std::endl;
-        }
-        else{
-            std::cerr<<"invalid Y position " << value << std::endl;
-        }
-        goto nextBlock;
-
-    }
-    if(block.opcode == "event_broadcast"){
-        broadcastQueue.push_back(getInputValue(block.inputs["BROADCAST_INPUT"],&block,sprite));
-        goto nextBlock;
-    }
-    if(block.opcode == "control_if"){
-        if(block.inputs["CONDITION"][1].is_null()){
-            goto nextBlock;
-        }
-        if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
-            if(!block.inputs["SUBSTACK"][1].is_null()){
-                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                runBlock(subBlock,sprite);
+    switch (block.opcode) {
+        case block.PROCEDURES_CALL: {
+            if (conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = false;
+                newConditional.times = -1;
+                newConditional.waitingBlock = findBlock(block.next);
+                conditionals[newConditional.id] = newConditional;
             }
-        }
-        goto nextBlock;
-    }
-    if(block.opcode == "control_if_else"){
-        if(block.inputs["CONDITION"][1].is_null()){
-            goto nextBlock;
-        }
-        if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
-            if(!block.inputs["SUBSTACK"][1].is_null()){
-                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                runBlock(subBlock,sprite);
-            }
-        }
-            else{
-                if(!block.inputs["SUBSTACK2"][1].is_null()){
-                    Block subBlock = findBlock(block.inputs["SUBSTACK2"][1]);
-                    runBlock(subBlock,sprite);
-                }
-            }
-        goto nextBlock;
-    }
-    if(block.opcode == "control_repeat_until"){
-
-    // add conditional if there isn't one
-    if(conditionals.find(block.id) == conditionals.end()){
-       Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.blockId = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.waitingBlock = waitingBlock;
-        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-        conditionals[newConditional.id] = newConditional;
-}
-        // set to true if the condition is false
-        if(block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
-            conditionals[block.id].isTrue = true;
-        }
-        else{
-            conditionals[block.id].isTrue = false;
-            waitingBlock = conditionals[block.id].waitingBlock;
-        }
-
-        // run the block inside the repeat loop
-        if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
-            Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-           runBlock(subBlock,sprite);
-           return;
-        }
-        // if the inside of the repeat loop is empty
-        if(conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()){
+            waitingBlock = findBlock(block.next);
+            runCustomBlock(sprite, block);
             return;
         }
-        goto nextBlock;
-    }
-    if(block.opcode == "control_while"){
-        if(block.inputs["CONDITION"][1].is_null()){
+        case block.PROCEDURES_DEFINITION:{
             goto nextBlock;
         }
-        // add conditional if there isn't one
-        if(conditionals.find(block.id) == conditionals.end()){
-           Conditional newConditional;
-            newConditional.id = block.id;
-            newConditional.blockId = block.id;
-            newConditional.hostSprite = sprite;
-            newConditional.isTrue = false;
-            newConditional.times = -1;
-            newConditional.waitingBlock = waitingBlock;
-            newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-            conditionals[newConditional.id] = newConditional;
-    }
-            // set to true if the condition is true
-            if(runConditionalStatement(block.inputs["CONDITION"][1],sprite)){
-                conditionals[block.id].isTrue = true;
+        case block.CONTROL_START_AS_CLONE:{
+            goto nextBlock;
+        }
+        case block.EVENT_WHENFLAGCLICKED:{
+            goto nextBlock;
+        }
+
+        case block.MOTION_GOTOXY: {
+            std::string xVal = getInputValue(block.inputs["X"], &block, sprite);
+            std::string yVal = getInputValue(block.inputs["Y"], &block, sprite);
+            if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
+            else std::cerr << "Set X Position invalid with pos " << xVal << std::endl;
+            if (isNumber(yVal)) sprite->yPosition = std::stod(yVal);
+            else std::cerr << "Set Y Position invalid with pos " << yVal << std::endl;
+            goto nextBlock;
+        }
+
+        case block.MOTION_POINTINDIRECTION: {
+            std::string value = getInputValue(block.inputs["DIRECTION"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->rotation = std::stoi(value);
+            } else {
+                std::cerr << "Invalid Turn direction " << value << std::endl;
             }
-            else{
+            goto nextBlock;
+        }
+
+        case block.MOTION_TURNRIGHT: {
+            std::string value = getInputValue(block.inputs["DEGREES"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->rotation += std::stoi(value);
+            } else {
+                std::cerr << "Invalid Turn direction " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+
+        case block.MOTION_TURNLEFT: {
+            std::string value = getInputValue(block.inputs["DEGREES"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->rotation -= std::stoi(value);
+            } else {
+                std::cerr << "Invalid Turn direction " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+
+        case block.MOTION_CHANGEXBY: {
+            std::string value = getInputValue(block.inputs["DX"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->xPosition += std::stod(value);
+            } else {
+                std::cerr << "Invalid X position " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+
+        case block.MOTION_CHANGEYBY: {
+            std::string value = getInputValue(block.inputs["DY"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->yPosition += std::stod(value);
+            } else {
+                std::cerr << "Invalid Y position " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+
+        case block.MOTION_SETX: {
+            std::string value = getInputValue(block.inputs["X"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->xPosition = std::stod(value);
+            } else {
+                std::cerr << "Invalid X position " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+
+        case block.MOTION_SETY: {
+            std::string value = getInputValue(block.inputs["Y"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->yPosition = std::stod(value);
+            } else {
+                std::cerr << "Invalid Y position " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+
+        case block.EVENT_BROADCAST: {
+            broadcastQueue.push_back(getInputValue(block.inputs["BROADCAST_INPUT"], &block, sprite));
+            goto nextBlock;
+        }
+
+        case block.CONTROL_IF: {
+            if (block.inputs["CONDITION"][1].is_null()) {
+                goto nextBlock;
+            }
+            if (runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
+                if (!block.inputs["SUBSTACK"][1].is_null()) {
+                    Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                    runBlock(subBlock, sprite);
+                }
+            }
+            goto nextBlock;
+        }
+
+        case block.CONTROL_IF_ELSE: {
+            if (block.inputs["CONDITION"][1].is_null()) {
+                goto nextBlock;
+            }
+            if (runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
+                if (!block.inputs["SUBSTACK"][1].is_null()) {
+                    Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                    runBlock(subBlock, sprite);
+                }
+            } else {
+                if (!block.inputs["SUBSTACK2"][1].is_null()) {
+                    Block subBlock = findBlock(block.inputs["SUBSTACK2"][1]);
+                    runBlock(subBlock, sprite);
+                }
+            }
+            goto nextBlock;
+        }
+
+        case block.CONTROL_REPEAT_UNTIL: {
+            if (conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = false;
+                newConditional.times = -1;
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                conditionals[newConditional.id] = newConditional;
+            }
+            if (block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
+                conditionals[block.id].isTrue = true;
+            } else {
                 conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
             }
-    
-            // run the block inside the repeat loop
-            if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
+            if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-               runBlock(subBlock,sprite);
-               return;
+                runBlock(subBlock, sprite);
+                return;
             }
-            if(conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()){
+            if (conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()) {
                 return;
             }
             goto nextBlock;
         }
-    if(block.opcode == "control_forever"){
-        // add conditional if there isn't one
-        if(conditionals.find(block.id) == conditionals.end()){
-            Conditional newConditional;
-            newConditional.id = block.id;
-            newConditional.blockId = block.id;
-            newConditional.hostSprite = sprite;
-            newConditional.isTrue = false;
-            newConditional.times = -1;
-            newConditional.waitingBlock = waitingBlock;
-            newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-            conditionals[newConditional.id] = newConditional;
+
+        case block.CONTROL_REPEAT: {
+            if (conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = false;
+                newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"], &block, sprite));
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                conditionals[newConditional.id] = newConditional;
+            }
+            if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
+                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                runBlock(subBlock, sprite);
+            }
+            if (conditionals[block.id].times > 0) {
+                conditionals[block.id].isTrue = true;
+                conditionals[block.id].times--;
+                return;
+            } else {
+                conditionals[block.id].isTrue = false;
+                waitingBlock = conditionals[block.id].waitingBlock;
+            }
+            goto nextBlock;
         }
 
-        // run the block inside the forever loop
-        if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
-            Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-           runBlock(subBlock,sprite);
-        }
-        conditionals[block.id].isTrue = true;
-        goto nextBlock;
-    }
-    if(block.opcode == "control_repeat"){
-         // add conditional if there isn't one
-        if(conditionals.find(block.id) == conditionals.end()){
-             Conditional newConditional;
-             newConditional.id = block.id;
-              newConditional.blockId = block.id;
-              newConditional.hostSprite = sprite;
-             newConditional.isTrue = false;
-             newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"],&block,sprite));
-             newConditional.waitingBlock = waitingBlock;
-             newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-             conditionals[newConditional.id] = newConditional;
-         }
-        // std::cout<<"Running repeat block " << conditionals[block.id].times << std::endl;
-
-         // run the block inside the repeat loop
-        if(conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()){
-            Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-           runBlock(subBlock,sprite);
-        }
-        // run block if times is over 0
-        if(conditionals[block.id].times > 0){
+        case block.CONTROL_FOREVER: {
+            if (conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = false;
+                newConditional.times = -1;
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                conditionals[newConditional.id] = newConditional;
+            }
+            if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
+                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                runBlock(subBlock, sprite);
+            }
             conditionals[block.id].isTrue = true;
-            conditionals[block.id].times--;
+            goto nextBlock;
+        }
+
+        case block.CONTROL_CREATE_CLONE_OF: {
+            Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
+            Sprite spriteToClone;
+            if (cloneOptions.fields["CLONE_OPTION"][0] == "_myself_") {
+                spriteToClone = *sprite;
+            } else {
+                for (Sprite& currentSprite : sprites) {
+                    if (currentSprite.name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite.isClone == sprite->isClone) {
+                        spriteToClone = currentSprite;
+                    }
+                }
+            }
+            if (!spriteToClone.name.empty()) {
+                for (auto& [id, conditional] : spriteToClone.conditionals) {
+                    conditional.hostSprite = &spriteToClone;
+                }
+                spriteToClone.isClone = true;
+                spriteToClone.isStage = false;
+                spriteToClone.id = generateRandomString(15);
+                std::unordered_map<std::string, Block> newBlocks;
+                for (auto& [id, block] : spriteToClone.blocks) {
+                    if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED) {
+                        std::vector<Block> blockChain = getBlockChain(block.id);
+                        for (const Block& block : blockChain) {
+                            newBlocks[block.id] = block;
+                        }
+                    }
+                }
+                spriteToClone.blocks.clear();
+                spriteToClone.blocks = newBlocks;
+                sprites.push_back(spriteToClone);
+                Sprite* addedSprite = &sprites.back();
+                for (Sprite& currentSprite : sprites) {
+                    if (&currentSprite == addedSprite) {
+                        for (auto& [id, block] : currentSprite.blocks) {
+                            if (block.opcode == block.CONTROL_START_AS_CLONE) {
+                                runBlock(block, &currentSprite);
+                            }
+                        }
+                    }
+                }
+            }
+            goto nextBlock;
+        }
+
+        case block.CONTROL_DELETE_THIS_CLONE: {
+            sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [&](const Sprite& s) { return s.id == sprite->id && s.isClone; }), sprites.end());
             return;
         }
-        else{
-            conditionals[block.id].isTrue = false;
-            waitingBlock = conditionals[block.id].waitingBlock;
-           // std::cout<<"waitingblock = "<< waitingBlock.id<<std::endl;
-        }
-        goto nextBlock;
-    }
-    if(block.opcode == "control_create_clone_of"){
-       // std::cout<<"Cloning sprite... " << sprite->name << std::endl;
-       // std::cout<<"Sprite count = " << sprites.size() << std::endl;
-        Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
-        Sprite spriteToClone;
-        if(cloneOptions.fields["CLONE_OPTION"][0] == "_myself_"){
-            spriteToClone = *sprite;
-        //    std::cout<<"Cloning Myself " << spriteToClone.name << std::endl;
-        }
-        else{
-            
-            for(Sprite &currentSprite : sprites){
-             //   std::cout<<"Cloning other sprite" << removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) << "with" << currentSprite.name << std::endl;
-                if(currentSprite.name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite.isClone == sprite->isClone){
-                   spriteToClone = currentSprite;
-                }
-            }
-        } 
-        if (!spriteToClone.name.empty()){
-            for(auto &[id,conditional]: spriteToClone.conditionals){
-                conditional.hostSprite = &spriteToClone;
-            }
-            spriteToClone.isClone = true;
-            spriteToClone.isStage = false;
-            spriteToClone.id = generateRandomString(15);
-            std::unordered_map<std::string,Block> newBlocks;
-            // only save start as clone and when broadcast received blocks.. this is REAAALY slow though so TODO change this later
-            for(auto &[id,block] : spriteToClone.blocks){
-                if(block.opcode == "control_start_as_clone" || block.opcode == "event_whenbroadcastreceived"){
-                    // problem code. TODO fix this later :grin:
-                    std::vector<Block> blockChain = getBlockChain(block.id);
-                    for (const Block& block : blockChain) {
-                        newBlocks[block.id] = block;
-                    }
-            }
-        }
-            spriteToClone.blocks.clear();
-            spriteToClone.blocks = newBlocks;
-            //spriteToClone.variables.clear();
-            sprites.push_back(spriteToClone);
-           // std::cout<<"Cloned sprite " << spriteToClone.name << std::endl;
-           // std::cout<<"Sprite count = " << sprites.size() << std::endl;
-            
-            // stuff to run when i start as clone block
-           Sprite* addedSprite = &sprites.back();
-          
-           for(Sprite &currentSprite : sprites){
-            if(&currentSprite == addedSprite){
-            //    std::cout<<"Found sprite " << currentSprite.name << std::endl;
-                for(auto &[id,block] : currentSprite.blocks){
-                    if(block.opcode == "control_start_as_clone"){
-                    //    std::cout<<"Running start as clone block " << block.id << std::endl;
-                        runBlock(block,&currentSprite);
-                    }
-                }
-           }
-        }
-    }
-        goto nextBlock;
-    }
-    if(block.opcode == "control_delete_this_clone"){
-       // std::cout<<"Deleting clone... " << sprite->name << std::endl;
-        sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [&](const Sprite& s) { return s.id == sprite->id && s.isClone; }), sprites.end());
-        return;
-    }
-    if(block.opcode == "data_setvariableto"){
-        std::string val;
-        std::string varId = block.fields["VARIABLE"][1];
-        val = getInputValue(block.inputs["VALUE"],&block,sprite);
-       // std::cout<<"Setting Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
-        setVariableValue(varId,val,sprite,false);
-        goto nextBlock;
-    }
-    if(block.opcode == "data_changevariableby"){
-        std::string val;
-        std::string varId = block.fields["VARIABLE"][1];
-        val = getInputValue(block.inputs["VALUE"],&block,sprite);
-       // std::cout<<"Changing Variable " << block.fields["VARIABLE"][0] << "from " << getVariableValue(varId) << std::endl;
-        setVariableValue(varId,val,sprite,true);
-        goto nextBlock;
-    }
-    if(block.opcode == "sensing_resettimer"){
-        timer = 0;
-        goto nextBlock;
-    }
 
+        case block.DATA_SETVARIABLETO: {
+            std::string val = getInputValue(block.inputs["VALUE"], &block, sprite);
+            std::string varId = block.fields["VARIABLE"][1];
+            setVariableValue(varId, val, sprite, false);
+            goto nextBlock;
+        }
 
+        case block.DATA_CHANGEVARIABLEBY: {
+            std::string val = getInputValue(block.inputs["VALUE"], &block, sprite);
+            std::string varId = block.fields["VARIABLE"][1];
+            setVariableValue(varId, val, sprite, true);
+            goto nextBlock;
+        }
+
+        case block.SENSING_RESETTIMER: {
+            timer = 0;
+            goto nextBlock;
+        }
+        default:
+        std::cerr << "Unhandled opcode: " << block.opcode  << "???????????"<< std::endl;
+        goto nextBlock;
+    }
 
 nextBlock:
-auto end = std::chrono::high_resolution_clock::now();
-std::chrono::duration<double, std::milli> duration = end - start;
-if(duration.count() > 10){
-std::cout << "\x1b[14;0H" << block.opcode << " took " << duration.count() << " milliseconds!";}
-if(!block.next.empty()){
-    Block nextBlock = findBlock(block.next);
-    if (nextBlock.id != "null"){
-        runBlock(nextBlock,sprite,waitingBlock,withoutScreenRefresh);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    if (duration.count() > 10) {
+        std::cout << "\x1b[14;0H" << block.opcode << " took " << duration.count() << " milliseconds!";
     }
-}
-else{
-    runBroadcasts();
-    if(!waitingBlock.id.empty()){
-        runBlock(waitingBlock,sprite,Block(),withoutScreenRefresh);
+    if (!block.next.empty()) {
+        Block nextBlock = findBlock(block.next);
+        if (nextBlock.id != "null") {
+            runBlock(nextBlock, sprite, waitingBlock, withoutScreenRefresh);
+        }
+    } else {
+        runBroadcasts();
+        if (!waitingBlock.id.empty()) {
+            runBlock(waitingBlock, sprite, Block(), withoutScreenRefresh);
+        }
     }
-}
 }
 
 void runRepeatBlocks(){
@@ -1142,7 +1050,7 @@ std::vector<Sprite*> findSprite(std::string spriteName){
 
 
 
-void runAllBlocksByOpcode(std::string opcodeToFind){
+void runAllBlocksByOpcode(Block::opCode opcodeToFind){
     //std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
     for(Sprite &currentSprite : sprites){
         for(auto &[id,data] : currentSprite.blocks){

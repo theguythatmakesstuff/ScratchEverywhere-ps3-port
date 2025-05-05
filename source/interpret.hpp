@@ -32,7 +32,7 @@ void runCustomBlock(Sprite*sprite,Block block);
 void runBlock(Block block,Sprite*sprite,Block waitingBlock = Block(), bool withoutScreenRefresh = false);
 Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
-void runAllBlocksByOpcode(std::string opcodeToFind);
+void runAllBlocksByOpcode(Block::opCode opcodeToFind);
 std::string getInputValue(nlohmann::json item,Block* block,Sprite* sprite);
 std::string getVariableValue(std::string variableId);
 bool isNumber(const std::string& id);
