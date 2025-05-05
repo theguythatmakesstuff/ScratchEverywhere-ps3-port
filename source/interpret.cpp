@@ -184,16 +184,19 @@ void loadSprites(const nlohmann::json& json){
         for(const auto &[id,data] : target["costumes"].items()){
             Costume newCostume;
             newCostume.id = data["assetId"];
-            newCostume.name = data["name"];
+            if(data.contains("name")){
+            newCostume.name = data["name"];}
             if(data.contains("bitmapResolution")){
             newCostume.bitmapResolution = data["bitmapResolution"];}
-            newCostume.dataFormat = data["dataFormat"];
-            newCostume.fullName = data["md5ext"];
+            if(data.contains("dataFormat")){
+            newCostume.dataFormat = data["dataFormat"];}
+            if(data.contains("md5ext")){
+            newCostume.fullName = data["md5ext"];}
             if(data.contains("rotationCenterX")){
             newCostume.rotationCenterX = data["rotationCenterX"];}
             if(data.contains("rotationCenterY")){
             newCostume.rotationCenterY = data["rotationCenterY"];}
-            newSprite.costumes[newCostume.id] = newCostume;
+            newSprite.costumes.push_back(newCostume);
         }
 
        // set comments

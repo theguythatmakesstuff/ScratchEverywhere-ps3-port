@@ -71,7 +71,7 @@ for (int i = 0; i < file_count; i++) {
         newRGBA.height = height;
         newRGBA.data = rgba_data;
         imageRBGAs.push_back(newRGBA);
-        imageC2Ds[newRGBA.name] = get_C2D_Image(newRGBA);
+       //imageC2Ds[newRGBA.name] = get_C2D_Image(newRGBA);
         printf("Loaded PNG: %s (%dx%d)\n", zipFileName.c_str(), width, height);
 
         // You now have rgba_data with dimensions width x height

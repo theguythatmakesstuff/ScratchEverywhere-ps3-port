@@ -19,6 +19,7 @@ struct ImageRGBA {
 };
 
 extern std::vector<ImageRGBA> imageRBGAs;
+extern std::unordered_map<std::string, C2D_Image> imageC2Ds;
 
 void loadImages(mz_zip_archive *zip);
 const u32 next_pow2(u32 n);

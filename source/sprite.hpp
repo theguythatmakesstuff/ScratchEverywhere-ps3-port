@@ -247,7 +247,7 @@ class Sprite {
         std::unordered_map<std::string, Block> blocks;
         std::unordered_map<std::string, List> lists;
         std::unordered_map<std::string, Sound> sounds;
-        std::unordered_map<std::string, Costume> costumes;
+        std::vector<Costume> costumes;
         std::unordered_map<std::string, Comment> comments;
         std::unordered_map<std::string, Broadcast> broadcasts;
         std::unordered_map<std::string, Conditional> conditionals;

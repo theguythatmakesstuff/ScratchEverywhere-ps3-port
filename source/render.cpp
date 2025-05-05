@@ -54,8 +54,24 @@ void renderSprites(){
     int times = 1;
     for(Sprite& currentSprite : sprites){
         if(currentSprite.isStage || !currentSprite.visible)continue;
+
+        // look through every costume in sprite for correct one
+        int costumeIndex = 0;
+        for(const auto& costume : currentSprite.costumes){
+            if(costumeIndex == currentSprite.currentCostume){
+                if(imageC2Ds.find(costume.id) != imageC2Ds.end()){
+                    //std::cout << costumeIndex<<std::endl;
+                    //std::cout<< "trying to render: " << costume.name << std::endl;
+                   C2D_DrawImageAt(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,nullptr,0.5f,0.5f);
+                }
+            }
+            costumeIndex++;
+        }
+        // if(imageC2Ds[currentSprite.costumes[currentSprite.currentCostume]]){
+
+        // }
         //std::cout << "Rendering: " << currentSprite.name << "at x: " << currentSprite.xPosition << "y: " << currentSprite.yPosition << "\n";
-        C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
+        //C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
         //std::cout << "rendring sprite number " << times << std::endl;
        // std::cout<< getUsername() <<std::endl;
         times++;
@@ -65,7 +81,7 @@ void renderSprites(){
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
     int FPS = 1000.0 / std::round(duration.count());
-    std::cout << "\x1b[8;0HCPU: " <<C3D_GetProcessingTime()*6.0f<<"\nGPU: "<< C3D_GetDrawingTime()*6.0f << "\nCmdBuf: " <<C3D_GetCmdBufUsage()*100.0f << "\nFPS: " << FPS <<  std::endl;
+   //std::cout << "\x1b[8;0HCPU: " <<C3D_GetProcessingTime()*6.0f<<"\nGPU: "<< C3D_GetDrawingTime()*6.0f << "\nCmdBuf: " <<C3D_GetCmdBufUsage()*100.0f << "\nFPS: " << FPS <<  std::endl;
     startTime = std::chrono::high_resolution_clock::now();
 }
 

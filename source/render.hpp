@@ -6,6 +6,7 @@
 #include <citro3d.h>
 #include <3ds.h>
 #include "interpret.hpp"
+#include "image.hpp"
 #include <chrono>
 
 extern C3D_RenderTarget* topScreen;
