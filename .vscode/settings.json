@@ -64,6 +64,7 @@
 		"deque": "cpp",
 		"forward_list": "cpp",
 		"list": "cpp",
-		"valarray": "cpp"
+		"valarray": "cpp",
+		"chrono": "cpp"
 	}
 }

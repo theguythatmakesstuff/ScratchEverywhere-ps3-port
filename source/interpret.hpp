@@ -18,6 +18,7 @@
 extern std::list<Sprite> sprites;
 extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string,Conditional> conditionals;
+extern std::unordered_map<std::string, Block*> blockLookup;
 extern double timer;
 
 

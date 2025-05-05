@@ -13,6 +13,8 @@ struct Variable {
     std::string value;
 };
 
+
+
 struct Block {
     enum opCode{
         NONE,
@@ -145,6 +147,7 @@ struct Block {
     std::string id;
     opCode opcode;
     std::string next;
+    Block* nextBlock;
     std::string parent;
     std::unordered_map<std::string, nlohmann::json> inputs;
     std::unordered_map<std::string, nlohmann::json> fields;

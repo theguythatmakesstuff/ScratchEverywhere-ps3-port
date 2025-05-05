@@ -3,6 +3,7 @@
 std::list<Sprite> sprites;
 std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string,Conditional> conditionals;
+std::unordered_map<std::string, Block*> blockLookup;
 double timer = 0;
 
 
@@ -115,6 +116,14 @@ void loadSprites(const nlohmann::json& json){
             }
             newSprite.blocks[newBlock.id] = newBlock; // add block
 
+            // add nextBlock during load time so it doesn't have to do it at runtime
+            // for(auto [id,block] : newSprite.blocks){
+            //     if(!block.next.empty()){
+            //         block.nextBlock = &findBlock(block.next);
+            //     }
+
+            // }
+            
             // add custom function blocks
             if(newBlock.opcode == newBlock.PROCEDURES_PROTOTYPE){
                 CustomBlock newCustomBlock;
@@ -208,6 +217,15 @@ void loadSprites(const nlohmann::json& json){
 
         sprites.push_back(newSprite);
     }
+
+    // load block lookup table
+    blockLookup.clear();
+    for (Sprite& sprite : sprites) {
+        for (auto& [id, block] : sprite.blocks) {
+            blockLookup[id] = &block;
+        }
+    }
+
     std::cout<<"Loaded " << sprites.size() << " sprites."<< std::endl;
 }
 
@@ -433,14 +451,14 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
 
 
 Block findBlock(std::string blockId){
-    for(Sprite currentSprite : sprites){
-        auto block = currentSprite.blocks.find(blockId);
-        if(block != currentSprite.blocks.end()){
-           // std::cout << "Found Block " << block->second.id << "\n";
-            return block->second;
-        }
+
+
+    auto block = blockLookup.find(blockId);
+    if(block != blockLookup.end()) {
+        return *block->second;
     }
-    Block null;
+
+    static Block null;
     null.id = "null";
     return null;
 }
@@ -883,7 +901,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             goto nextBlock;
         }
         default:
-        std::cerr << "Unhandled opcode: " << block.opcode  << "???????????"<< std::endl;
+        //std::cerr << "Unhandled opcode: " << block.opcode  << "???????????"<< std::endl;
         goto nextBlock;
     }
 
@@ -894,11 +912,9 @@ nextBlock:
         std::cout << "\x1b[14;0H" << block.opcode << " took " << duration.count() << " milliseconds!";
     }
     if (!block.next.empty()) {
-        Block nextBlock = findBlock(block.next);
-        if (nextBlock.id != "null") {
-            runBlock(nextBlock, sprite, waitingBlock, withoutScreenRefresh);
-        }
+            runBlock(findBlock(block.next), sprite, waitingBlock, withoutScreenRefresh);
     } else {
+       // std::cout << "No next block found." << std::endl;
         runBroadcasts();
         if (!waitingBlock.id.empty()) {
             runBlock(waitingBlock, sprite, Block(), withoutScreenRefresh);
