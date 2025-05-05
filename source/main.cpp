@@ -11,6 +11,8 @@
 #include "interpret.hpp"
 #include "render.hpp"
 #include "input.hpp"
+#include "image.hpp"
+
 
 // C:/Users/Wiz/Documents/CodingProjects/Scratch
 
@@ -35,7 +37,7 @@ int main(int argc, char **argv)
 
 	// load Scratch project into memory
 	const char* filename = "project.sb3";
-	std::ifstream file(filename, std::ios::binary | std::ios::ate); // loads file from root(?) of SD card
+	std::ifstream file(filename, std::ios::binary | std::ios::ate); // loads file from location of executable
 	if (!file){
 		printf("\x1b[16;20 Errrm well this is awkward... couldnt find the file... jinkies...");
 		svcBreak(USERBREAK_PANIC);
@@ -75,14 +77,19 @@ int main(int argc, char **argv)
 	// Parse JSON file
 	nlohmann::json project_json = nlohmann::json::parse(std::string(json_data,json_size));
 	mz_free((void*)json_data);
-	mz_zip_reader_end(&zip);
+
+loadImages(&zip);
+mz_zip_reader_end(&zip);
+
+
+
 
 	loadSprites(project_json);
 
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
 
-	// Main loop
+
 	while (aptMainLoop())
 	{
 		getInput();
