@@ -71,7 +71,7 @@ for (int i = 0; i < file_count; i++) {
         newRGBA.height = height;
         newRGBA.data = rgba_data;
         imageRBGAs.push_back(newRGBA);
-       //imageC2Ds[newRGBA.name] = get_C2D_Image(newRGBA);
+      imageC2Ds[newRGBA.name] = get_C2D_Image(imageRBGAs.back());
         printf("Loaded PNG: %s (%dx%d)\n", zipFileName.c_str(), width, height);
 
         // You now have rgba_data with dimensions width x height
@@ -120,8 +120,8 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     C3D_TexSetFilter(tex, GPU_LINEAR, GPU_NEAREST);
   
     memset(tex->data, 0, px_count * 4);
-    for (u8 i = 0; i < rgba.height; i++) {
-      for (u8 j = 0; j < rgba.width; j++) {
+    for (u8 i = 0; i < rgba.width; i++) {
+    for (u8 j = 0; j < rgba.height; j++) {
         u32 src_idx = (j * rgba.width) + i;
         u32 rgba_px = rgba_raw[src_idx];
         u32 abgr_px = rgba_to_abgr(rgba_px);
@@ -134,7 +134,6 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
       }
     }
   
-    free(rgba_raw);
   
     return image;
   }

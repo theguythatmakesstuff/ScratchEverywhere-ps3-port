@@ -59,10 +59,14 @@ void renderSprites(){
         int costumeIndex = 0;
         for(const auto& costume : currentSprite.costumes){
             if(costumeIndex == currentSprite.currentCostume){
-                if(imageC2Ds.find(costume.id) != imageC2Ds.end()){
+                if(imageC2Ds.find(costume.id) != imageC2Ds.end() && costume.dataFormat == "png"){
                     //std::cout << costumeIndex<<std::endl;
                     //std::cout<< "trying to render: " << costume.name << std::endl;
                    C2D_DrawImageAt(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,nullptr,0.5f,0.5f);
+                }
+                else{
+                    // fallback render
+                    C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
                 }
             }
             costumeIndex++;
@@ -88,4 +92,15 @@ void renderSprites(){
 void renderDeInit(){
     C2D_Fini();
     C3D_Fini();
+    for(auto &[id,data] : imageC2Ds){
+        if(data.tex){
+        C3D_TexDelete(data.tex);
+        free(data.tex);
+        }
+    
+        if(data.subtex){
+            free((Tex3DS_SubTexture*)data.subtex);
+        }
+    }
+
 }
