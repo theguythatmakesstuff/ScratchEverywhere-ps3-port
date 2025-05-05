@@ -901,7 +901,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                     if (&currentSprite == addedSprite) {
                         for (auto& [id, block] : currentSprite.blocks) {
                             if (block.opcode == block.CONTROL_START_AS_CLONE) {
-                                std::cout << "Running clone block " << block.id << std::endl;
+                               // std::cout << "Running clone block " << block.id << std::endl;
                                 runBlock(block, &currentSprite);
                             }
                         }

@@ -68,6 +68,7 @@ struct Block {
         DATA_ITEMNUMOFLIST,
         DATA_LENGTHOFLIST,
         SENSING_KEYPRESSED,
+        SENSING_KEYOPTIONS,
         OPERATOR_EQUALS,
         OPERATOR_GT,
         OPERATOR_LT,
@@ -132,6 +133,7 @@ struct Block {
         if(opCodeString == "data_itemnumoflist")return DATA_ITEMNUMOFLIST;
         if(opCodeString == "data_lengthoflist")return DATA_LENGTHOFLIST;
         if(opCodeString == "sensing_keypressed")return SENSING_KEYPRESSED;
+        if(opCodeString == "sensing_keyoptions")return SENSING_KEYOPTIONS;
         if(opCodeString == "operator_equals")return OPERATOR_EQUALS;
         if(opCodeString == "operator_gt")return OPERATOR_GT;
         if(opCodeString == "operator_lt")return OPERATOR_LT;

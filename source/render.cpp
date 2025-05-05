@@ -11,6 +11,29 @@ std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolut
 std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
 
+std::string getUsername() {
+    const u16* block = (const u16*)malloc(0x1C);
+
+    cfguInit();
+    CFGU_GetConfigInfoBlk2(0x1C, 0xA0000, (u8*)block);
+    cfguExit();
+
+    char* usernameBuffer = (char*)malloc(0x14);
+    ssize_t length = utf16_to_utf8((u8*)usernameBuffer, block, 0x14);
+
+    std::string username;
+    if (length <= 0) {
+        username = "Player";
+    } else {
+        username = std::string(usernameBuffer, length); // Convert char* to std::string
+    }
+
+    free((void*)block); // Free the memory allocated for block
+    free(usernameBuffer); // Free the memory allocated for usernameBuffer
+
+    return username;
+}
+
 void renderInit(){
    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
@@ -23,12 +46,6 @@ void renderSprites(){
 
     timer += 1.0 / 60.0;
 
-    //std::cout<<"Rendering..."<< std::endl;
-
-    // debug stats
-    // printf("\x1b[2;1HCPU:     %6.2f%%\x1b[K", C3D_GetProcessingTime()*6.0f);
-    // printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime()*6.0f);
-    // printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K", C3D_GetCmdBufUsage()*100.0f);
 
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen,clrWhite);
@@ -38,9 +55,9 @@ void renderSprites(){
     for(Sprite& currentSprite : sprites){
         if(currentSprite.isStage || !currentSprite.visible)continue;
         //std::cout << "Rendering: " << currentSprite.name << "at x: " << currentSprite.xPosition << "y: " << currentSprite.yPosition << "\n";
-        //C2D_DrawLine(SCREEN_WIDTH / 2,0,clrBlack,SCREEN_WIDTH/2,SCREEN_HEIGHT,clrBlack,3,0);
         C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
         //std::cout << "rendring sprite number " << times << std::endl;
+       // std::cout<< getUsername() <<std::endl;
         times++;
     }
     //C2D_Flush();

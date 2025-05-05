@@ -81,6 +81,7 @@ int main(int argc, char **argv)
 
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
+
 	// Main loop
 	while (aptMainLoop())
 	{
