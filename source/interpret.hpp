@@ -14,6 +14,7 @@
 #include <vector>
 #include "input.hpp"
 #include <chrono>
+#include <random>
 
 extern std::list<Sprite> sprites;
 extern std::vector<std::string> broadcastQueue;
@@ -35,7 +36,7 @@ Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(Block::opCode opcodeToFind);
 std::string getInputValue(nlohmann::json item,Block* block,Sprite* sprite);
-std::string getVariableValue(std::string variableId);
+std::string getVariableValue(std::string variableId,Sprite*sprite);
 bool isNumber(const std::string& id);
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);
 

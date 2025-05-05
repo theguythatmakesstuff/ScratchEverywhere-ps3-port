@@ -25,13 +25,18 @@ bool isNumber(const std::string& str) {
 std::string generateRandomString(int length) {
     std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     std::string result;
-    srand(time(0)); // Seed the random number generator
+
+    static std::random_device rd;
+    static std::mt19937 generator(rd());
+    std::uniform_int_distribution<> distribution(0, chars.size() - 1);
 
     for (int i = 0; i < length; i++) {
-        result += chars[rand() % chars.size()];
+        result += chars[distribution(generator)];
     }
-    
+
     return result;
+
+
 }
 
 std::string removeQuotations(std::string value) {
@@ -757,7 +762,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.CONTROL_REPEAT_UNTIL: {
-            if (conditionals.find(block.id) == conditionals.end()) {
+            if (sprite->conditionals.find(block.id) == conditionals.end()) {
                 Conditional newConditional;
                 newConditional.id = block.id;
                 newConditional.blockId = block.id;
@@ -766,27 +771,27 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = -1;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                conditionals[newConditional.id] = newConditional;
+                sprite->conditionals[newConditional.id] = newConditional;
             }
             if (block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
-                conditionals[block.id].isTrue = true;
+                sprite->conditionals[block.id].isTrue = true;
             } else {
-                conditionals[block.id].isTrue = false;
+                sprite->conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
             }
-            if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
+            if (sprite->conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                 runBlock(subBlock, sprite);
                 return;
             }
-            if (conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()) {
+            if (sprite->conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()) {
                 return;
             }
             goto nextBlock;
         }
 
         case block.CONTROL_REPEAT: {
-            if (conditionals.find(block.id) == conditionals.end()) {
+            if (sprite->conditionals.find(block.id) == conditionals.end()) {
                 Conditional newConditional;
                 newConditional.id = block.id;
                 newConditional.blockId = block.id;
@@ -795,25 +800,25 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"], &block, sprite));
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                conditionals[newConditional.id] = newConditional;
+                sprite->conditionals[newConditional.id] = newConditional;
             }
             if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                 runBlock(subBlock, sprite);
             }
-            if (conditionals[block.id].times > 0) {
-                conditionals[block.id].isTrue = true;
-                conditionals[block.id].times--;
+            if (sprite->conditionals[block.id].times > 0) {
+                sprite->conditionals[block.id].isTrue = true;
+                sprite->conditionals[block.id].times--;
                 return;
             } else {
-                conditionals[block.id].isTrue = false;
+                sprite->conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
             }
             goto nextBlock;
         }
 
         case block.CONTROL_FOREVER: {
-            if (conditionals.find(block.id) == conditionals.end()) {
+            if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
                 Conditional newConditional;
                 newConditional.id = block.id;
                 newConditional.blockId = block.id;
@@ -822,13 +827,13 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = -1;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                conditionals[newConditional.id] = newConditional;
+                sprite->conditionals[newConditional.id] = newConditional;
             }
-            if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
+            if (sprite->conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                 runBlock(subBlock, sprite);
             }
-            conditionals[block.id].isTrue = true;
+            sprite->conditionals[block.id].isTrue = true;
             goto nextBlock;
         }
 
@@ -847,13 +852,15 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if (!spriteToClone.name.empty()) {
                 for (auto& [id, conditional] : spriteToClone.conditionals) {
                     conditional.hostSprite = &spriteToClone;
+                    conditional.isTrue = false;
                 }
                 spriteToClone.isClone = true;
                 spriteToClone.isStage = false;
                 spriteToClone.id = generateRandomString(15);
                 std::unordered_map<std::string, Block> newBlocks;
                 for (auto& [id, block] : spriteToClone.blocks) {
-                    if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED) {
+                    if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED \
+                        || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
                         std::vector<Block> blockChain = getBlockChain(block.id);
                         for (const Block& block : blockChain) {
                             newBlocks[block.id] = block;
@@ -862,12 +869,39 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 }
                 spriteToClone.blocks.clear();
                 spriteToClone.blocks = newBlocks;
+
+                // make new ID for cloned blocks
+                // for (auto& [outerId, outerBlock] : spriteToClone.blocks) {
+                //     std::string newId = generateRandomString(10);
+                //     // Update all references to the current block's ID in other blocks
+                //     for (auto& [innerId, innerBlock] : spriteToClone.blocks) {
+                //         if (innerBlock.next == outerId) {
+                //             std::cout << "Updating next block from " << innerBlock.next << " to " << newId << std::endl;
+                //             innerBlock.next = newId;
+                //         }
+                //         if (innerBlock.parent == outerId) {
+                //             std::cout << "Updating parent block from " << innerBlock.parent << " to " << newId << std::endl;
+                //             innerBlock.parent = newId;
+                //         }
+                //     }
+                //     outerBlock.id = newId;
+                // }
+
+                // add clone to sprite list
                 sprites.push_back(spriteToClone);
                 Sprite* addedSprite = &sprites.back();
+
+                // add new blocks to lookup table
+                // for (auto& [id, block] : spriteToClone.blocks) {
+                //     blockLookup[id] = &block;
+                // }
+                
+                // Run "when I start as a clone" scripts for the clone
                 for (Sprite& currentSprite : sprites) {
                     if (&currentSprite == addedSprite) {
                         for (auto& [id, block] : currentSprite.blocks) {
                             if (block.opcode == block.CONTROL_START_AS_CLONE) {
+                                std::cout << "Running clone block " << block.id << std::endl;
                                 runBlock(block, &currentSprite);
                             }
                         }
@@ -912,6 +946,7 @@ nextBlock:
         std::cout << "\x1b[14;0H" << block.opcode << " took " << duration.count() << " milliseconds!";
     }
     if (!block.next.empty()) {
+           // std::cout << "Running next block: " << block.next << std::endl;
             runBlock(findBlock(block.next), sprite, waitingBlock, withoutScreenRefresh);
     } else {
        // std::cout << "No next block found." << std::endl;
@@ -924,7 +959,8 @@ nextBlock:
 
 void runRepeatBlocks(){
     //std::cout<<"Running repeat blocks..."<< std::endl;
-    for(const auto &[id,data] : conditionals){
+    for(auto &currentSprite : sprites){
+    for(const auto &[id,data] : currentSprite.conditionals){
         if(data.isTrue){
             if(data.runWithoutScreenRefresh){
                 while(data.isTrue){
@@ -933,8 +969,9 @@ void runRepeatBlocks(){
             }
             else{
             runBlock(findBlock(data.blockId),data.hostSprite);
-            }
+                }
             
+            }
         }
     }
 }
@@ -1006,16 +1043,16 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
 
 }
 
-std::string getVariableValue(std::string variableId){
-    for(Sprite &currentSprite : sprites){
-        for(const auto &[id,data] : currentSprite.variables){
+std::string getVariableValue(std::string variableId,Sprite*sprite){
+
+        for(const auto &[id,data] : sprite->variables){
             if (id == variableId) {
                 return data.value; // Assuming `Variable` has a `value` field
             }
         }
         // check if it's a list instead
       //  std::cout<<"Checking list " << variableId << std::endl;
-        for(const auto &[id,data] : currentSprite.lists){
+        for(const auto &[id,data] : sprite->lists){
             if(id == variableId){
                 std::string finalValue;
                 for(const auto &listItem : data.items){
@@ -1027,7 +1064,31 @@ std::string getVariableValue(std::string variableId){
             }
 
         }
-    }
+        //check globally (blahblah redundant code TODO fix)
+        for(const auto &currentSprite : sprites){
+            if(currentSprite.isStage){
+                for(const auto &[id,data] : currentSprite.variables){
+                    if (id == variableId) {
+                        return data.value; // Assuming `Variable` has a `value` field
+                    }
+                }
+                // check if it's a list instead
+              //  std::cout<<"Checking list " << variableId << std::endl;
+                for(const auto &[id,data] : currentSprite.lists){
+                    if(id == variableId){
+                        std::string finalValue;
+                        for(const auto &listItem : data.items){
+                       //     std::cout<<"Found one " << std::endl;
+                            finalValue += listItem + " ";
+                        }
+                        finalValue.pop_back(); // remove extra space
+                        return finalValue;
+                    }
+
+                }
+            }
+        }
+    
     return "";
 }
 
@@ -1039,7 +1100,7 @@ std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
     // 3 is if there is a variable of some kind inside
     if (item[0] == 3) {
         if (item[1].is_array()) {
-            return getVariableValue(item[1][2]);
+            return getVariableValue(item[1][2],sprite);
         } else {
             return getValueOfBlock(findBlock(item[1]), sprite);
         }
