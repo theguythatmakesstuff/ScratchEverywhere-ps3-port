@@ -34,6 +34,10 @@ std::string getUsername() {
     return username;
 }
 
+double degreesToRadians(double degrees) {
+    return degrees * (M_PI / 180.0);
+}
+
 void renderInit(){
    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
@@ -60,9 +64,10 @@ void renderSprites(){
         for(const auto& costume : currentSprite.costumes){
             if(costumeIndex == currentSprite.currentCostume){
                 if(imageC2Ds.find(costume.id) != imageC2Ds.end() && costume.dataFormat == "png"){
-                    //std::cout << costumeIndex<<std::endl;
-                    //std::cout<< "trying to render: " << costume.name << std::endl;
-                   C2D_DrawImageAt(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,nullptr,0.5f,0.5f);
+                    // Image sprite rendering
+                    double rotation = degreesToRadians(currentSprite.rotation - 90.0f);
+                   C2D_DrawImageAtRotated(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
+                   
                 }
                 else{
                     // fallback render

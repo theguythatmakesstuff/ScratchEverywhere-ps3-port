@@ -75,6 +75,8 @@ void loadSprites(const nlohmann::json& json){
         newSprite.layer = target["layerOrder"].get<int>();}
         if(target.contains("rotationStyle")){
         newSprite.rotationStyle = target["rotationStyle"].get<std::string>();}
+        newSprite.toDelete = false;
+        newSprite.isClone = false;
        // std::cout<<"name = "<< newSprite.name << std::endl;
 
 
@@ -253,6 +255,10 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         }
         case Block::LOOKS_SIZE: {
             return std::to_string(sprite->size);
+        }
+        case Block::LOOKS_COSTUME: {
+            std::cout << "YERA! " << std::endl;
+           return block.fields["COSTUME"][0];
         }
         case Block::SOUND_VOLUME: {
             return std::to_string(sprite->volume);
@@ -727,6 +733,45 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
             goto nextBlock;
         }
+        
+        case block.LOOKS_SHOW:{
+            sprite->visible = true;
+            goto nextBlock;
+        }
+        case block.LOOKS_HIDE:{
+            sprite->visible = false;
+            goto nextBlock;
+        }
+        case block.LOOKS_SWITCHCOSTUMETO:{
+           std::string inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);
+           std::cout << "costume = " << inputValue << std::endl;
+
+           if (isNumber(inputValue)){
+                int costumeIndex = std::stoi(inputValue) - 1;
+                if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
+                    sprite->currentCostume = costumeIndex;
+                } else {
+                    std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
+                }
+            } else {
+                for (size_t i = 0; i < sprite->costumes.size(); i++) {
+                    if (sprite->costumes[i].name == inputValue) {
+                        sprite->currentCostume = i;
+                        break;
+                    }
+                }
+            }
+            goto nextBlock;
+
+        }
+
+        case block.LOOKS_NEXTCOSTUME:{
+            sprite->currentCostume++;
+            if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
+                sprite->currentCostume = 0;
+            }
+            goto nextBlock;
+        }
 
         case block.EVENT_BROADCAST: {
             broadcastQueue.push_back(getInputValue(block.inputs["BROADCAST_INPUT"], &block, sprite));
@@ -915,7 +960,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.CONTROL_DELETE_THIS_CLONE: {
-            sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [&](const Sprite& s) { return s.id == sprite->id && s.isClone; }), sprites.end());
+            sprite->toDelete = true;
             return;
         }
 
@@ -952,7 +997,6 @@ nextBlock:
            // std::cout << "Running next block: " << block.next << std::endl;
             runBlock(findBlock(block.next), sprite, waitingBlock, withoutScreenRefresh);
     } else {
-       // std::cout << "No next block found." << std::endl;
         runBroadcasts();
         if (!waitingBlock.id.empty()) {
             runBlock(waitingBlock, sprite, Block(), withoutScreenRefresh);
@@ -977,6 +1021,8 @@ void runRepeatBlocks(){
             }
         }
     }
+           // remove sprites ready for deletion
+           sprites.remove_if([](const Sprite& s) { return s.toDelete; });
 }
 
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){

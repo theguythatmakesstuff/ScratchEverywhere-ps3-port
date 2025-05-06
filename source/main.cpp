@@ -84,6 +84,7 @@ mz_zip_reader_end(&zip);
 
 
 
+
 	loadSprites(project_json);
 
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);

@@ -16,6 +16,7 @@ extern u32 clrBlack;
 extern std::chrono::_V2::system_clock::time_point startTime;
 extern std::chrono::_V2::system_clock::time_point endTime;
 
+double degreesToRadians(double degrees);
 std::string getUsername();
 void renderInit();
 void renderSprites();

@@ -38,6 +38,11 @@ struct Block {
         MOTION_SETX,
         MOTION_SETY,
         LOOKS_SIZE,
+        LOOKS_SHOW,
+        LOOKS_HIDE,
+        LOOKS_SWITCHCOSTUMETO,
+        LOOKS_COSTUME,
+        LOOKS_NEXTCOSTUME,
         SOUND_VOLUME,
         SENSING_TIMER,
         SENSING_RESETTIMER,
@@ -103,6 +108,11 @@ struct Block {
         if(opCodeString == "motion_setx")return MOTION_SETX;
         if(opCodeString == "motion_sety")return MOTION_SETY;
         if(opCodeString == "looks_size")return LOOKS_SIZE;
+        if(opCodeString == "looks_show")return LOOKS_SHOW;
+        if(opCodeString == "looks_hide")return LOOKS_HIDE;
+        if(opCodeString == "looks_switchcostumeto")return LOOKS_SWITCHCOSTUMETO;
+        if(opCodeString == "looks_costume")return LOOKS_COSTUME;
+        if(opCodeString == "looks_nextcostume")return LOOKS_NEXTCOSTUME;
         if(opCodeString == "sound_volume")return SOUND_VOLUME;
         if(opCodeString == "sensing_timer")return SENSING_TIMER;
         if(opCodeString == "sensing_resettimer")return SENSING_RESETTIMER;
@@ -233,6 +243,7 @@ class Sprite {
         bool draggable;
         bool visible;
         bool isClone;
+        bool toDelete;
         int currentCostume;
         int volume;
         int xPosition;
