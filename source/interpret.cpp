@@ -125,13 +125,7 @@ void loadSprites(const nlohmann::json& json){
             }
             newSprite.blocks[newBlock.id] = newBlock; // add block
 
-            // add nextBlock during load time so it doesn't have to do it at runtime
-            // for(auto [id,block] : newSprite.blocks){
-            //     if(!block.next.empty()){
-            //         block.nextBlock = &findBlock(block.next);
-            //     }
 
-            // }
             
             // add custom function blocks
             if(newBlock.opcode == newBlock.PROCEDURES_PROTOTYPE){
@@ -228,6 +222,9 @@ void loadSprites(const nlohmann::json& json){
         }
 
         sprites.push_back(newSprite);
+
+
+
     }
 
     // load block lookup table
@@ -237,6 +234,16 @@ void loadSprites(const nlohmann::json& json){
             blockLookup[id] = &block;
         }
     }
+
+    // add nextBlock during load time so it doesn't have to do it at runtime
+        // for(auto& sprite : sprites){
+        //     for(auto& [id,block] : sprite.blocks){
+        //         block.nextBlock = blockLookup[block.next];
+        //     }
+        // }
+    
+
+
 
     std::cout<<"Loaded " << sprites.size() << " sprites."<< std::endl;
 }
@@ -1054,8 +1061,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 nextBlock:
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
-    if (duration.count() > 10) {
-        std::cout << "\x1b[14;0H" << block.opcode << " took " << duration.count() << " milliseconds!";
+    if (duration.count() > 0) {
+       // std::cout << block.opcode << " took " << duration.count() << " milliseconds!"<< std::endl;
     }
     if (!block.next.empty()) {
            // std::cout << "Running next block: " << block.next << std::endl;
