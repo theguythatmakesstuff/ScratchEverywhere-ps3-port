@@ -27,6 +27,7 @@ extern double timer;
 extern bool toExit;
 
 
+std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite);
 void loadSprites(const nlohmann::json& json);
 void initializeSpritePool(int poolSize);
 void runRepeatBlocks();

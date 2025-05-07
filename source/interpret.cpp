@@ -66,6 +66,37 @@ Sprite* getAvailableSprite() {
     return nullptr;  // No available sprites
 }
 
+std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite) {
+    std::vector<std::pair<double, double>> collisionPoints;
+
+    // Get sprite dimensions
+    double halfWidth = (currentSprite->spriteWidth * currentSprite->size / 100.0) / 2.0;
+    double halfHeight = (currentSprite->spriteHeight * currentSprite->size / 100.0) / 2.0;
+
+    // Calculate rotation in radians
+    double rotationRadians = -(currentSprite->rotation - 90) * M_PI / 180.0;
+
+    // Define the four corners relative to the sprite's center
+    std::vector<std::pair<double, double>> corners = {
+        { -halfWidth, -halfHeight }, // Top-left
+        { halfWidth, -halfHeight },  // Top-right
+        { halfWidth, halfHeight },   // Bottom-right
+        { -halfWidth, halfHeight }   // Bottom-left
+    };
+
+    // Rotate and translate each corner
+    for (const auto& corner : corners) {
+        double rotatedX = corner.first * cos(rotationRadians) - corner.second * sin(rotationRadians);
+        double rotatedY = corner.first * sin(rotationRadians) + corner.second * cos(rotationRadians);
+
+        collisionPoints.emplace_back(
+            currentSprite->xPosition + rotatedX,
+            currentSprite->yPosition + rotatedY
+        );
+    }
+
+    return collisionPoints;
+}
 
 void loadSprites(const nlohmann::json& json){
     std::cout<<"Beginning to load sprites..."<< std::endl;
@@ -292,8 +323,10 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             return std::to_string(sprite->size);
         }
         case Block::LOOKS_COSTUME: {
-            std::cout << "YERA! " << std::endl;
            return block.fields["COSTUME"][0];
+        }
+        case Block::LOOKS_BACKDROPS:{
+            return block.fields["BACKDROP"][0];
         }
         case Block::LOOKS_COSTUMENUMBERNAME:{
             std::string value = block.fields["NUMBER_NAME"][0];
@@ -613,6 +646,25 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
             break;
         }
 
+        case Block::SENSING_TOUCHINGOBJECT:{
+            std::string objectName = block.fields["TOUCHINGOBJECTMENU"][0];
+            getVariableValue(block.inputs["TOUCHINGOBJECTMENU"][1], sprite);
+            for (Sprite* currentSprite : sprites) {
+                if (currentSprite->name == objectName) {
+                    std::vector<std::pair<double, double>> collisionPoints = getCollisionPoints(currentSprite);
+                    for (const auto& point : collisionPoints) {
+                        if (point.first >= currentSprite->xPosition - currentSprite->spriteWidth / 2 &&
+                            point.first <= currentSprite->xPosition + currentSprite->spriteWidth / 2 &&
+                            point.second >= currentSprite->yPosition - currentSprite->spriteHeight / 2 &&
+                            point.second <= currentSprite->yPosition + currentSprite->spriteHeight / 2) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
         case Block::OPERATOR_EQUALS: {
             std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
@@ -873,11 +925,13 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.LOOKS_SWITCHCOSTUMETO:{
            std::string inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);
            std::cout << "costume = " << inputValue << std::endl;
-           freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
-
+           
            if (isNumber(inputValue)){
                 int costumeIndex = std::stoi(inputValue) - 1;
                 if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
+                    if(sprite->currentCostume != costumeIndex){
+                        freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
+                    }
                     sprite->currentCostume = costumeIndex;
                 } else {
                     std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
@@ -885,6 +939,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             } else {
                 for (size_t i = 0; i < sprite->costumes.size(); i++) {
                     if (sprite->costumes[i].name == inputValue) {
+                        if((size_t)sprite->currentCostume != i){
+                            freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
+                        }
                         sprite->currentCostume = i;
                         break;
                     }
@@ -902,6 +959,51 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
             goto nextBlock;
         }
+
+        case block.LOOKS_SWITCHBACKDROPTO:{
+            std::string inputValue = getValueOfBlock(findBlock(block.inputs["BACKDROP"][1]),sprite);
+            for(Sprite* currentSprite : sprites){
+                if(!currentSprite->isStage){
+                    continue;
+                }
+            if (isNumber(inputValue)){
+                int costumeIndex = std::stoi(inputValue) - 1;
+                if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
+                    if(sprite->currentCostume != costumeIndex){
+                    freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);}
+                    currentSprite->currentCostume = costumeIndex;
+                } else {
+                    std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
+                }
+            } else {
+                for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
+                    if (currentSprite->costumes[i].name == inputValue) {
+                        if((size_t)sprite->currentCostume != i){
+                            freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
+                        }
+                        currentSprite->currentCostume = i;
+                        break;
+                    }
+                }
+            }
+        }
+            goto nextBlock;
+        }
+
+        case block.LOOKS_NEXTBACKDROP:{
+            for(Sprite* currentSprite : sprites){
+                if(!currentSprite->isStage){
+                    continue;
+                }
+            freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
+            currentSprite->currentCostume++;
+            if (currentSprite->currentCostume >= static_cast<int>(currentSprite->costumes.size())) {
+                currentSprite->currentCostume = 0;
+            }
+        }
+            goto nextBlock;
+        }
+
         case block.LOOKS_CHANGESIZEBY:{
             std::string value = getInputValue(block.inputs["CHANGE"], &block, sprite);
             if (isNumber(value)) {

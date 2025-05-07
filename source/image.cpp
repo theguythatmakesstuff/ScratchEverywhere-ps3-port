@@ -104,7 +104,7 @@ for (int i = 0; i < file_count; i++) {
  * Dimensions must be within 64x64 and 1024x1024.
  * Code lovingly taken from sheepy0125 on GBATemp, with edits for my needs. */
 C2D_Image get_C2D_Image(ImageRGBA rgba) {
-    std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
+    //std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
 
     u32 px_count = rgba.width * rgba.height;
     u32 *rgba_raw = reinterpret_cast<u32*>(rgba.data);
@@ -114,7 +114,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     C2D_Image image;
   
     // Base texture
-   std::cout << "Creating C3D_Tex..." << std::endl;
+  // std::cout << "Creating C3D_Tex..." << std::endl;
     C3D_Tex *tex = (C3D_Tex *)malloc(sizeof(C3D_Tex));
     image.tex = tex;
     // Texture dimensions must be square powers of two between 64x64 and 1024x1024
@@ -122,7 +122,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     tex->height = clamp(next_pow2(rgba.height), 64, 1024);
   
     // Subtexture
-   std::cout << "Creating C3D_SubTex..." << std::endl;
+   //std::cout << "Creating C3D_SubTex..." << std::endl;
     Tex3DS_SubTexture *subtex = (Tex3DS_SubTexture *)malloc(sizeof(Tex3DS_SubTexture));
     image.subtex = subtex;
     subtex->width = rgba.width;
@@ -133,12 +133,12 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     subtex->right = (float)rgba.width / (float)tex->width;
     subtex->bottom = 1.0 - ((float)rgba.height / (float)tex->height);
   
-    std::cout << "Allocating texture data..." << std::endl;
+    //std::cout << "Allocating texture data..." << std::endl;
     C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8);
-    std::cout << "Setting Texture Filter..." << std::endl;
+   // std::cout << "Setting Texture Filter..." << std::endl;
     C3D_TexSetFilter(tex, GPU_LINEAR, GPU_NEAREST);
   
-    std::cout << "Setting Texture Wrap..." << std::endl;
+   // std::cout << "Setting Texture Wrap..." << std::endl;
     memset(tex->data, 0, px_count * 4);
     for (u32 i = 0; i < (u32)rgba.width; i++) {
     for (u32 j = 0; j < (u32)rgba.height; j++) {
@@ -154,7 +154,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
       }
     }
   
-    std::cout << "Image done!" << std::endl;
+    //std::cout << "Image done!" << std::endl;
     return image;
   }
 

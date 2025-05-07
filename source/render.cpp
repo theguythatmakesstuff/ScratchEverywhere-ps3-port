@@ -119,7 +119,7 @@ void freeImage(Sprite* currentSprite, const std::string& costumeId) {
 
 
 
-void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId){
+void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId) {
     //freeImage(currentSprite,costumeId);
     bool legacyDrawing = false;
     if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
@@ -127,6 +127,8 @@ void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId){
             if(rgba.name == costumeId){
                 //C3D_TexDelete(image->tex);
                 //free(image->tex);
+                currentSprite->spriteWidth = rgba.width;
+                currentSprite->spriteHeight = rgba.height;
                 imageC2Ds[costumeId] = get_C2D_Image(rgba);
                 break;
 
@@ -136,13 +138,19 @@ void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId){
         legacyDrawing = true;
     }
 
-    if(!legacyDrawing){
-    double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
-    C2D_DrawImageAtRotated(*image,currentSprite->xPosition + (SCREEN_WIDTH / 2),(currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);}
-    else{
-        C2D_DrawRectSolid(currentSprite->xPosition + (SCREEN_WIDTH / 2),(currentSprite->yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);}
-}
+    if (!legacyDrawing) {
+        double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
+        C2D_DrawImageAtRotated(*image, currentSprite->xPosition + (SCREEN_WIDTH / 2), (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2), 1.0f, rotation, nullptr, 0.5f, 0.5f);
+    } else {
+        C2D_DrawRectSolid(currentSprite->xPosition + (SCREEN_WIDTH / 2), (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2), 1, 10, 10, clrBlack);
+    }
 
+    // Draw collision points
+    auto collisionPoints = getCollisionPoints(currentSprite);
+    for (const auto& point : collisionPoints) {
+        C2D_DrawRectSolid(point.first + (SCREEN_WIDTH / 2), (point.second * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
+    }
+}
 
 void renderDeInit(){
     C2D_Fini();
