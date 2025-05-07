@@ -5,6 +5,7 @@ std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string,Conditional> conditionals;
 std::unordered_map<std::string, Block*> blockLookup;
 double timer = 0;
+bool toExit = false;
 
 
 bool isNumber(const std::string& str) {
@@ -43,6 +44,7 @@ std::string removeQuotations(std::string value) {
     value.erase(std::remove_if(value.begin(),value.end(),[](char c){return c == '"';}),value.end());
     return value;
 }
+
 
 
 void loadSprites(const nlohmann::json& json){
@@ -674,7 +676,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_GOTOXY: {
-            std::cout << "GOTOXY!" << std::endl;
+           // std::cout << "GOTOXY!" << std::endl;
             std::string xVal = getInputValue(block.inputs["X"], &block, sprite);
             std::string yVal = getInputValue(block.inputs["Y"], &block, sprite);
             if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
@@ -1015,6 +1017,15 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.CONTROL_DELETE_THIS_CLONE: {
             sprite->toDelete = true;
             return;
+        }
+
+        case block.CONTROL_STOP: {
+            std::string stopType = block.fields["STOP_OPTION"][0];
+            if(stopType == "all"){
+                toExit = true;
+                break;
+            }
+            
         }
 
         case block.DATA_SETVARIABLETO: {

@@ -16,16 +16,6 @@
 
 // C:/Users/Wiz/Documents/CodingProjects/Scratch
 
-static void exitApp(){
-	// Deinit libs
-	//C2D_SpriteSheetFree(spriteSheet); // delete sprites
-	//freeText(); // kill text
-	renderDeInit(); // from render.hpp
-	//ndspExit(); // unload audio
-	romfsExit(); // unload the filesystem
-	//cfguExit(); // i think kills text
-	gfxExit();
-}
 
 bool openScratchProject(){
 	std::cout<<"Unzipping Scratch Project..."<<std::endl;
@@ -33,12 +23,19 @@ bool openScratchProject(){
 	// load Scratch project into memory
 	std::cout<<"Loading SB3 into memory..."<<std::endl;
 	const char* filename = "project.sb3";
-	std::ifstream file(filename, std::ios::binary | std::ios::ate); // loads file from location of executable
+
+	std::ifstream file("romfs:/"+std::string(filename), std::ios::binary | std::ios::ate); // loads file from romfs
 	if (!file){
-		printf("\x1b[16;20 Errrm well this is awkward... couldnt find the file... jinkies...");
-		svcBreak(USERBREAK_PANIC);
-		return false;
+		std::cerr<<"No embedded Scratch project, trying SD card";
+		file.open(filename, std::ios::binary | std::ios::ate); // loads file from location of executable
+		if (!file){
+			std::cerr<<"Couldnt find file. jinkies.";
+			svcBreak(USERBREAK_PANIC);
+			return false;
+		}
 	}
+
+
 
 	// read the file
 	std::cout<<"Reading SB3..."<<std::endl;
@@ -85,12 +82,24 @@ std::cout << "DONE!" << std::endl;
 return true;
 }
 
+static void exitApp(){
+	// Deinit libs
+	//C2D_SpriteSheetFree(spriteSheet); // delete sprites
+	//freeText(); // kill text
+	renderDeInit(); // from render.hpp
+	romfsExit(); // unload the filesystem
+	//ndspExit(); // unload audio
+	romfsExit(); // unload the filesystem
+	//cfguExit(); // i think kills text
+	gfxExit();
+}
 
 int main(int argc, char **argv)
 {
 	gfxInitDefault();
 	consoleInit(GFX_BOTTOM, NULL);
 	renderInit();
+	romfsInit();
 
 
 
@@ -113,6 +122,10 @@ int main(int argc, char **argv)
 		renderSprites();
 		
 		//gspWaitForVBlank();
+
+		if(toExit){
+			break;
+		}
 	}
 
 	exitApp();

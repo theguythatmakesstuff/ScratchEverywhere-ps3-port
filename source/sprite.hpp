@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <chrono>
 
 class Sprite;
 
@@ -58,6 +59,7 @@ struct Block {
         CONTROL_CREATE_CLONE_OF_MENU,
         CONTROL_START_AS_CLONE,
         CONTROL_DELETE_THIS_CLONE,
+        CONTROL_STOP,
         DATA_SETVARIABLETO,
         DATA_CHANGEVARIABLEBY,
         OPERATOR_ADD,
@@ -130,6 +132,7 @@ struct Block {
         if(opCodeString == "control_create_clone_of_menu")return CONTROL_CREATE_CLONE_OF_MENU;
         if(opCodeString == "control_start_as_clone")return CONTROL_START_AS_CLONE;
         if(opCodeString == "control_delete_this_clone")return CONTROL_DELETE_THIS_CLONE;
+        if(opCodeString == "control_stop")return CONTROL_STOP;
         if(opCodeString == "data_setvariableto")return DATA_SETVARIABLETO;
         if(opCodeString == "data_changevariableby")return DATA_CHANGEVARIABLEBY;
         if(opCodeString == "operator_add")return OPERATOR_ADD;

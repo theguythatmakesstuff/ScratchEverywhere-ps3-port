@@ -22,6 +22,7 @@ extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string,Conditional> conditionals;
 extern std::unordered_map<std::string, Block*> blockLookup;
 extern double timer;
+extern bool toExit;
 
 
 void loadSprites(const nlohmann::json& json);
