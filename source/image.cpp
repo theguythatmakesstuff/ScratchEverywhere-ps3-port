@@ -82,7 +82,7 @@ for (int i = 0; i < file_count; i++) {
         //newImage.tex = nullptr;
         //newImage.subtex = nullptr;
         //imageC2Ds[newRGBA.name] = newImage;
-      imageC2Ds[newRGBA.name] = get_C2D_Image(imageRBGAs.back());
+      //imageC2Ds[newRGBA.name] = get_C2D_Image(imageRBGAs.back());
        // printf("Loaded PNG: %s (%dx%d)\n", zipFileName.c_str(), width, height);
        // std::cout << "RGBA capacity: "<< imageRBGAs.capacity() << std::endl;
         //imageRBGAs.clear();

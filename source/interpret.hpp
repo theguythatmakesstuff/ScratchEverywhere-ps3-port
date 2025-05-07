@@ -17,7 +17,9 @@
 #include <chrono>
 #include <random>
 
-extern std::list<Sprite> sprites;
+extern std::vector<Sprite*> sprites;
+extern std::vector<Sprite> spritePool;
+extern std::vector<Sprite> spritePool;
 extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string,Conditional> conditionals;
 extern std::unordered_map<std::string, Block*> blockLookup;
@@ -26,7 +28,10 @@ extern bool toExit;
 
 
 void loadSprites(const nlohmann::json& json);
+void initializeSpritePool(int poolSize);
 void runRepeatBlocks();
+Sprite* getAvailableSprite();
+void initializeSpritePool(int poolSize);
 std::string findCustomValue(std::string valueName,Sprite*sprite,Block block);
 std::string removeQuotations(std::string value);
 std::string getValueOfBlock(Block block,Sprite*sprite);

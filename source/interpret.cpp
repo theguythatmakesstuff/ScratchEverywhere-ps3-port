@@ -1,6 +1,7 @@
 #include "interpret.hpp"
 
-std::list<Sprite> sprites;
+std::vector<Sprite*> sprites;
+std::vector<Sprite> spritePool;
 std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string,Conditional> conditionals;
 std::unordered_map<std::string, Block*> blockLookup;
@@ -45,40 +46,60 @@ std::string removeQuotations(std::string value) {
     return value;
 }
 
+void initializeSpritePool(int poolSize) {
+    for (int i = 0; i < poolSize; i++) {
+        Sprite newSprite;
+        newSprite.id = generateRandomString(15);
+        newSprite.isClone = true;
+        newSprite.toDelete = true;
+        spritePool.push_back(newSprite);
+    }
+}
+
+Sprite* getAvailableSprite() {
+    for (Sprite& sprite : spritePool) {
+        if (sprite.toDelete) {
+            sprite.toDelete = false;  // Reactivate sprite
+            return &sprite;
+        }
+    }
+    return nullptr;  // No available sprites
+}
 
 
 void loadSprites(const nlohmann::json& json){
     std::cout<<"Beginning to load sprites..."<< std::endl;
+    sprites.reserve(400);
     for (const auto& target : json["targets"]){ // "target" is sprite in Scratch speak, so for every sprite in sprites
     
-        Sprite newSprite;
+        Sprite* newSprite = new Sprite();
         if(target.contains("name")){
-        newSprite.name = target["name"].get<std::string>();}
-        newSprite.id = generateRandomString(15);
+        newSprite->name = target["name"].get<std::string>();}
+        newSprite->id = generateRandomString(15);
         if(target.contains("isStage")){
-        newSprite.isStage = target["isStage"].get<bool>();}
+        newSprite->isStage = target["isStage"].get<bool>();}
         if(target.contains("draggable")){
-        newSprite.draggable = target["draggable"].get<bool>();}
+        newSprite->draggable = target["draggable"].get<bool>();}
         if(target.contains("visible")){
-        newSprite.visible = target["visible"].get<bool>();}
+        newSprite->visible = target["visible"].get<bool>();}
         if(target.contains("currentCostume")){
-        newSprite.currentCostume = target["currentCostume"].get<int>();}
+        newSprite->currentCostume = target["currentCostume"].get<int>();}
         if(target.contains("volume")){
-        newSprite.volume = target["volume"].get<int>();}
+        newSprite->volume = target["volume"].get<int>();}
         if(target.contains("x")){
-        newSprite.xPosition = target["x"].get<int>();}
+        newSprite->xPosition = target["x"].get<int>();}
         if(target.contains("y")){
-        newSprite.yPosition = target["y"].get<int>();}
+        newSprite->yPosition = target["y"].get<int>();}
         if(target.contains("size")){
-        newSprite.size = target["size"].get<int>();}
+        newSprite->size = target["size"].get<int>();}
         if(target.contains("direction")){
-        newSprite.rotation = target["direction"].get<int>();}
+        newSprite->rotation = target["direction"].get<int>();}
         if(target.contains("layerOrder")){
-        newSprite.layer = target["layerOrder"].get<int>();}
+        newSprite->layer = target["layerOrder"].get<int>();}
         if(target.contains("rotationStyle")){
-        newSprite.rotationStyle = target["rotationStyle"].get<std::string>();}
-        newSprite.toDelete = false;
-        newSprite.isClone = false;
+        newSprite->rotationStyle = target["rotationStyle"].get<std::string>();}
+        newSprite->toDelete = false;
+        newSprite->isClone = false;
        // std::cout<<"name = "<< newSprite.name << std::endl;
 
 
@@ -98,7 +119,7 @@ void loadSprites(const nlohmann::json& json){
             } else {
                 newVariable.value = "0";
             }
-            newSprite.variables[newVariable.id] = newVariable; // add variable to sprite
+            newSprite->variables[newVariable.id] = newVariable; // add variable to sprite
         }
 
         // set Blocks
@@ -123,7 +144,7 @@ void loadSprites(const nlohmann::json& json){
             if (data.contains("mutation")){
                 newBlock.mutation = data["mutation"];
             }
-            newSprite.blocks[newBlock.id] = newBlock; // add block
+            newSprite->blocks[newBlock.id] = newBlock; // add block
 
 
             
@@ -150,7 +171,7 @@ void loadSprites(const nlohmann::json& json){
                 newCustomBlock.runWithoutScreenRefresh = true;}
                 else newCustomBlock.runWithoutScreenRefresh = false;
 
-                newSprite.customBlocks[newCustomBlock.name] = newCustomBlock; // add custom block
+                newSprite->customBlocks[newCustomBlock.name] = newCustomBlock; // add custom block
             }
 
         }
@@ -163,7 +184,7 @@ void loadSprites(const nlohmann::json& json){
             for(const auto &listItem : data[1]){
             newList.items.push_back(listItem.dump());
             }
-            newSprite.lists[newList.id] = newList; // add list
+            newSprite->lists[newList.id] = newList; // add list
         }
 
         // set Sounds
@@ -175,7 +196,7 @@ void loadSprites(const nlohmann::json& json){
             newSound.dataFormat = data["dataFormat"];
             newSound.sampleRate = data["rate"];
             newSound.sampleCount = data["sampleCount"];
-            newSprite.sounds[newSound.id] = newSound;
+            newSprite->sounds[newSound.id] = newSound;
         }
 
         // set Costumes
@@ -194,7 +215,7 @@ void loadSprites(const nlohmann::json& json){
             newCostume.rotationCenterX = data["rotationCenterX"];}
             if(data.contains("rotationCenterY")){
             newCostume.rotationCenterY = data["rotationCenterY"];}
-            newSprite.costumes.push_back(newCostume);
+            newSprite->costumes.push_back(newCostume);
         }
 
        // set comments
@@ -209,7 +230,7 @@ void loadSprites(const nlohmann::json& json){
             newComment.x = data["x"];
             newComment.y = data["y"];
             newComment.text = data["text"];
-            newSprite.comments[newComment.id] = newComment;
+            newSprite->comments[newComment.id] = newComment;
         }
 
         // set Broadcasts
@@ -217,7 +238,7 @@ void loadSprites(const nlohmann::json& json){
             Broadcast newBroadcast;
             newBroadcast.id = id;
             newBroadcast.name = data;
-            newSprite.broadcasts[newBroadcast.id] = newBroadcast;
+            newSprite->broadcasts[newBroadcast.id] = newBroadcast;
            // std::cout<<"broadcast name = "<< newBroadcast.name << std::endl;
         }
 
@@ -229,11 +250,13 @@ void loadSprites(const nlohmann::json& json){
 
     // load block lookup table
     blockLookup.clear();
-    for (Sprite& sprite : sprites) {
-        for (auto& [id, block] : sprite.blocks) {
+    for (Sprite* sprite : sprites) {
+        for (auto& [id, block] : sprite->blocks) {
             blockLookup[id] = &block;
         }
     }
+
+    initializeSpritePool(100);
 
     // add nextBlock during load time so it doesn't have to do it at runtime
         // for(auto& sprite : sprites){
@@ -416,8 +439,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string indexStr = getInputValue(block.inputs["INDEX"], &block, sprite);
             int index = std::stoi(indexStr) - 1;
             std::string listName = block.fields["LIST"][1];
-            for (Sprite& currentSprite : sprites) {
-                for (auto& [id, list] : currentSprite.lists) {
+            for (Sprite* currentSprite : sprites) {
+                for (auto& [id, list] : currentSprite->lists) {
                     if (id == listName) {
                         if (index >= 0 && index < static_cast<int>(list.items.size())) {
                             return removeQuotations(list.items[index]);
@@ -433,8 +456,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         case Block::DATA_ITEMNUMOFLIST: {
             std::string listName = block.fields["LIST"][1];
             std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
-            for (Sprite& currentSprite : sprites) {
-                for (auto& [id, list] : currentSprite.lists) {
+            for (Sprite* currentSprite : sprites) {
+                for (auto& [id, list] : currentSprite->lists) {
                     if (id == listName) {
                         int index = 1;
                         for (auto& item : list.items) {
@@ -453,8 +476,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
    // std::cout << "Length of List! " << std::endl;
    std::string listName = block.fields["LIST"][1];
    // Search every sprite for the list
-   for (Sprite& currentSprite : sprites) {
-       for (auto& [id, list] : currentSprite.lists) {
+   for (Sprite* currentSprite : sprites) {
+       for (auto& [id, list] : currentSprite->lists) {
            if (id == listName) {
                // Found the list
               // std::cout << "List size = " <<list.items.size()<< std::endl;
@@ -583,11 +606,11 @@ void runBroadcasts() {
     std::vector<std::pair<Block*, Sprite*>> blocksToRun;
     
     // Identify all blocks that should respond to this broadcast
-    for (auto& currentSprite : sprites) {
-        for (auto& [id, block] : currentSprite.blocks) {
+    for (auto* currentSprite : sprites) {
+        for (auto& [id, block] : currentSprite->blocks) {
             if (block.opcode == block.EVENT_WHENBROADCASTRECEIVED && 
                 block.fields["BROADCAST_OPTION"][0] == currentBroadcast) {
-                blocksToRun.push_back({&block, &currentSprite});
+                blocksToRun.push_back({&block, currentSprite});
             }
         }
     }
@@ -655,6 +678,7 @@ void runCustomBlock(Sprite*sprite,Block block){
 
 void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScreenRefresh) {
     auto start = std::chrono::high_resolution_clock::now();
+    while(block.id != "null"){
 
     switch (block.opcode) {
         case block.PROCEDURES_CALL: {
@@ -774,7 +798,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.LOOKS_SWITCHCOSTUMETO:{
            std::string inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);
            std::cout << "costume = " << inputValue << std::endl;
-           //freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
+           freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
 
            if (isNumber(inputValue)){
                 int costumeIndex = std::stoi(inputValue) - 1;
@@ -796,6 +820,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.LOOKS_NEXTCOSTUME:{
+            freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
             sprite->currentCostume++;
             if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
                 sprite->currentCostume = 0;
@@ -972,26 +997,28 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
         case block.CONTROL_CREATE_CLONE_OF: {
             Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
-            Sprite spriteToClone;
+            Sprite* spriteToClone = getAvailableSprite();
+            if(!spriteToClone) goto nextBlock;
             if (cloneOptions.fields["CLONE_OPTION"][0] == "_myself_") {
-                spriteToClone = *sprite;
+                *spriteToClone = *sprite;
             } else {
-                for (Sprite& currentSprite : sprites) {
-                    if (currentSprite.name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite.isClone == sprite->isClone) {
-                        spriteToClone = currentSprite;
+                for (Sprite* currentSprite : sprites) {
+                    if (currentSprite->name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite->isClone == sprite->isClone) {
+                        *spriteToClone = *currentSprite;
                     }
                 }
             }
-            if (!spriteToClone.name.empty()) {
-                for (auto& [id, conditional] : spriteToClone.conditionals) {
-                    conditional.hostSprite = &spriteToClone;
+            if (spriteToClone != nullptr && !spriteToClone->name.empty()) {
+                for (auto& [id, conditional] : spriteToClone->conditionals) {
+                    conditional.hostSprite = spriteToClone;
                     conditional.isTrue = false;
                 }
-                spriteToClone.isClone = true;
-                spriteToClone.isStage = false;
-                spriteToClone.id = generateRandomString(15);
+                spriteToClone->isClone = true;
+                spriteToClone->isStage = false;
+                spriteToClone->toDelete = false;
+                spriteToClone->id = generateRandomString(15);
                 std::unordered_map<std::string, Block> newBlocks;
-                for (auto& [id, block] : spriteToClone.blocks) {
+                for (auto& [id, block] : spriteToClone->blocks) {
                     if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
                         std::vector<Block> blockChain = getBlockChain(block.id);
                         for (const Block& block : blockChain) {
@@ -999,20 +1026,20 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                         }
                     }
                 }
-                spriteToClone.blocks.clear();
-                spriteToClone.blocks = newBlocks;
+                spriteToClone->blocks.clear();
+                spriteToClone->blocks = newBlocks;
 
 
                 // add clone to sprite list
                 sprites.push_back(spriteToClone);
-                Sprite* addedSprite = &sprites.back();
+                Sprite* addedSprite = sprites.back();
                 // Run "when I start as a clone" scripts for the clone
-                for (Sprite& currentSprite : sprites) {
-                    if (&currentSprite == addedSprite) {
-                        for (auto& [id, block] : currentSprite.blocks) {
+                for (Sprite* currentSprite : sprites) {
+                    if (currentSprite == addedSprite) {
+                        for (auto& [id, block] : currentSprite->blocks) {
                             if (block.opcode == block.CONTROL_START_AS_CLONE) {
                                // std::cout << "Running clone block " << block.id << std::endl;
-                                runBlock(block, &currentSprite);
+                                runBlock(block, currentSprite);
                             }
                         }
                     }
@@ -1065,20 +1092,24 @@ nextBlock:
        // std::cout << block.opcode << " took " << duration.count() << " milliseconds!"<< std::endl;
     }
     if (!block.next.empty()) {
-           // std::cout << "Running next block: " << block.next << std::endl;
-            runBlock(findBlock(block.next), sprite, waitingBlock, withoutScreenRefresh);
+
+            block = *blockLookup[block.next];
     } else {
        runBroadcasts();
         if (!waitingBlock.id.empty()) {
-            runBlock(waitingBlock, sprite, Block(), withoutScreenRefresh);
+            block = *blockLookup[waitingBlock.id];
+            waitingBlock = Block(); // reset waiting block
         }
+        else break;
     }
+}
+
 }
 
 void runRepeatBlocks(){
     //std::cout<<"Running repeat blocks..."<< std::endl;
     for(auto &currentSprite : sprites){
-    for(const auto &[id,data] : currentSprite.conditionals){
+    for(const auto &[id,data] : currentSprite->conditionals){
         if(data.isTrue){
             if(data.runWithoutScreenRefresh){
                 while(data.isTrue){
@@ -1093,7 +1124,7 @@ void runRepeatBlocks(){
         }
     }
            // remove sprites ready for deletion
-           sprites.remove_if([](const Sprite& s) { return s.toDelete; });
+           sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 }
 
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){
@@ -1129,9 +1160,9 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
     }
     // global Variable (TODO fix redundant code later :grin:)
     else{
-        for(Sprite &currentSprite : sprites){
-            if (currentSprite.isStage){
-                Variable& var = currentSprite.variables[variableId];
+        for(Sprite *currentSprite : sprites){
+            if (currentSprite->isStage){
+                Variable& var = currentSprite->variables[variableId];
         
                 if(!isChangingBy){
                     if(isNumber(value)){
@@ -1186,15 +1217,15 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
         }
         //check globally (blahblah redundant code TODO fix)
         for(const auto &currentSprite : sprites){
-            if(currentSprite.isStage){
-                for(const auto &[id,data] : currentSprite.variables){
+            if(currentSprite->isStage){
+                for(const auto &[id,data] : currentSprite->variables){
                     if (id == variableId) {
                         return data.value; // Assuming `Variable` has a `value` field
                     }
                 }
                 // check if it's a list instead
               //  std::cout<<"Checking list " << variableId << std::endl;
-                for(const auto &[id,data] : currentSprite.lists){
+                for(const auto &[id,data] : currentSprite->lists){
                     if(id == variableId){
                         std::string finalValue;
                         for(const auto &listItem : data.items){
@@ -1237,9 +1268,9 @@ std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
 
 std::vector<Sprite*> findSprite(std::string spriteName){
     std::vector<Sprite*> sprts;
-    for(Sprite currentSprite : sprites){
-        if(currentSprite.name == spriteName){
-            sprts.push_back(&currentSprite);
+    for(Sprite* currentSprite : sprites){
+        if(currentSprite->name == spriteName){
+            sprts.push_back(currentSprite);
         }
     }
     return sprts;
@@ -1249,10 +1280,10 @@ std::vector<Sprite*> findSprite(std::string spriteName){
 
 void runAllBlocksByOpcode(Block::opCode opcodeToFind){
     std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
-    for(Sprite &currentSprite : sprites){
-        for(auto &[id,data] : currentSprite.blocks){
+    for(Sprite *currentSprite : sprites){
+        for(auto &[id,data] : currentSprite->blocks){
             if(data.opcode == opcodeToFind){
-                runBlock(data,&currentSprite);
+                runBlock(data,currentSprite);
             }
         }
     }

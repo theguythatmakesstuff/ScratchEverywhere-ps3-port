@@ -56,25 +56,25 @@ void renderSprites(){
     C2D_TargetClear(bottomScreen,clrWhite);
     C2D_SceneBegin(topScreen);
     int times = 1;
-    for(Sprite& currentSprite : sprites){
-        if(currentSprite.isStage || !currentSprite.visible)continue;
+    for(Sprite* currentSprite : sprites){
+        if(currentSprite->isStage || !currentSprite->visible)continue;
 
         // look through every costume in sprite for correct one
         int costumeIndex = 0;
-        for(const auto& costume : currentSprite.costumes){
-            if(costumeIndex == currentSprite.currentCostume){
-                //renderImage(&imageC2Ds[costume.id],&currentSprite,costume.id);
-                if(imageC2Ds.find(costume.id) != imageC2Ds.end() && costume.dataFormat == "png"){
-                    // Image sprite rendering
-                    double rotation = degreesToRadians(currentSprite.rotation - 90.0f);
-                    C2D_DrawImageAtRotated(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
+        for(const auto& costume : currentSprite->costumes){
+            if(costumeIndex == currentSprite->currentCostume){
+                renderImage(&imageC2Ds[costume.id],currentSprite,costume.id);
+                // if(imageC2Ds.find(costume.id) != imageC2Ds.end() && costume.dataFormat == "png"){
+                //     // Image sprite rendering
+                //     double rotation = degreesToRadians(currentSprite.rotation - 90.0f);
+                //     C2D_DrawImageAtRotated(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
 
                    
-                }
-                else{
-                    // fallback render
-                    C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
-                }
+                // }
+                // else{
+                //     // fallback render
+                //     C2D_DrawRectSolid(currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);
+                // }
             }
             costumeIndex++;
         }
@@ -113,6 +113,7 @@ void freeImage(Sprite* currentSprite, const std::string& costumeId) {
 
         // Erase the costume from imageC2Ds
         imageC2Ds.erase(it);
+        std::cout << "Freed image for costume: " << costumeId << std::endl;
     }
 }
 
