@@ -82,6 +82,7 @@ void loadSprites(const nlohmann::json& json){
         newSprite->draggable = target["draggable"].get<bool>();}
         if(target.contains("visible")){
         newSprite->visible = target["visible"].get<bool>();}
+        else newSprite->visible = true;
         if(target.contains("currentCostume")){
         newSprite->currentCostume = target["currentCostume"].get<int>();}
         if(target.contains("volume")){
@@ -92,8 +93,10 @@ void loadSprites(const nlohmann::json& json){
         newSprite->yPosition = target["y"].get<int>();}
         if(target.contains("size")){
         newSprite->size = target["size"].get<int>();}
+        else newSprite->size = 100;
         if(target.contains("direction")){
         newSprite->rotation = target["direction"].get<int>();}
+        else newSprite->rotation = 90;
         if(target.contains("layerOrder")){
         newSprite->layer = target["layerOrder"].get<int>();}
         if(target.contains("rotationStyle")){
@@ -292,12 +295,84 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::cout << "YERA! " << std::endl;
            return block.fields["COSTUME"][0];
         }
+        case Block::LOOKS_COSTUMENUMBERNAME:{
+            std::string value = block.fields["NUMBER_NAME"][0];
+            if(value == "name"){
+                return sprite->costumes[sprite->currentCostume].name;
+            }
+            else if(value == "number"){
+                return std::to_string(sprite->currentCostume + 1);
+            }
+        }
+        case Block::LOOKS_BACKDROPNUMBERNAME:{
+            std::string value = block.fields["NUMBER_NAME"][0];
+            if(value == "name"){
+                for(Sprite* currentSprite : sprites){
+                    if(currentSprite->isStage){
+                        return currentSprite->costumes[currentSprite->currentCostume].name;
+                    }
+                }
+            }
+            else if(value == "number"){
+                for(Sprite* currentSprite : sprites){
+                    if(currentSprite->isStage){
+                        return std::to_string(currentSprite->currentCostume + 1);
+                    }
+                }
+            }
+        }
         case Block::SOUND_VOLUME: {
             return std::to_string(sprite->volume);
         }
         case Block::SENSING_TIMER: {
             return std::to_string(timer);
         }
+
+        case block.SENSING_OF:{
+            std::string value = block.fields["PROPERTY"][0];
+            std::string object;
+            try{
+            object = findBlock(block.inputs["OBJECT"][1]).fields["OBJECT"][0];}
+            catch(...){
+                std::cerr << "Error: Unable to find object for SENSING_OF block." << std::endl;
+                return "0";
+            }
+            Sprite* spriteObject = nullptr;
+
+            for(Sprite* currentSprite : sprites){
+                if(currentSprite->name == object && !currentSprite->isClone){
+                    spriteObject = currentSprite;
+                    break;
+                }
+            }
+
+            std::cout << "Value = " << value << std::endl << "Object = " << object << std::endl;
+
+            if (value == "timer") {
+                return std::to_string(timer);
+            } else if (value == "x position") {
+                return std::to_string(spriteObject->xPosition);
+            } else if (value == "y position") {
+                return std::to_string(spriteObject->yPosition);
+            } else if (value == "direction") {
+                return std::to_string(spriteObject->rotation);
+            } else if (value == "costume #" || value == "backdrop #") {
+                return std::to_string(spriteObject->currentCostume + 1);
+            } else if (value == "costume name" || value == "backdrop name") {
+                return spriteObject->costumes[spriteObject->currentCostume].name;
+            } else if (value == "size") {
+                return std::to_string(spriteObject->size);
+            } else if (value == "volume") {
+                return std::to_string(spriteObject->volume);
+            }
+            for(const auto& [id, variable] : spriteObject->variables) {
+                std::cout << "Variable ID: " << variable.name << ", Variable Name: " << variable.name << std::endl;
+                if (value == variable.name) {
+                    return variable.value;
+                }
+            }
+        }
+
         case Block::OPERATOR_ADD: {
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
@@ -827,6 +902,24 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
             goto nextBlock;
         }
+        case block.LOOKS_CHANGESIZEBY:{
+            std::string value = getInputValue(block.inputs["CHANGE"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->size += std::stod(value);
+            } else {
+                std::cerr << "Invalid size change " << value << std::endl;
+            }
+            goto nextBlock;
+        }
+        case block.LOOKS_SETSIZETO:{
+            std::string value = getInputValue(block.inputs["SIZE"], &block, sprite);
+            if (isNumber(value)) {
+                sprite->size = std::stod(value);
+            } else {
+                std::cerr << "Invalid size change " << value << std::endl;
+            }
+            goto nextBlock;
+        }
 
         case block.EVENT_BROADCAST: {
             broadcastQueue.push_back(getInputValue(block.inputs["BROADCAST_INPUT"], &block, sprite));
@@ -1080,6 +1173,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             timer = 0;
             goto nextBlock;
         }
+
+
         default:
         //std::cerr << "Unhandled opcode: " << block.opcode  << "???????????"<< std::endl;
         goto nextBlock;

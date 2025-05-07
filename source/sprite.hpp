@@ -43,7 +43,14 @@ struct Block {
         LOOKS_HIDE,
         LOOKS_SWITCHCOSTUMETO,
         LOOKS_COSTUME,
+        LOOKS_SWITCHBACKDROPTO,
+        LOOKS_BACKDROPS,
+        LOOKS_NEXTBACKDROP,
+        LOOKS_BACKDROPNUMBERNAME,
+        LOOKS_COSTUMENUMBERNAME,
         LOOKS_NEXTCOSTUME,
+        LOOKS_CHANGESIZEBY,
+        LOOKS_SETSIZETO,
         SOUND_VOLUME,
         SENSING_TIMER,
         SENSING_RESETTIMER,
@@ -78,6 +85,8 @@ struct Block {
         DATA_LENGTHOFLIST,
         SENSING_KEYPRESSED,
         SENSING_KEYOPTIONS,
+        SENSING_OF,
+        SENSING_OF_OBJECT_MENU,
         OPERATOR_EQUALS,
         OPERATOR_GT,
         OPERATOR_LT,
@@ -117,6 +126,13 @@ struct Block {
         if(opCodeString == "looks_switchcostumeto")return LOOKS_SWITCHCOSTUMETO;
         if(opCodeString == "looks_costume")return LOOKS_COSTUME;
         if(opCodeString == "looks_nextcostume")return LOOKS_NEXTCOSTUME;
+        if(opCodeString == "looks_switchbackdropto")return LOOKS_SWITCHBACKDROPTO;
+        if(opCodeString == "looks_backdrops")return LOOKS_BACKDROPS;
+        if(opCodeString == "looks_nextbackdrop")return LOOKS_NEXTBACKDROP;
+        if(opCodeString == "looks_backdropnumbername")return LOOKS_BACKDROPNUMBERNAME;
+        if(opCodeString == "looks_costumenumbername")return LOOKS_COSTUMENUMBERNAME;
+        if(opCodeString == "looks_changesizeby")return LOOKS_CHANGESIZEBY;
+        if(opCodeString == "looks_setsizeto")return LOOKS_SETSIZETO;
         if(opCodeString == "sound_volume")return SOUND_VOLUME;
         if(opCodeString == "sensing_timer")return SENSING_TIMER;
         if(opCodeString == "sensing_resettimer")return SENSING_RESETTIMER;
@@ -151,6 +167,8 @@ struct Block {
         if(opCodeString == "data_lengthoflist")return DATA_LENGTHOFLIST;
         if(opCodeString == "sensing_keypressed")return SENSING_KEYPRESSED;
         if(opCodeString == "sensing_keyoptions")return SENSING_KEYOPTIONS;
+        if(opCodeString == "sensing_of")return SENSING_OF;
+        if(opCodeString == "sensing_of_object_menu")return SENSING_OF_OBJECT_MENU;
         if(opCodeString == "operator_equals")return OPERATOR_EQUALS;
         if(opCodeString == "operator_gt")return OPERATOR_GT;
         if(opCodeString == "operator_lt")return OPERATOR_LT;

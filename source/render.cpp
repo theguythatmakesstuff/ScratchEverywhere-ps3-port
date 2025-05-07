@@ -57,7 +57,7 @@ void renderSprites(){
     C2D_SceneBegin(topScreen);
     int times = 1;
     for(Sprite* currentSprite : sprites){
-        if(currentSprite->isStage || !currentSprite->visible)continue;
+        if(!currentSprite->visible)continue;
 
         // look through every costume in sprite for correct one
         int costumeIndex = 0;
@@ -121,6 +121,7 @@ void freeImage(Sprite* currentSprite, const std::string& costumeId) {
 
 void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId){
     //freeImage(currentSprite,costumeId);
+    bool legacyDrawing = false;
     if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
         for(ImageRGBA rgba : imageRBGAs){
             if(rgba.name == costumeId){
@@ -132,11 +133,14 @@ void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId){
             }
 
         }
+        legacyDrawing = true;
     }
 
-
+    if(!legacyDrawing){
     double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
-    C2D_DrawImageAtRotated(*image,currentSprite->xPosition + (SCREEN_WIDTH / 2),(currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
+    C2D_DrawImageAtRotated(*image,currentSprite->xPosition + (SCREEN_WIDTH / 2),(currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);}
+    else{
+        C2D_DrawRectSolid(currentSprite->xPosition + (SCREEN_WIDTH / 2),(currentSprite->yPosition * -1) + (SCREEN_HEIGHT/ 2),1,10,10,clrBlack);}
 }
 
 
