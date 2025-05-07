@@ -19,6 +19,8 @@ extern std::chrono::_V2::system_clock::time_point endTime;
 double degreesToRadians(double degrees);
 std::string getUsername();
 void renderInit();
+void freeImage(Sprite* currentSprite, const std::string& costumeId);
+void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId);
 void renderSprites();
 void renderDeInit();
 

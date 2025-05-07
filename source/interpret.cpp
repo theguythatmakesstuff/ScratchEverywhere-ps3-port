@@ -560,19 +560,38 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
     return false;
 }
 
-void runBroadcasts(){
-    while(!broadcastQueue.empty()){
-        std::string broadcastName = broadcastQueue.front();
-       // std::cout<<"Broadcasting " << broadcastName << std::endl;
-        for(Sprite &currentSprite : sprites){
-                    for(auto &[id,block] : currentSprite.blocks){
-                        if(block.opcode == block.EVENT_WHENBROADCASTRECEIVED && block.fields["BROADCAST_OPTION"][0] == broadcastName){
-                           // std::cout<<"Running broadcast block " << block.id << std::endl;
-                            runBlock(block,&currentSprite);
-                        }
-                    }
+void runBroadcasts() {
+    // Process broadcasts one at a time until the queue is empty
+    if (broadcastQueue.empty()) {
+        return;
+    }
+    
+    // Take the first broadcast from the queue
+    std::string currentBroadcast = broadcastQueue.front();
+    broadcastQueue.erase(broadcastQueue.begin());
+    
+    // Keep a copy of the sprites to avoid iterator invalidation
+    std::vector<std::pair<Block*, Sprite*>> blocksToRun;
+    
+    // Identify all blocks that should respond to this broadcast
+    for (auto& currentSprite : sprites) {
+        for (auto& [id, block] : currentSprite.blocks) {
+            if (block.opcode == block.EVENT_WHENBROADCASTRECEIVED && 
+                block.fields["BROADCAST_OPTION"][0] == currentBroadcast) {
+                blocksToRun.push_back({&block, &currentSprite});
+            }
         }
-        broadcastQueue.erase(broadcastQueue.begin());
+    }
+    
+    // Now run all the identified blocks
+    for (auto& [blockPtr, spritePtr] : blocksToRun) {
+        std::cout << "Running broadcast block " << blockPtr->id << std::endl;
+        runBlock(*blockPtr, spritePtr);
+    }
+    
+    // Check if new broadcasts were added during execution
+    if (!broadcastQueue.empty()) {
+        runBroadcasts(); // Process the next broadcast
     }
 }
 
@@ -655,6 +674,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_GOTOXY: {
+            std::cout << "GOTOXY!" << std::endl;
             std::string xVal = getInputValue(block.inputs["X"], &block, sprite);
             std::string yVal = getInputValue(block.inputs["Y"], &block, sprite);
             if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
@@ -745,6 +765,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.LOOKS_SWITCHCOSTUMETO:{
            std::string inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);
            std::cout << "costume = " << inputValue << std::endl;
+           //freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
 
            if (isNumber(inputValue)){
                 int costumeIndex = std::stoi(inputValue) - 1;
@@ -807,6 +828,61 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 }
             }
             goto nextBlock;
+        }
+
+        case block.CONTROL_WAIT_UNTIL: {
+            if (sprite->conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = false;
+                newConditional.times = -1;
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                sprite->conditionals[newConditional.id] = newConditional;
+            }
+            if (block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
+                sprite->conditionals[block.id].isTrue = true;
+                return;
+            } else {
+                sprite->conditionals[block.id].isTrue = false;
+                waitingBlock = conditionals[block.id].waitingBlock;
+            }
+            goto nextBlock;
+        }
+
+        case block.CONTROL_WAIT: {
+            if (sprite->conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = false;
+                newConditional.times = -1;
+                newConditional.time = std::chrono::high_resolution_clock::now();
+                std::string duration = getInputValue(block.inputs["DURATION"], &block, sprite);
+                if(isNumber(duration)) {
+                    newConditional.endTime = std::stoi(duration) * 1000; // convert to milliseconds
+                } else {
+                    newConditional.endTime = 0;
+                }
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                sprite->conditionals[newConditional.id] = newConditional;
+            }
+
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+            if (elapsedTime < sprite->conditionals[block.id].endTime) {
+                sprite->conditionals[block.id].isTrue = true;
+                return;
+            } else {
+                sprite->conditionals[block.id].isTrue = false;
+                waitingBlock = conditionals[block.id].waitingBlock;
+            }
+            goto nextBlock;
+
         }
 
         case block.CONTROL_REPEAT_UNTIL: {
@@ -907,8 +983,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 spriteToClone.id = generateRandomString(15);
                 std::unordered_map<std::string, Block> newBlocks;
                 for (auto& [id, block] : spriteToClone.blocks) {
-                    if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED \
-                        || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
+                    if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
                         std::vector<Block> blockChain = getBlockChain(block.id);
                         for (const Block& block : blockChain) {
                             newBlocks[block.id] = block;
@@ -918,32 +993,10 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 spriteToClone.blocks.clear();
                 spriteToClone.blocks = newBlocks;
 
-                // make new ID for cloned blocks
-                // for (auto& [outerId, outerBlock] : spriteToClone.blocks) {
-                //     std::string newId = generateRandomString(10);
-                //     // Update all references to the current block's ID in other blocks
-                //     for (auto& [innerId, innerBlock] : spriteToClone.blocks) {
-                //         if (innerBlock.next == outerId) {
-                //             std::cout << "Updating next block from " << innerBlock.next << " to " << newId << std::endl;
-                //             innerBlock.next = newId;
-                //         }
-                //         if (innerBlock.parent == outerId) {
-                //             std::cout << "Updating parent block from " << innerBlock.parent << " to " << newId << std::endl;
-                //             innerBlock.parent = newId;
-                //         }
-                //     }
-                //     outerBlock.id = newId;
-                // }
 
                 // add clone to sprite list
                 sprites.push_back(spriteToClone);
                 Sprite* addedSprite = &sprites.back();
-
-                // add new blocks to lookup table
-                // for (auto& [id, block] : spriteToClone.blocks) {
-                //     blockLookup[id] = &block;
-                // }
-                
                 // Run "when I start as a clone" scripts for the clone
                 for (Sprite& currentSprite : sprites) {
                     if (&currentSprite == addedSprite) {
@@ -997,7 +1050,7 @@ nextBlock:
            // std::cout << "Running next block: " << block.next << std::endl;
             runBlock(findBlock(block.next), sprite, waitingBlock, withoutScreenRefresh);
     } else {
-        runBroadcasts();
+       runBroadcasts();
         if (!waitingBlock.id.empty()) {
             runBlock(waitingBlock, sprite, Block(), withoutScreenRefresh);
         }
@@ -1177,7 +1230,7 @@ std::vector<Sprite*> findSprite(std::string spriteName){
 
 
 void runAllBlocksByOpcode(Block::opCode opcodeToFind){
-    //std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
+    std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
     for(Sprite &currentSprite : sprites){
         for(auto &[id,data] : currentSprite.blocks){
             if(data.opcode == opcodeToFind){

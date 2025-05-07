@@ -63,10 +63,12 @@ void renderSprites(){
         int costumeIndex = 0;
         for(const auto& costume : currentSprite.costumes){
             if(costumeIndex == currentSprite.currentCostume){
+                //renderImage(&imageC2Ds[costume.id],&currentSprite,costume.id);
                 if(imageC2Ds.find(costume.id) != imageC2Ds.end() && costume.dataFormat == "png"){
                     // Image sprite rendering
                     double rotation = degreesToRadians(currentSprite.rotation - 90.0f);
-                   C2D_DrawImageAtRotated(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
+                    C2D_DrawImageAtRotated(imageC2Ds[costume.id],currentSprite.xPosition + (SCREEN_WIDTH / 2),(currentSprite.yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
+
                    
                 }
                 else{
@@ -93,6 +95,49 @@ void renderSprites(){
    //std::cout << "\x1b[8;0HCPU: " <<C3D_GetProcessingTime()*6.0f<<"\nGPU: "<< C3D_GetDrawingTime()*6.0f << "\nCmdBuf: " <<C3D_GetCmdBufUsage()*100.0f << "\nFPS: " << FPS <<  std::endl;
     startTime = std::chrono::high_resolution_clock::now();
 }
+
+void freeImage(Sprite* currentSprite, const std::string& costumeId) {
+    // Check if the costume exists in imageC2Ds
+    auto it = imageC2Ds.find(costumeId);
+    if (it != imageC2Ds.end()) {
+        // Free the texture if it exists
+        if (it->second.tex) {
+            C3D_TexDelete(it->second.tex);
+            free(it->second.tex);
+        }
+
+        // Free the subtexture if it exists
+        if (it->second.subtex) {
+            free((Tex3DS_SubTexture*)it->second.subtex);
+        }
+
+        // Erase the costume from imageC2Ds
+        imageC2Ds.erase(it);
+    }
+}
+
+
+
+void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId){
+    //freeImage(currentSprite,costumeId);
+    if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
+        for(ImageRGBA rgba : imageRBGAs){
+            if(rgba.name == costumeId){
+                //C3D_TexDelete(image->tex);
+                //free(image->tex);
+                imageC2Ds[costumeId] = get_C2D_Image(rgba);
+                break;
+
+            }
+
+        }
+    }
+
+
+    double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
+    C2D_DrawImageAtRotated(*image,currentSprite->xPosition + (SCREEN_WIDTH / 2),(currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),1.0f,rotation,nullptr,0.5f,0.5f);
+}
+
 
 void renderDeInit(){
     C2D_Fini();

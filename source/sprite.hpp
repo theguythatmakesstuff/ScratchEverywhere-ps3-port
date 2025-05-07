@@ -46,6 +46,8 @@ struct Block {
         SOUND_VOLUME,
         SENSING_TIMER,
         SENSING_RESETTIMER,
+        CONTROL_WAIT_UNTIL,
+        CONTROL_WAIT,
         CONTROL_IF,
         CONTROL_IF_ELSE,
         CONTROL_REPEAT_UNTIL,
@@ -116,6 +118,8 @@ struct Block {
         if(opCodeString == "sound_volume")return SOUND_VOLUME;
         if(opCodeString == "sensing_timer")return SENSING_TIMER;
         if(opCodeString == "sensing_resettimer")return SENSING_RESETTIMER;
+        if(opCodeString == "control_wait_until")return CONTROL_WAIT_UNTIL;
+        if(opCodeString == "control_wait")return CONTROL_WAIT;
         if(opCodeString == "control_if")return CONTROL_IF;
         if(opCodeString == "control_if_else")return CONTROL_IF_ELSE;
         if(opCodeString == "control_repeat_until")return CONTROL_REPEAT_UNTIL;
@@ -190,6 +194,8 @@ struct Conditional{
     bool runWithoutScreenRefresh;
     bool isTrue;
     int times;
+    std::chrono::_V2::system_clock::time_point time;
+    double endTime;
 };
 
 struct List{

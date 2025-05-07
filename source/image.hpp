@@ -6,6 +6,7 @@
 #include <vector>
 #include <3ds.h>
 #include <citro2d.h>
+#include <citro3d.h>
 #include <unordered_map>
 #include <cstdint>
 using u32 = uint32_t;

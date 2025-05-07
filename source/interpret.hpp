@@ -13,6 +13,7 @@
 #include <cmath>
 #include <vector>
 #include "input.hpp"
+#include "render.hpp"
 #include <chrono>
 #include <random>
 
