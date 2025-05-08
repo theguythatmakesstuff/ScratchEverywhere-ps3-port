@@ -18,6 +18,8 @@ Scratch itself is open source, and the Scratch Team has no issue with anyone mak
 
 ![Controls](https://s4.gifyu.com/images/bLAAY.png)
 
+To use the mouse pointer you must enter mouse mode by holding L and using the DPad to move the mouse. to click you press R while holding L.
+
 ## Limitations
 
 As this is in a very W.I.P state, you will encounter many bugs, crashes, and things that will just not work. 
