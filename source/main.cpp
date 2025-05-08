@@ -15,8 +15,6 @@
 #include "image.hpp"
 
 
-// C:/Users/Wiz/Documents/CodingProjects/Scratch
-
 
 bool openScratchProject(){
 	std::cout<<"Unzipping Scratch Project..."<<std::endl;

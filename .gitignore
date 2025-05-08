@@ -41,4 +41,6 @@ main.code-workspace
 *.app
 *.3dsx
 *.elf
+*.smdh
 *.bat
+*.sb3

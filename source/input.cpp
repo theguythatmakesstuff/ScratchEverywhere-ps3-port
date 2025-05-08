@@ -8,6 +8,7 @@ void getInput(){
     hidScanInput();
     u32 kDown = hidKeysHeld();
     if(kDown){
+        inputButtons.push_back("any");
         if(kDown & KEY_A){
             inputButtons.push_back("a");
         }
@@ -30,25 +31,25 @@ void getInput(){
             if(kDown & KEY_L)
             mousePointer.y += 3;
             else
-            inputButtons.push_back("up arrow");
+            inputButtons.push_back("u");
         }
         if(kDown & KEY_DDOWN){
             if(kDown & KEY_L)
             mousePointer.y -= 3;
             else
-            inputButtons.push_back("down arrow");
+            inputButtons.push_back("h");
         }
         if(kDown & KEY_DLEFT){
             if(kDown & KEY_L)
             mousePointer.x -= 3;
             else
-            inputButtons.push_back("left arrow");
+            inputButtons.push_back("g");
         }
         if(kDown & KEY_DRIGHT){
             if(kDown & KEY_L)
             mousePointer.x += 3;
             else
-            inputButtons.push_back("right arrow");
+            inputButtons.push_back("j");
         }
         if(kDown & KEY_L){
             inputButtons.push_back("l");
@@ -78,16 +79,16 @@ void getInput(){
             inputButtons.push_back("right arrow");
         }
         if(kDown & KEY_CSTICK_UP){
-            inputButtons.push_back("y");
+            inputButtons.push_back("2");
         }
         if(kDown & KEY_CSTICK_DOWN){
-            inputButtons.push_back("h");
+            inputButtons.push_back("3");
         }
         if(kDown & KEY_CSTICK_LEFT){
-            inputButtons.push_back("g");
+            inputButtons.push_back("4");
         }
         if(kDown & KEY_CSTICK_RIGHT){
-            inputButtons.push_back("j");
+            inputButtons.push_back("5");
         }
         
     }
