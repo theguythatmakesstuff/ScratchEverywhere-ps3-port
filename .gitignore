@@ -1,3 +1,10 @@
+# folders
+.vs/
+.vscode/
+build/
+
+main.code-workspace
+
 # Prerequisites
 *.d
 
@@ -25,8 +32,13 @@
 *.la
 *.a
 *.lib
+*.lst
+*.map
 
 # Executables
 *.exe
 *.out
 *.app
+*.3dsx
+*.elf
+*.bat

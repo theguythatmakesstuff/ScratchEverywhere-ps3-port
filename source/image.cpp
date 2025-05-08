@@ -46,7 +46,8 @@ for (int i = 0; i < file_count; i++) {
 
     // Check if file is a PNG (case-insensitive match)
     if (zipFileName.size() >= 4 && 
-        (zipFileName.substr(zipFileName.size() - 4) == ".png" || zipFileName.substr(zipFileName.size() - 4) == ".PNG")) {
+        (zipFileName.substr(zipFileName.size() - 4) == ".png" || zipFileName.substr(zipFileName.size() - 4) == ".PNG"\
+        || zipFileName.substr(zipFileName.size() - 4) == ".jpg" || zipFileName.substr(zipFileName.size() - 4) == ".JPG")) {
 
         // Extract the file to memory
        // std::cout << "Loading into memory: " << zipFileName << std::endl;
@@ -154,7 +155,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
       }
     }
   
-    //std::cout << "Image done!" << std::endl;
+    std::cout << "Image Loaded!" << std::endl;
     return image;
   }
 

@@ -10,6 +10,9 @@ u32 clrBlack = C2D_Color32f(0,0,0,1);
 std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
+int projectWidth = 480;
+int projectHeight = 360;
+
 
 std::string getUsername() {
     const u16* block = (const u16*)malloc(0x1C);
@@ -36,6 +39,16 @@ std::string getUsername() {
 
 double degreesToRadians(double degrees) {
     return degrees * (M_PI / 180.0);
+}
+
+double getMaxSpriteLayer() {
+    double maxLayer = 0.0;
+    for (Sprite* currentSprite : sprites) {
+        if (currentSprite->layer > maxLayer) {
+            maxLayer = currentSprite->layer;
+        }
+    }
+    return maxLayer;
 }
 
 void renderInit(){
@@ -104,6 +117,7 @@ void freeImage(Sprite* currentSprite, const std::string& costumeId) {
         if (it->second.tex) {
             C3D_TexDelete(it->second.tex);
             free(it->second.tex);
+           // imageC2Ds.erase(it);
         }
 
         // Free the subtexture if it exists
@@ -138,23 +152,27 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
         legacyDrawing = true;
     }
 
+    double maxLayer = getMaxSpriteLayer();
+    double scaleX = static_cast<double>(SCREEN_WIDTH) / projectWidth;
+    double scaleY = static_cast<double>(SCREEN_HEIGHT) / projectHeight;
+    double scale = std::min(scaleX, scaleY); // Use the smaller scale to maintain aspect ratio
     if (!legacyDrawing) {
         double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
         C2D_DrawImageAtRotated(
             *image,
             currentSprite->xPosition + (SCREEN_WIDTH / 2),
             (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),
-            1.0f,
+            currentSprite->layer / maxLayer,
             rotation,
             nullptr,
-            (currentSprite->size / 100) / 2.0f,
-            (currentSprite->size / 100) / 2.0f
+            (currentSprite->size / 100) * scale / 2.0f,
+            (currentSprite->size / 100) * scale / 2.0f
         );
     } else {
         C2D_DrawRectSolid(
             currentSprite->xPosition + (SCREEN_WIDTH / 2),
             (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),
-            1,
+            currentSprite->layer / maxLayer,
             10,
             10,
             clrBlack
@@ -162,10 +180,10 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
     }
 
     // Draw collision points
-    // auto collisionPoints = getCollisionPoints(currentSprite);
-    // for (const auto& point : collisionPoints) {
-    //     C2D_DrawRectSolid(point.first + (SCREEN_WIDTH / 2), (point.second * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
-    // }
+    auto collisionPoints = getCollisionPoints(currentSprite);
+    for (const auto& point : collisionPoints) {
+        C2D_DrawRectSolid(point.first + (SCREEN_WIDTH / 2), (point.second * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
+    }
     // Draw mouse pointer
     C2D_DrawRectSolid(mousePointer.x + (SCREEN_WIDTH / 2), (mousePointer.y * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
 }

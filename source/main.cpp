@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <chrono>
 #include <nlohmann/json.hpp>
 #include "interpret.hpp"
 #include "render.hpp"
@@ -102,6 +103,9 @@ int main(int argc, char **argv)
 	renderInit();
 	romfsInit();
 
+std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
+
 
 
 
@@ -118,10 +122,15 @@ int main(int argc, char **argv)
 
 	while (aptMainLoop())
 	{
-		getInput();
-		runRepeatBlocks();
-		renderSprites();
 		
+		endTime = std::chrono::high_resolution_clock::now();
+		if(endTime - startTime >= std::chrono::milliseconds(33)){
+			startTime = std::chrono::high_resolution_clock::now();
+			getInput();
+			runRepeatBlocks();
+			renderSprites();
+		}
+
 		//gspWaitForVBlank();
 
 		// if(toExit){

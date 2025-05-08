@@ -27,10 +27,15 @@ struct Block {
         PROCEDURES_CALL,
         ARGUMENT_REPORTER_STRING_NUMBER,
         ARGUMENT_REPORTER_BOOLEAN,
+        MOTION_MOVE_STEPS,
+        MOTION_POINT_TOWARD,
+        MOTION_POINT_TOWARD_MENU,
         MOTION_XPOSITION,
         MOTION_YPOSITION,
         MOTION_DIRECTION,
         MOTION_GOTOXY,
+        MOTION_GOTO,
+        MOTION_GOTO_MENU,
         MOTION_POINTINDIRECTION,
         MOTION_TURNRIGHT,
         MOTION_TURNLEFT,
@@ -51,6 +56,8 @@ struct Block {
         LOOKS_NEXTCOSTUME,
         LOOKS_CHANGESIZEBY,
         LOOKS_SETSIZETO,
+        LOOKS_GO_FORWARD_BACKWARD_LAYERS,
+        LOOKS_GO_TO_FRONT_BACK,
         SOUND_VOLUME,
         SENSING_TIMER,
         SENSING_RESETTIMER,
@@ -83,6 +90,12 @@ struct Block {
         DATA_ITEMOFLIST,
         DATA_ITEMNUMOFLIST,
         DATA_LENGTHOFLIST,
+        DATA_ADD_TO_LIST,
+        DATA_DELETE_OF_LIST,
+        DATA_DELETE_ALL_OF_LIST,
+        DATA_INSERT_AT_LIST,
+        DATA_REPLACE_ITEM_OF_LIST,
+        DATA_LIST_CONTAINS_ITEM,
         SENSING_KEYPRESSED,
         SENSING_KEYOPTIONS,
         SENSING_OF,
@@ -92,6 +105,8 @@ struct Block {
         SENSING_MOUSEDOWN,
         SENSING_MOUSEX,
         SENSING_MOUSEY,
+        SENSING_DISTANCETO,
+        SENSING_DISTANCETO_MENU,
         OPERATOR_EQUALS,
         OPERATOR_GT,
         OPERATOR_LT,
@@ -118,6 +133,11 @@ struct Block {
         if(opCodeString == "motion_yposition")return MOTION_YPOSITION;
         if(opCodeString == "motion_direction")return MOTION_DIRECTION;
         if(opCodeString == "motion_gotoxy")return MOTION_GOTOXY;
+        if(opCodeString == "motion_goto")return MOTION_GOTO;
+        if(opCodeString == "motion_goto_menu")return MOTION_GOTO_MENU;
+        if(opCodeString == "motion_movesteps")return MOTION_MOVE_STEPS;
+        if(opCodeString == "motion_pointtowards")return MOTION_POINT_TOWARD;
+        if(opCodeString == "motion_pointtowards_menu")return MOTION_POINT_TOWARD_MENU;
         if(opCodeString == "motion_pointindirection")return MOTION_POINTINDIRECTION;
         if(opCodeString == "motion_turnright")return MOTION_TURNRIGHT;
         if(opCodeString == "motion_turnleft")return MOTION_TURNLEFT;
@@ -138,6 +158,8 @@ struct Block {
         if(opCodeString == "looks_costumenumbername")return LOOKS_COSTUMENUMBERNAME;
         if(opCodeString == "looks_changesizeby")return LOOKS_CHANGESIZEBY;
         if(opCodeString == "looks_setsizeto")return LOOKS_SETSIZETO;
+        if(opCodeString == "looks_goforwardbackwardlayers")return LOOKS_GO_FORWARD_BACKWARD_LAYERS;
+        if(opCodeString == "looks_gotofrontback")return LOOKS_GO_TO_FRONT_BACK;
         if(opCodeString == "sound_volume")return SOUND_VOLUME;
         if(opCodeString == "sensing_timer")return SENSING_TIMER;
         if(opCodeString == "sensing_resettimer")return SENSING_RESETTIMER;
@@ -170,12 +192,20 @@ struct Block {
         if(opCodeString == "data_itemoflist")return DATA_ITEMOFLIST;
         if(opCodeString == "data_itemnumoflist")return DATA_ITEMNUMOFLIST;
         if(opCodeString == "data_lengthoflist")return DATA_LENGTHOFLIST;
+        if(opCodeString == "data_addtolist")return DATA_ADD_TO_LIST;
+        if(opCodeString == "data_deleteoflist")return DATA_DELETE_OF_LIST;
+        if(opCodeString == "data_deletealloflist")return DATA_DELETE_ALL_OF_LIST;
+        if(opCodeString == "data_insertatlist")return DATA_INSERT_AT_LIST;
+        if(opCodeString == "data_replaceitemoflist")return DATA_REPLACE_ITEM_OF_LIST;
+        if(opCodeString == "data_listcontainsitem")return DATA_LIST_CONTAINS_ITEM;
         if(opCodeString == "sensing_keypressed")return SENSING_KEYPRESSED;
         if(opCodeString == "sensing_keyoptions")return SENSING_KEYOPTIONS;
         if(opCodeString == "sensing_of")return SENSING_OF;
         if(opCodeString == "sensing_of_object_menu")return SENSING_OF_OBJECT_MENU;
         if(opCodeString == "sensing_touchingobject")return SENSING_TOUCHINGOBJECT;
         if(opCodeString == "sensing_touchingobjectmenu")return SENSING_TOUCHINGOBJECTMENU;
+        if(opCodeString == "sensing_distanceto")return SENSING_DISTANCETO;
+        if(opCodeString == "sensing_distancetomenu")return SENSING_DISTANCETO_MENU;
         if(opCodeString == "sensing_mousedown")return SENSING_MOUSEDOWN;
         if(opCodeString == "sensing_mousex")return SENSING_MOUSEX;
         if(opCodeString == "sensing_mousey")return SENSING_MOUSEY;
@@ -201,6 +231,7 @@ struct Block {
     std::unordered_map<std::string, nlohmann::json> mutation;
     bool shadow;
     bool topLevel;
+    std::string topLevelParentBlock;
 
 };
 

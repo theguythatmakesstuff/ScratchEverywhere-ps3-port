@@ -40,6 +40,7 @@ extern bool toExit;
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite);
 void loadSprites(const nlohmann::json& json);
 void cleanupSprites();
+Block getBlockParent(Block block);
 void initializeSpritePool(int poolSize);
 void runRepeatBlocks();
 Sprite* getAvailableSprite();

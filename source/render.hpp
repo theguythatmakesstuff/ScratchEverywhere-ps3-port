@@ -15,8 +15,11 @@ extern u32 clrWhite;
 extern u32 clrBlack;
 extern std::chrono::_V2::system_clock::time_point startTime;
 extern std::chrono::_V2::system_clock::time_point endTime;
+extern int projectWidth;
+extern int projectHeight;
 
 double degreesToRadians(double degrees);
+double getMaxSpriteLayer();
 std::string getUsername();
 void renderInit();
 void freeImage(Sprite* currentSprite, const std::string& costumeId);

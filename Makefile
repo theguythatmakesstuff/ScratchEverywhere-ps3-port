@@ -39,9 +39,9 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-APP_TITLE 	:=	Scratch For 3DS
-APP_DESCRIPTION := piss
-APP_AUTHOR 	:= NateXL
+APP_TITLE 	:=	Scratch 3DS Runtime
+APP_DESCRIPTION := Scratch runtime built for the Nintendo 3DS.
+APP_AUTHOR 	:= NateXS
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source

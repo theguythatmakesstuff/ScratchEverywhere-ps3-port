@@ -27,27 +27,37 @@ void getInput(){
             inputButtons.push_back("1");
         }
         if(kDown & KEY_DUP){
-            inputButtons.push_back("up arrow");
+            if(kDown & KEY_L)
             mousePointer.y += 3;
+            else
+            inputButtons.push_back("up arrow");
         }
         if(kDown & KEY_DDOWN){
-            inputButtons.push_back("down arrow");
+            if(kDown & KEY_L)
             mousePointer.y -= 3;
+            else
+            inputButtons.push_back("down arrow");
         }
         if(kDown & KEY_DLEFT){
-            inputButtons.push_back("left arrow");
+            if(kDown & KEY_L)
             mousePointer.x -= 3;
+            else
+            inputButtons.push_back("left arrow");
         }
         if(kDown & KEY_DRIGHT){
-            inputButtons.push_back("right arrow");
+            if(kDown & KEY_L)
             mousePointer.x += 3;
+            else
+            inputButtons.push_back("right arrow");
         }
         if(kDown & KEY_L){
             inputButtons.push_back("l");
         }
         if(kDown & KEY_R){
-            inputButtons.push_back("r");
+            if(kDown & KEY_L)
             mousePointer.isPressed = true;
+            else
+            inputButtons.push_back("r");
         }
         if(kDown & KEY_ZL){
             inputButtons.push_back("z");
@@ -56,16 +66,16 @@ void getInput(){
             inputButtons.push_back("x");
         }
         if(kDown & KEY_CPAD_UP){
-            inputButtons.push_back("w");
+            inputButtons.push_back("up arrow");
         }
         if(kDown & KEY_CPAD_DOWN){
-            inputButtons.push_back("s");
+            inputButtons.push_back("down arrow");
         }
         if(kDown & KEY_CPAD_LEFT){
-            inputButtons.push_back("a");
+            inputButtons.push_back("left arrow");
         }
         if(kDown & KEY_CPAD_RIGHT){
-            inputButtons.push_back("d");
+            inputButtons.push_back("right arrow");
         }
         if(kDown & KEY_CSTICK_UP){
             inputButtons.push_back("y");
