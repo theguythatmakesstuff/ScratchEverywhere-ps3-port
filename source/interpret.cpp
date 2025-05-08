@@ -5,6 +5,7 @@ std::vector<Sprite> spritePool;
 std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string,Conditional> conditionals;
 std::unordered_map<std::string, Block*> blockLookup;
+Mouse mousePointer;
 double timer = 0;
 bool toExit = false;
 
@@ -64,6 +65,15 @@ Sprite* getAvailableSprite() {
         }
     }
     return nullptr;  // No available sprites
+}
+
+void cleanupSprites() {
+    for (Sprite* sprite : sprites) {
+        delete sprite;
+    }
+
+    spritePool.clear();
+    sprites.clear();
 }
 
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite) {
@@ -379,7 +389,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
                 }
             }
 
-            std::cout << "Value = " << value << std::endl << "Object = " << object << std::endl;
+            //std::cout << "Value = " << value << std::endl << "Object = " << object << std::endl;
 
             if (value == "timer") {
                 return std::to_string(timer);
@@ -404,6 +414,13 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
                     return variable.value;
                 }
             }
+        }
+
+        case Block::SENSING_MOUSEX:{
+            return std::to_string(mousePointer.x);
+        }
+        case Block::SENSING_MOUSEY:{
+            return std::to_string(mousePointer.y);
         }
 
         case Block::OPERATOR_ADD: {
@@ -646,23 +663,74 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
             break;
         }
 
-        case Block::SENSING_TOUCHINGOBJECT:{
-            std::string objectName = block.fields["TOUCHINGOBJECTMENU"][0];
-            getVariableValue(block.inputs["TOUCHINGOBJECTMENU"][1], sprite);
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->name == objectName) {
-                    std::vector<std::pair<double, double>> collisionPoints = getCollisionPoints(currentSprite);
-                    for (const auto& point : collisionPoints) {
-                        if (point.first >= currentSprite->xPosition - currentSprite->spriteWidth / 2 &&
-                            point.first <= currentSprite->xPosition + currentSprite->spriteWidth / 2 &&
-                            point.second >= currentSprite->yPosition - currentSprite->spriteHeight / 2 &&
-                            point.second <= currentSprite->yPosition + currentSprite->spriteHeight / 2) {
+        case Block::SENSING_TOUCHINGOBJECT: {
+            Block inputBlock = findBlock(block.inputs["TOUCHINGOBJECTMENU"][1]);
+            std::string objectName;
+            try {
+                objectName = inputBlock.fields["TOUCHINGOBJECTMENU"][0];
+            } catch (...) {
+                std::cerr << "Error: Unable to find object for SENSING_TOUCHINGOBJECT block." << std::endl;
+                return false;
+            }
+
+           // std::cout << "Object name = " << objectName << std::endl;
+
+            // Get collision points of the current sprite
+            std::vector<std::pair<double, double>> currentSpritePoints = getCollisionPoints(sprite);
+
+            if(objectName == "_mouse_") {
+                // Check if the mouse pointer's position is within the bounds of the current sprite
+                if (mousePointer.x >= sprite->xPosition - sprite->spriteWidth / 2 &&
+                    mousePointer.x <= sprite->xPosition + sprite->spriteWidth / 2 &&
+                    mousePointer.y >= sprite->yPosition - sprite->spriteHeight / 2 &&
+                    mousePointer.y <= sprite->yPosition + sprite->spriteHeight / 2) {
+                    return true;
+                }
+                return false;
+            }
+
+            if(objectName == "_edge_"){
+                // Check if the current sprite is touching the edge of the screen
+                if (sprite->xPosition <= -240 || sprite->xPosition >= 240 ||
+                    sprite->yPosition <= -160 || sprite->yPosition >= 160) {
+                    return true;
+                }
+                return false;
+            }
+
+            for (Sprite* targetSprite : sprites) {
+                if (targetSprite->name == objectName) {
+                    //std::cout << "Found object: " << targetSprite->name << std::endl;
+
+                    // Get collision points of the target sprite
+                    std::vector<std::pair<double, double>> targetSpritePoints = getCollisionPoints(targetSprite);
+
+                    // Check if any point of the current sprite is inside the target sprite's bounds
+                    for (const auto& point : currentSpritePoints) {
+                        if (point.first >= targetSprite->xPosition - targetSprite->spriteWidth / 2 &&
+                            point.first <= targetSprite->xPosition + targetSprite->spriteWidth / 2 &&
+                            point.second >= targetSprite->yPosition - targetSprite->spriteHeight / 2 &&
+                            point.second <= targetSprite->yPosition + targetSprite->spriteHeight / 2) {
+                            return true;
+                        }
+                    }
+
+                    // Check if any point of the target sprite is inside the current sprite's bounds
+                    for (const auto& point : targetSpritePoints) {
+                        if (point.first >= sprite->xPosition - sprite->spriteWidth / 2 &&
+                            point.first <= sprite->xPosition + sprite->spriteWidth / 2 &&
+                            point.second >= sprite->yPosition - sprite->spriteHeight / 2 &&
+                            point.second <= sprite->yPosition + sprite->spriteHeight / 2) {
                             return true;
                         }
                     }
                 }
             }
             break;
+        }
+
+        case Block::SENSING_MOUSEDOWN:{
+            return mousePointer.isPressed;
         }
 
         case Block::OPERATOR_EQUALS: {
@@ -924,7 +992,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
         case block.LOOKS_SWITCHCOSTUMETO:{
            std::string inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);
-           std::cout << "costume = " << inputValue << std::endl;
+           //std::cout << "costume = " << inputValue << std::endl;
            
            if (isNumber(inputValue)){
                 int costumeIndex = std::stoi(inputValue) - 1;
@@ -934,7 +1002,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                     }
                     sprite->currentCostume = costumeIndex;
                 } else {
-                    std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
+                    //std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
                 }
             } else {
                 for (size_t i = 0; i < sprite->costumes.size(); i++) {
@@ -1109,6 +1177,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             } else {
                 sprite->conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
+                sprite->conditionals.erase(block.id);
             }
             goto nextBlock;
 
@@ -1131,6 +1200,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             } else {
                 sprite->conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
+                //conditionals.erase(block.id);
             }
             if (sprite->conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
@@ -1212,6 +1282,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 spriteToClone->isStage = false;
                 spriteToClone->toDelete = false;
                 spriteToClone->id = generateRandomString(15);
+                std::cout << "Created clone of " << sprite->name << std::endl;
                 std::unordered_map<std::string, Block> newBlocks;
                 for (auto& [id, block] : spriteToClone->blocks) {
                     if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
@@ -1244,6 +1315,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.CONTROL_DELETE_THIS_CLONE: {
+            std::cout << "Deleting clone " << sprite->name << std::endl;
             sprite->toDelete = true;
             return;
         }
@@ -1254,6 +1326,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 toExit = true;
                 break;
             }
+            goto nextBlock;
             
         }
 
@@ -1318,6 +1391,7 @@ void runRepeatBlocks(){
                 }
             
             }
+            //else currentSprite->conditionals.erase(id);
         }
     }
            // remove sprites ready for deletion
@@ -1440,22 +1514,25 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
     return "";
 }
 
-std::string getInputValue(nlohmann::json item, Block* block, Sprite* sprite) {
+std::string getInputValue(nlohmann::json& item, Block* block, Sprite* sprite) {
+    int type = item[0];
+    auto& data = item[1];
+
     // 1 is just a plain number
-    if (item[0] == 1) {
-        return item[1][1].get<std::string>(); // Convert JSON to string
+    if (type == 1) {
+        return data[1].get<std::string>(); // Convert JSON to string
     }
     // 3 is if there is a variable of some kind inside
-    if (item[0] == 3) {
-        if (item[1].is_array()) {
-            return getVariableValue(item[1][2],sprite);
+    if (type == 3) {
+        if (data.is_array()) {
+            return getVariableValue(data[2],sprite);
         } else {
-            return getValueOfBlock(findBlock(item[1]), sprite);
+            return getValueOfBlock(findBlock(data), sprite);
         }
     }
     // 2 SEEMS to be a boolean
-    if(item[0] == 2){
-        return std::to_string(runConditionalStatement(findBlock(item[1]).id, sprite));
+    if(type == 2){
+        return std::to_string(runConditionalStatement(findBlock(data).id, sprite));
     }
     return "0";
 }

@@ -17,18 +17,29 @@
 #include <chrono>
 #include <random>
 
+
+struct Mouse{
+    int x;
+    int y;
+    bool isPressed;
+};
+
+
 extern std::vector<Sprite*> sprites;
 extern std::vector<Sprite> spritePool;
 extern std::vector<Sprite> spritePool;
 extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string,Conditional> conditionals;
 extern std::unordered_map<std::string, Block*> blockLookup;
+extern Mouse mousePointer;
 extern double timer;
 extern bool toExit;
 
 
+
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite);
 void loadSprites(const nlohmann::json& json);
+void cleanupSprites();
 void initializeSpritePool(int poolSize);
 void runRepeatBlocks();
 Sprite* getAvailableSprite();
@@ -43,7 +54,7 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock = Block(), bool witho
 Block findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(Block::opCode opcodeToFind);
-std::string getInputValue(nlohmann::json item,Block* block,Sprite* sprite);
+std::string getInputValue(nlohmann::json& item,Block* block,Sprite* sprite);
 std::string getVariableValue(std::string variableId,Sprite*sprite);
 bool isNumber(const std::string& id);
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);

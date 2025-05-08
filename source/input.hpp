@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <3ds.h>
+#include "interpret.hpp"
 
 
 extern std::vector<std::string> inputButtons;

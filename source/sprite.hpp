@@ -89,6 +89,9 @@ struct Block {
         SENSING_OF_OBJECT_MENU,
         SENSING_TOUCHINGOBJECT,
         SENSING_TOUCHINGOBJECTMENU,
+        SENSING_MOUSEDOWN,
+        SENSING_MOUSEX,
+        SENSING_MOUSEY,
         OPERATOR_EQUALS,
         OPERATOR_GT,
         OPERATOR_LT,
@@ -173,6 +176,9 @@ struct Block {
         if(opCodeString == "sensing_of_object_menu")return SENSING_OF_OBJECT_MENU;
         if(opCodeString == "sensing_touchingobject")return SENSING_TOUCHINGOBJECT;
         if(opCodeString == "sensing_touchingobjectmenu")return SENSING_TOUCHINGOBJECTMENU;
+        if(opCodeString == "sensing_mousedown")return SENSING_MOUSEDOWN;
+        if(opCodeString == "sensing_mousex")return SENSING_MOUSEX;
+        if(opCodeString == "sensing_mousey")return SENSING_MOUSEY;
         if(opCodeString == "operator_equals")return OPERATOR_EQUALS;
         if(opCodeString == "operator_gt")return OPERATOR_GT;
         if(opCodeString == "operator_lt")return OPERATOR_LT;

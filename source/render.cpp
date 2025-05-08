@@ -127,8 +127,8 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
             if(rgba.name == costumeId){
                 //C3D_TexDelete(image->tex);
                 //free(image->tex);
-                currentSprite->spriteWidth = rgba.width;
-                currentSprite->spriteHeight = rgba.height;
+                currentSprite->spriteWidth = rgba.width / 2;
+                currentSprite->spriteHeight = rgba.height / 2;
                 imageC2Ds[costumeId] = get_C2D_Image(rgba);
                 break;
 
@@ -140,16 +140,34 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
 
     if (!legacyDrawing) {
         double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
-        C2D_DrawImageAtRotated(*image, currentSprite->xPosition + (SCREEN_WIDTH / 2), (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2), 1.0f, rotation, nullptr, 0.5f, 0.5f);
+        C2D_DrawImageAtRotated(
+            *image,
+            currentSprite->xPosition + (SCREEN_WIDTH / 2),
+            (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),
+            1.0f,
+            rotation,
+            nullptr,
+            (currentSprite->size / 100) / 2.0f,
+            (currentSprite->size / 100) / 2.0f
+        );
     } else {
-        C2D_DrawRectSolid(currentSprite->xPosition + (SCREEN_WIDTH / 2), (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2), 1, 10, 10, clrBlack);
+        C2D_DrawRectSolid(
+            currentSprite->xPosition + (SCREEN_WIDTH / 2),
+            (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),
+            1,
+            10,
+            10,
+            clrBlack
+        );
     }
 
     // Draw collision points
-    auto collisionPoints = getCollisionPoints(currentSprite);
-    for (const auto& point : collisionPoints) {
-        C2D_DrawRectSolid(point.first + (SCREEN_WIDTH / 2), (point.second * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
-    }
+    // auto collisionPoints = getCollisionPoints(currentSprite);
+    // for (const auto& point : collisionPoints) {
+    //     C2D_DrawRectSolid(point.first + (SCREEN_WIDTH / 2), (point.second * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
+    // }
+    // Draw mouse pointer
+    C2D_DrawRectSolid(mousePointer.x + (SCREEN_WIDTH / 2), (mousePointer.y * -1) + (SCREEN_HEIGHT / 2), 1, 5, 5, clrBlack);
 }
 
 void renderDeInit(){

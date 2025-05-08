@@ -86,6 +86,7 @@ static void exitApp(){
 	// Deinit libs
 	//C2D_SpriteSheetFree(spriteSheet); // delete sprites
 	//freeText(); // kill text
+	//cleanupSprites(); // delete sprites
 	renderDeInit(); // from render.hpp
 	romfsExit(); // unload the filesystem
 	//ndspExit(); // unload audio
@@ -123,9 +124,9 @@ int main(int argc, char **argv)
 		
 		//gspWaitForVBlank();
 
-		if(toExit){
-			break;
-		}
+		// if(toExit){
+		// 	break;
+		// }
 	}
 
 	exitApp();
