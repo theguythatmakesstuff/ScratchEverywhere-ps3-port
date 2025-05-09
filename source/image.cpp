@@ -79,20 +79,7 @@ for (int i = 0; i < file_count; i++) {
         newRGBA.data = rgba_data;
         memorySize += sizeof(newRGBA);
         imageRBGAs.push_back(newRGBA);
-        //C2D_Image newImage;
-        //newImage.tex = nullptr;
-        //newImage.subtex = nullptr;
-        //imageC2Ds[newRGBA.name] = newImage;
-      //imageC2Ds[newRGBA.name] = get_C2D_Image(imageRBGAs.back());
-       // printf("Loaded PNG: %s (%dx%d)\n", zipFileName.c_str(), width, height);
-       // std::cout << "RGBA capacity: "<< imageRBGAs.capacity() << std::endl;
-        //imageRBGAs.clear();
 
-        // You now have rgba_data with dimensions width x height
-        // Store it, render it, or do whatever you want here
-
-        // Free the image and ZIP data when done
-        //stbi_image_free(rgba_data);
         mz_free(png_data);
     }
 }
@@ -103,7 +90,7 @@ for (int i = 0; i < file_count; i++) {
  * and return a `C2D_Image` object.
  * Assumes image data is stored left->right, top->bottom.
  * Dimensions must be within 64x64 and 1024x1024.
- * Code lovingly taken from sheepy0125 on GBATemp, with edits for my needs. */
+ * Code here mostly from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/ */
 C2D_Image get_C2D_Image(ImageRGBA rgba) {
     //std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
 
