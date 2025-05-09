@@ -1137,7 +1137,12 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             goto nextBlock;
         }
         case block.LOOKS_SWITCHCOSTUMETO:{
-           std::string inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);
+            std::string inputValue;
+            try{
+           inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);}
+           catch(...){
+                inputValue = getInputValue(block.inputs["COSTUME"],&block,sprite);
+            }
            //std::cout << "costume = " << inputValue << std::endl;
            
            if (isNumber(inputValue)){
