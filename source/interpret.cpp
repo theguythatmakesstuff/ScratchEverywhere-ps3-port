@@ -648,7 +648,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         default:
             break;
     }
-    return "";
+    return std::to_string(runConditionalStatement(block.id, sprite));
 }
 
 
@@ -1089,7 +1089,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if (isNumber(value)) {
                 sprite->xPosition += std::stod(value);
             } else {
-                //std::cerr << "Invalid X position " << value << std::endl;
+                std::cerr << "Invalid X position " << value << std::endl;
             }
             goto nextBlock;
         }
@@ -1099,7 +1099,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if (isNumber(value)) {
                 sprite->yPosition += std::stod(value);
             } else {
-                //std::cerr << "Invalid Y position " << value << std::endl;
+                std::cerr << "Invalid Y position " << value << std::endl;
             }
             goto nextBlock;
         }
