@@ -4,19 +4,12 @@
 A W.I.P. runtime made in C++ aimed to bring any Scratch 3 project over to the Nintendo 3DS.
 
 
-![Software running a simple Scratch Project](https://github.com/NateXS/Scratch-3DS/main/scratchcats3ds.gif)
+![Software running a simple Scratch Project](https://raw.githubusercontent.com/NateXS/Scratch-3DS/refs/heads/main/scratchcats3ds.gif)
 
-## Is This Legal?
-
-Only open source SDKs are used for the development of this software.
-
-No Nintendo SDKs are used in any part of it, as such there are no legal issues with it.
-
-Scratch itself is open source, and the Scratch Team has no issue with anyone making custom versions of it.
 ## Controls
 
 
-![Controls](https://github.com/NateXS/Scratch-3DS/main/scratch%203ds%20controls.png)
+![Controls](https://raw.githubusercontent.com/NateXS/Scratch-3DS/refs/heads/main/scratch%203ds%20controls.png)
 
 To use the mouse pointer you must enter mouse mode by holding L and using the DPad to move the mouse. to click you press R while holding L.
 
