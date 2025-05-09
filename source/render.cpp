@@ -156,29 +156,29 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
     double maxLayer = getMaxSpriteLayer();
     double scaleX = static_cast<double>(SCREEN_WIDTH) / projectWidth;
     double scaleY = static_cast<double>(SCREEN_HEIGHT) / projectHeight;
-    double scale = std::min(scaleX, scaleY); // Use the smaller scale to maintain aspect ratio
-    if (!legacyDrawing) {
-        double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
-        C2D_DrawImageAtRotated(
-            *image,
-            currentSprite->xPosition + (SCREEN_WIDTH / 2),
-            (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),
-            currentSprite->layer / maxLayer,
-            rotation,
-            nullptr,
-            (currentSprite->size / 100) * scale / 2.0f,
-            (currentSprite->size / 100) * scale / 2.0f
-        );
-    } else {
-        C2D_DrawRectSolid(
-            currentSprite->xPosition + (SCREEN_WIDTH / 2),
-            (currentSprite->yPosition * -1) + (SCREEN_HEIGHT / 2),
-            currentSprite->layer / maxLayer,
-            10,
-            10,
-            clrBlack
-        );
-    }
+    double scale = std::min(scaleX, scaleY); // smaller scale is to maintain aspect ratio 
+if (!legacyDrawing) {
+    double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
+    C2D_DrawImageAtRotated(
+        *image,
+        (currentSprite->xPosition * scale) + (SCREEN_WIDTH / 2),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT / 2),
+        currentSprite->layer / maxLayer,
+        rotation,
+        nullptr,
+        (currentSprite->size / 100) * scale / 2.0f,
+        (currentSprite->size / 100) * scale / 2.0f 
+    );
+} else {
+    C2D_DrawRectSolid(
+        (currentSprite->xPosition * scale) + (SCREEN_WIDTH / 2),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT / 2),
+        currentSprite->layer / maxLayer,
+        10 * scale,
+        10 * scale, 
+        clrBlack
+    );
+}
 
     // Draw collision points
     // auto collisionPoints = getCollisionPoints(currentSprite);

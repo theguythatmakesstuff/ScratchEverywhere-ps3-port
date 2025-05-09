@@ -736,10 +736,14 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
                 return false;
             }
 
-            if(objectName == "_edge_"){
+            if (objectName == "_edge_") {
+                
+                double halfWidth = projectWidth / 2.0;
+                double halfHeight = projectHeight / 2.0;
+
                 // Check if the current sprite is touching the edge of the screen
-                if (sprite->xPosition <= -240 || sprite->xPosition >= 240 ||
-                    sprite->yPosition <= -160 || sprite->yPosition >= 160) {
+                if (sprite->xPosition <= -halfWidth || sprite->xPosition >= halfWidth ||
+                    sprite->yPosition <= -halfHeight || sprite->yPosition >= halfHeight) {
                     return true;
                 }
                 return false;
