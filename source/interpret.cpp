@@ -805,6 +805,11 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         case Block::OPERATOR_EQUALS: {
             std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+
+            if(std::floor(std::stod(value1)) == std::stod(value1) && std::floor(std::stod(value2)) == std::stod(value2) ){
+                return (std::floor(std::stod(value1)) == std::floor(std::stod(value2)));
+            }
+
             return value1 == value2;
         }
 
@@ -942,6 +947,11 @@ void runCustomBlock(Sprite*sprite,Block block){
 
 void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScreenRefresh) {
     auto start = std::chrono::high_resolution_clock::now();
+
+    if(!sprite || sprite->toDelete){
+        return;
+    }
+
     while(block.id != "null"){
 
     switch (block.opcode) {
@@ -1428,7 +1438,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             } else {
                 sprite->conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
-                sprite->conditionals.erase(block.id);
+               // sprite->conditionals.erase(block.id);
             }
             goto nextBlock;
         }
@@ -1471,10 +1481,11 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 }
             }
             if (spriteToClone != nullptr && !spriteToClone->name.empty()) {
-                for (auto& [id, conditional] : spriteToClone->conditionals) {
-                    conditional.hostSprite = spriteToClone;
-                    conditional.isTrue = false;
-                }
+                spriteToClone->conditionals.clear();
+                // for (auto& [id, conditional] : spriteToClone->conditionals) {
+                //     conditional.hostSprite = spriteToClone;
+                //     conditional.isTrue = false;
+                // }
                 spriteToClone->isClone = true;
                 spriteToClone->isStage = false;
                 spriteToClone->toDelete = false;
@@ -1513,8 +1524,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
         case block.CONTROL_DELETE_THIS_CLONE: {
            // std::cout << "Deleting clone " << sprite->name << std::endl;
-            sprite->toDelete = true;
-            return;
+           sprite->toDelete = true;
+            goto nextBlock;
         }
 
         case block.CONTROL_STOP: {
@@ -1697,6 +1708,17 @@ nextBlock:
 
             block = *blockLookup[block.next];
     } else {
+
+        // if(sprite->toDelete){
+        //     int idx = 0;
+        //     for(auto& currentSprite : sprites){
+        //         if(currentSprite->id == sprite->id){
+        //             sprites.erase(sprites.begin() + idx);
+        //         }
+        //         idx++;
+        //     }
+        // }
+
        runBroadcasts();
         if (!waitingBlock.id.empty()) {
             block = *blockLookup[waitingBlock.id];
@@ -1729,6 +1751,13 @@ void runRepeatBlocks(){
         }
     }
            // remove sprites ready for deletion
+
+        for(auto& currentSprite : sprites){
+            if(currentSprite->toDelete){
+                currentSprite->conditionals.clear();
+            }
+        }
+
            sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 }
 
@@ -1760,7 +1789,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
             }
         }
 
-        //std::cout<<"Local Variable set. " << sprite->variables[variableId].value << std::endl;
+        std::cout<<"Local Variable set. "  << sprite->variables[variableId].name  << " = "<< sprite->variables[variableId].value << std::endl;
 
     }
     // global Variable (TODO fix redundant code later :grin:)
@@ -1792,7 +1821,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                     }
                 }
         
-               // std::cout<<"Global Variable set to " << var.value << std::endl;
+               std::cout<<"Global Variable set. "  << var.name << " = "<< var.value << std::endl;
             }
         }
     }
