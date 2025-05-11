@@ -353,6 +353,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         case Block::LOOKS_COSTUMENUMBERNAME:{
             std::string value = block.fields["NUMBER_NAME"][0];
             if(value == "name"){
+                std::cout << "got costume name " << sprite->costumes[sprite->currentCostume].name << std::endl;
                 return sprite->costumes[sprite->currentCostume].name;
             }
             else if(value == "number"){
@@ -1365,13 +1366,17 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.blockId = block.id;
                 newConditional.hostSprite = sprite;
                 newConditional.isTrue = false;
+                newConditional.hasRunThisFrame = false;
                 newConditional.times = -1;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
+            if(sprite->conditionals[block.id].hasRunThisFrame) goto nextBlock;
+
             if (block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
                 sprite->conditionals[block.id].isTrue = true;
+                sprite->conditionals[block.id].hasRunThisFrame = true;
             } else {
                 sprite->conditionals[block.id].isTrue = false;
                 waitingBlock = conditionals[block.id].waitingBlock;
@@ -1395,18 +1400,30 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.blockId = block.id;
                 newConditional.hostSprite = sprite;
                 newConditional.isTrue = false;
+                newConditional.hasRunThisFrame = false;
                 newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"], &block, sprite));
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
-            if (conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
-                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                runBlock(subBlock, sprite);
+            if(sprite->conditionals[block.id].hasRunThisFrame) goto nextBlock;
+
+            if (sprite->conditionals[block.id].isTrue) {
+                if (!block.inputs["SUBSTACK"][1].is_null()) {
+                    Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                if (subBlock.id != "null") {
+                runBlock(subBlock, sprite); // Run the substack
+            } else {
+                std::cerr << "Substack block not found for Block ID: " << block.id << std::endl;
             }
+        } else {
+            std::cerr << "Substack is null for Block ID: " << block.id << std::endl;
+        }
+    }
             if (sprite->conditionals[block.id].times > 0) {
                 sprite->conditionals[block.id].isTrue = true;
                 sprite->conditionals[block.id].times--;
+                sprite->conditionals[block.id].hasRunThisFrame = true;
                 return;
             } else {
                 sprite->conditionals[block.id].isTrue = false;
@@ -1424,15 +1441,19 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.hostSprite = sprite;
                 newConditional.isTrue = false;
                 newConditional.times = -1;
+                newConditional.hasRunThisFrame = false;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
+            if(sprite->conditionals[block.id].hasRunThisFrame) goto nextBlock;
+
             if (sprite->conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
                 Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                 runBlock(subBlock, sprite);
             }
             sprite->conditionals[block.id].isTrue = true;
+            sprite->conditionals[block.id].hasRunThisFrame = true;
             goto nextBlock;
         }
 
@@ -1690,14 +1711,16 @@ nextBlock:
 void runRepeatBlocks(){
     //std::cout<<"Running repeat blocks..."<< std::endl;
     for(auto &currentSprite : sprites){
-    for(const auto &[id,data] : currentSprite->conditionals){
+    for(auto &[id,data] : currentSprite->conditionals){
         if(data.isTrue){
             if(data.runWithoutScreenRefresh){
                 while(data.isTrue){
+                    data.hasRunThisFrame = false;
                     runBlock(findBlock(data.blockId),data.hostSprite);
                 }
             }
             else{
+                data.hasRunThisFrame = false;
             runBlock(findBlock(data.blockId),data.hostSprite);
                 }
             

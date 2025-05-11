@@ -256,6 +256,7 @@ struct Conditional{
     bool runWithoutScreenRefresh;
     bool isTrue;
     int times;
+    bool hasRunThisFrame;
     std::chrono::_V2::system_clock::time_point time;
     double endTime;
 };
