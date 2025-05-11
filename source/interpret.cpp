@@ -1732,6 +1732,7 @@ nextBlock:
 
 void runRepeatBlocks(){
     //std::cout<<"Running repeat blocks..."<< std::endl;
+    std::vector<Conditional*> condsToDelete;
     for(auto &currentSprite : sprites){
     for(auto &[id,data] : currentSprite->conditionals){
         if(data.isTrue){
@@ -1748,6 +1749,7 @@ void runRepeatBlocks(){
             
             }
             //else currentSprite->conditionals.erase(id);
+            else condsToDelete.push_back(&currentSprite->conditionals[id]);
         }
     }
            // remove sprites ready for deletion
@@ -1757,6 +1759,18 @@ void runRepeatBlocks(){
                 currentSprite->conditionals.clear();
             }
         }
+
+            // Delete the collected conditionals
+        for (Conditional* cond : condsToDelete) {
+            for (auto& currentSprite : sprites) {
+             for (auto it = currentSprite->conditionals.begin(); it != currentSprite->conditionals.end(); ++it) {
+              if (&it->second == cond) {
+                    currentSprite->conditionals.erase(it);
+                    break;
+                }
+            }
+        }
+    }
 
            sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 }
