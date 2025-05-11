@@ -1538,6 +1538,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
         case block.CONTROL_DELETE_THIS_CLONE: {
            // std::cout << "Deleting clone " << sprite->name << std::endl;
+           if(sprite->isClone)
            sprite->toDelete = true;
             goto nextBlock;
         }
@@ -1736,6 +1737,7 @@ nextBlock:
        runBroadcasts();
         if (!waitingBlock.id.empty()) {
             block = *blockLookup[waitingBlock.id];
+            withoutScreenRefresh = false;
             waitingBlock = Block(); // reset waiting block
         }
         else break;
