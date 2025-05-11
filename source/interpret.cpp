@@ -803,15 +803,29 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::OPERATOR_EQUALS: {
-            std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
-
+            std::string value1;
+            std::string value2;
+            try{
+            value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
+            value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            }
+            catch(...){
+                std::cout << "failed to get equals values." << std::endl;
+                return false;
+            }
+            try{
             if(std::floor(std::stod(value1)) == std::stod(value1) && std::floor(std::stod(value2)) == std::stod(value2) ){
                 return (std::floor(std::stod(value1)) == std::floor(std::stod(value2)));
             }
+        }
+        catch(...){
+            
+        }
 
             return value1 == value2;
+
         }
+    
 
         case Block::OPERATOR_GT: {
             std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
@@ -1803,7 +1817,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
             }
         }
 
-        std::cout<<"Local Variable set. "  << sprite->variables[variableId].name  << " = "<< sprite->variables[variableId].value << std::endl;
+        //std::cout<<"Local Variable set. "  << sprite->variables[variableId].name  << " = "<< sprite->variables[variableId].value << std::endl;
 
     }
     // global Variable (TODO fix redundant code later :grin:)
@@ -1835,7 +1849,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                     }
                 }
         
-               std::cout<<"Global Variable set. "  << var.name << " = "<< var.value << std::endl;
+              // std::cout<<"Global Variable set. "  << var.name << " = "<< var.value << std::endl;
             }
         }
     }

@@ -166,8 +166,8 @@ if (!legacyDrawing) {
         currentSprite->layer / maxLayer,
         rotation,
         nullptr,
-        (currentSprite->size / 100) * scale / 2.0f,
-        (currentSprite->size / 100) * scale / 2.0f 
+        (currentSprite->size * 0.01) * scale / 2.0f,
+        (currentSprite->size * 0.01) * scale / 2.0f 
     );
 } else {
     C2D_DrawRectSolid(
