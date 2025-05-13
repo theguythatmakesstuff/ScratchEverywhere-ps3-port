@@ -980,7 +980,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.waitingBlock = findBlock(block.next);
                 conditionals[newConditional.id] = newConditional;
             }
-            waitingBlock = findBlock(block.next);
+           waitingBlock = findBlock(block.next);
             runCustomBlock(sprite, block);
             return;
         }
@@ -1735,12 +1735,15 @@ nextBlock:
         // }
 
        runBroadcasts();
-        if (!waitingBlock.id.empty()) {
-            block = *blockLookup[waitingBlock.id];
-            withoutScreenRefresh = false;
-            waitingBlock = Block(); // reset waiting block
-        }
-        else break;
+if (!waitingBlock.id.empty() && blockLookup.find(waitingBlock.id) != blockLookup.end()) {
+    block = *blockLookup[waitingBlock.id];
+    withoutScreenRefresh = false;
+    waitingBlock = Block(); // reset waiting block
+} else {
+    //std::cerr << "Error: Invalid waitingBlock.id or missing block in blockLookup." << std::endl;
+     break;
+}
+       
     }
 }
 

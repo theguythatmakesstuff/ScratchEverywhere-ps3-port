@@ -138,6 +138,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
     //freeImage(currentSprite,costumeId);
     bool legacyDrawing = false;
     if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
+        if(!legacyDrawing){
         for(ImageRGBA rgba : imageRBGAs){
             if(rgba.name == costumeId){
                 //C3D_TexDelete(image->tex);
@@ -150,7 +151,10 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
             }
 
         }
+    }
         legacyDrawing = true;
+        // currentSprite->spriteWidth = 128;
+        // currentSprite->spriteHeight = 128;
     }
 
     double maxLayer = getMaxSpriteLayer();

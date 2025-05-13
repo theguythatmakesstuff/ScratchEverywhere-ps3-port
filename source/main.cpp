@@ -131,9 +131,16 @@ std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolutio
 
 		//gspWaitForVBlank();
 
-		// if(toExit){
-		// 	break;
-		// }
+		hidScanInput();
+    u32 kDown = hidKeysHeld();
+		if(kDown & KEY_START){
+			toExit = true;
+		}
+
+
+		if(toExit){
+			break;
+		}
 	}
 
 	exitApp();
