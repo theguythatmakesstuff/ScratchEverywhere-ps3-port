@@ -2,6 +2,7 @@
 .vs/
 .vscode/
 build/
+romfs/project/
 
 main.code-workspace
 

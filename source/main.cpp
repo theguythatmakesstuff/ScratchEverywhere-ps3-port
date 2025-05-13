@@ -22,20 +22,35 @@ bool openScratchProject(){
 	// load Scratch project into memory
 	std::cout<<"Loading SB3 into memory..."<<std::endl;
 	const char* filename = "project.sb3";
+	const char* unzippedPath = "romfs:/project/project.json";
 
-	std::ifstream file("romfs:/"+std::string(filename), std::ios::binary | std::ios::ate); // loads file from romfs
+
+	//first try embedded unzipped project
+	std::ifstream file(unzippedPath);
+	projectType = UNZIPPED;
+	if(!file){
+		std::cerr<<"No unzipped project, trying embedded."<<std::endl;
+
+	// try embedded zipped sb3
+	file.open("romfs:/"+std::string(filename), std::ios::binary | std::ios::ate); // loads file from romfs
+	projectType = EMBEDDED;
 	if (!file){
-		std::cerr<<"No embedded Scratch project, trying SD card";
+		std::cerr<<"No embedded Scratch project, trying SD card"<<std::endl;
+
+		// then try SD card location
 		file.open(filename, std::ios::binary | std::ios::ate); // loads file from location of executable
+		projectType = UNEMBEDDED;
 		if (!file){
 			std::cerr<<"Couldnt find file. jinkies.";
 			svcBreak(USERBREAK_PANIC);
 			return false;
 		}
 	}
+}
 
+	nlohmann::json project_json;
 
-
+	if(!projectType == UNZIPPED){
 	// read the file
 	std::cout<<"Reading SB3..."<<std::endl;
 	std::streamsize size = file.tellg(); // gets the size of the file
@@ -68,13 +83,15 @@ bool openScratchProject(){
 
 	// Parse JSON file
 	std::cout<<"Parsing project.json..."<<std::endl;
-	nlohmann::json project_json = nlohmann::json::parse(std::string(json_data,json_size));
+	project_json = nlohmann::json::parse(std::string(json_data,json_size));
 	mz_free((void*)json_data);
 	
 
 
-loadImages(&zip);
-mz_zip_reader_end(&zip);
+	loadImages(&zip);
+	mz_zip_reader_end(&zip);
+}
+else file >> project_json;
 
 loadSprites(project_json);
 std::cout << "DONE!" << std::endl;

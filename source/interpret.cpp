@@ -8,7 +8,7 @@ std::unordered_map<std::string, Block*> blockLookup;
 Mouse mousePointer;
 double timer = 0;
 bool toExit = false;
-
+ProjectType projectType;
 
 bool isNumber(const std::string& str) {
     // i rewrote this function like 5 times vro if ts dont work...
@@ -79,12 +79,12 @@ void cleanupSprites() {
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite) {
     std::vector<std::pair<double, double>> collisionPoints;
 
-    // Get sprite dimensions
+    // Get sprite dimensions, scaled by size
     double halfWidth = (currentSprite->spriteWidth * currentSprite->size / 100.0) / 2.0;
     double halfHeight = (currentSprite->spriteHeight * currentSprite->size / 100.0) / 2.0;
 
     // Calculate rotation in radians
-    double rotationRadians = -(currentSprite->rotation - 90) * M_PI / 180.0;
+    double rotationRadians = (currentSprite->rotation - 90) * M_PI / 180.0;
 
     // Define the four corners relative to the sprite's center
     std::vector<std::pair<double, double>> corners = {
@@ -359,7 +359,12 @@ void loadSprites(const nlohmann::json& json){
         std::cerr << "no height property." << std::endl;
     }
     
-
+    // if unzipped, load initial sprites
+    if(projectType == UNZIPPED){
+        for(auto& currentSprite : sprites){
+            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+        }
+    }
 
 
     initializeSpritePool(100);
@@ -1247,6 +1252,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                         freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
                     }
                     sprite->currentCostume = costumeIndex;
+
                 } else {
                     //std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
                 }
@@ -1261,6 +1267,11 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                     }
                 }
             }
+
+                if(projectType == UNZIPPED){
+                    loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
+                }
+
             goto nextBlock;
 
         }
@@ -1270,6 +1281,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             sprite->currentCostume++;
             if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
                 sprite->currentCostume = 0;
+            }
+            if(projectType == UNZIPPED){
+                loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
             }
             goto nextBlock;
         }
@@ -1286,6 +1300,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                     if(sprite->currentCostume != costumeIndex){
                     freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);}
                     currentSprite->currentCostume = costumeIndex;
+                    if(projectType == UNZIPPED){
+                        loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+                        }
                 } else {
                    // std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
                 }
@@ -1296,6 +1313,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                             freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
                         }
                         currentSprite->currentCostume = i;
+                        if(projectType == UNZIPPED){
+                            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+                            }
                         break;
                     }
                 }
@@ -1313,6 +1333,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             currentSprite->currentCostume++;
             if (currentSprite->currentCostume >= static_cast<int>(currentSprite->costumes.size())) {
                 currentSprite->currentCostume = 0;
+            }
+            if(projectType == UNZIPPED){
+                loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
             }
         }
             goto nextBlock;

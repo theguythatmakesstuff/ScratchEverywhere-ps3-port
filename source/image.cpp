@@ -36,7 +36,7 @@ void loadImages(mz_zip_archive*zip){
 // Loop through all files in the ZIP
 std::cout << "Loading images..." << std::endl;
 int file_count = (int)mz_zip_reader_get_num_files(zip);
-int memorySize = 0;
+//int memorySize = 0;
 for (int i = 0; i < file_count; i++) {
     mz_zip_archive_file_stat file_stat;
     if (!mz_zip_reader_file_stat(zip, i, &file_stat)) continue;
@@ -44,7 +44,7 @@ for (int i = 0; i < file_count; i++) {
     std::string zipFileName = file_stat.m_filename;
     //std::cout << "Found file: " << zipFileName << std::endl;
 
-    // Check if file is a PNG (case-insensitive match)
+    // Check if file is a PNG or JPG
     if (zipFileName.size() >= 4 && 
         (zipFileName.substr(zipFileName.size() - 4) == ".png" || zipFileName.substr(zipFileName.size() - 4) == ".PNG"\
         || zipFileName.substr(zipFileName.size() - 4) == ".jpg" || zipFileName.substr(zipFileName.size() - 4) == ".JPG")) {
@@ -77,7 +77,7 @@ for (int i = 0; i < file_count; i++) {
         newRGBA.width = width;
         newRGBA.height = height;
         newRGBA.data = rgba_data;
-        memorySize += sizeof(newRGBA);
+        //memorySize += sizeof(newRGBA);
         imageRBGAs.push_back(newRGBA);
 
         mz_free(png_data);
@@ -85,6 +85,43 @@ for (int i = 0; i < file_count; i++) {
 }
 //std::cout << "size = " << memorySize << std::endl;
 }
+
+void loadImageFromFile(std::string filePath){
+  
+  auto it = std::find_if(imageRBGAs.begin(), imageRBGAs.end(), [&](const ImageRGBA& img) {
+    return img.name == filePath;
+  });
+  if (it != imageRBGAs.end()) return;
+    
+  int width,height,channels;
+  FILE* file = fopen(("romfs:/project/"+filePath + ".png").c_str(), "rb");
+  if (!file) {
+    file = fopen(("romfs:/project/"+filePath + ".jpg").c_str(), "rb");
+    if (!file) {
+      std::cerr << "Invalid image file name " << filePath << std::endl;
+      return;
+    }
+  }
+
+  unsigned char* rgba_data = stbi_load_from_file(file, &width, &height, &channels, 4);
+  fclose(file);
+
+  if (!rgba_data) {
+    std::cerr << "Failed to decode image: " << filePath << std::endl;
+    return;
+  }
+
+      // std::cout << "Adding PNG: " << zipFileName << std::endl;
+    ImageRGBA newRGBA;
+    newRGBA.name = filePath;
+    newRGBA.width = width;
+    newRGBA.height = height;
+    newRGBA.data = rgba_data;
+    //memorySize += sizeof(newRGBA);
+    imageRBGAs.push_back(newRGBA);
+
+}
+
 
 /** Read an RGBA image from `path` with dimensions `image_width`x`image_height`
  * and return a `C2D_Image` object.

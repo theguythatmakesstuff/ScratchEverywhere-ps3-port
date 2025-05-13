@@ -24,6 +24,13 @@ struct Mouse{
     bool isPressed;
 };
 
+enum ProjectType{
+	UNZIPPED,
+	EMBEDDED,
+	UNEMBEDDED
+};
+
+extern ProjectType projectType;
 
 extern std::vector<Sprite*> sprites;
 extern std::vector<Sprite> spritePool;

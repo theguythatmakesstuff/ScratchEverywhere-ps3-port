@@ -104,7 +104,7 @@ void renderSprites(){
 
 
 
-    //C2D_Flush();
+    C2D_Flush();
     C3D_FrameEnd(0);
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
