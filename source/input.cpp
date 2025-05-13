@@ -7,6 +7,12 @@ void getInput(){
     mousePointer.isPressed = false;
     hidScanInput();
     u32 kDown = hidKeysHeld();
+
+    touchPosition touch;
+
+    //Read the touch screen coordinates
+    hidTouchRead(&touch);
+
     if(kDown){
         inputButtons.push_back("any");
         if(kDown & KEY_A){
@@ -89,6 +95,11 @@ void getInput(){
         }
         if(kDown & KEY_CSTICK_RIGHT){
             inputButtons.push_back("5");
+        }
+        if(kDown & KEY_TOUCH){
+            mousePointer.isPressed = true;
+            mousePointer.x = touch.px - (SCREEN_WIDTH / 2);
+            mousePointer.y = (-touch.py + (SCREEN_HEIGHT / 2)) -SCREEN_HEIGHT;
         }
         
     }
