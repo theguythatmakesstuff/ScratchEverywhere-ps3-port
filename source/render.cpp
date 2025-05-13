@@ -13,6 +13,7 @@ std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolutio
 
 int projectWidth = 480;
 int projectHeight = 360;
+int FPS = 30;
 
 
 std::string getUsername() {

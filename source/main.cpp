@@ -122,7 +122,7 @@ std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolutio
 	{
 		
 		endTime = std::chrono::high_resolution_clock::now();
-		if(endTime - startTime >= std::chrono::milliseconds(33)){
+		if(endTime - startTime >= std::chrono::milliseconds(1000 / FPS)){
 			startTime = std::chrono::high_resolution_clock::now();
 			getInput();
 			runRepeatBlocks();

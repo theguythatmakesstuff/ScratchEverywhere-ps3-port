@@ -17,6 +17,7 @@ extern std::chrono::_V2::system_clock::time_point startTime;
 extern std::chrono::_V2::system_clock::time_point endTime;
 extern int projectWidth;
 extern int projectHeight;
+extern int FPS;
 
 double degreesToRadians(double degrees);
 double getMaxSpriteLayer();

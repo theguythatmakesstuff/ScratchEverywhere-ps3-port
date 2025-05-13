@@ -312,6 +312,56 @@ void loadSprites(const nlohmann::json& json){
     }
 }
 
+    // try to find the advanced project settings comment
+    nlohmann::json config;
+    for (Sprite* currentSprite : sprites) {
+        if(!currentSprite->isStage) continue;
+        for(auto& [id,comment] : currentSprite->comments){
+        std::size_t json_start = comment.text.find('{');
+        if (json_start == std::string::npos) continue;
+
+        std::string json_str = comment.text.substr(json_start);
+        std::size_t json_end = json_str.find("}");
+        if (json_end != std::string::npos) {
+            json_str = json_str.substr(0, json_end + 1);}
+        else continue;
+
+        try {
+            config = nlohmann::json::parse(json_str);
+            std::cout << "Parsed JSON:\n" << config.dump(4) << "\n";
+            break;
+    } catch (nlohmann::json::parse_error& e) {
+        std::cerr << "Failed to parse JSON: " << e.what() << "\n";
+        continue;
+    }
+        }
+    }
+    // set advanced project settings properties
+    try{
+       int framerate = config["framerate"].get<int>();
+       FPS = framerate;
+    }
+    catch(...){
+        std::cerr << "no framerate property." << std::endl;
+    }
+        try{
+       int wdth = config["width"].get<int>();
+       projectWidth = wdth;
+    }
+    catch(...){
+        std::cerr << "no width property." << std::endl;
+    }
+        try{
+       int hght = config["height"].get<int>();
+       projectHeight = hght;
+    }
+    catch(...){
+        std::cerr << "no height property." << std::endl;
+    }
+    
+
+
+
     initializeSpritePool(100);
 
     // add nextBlock during load time so it doesn't have to do it at runtime
