@@ -160,9 +160,25 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId)
     double maxLayer = getMaxSpriteLayer();
     double scaleX = static_cast<double>(SCREEN_WIDTH) / projectWidth;
     double scaleY = static_cast<double>(SCREEN_HEIGHT) / projectHeight;
-    double scale = std::min(scaleX, scaleY); // smaller scale is to maintain aspect ratio 
+    double spriteSizeX = currentSprite->size * 0.01;
+    double spriteSizeY = currentSprite->size * 0.01;
+    double scale;
 if (!legacyDrawing) {
     double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
+
+    // check for rotation style
+    if(currentSprite->rotationStyle == "left-right"){
+        if(rotation < 0){
+            spriteSizeX *= -1;
+        }
+        rotation = 0;
+    }
+    if(currentSprite->rotationStyle == "don't rotate"){
+        rotation = 0;
+    }
+
+
+    scale = std::min(scaleX, scaleY); // maintain aspect ratio 
     C2D_DrawImageAtRotated(
         *image,
         (currentSprite->xPosition * scale) + (SCREEN_WIDTH / 2),
@@ -170,10 +186,11 @@ if (!legacyDrawing) {
         currentSprite->layer / maxLayer,
         rotation,
         nullptr,
-        (currentSprite->size * 0.01) * scale / 2.0f,
-        (currentSprite->size * 0.01) * scale / 2.0f 
+        (spriteSizeX) * scale / 2.0f,
+        (spriteSizeY) * scale / 2.0f 
     );
 } else {
+    scale = std::min(scaleX, scaleY);
     C2D_DrawRectSolid(
         (currentSprite->xPosition * scale) + (SCREEN_WIDTH / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT / 2),

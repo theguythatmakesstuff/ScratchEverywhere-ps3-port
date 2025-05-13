@@ -43,6 +43,7 @@ struct Block {
         MOTION_CHANGEYBY,
         MOTION_SETX,
         MOTION_SETY,
+        MOTION_SET_ROTATION_STYLE,
         LOOKS_SIZE,
         LOOKS_SHOW,
         LOOKS_HIDE,
@@ -145,6 +146,7 @@ struct Block {
         if(opCodeString == "motion_changeyby")return MOTION_CHANGEYBY;
         if(opCodeString == "motion_setx")return MOTION_SETX;
         if(opCodeString == "motion_sety")return MOTION_SETY;
+        if(opCodeString == "motion_setrotationstyle") return MOTION_SET_ROTATION_STYLE;
         if(opCodeString == "looks_size")return LOOKS_SIZE;
         if(opCodeString == "looks_show")return LOOKS_SHOW;
         if(opCodeString == "looks_hide")return LOOKS_HIDE;

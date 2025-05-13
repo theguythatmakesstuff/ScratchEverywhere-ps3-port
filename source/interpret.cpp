@@ -1152,6 +1152,26 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
             goto nextBlock;
         }
+
+        case block.MOTION_SET_ROTATION_STYLE:{
+            std::string value;
+            try{
+            value = block.fields["STYLE"][0];}
+            catch(...){
+                std::cerr<<"unable to find rotation style."<<std::endl;
+            }
+
+            if(value == "left-right"){
+                sprite->rotationStyle = "left-right";
+                goto nextBlock;
+            }
+            if(value == "don't rotate"){
+                sprite->rotationStyle = "don't rotate";
+                goto nextBlock;
+            }
+            sprite->rotationStyle = "all around";
+            goto nextBlock;
+        }
         
         case block.LOOKS_SHOW:{
             sprite->visible = true;
