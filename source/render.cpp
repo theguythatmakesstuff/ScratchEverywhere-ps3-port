@@ -149,25 +149,31 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     
     double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
 
-    if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
+    
         if(!legacyDrawing){
         for(ImageRGBA rgba : imageRBGAs){
             if(rgba.name == costumeId){
-                //C3D_TexDelete(image->tex);
-                //free(image->tex);
                 currentSprite->spriteWidth = rgba.width / 2;
                 currentSprite->spriteHeight = rgba.height / 2;
+                
+                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr)
                 imageC2Ds[costumeId] = get_C2D_Image(rgba);
+                legacyDrawing = false;
                 break;
+            }
+            else {
+                legacyDrawing = true;
+            // currentSprite->spriteWidth = 128;
+            // currentSprite->spriteHeight = 128;
 
             }
 
         }
+
     }
-        legacyDrawing = true;
-        // currentSprite->spriteWidth = 128;
-        // currentSprite->spriteHeight = 128;
-    }
+        
+
+    
 
     double maxLayer = getMaxSpriteLayer();
     double scaleX = static_cast<double>(SCREEN_WIDTH) / projectWidth;
