@@ -515,7 +515,12 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
-                return std::to_string(std::stod(value1) + std::stod(value2));
+                double result = std::stod(value1) + std::stod(value2);
+                if (std::floor(result) == result) {
+                    return std::to_string(static_cast<int>(result));
+                    }
+
+                return std::to_string(result);
             }
             break;
         }
@@ -523,7 +528,13 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
-                return std::to_string(std::stod(value1) - std::stod(value2));
+
+                double result = std::stod(value1) - std::stod(value2);
+                if (std::floor(result) == result) {
+                    return std::to_string(static_cast<int>(result));
+                    }
+
+                return std::to_string(result);
             }
             break;
         }
@@ -531,7 +542,12 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
-                return std::to_string(std::stod(value1) * std::stod(value2));
+                double result = std::stod(value1) * std::stod(value2);
+                if (std::floor(result) == result) {
+                    return std::to_string(static_cast<int>(result));
+                    }
+
+                return std::to_string(result);
             }
             break;
         }
@@ -539,7 +555,12 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
-                return std::to_string(std::stod(value1) / std::stod(value2));
+                double result = std::stod(value1) / std::stod(value2);
+                if (std::floor(result) == result) {
+                    return std::to_string(static_cast<int>(result));
+                    }
+
+                return std::to_string(result);
             }
             break;
         }
@@ -589,6 +610,11 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
+
+                if(floor(std::stod(value1)) == std::stoi(value1) && floor(std::stod(value2)) == std::stoi(value2)){
+                    return std::to_string(int(std::fmod(std::stod(value1), std::stod(value2))));
+                }
+
                 return std::to_string(std::fmod(std::stod(value1), std::stod(value2)));
             }
             break;
@@ -607,10 +633,10 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
                     return std::to_string(abs(std::stod(inputValue)));
                 }
                 if (block.fields["OPERATOR"][0] == "floor") {
-                    return std::to_string(floor(std::stod(inputValue)));
+                    return std::to_string(int(floor(std::stod(inputValue))));
                 }
                 if (block.fields["OPERATOR"][0] == "ceiling") {
-                    return std::to_string(ceil(std::stod(inputValue)));
+                    return std::to_string(int(ceil(std::stod(inputValue))));
                 }
                 if (block.fields["OPERATOR"][0] == "sqrt") {
                     return std::to_string(sqrt(std::stod(inputValue)));
@@ -1961,9 +1987,10 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
         for(const auto &[id,data] : sprite->variables){
             if (id == variableId) {
 
-                if(isNumber(data.value) && floor(std::stod(data.value)) == std::stoi(data.value)){
-                    return std::to_string(std::stoi(data.value));
-                }
+                double doubleValue = std::stod(data.value); // Convert to double
+                if (std::floor(doubleValue) == doubleValue) { // Check if it's a whole number
+                    return std::to_string(static_cast<int>(doubleValue)); // Convert to int and return as string
+            }
 
                 return data.value; // Assuming `Variable` has a `value` field
             }
@@ -1988,10 +2015,10 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
                 for(const auto &[id,data] : currentSprite->variables){
                     if (id == variableId) {
 
-                    if(isNumber(data.value) && floor(std::stod(data.value)) == std::stoi(data.value)){
-                        return std::to_string(std::stoi(data.value));
-                }
-
+                        double doubleValue = std::stod(data.value); // Convert to double
+                        if (std::floor(doubleValue) == doubleValue) { // Check if it's a whole number
+                            return std::to_string(static_cast<int>(doubleValue)); // Convert to int and return as string
+            }
 
                         return data.value; // Assuming `Variable` has a `value` field
                     }
