@@ -100,8 +100,8 @@ void getInput(){
         }
         if(kDown & KEY_TOUCH){
             mousePointer.isPressed = true;
-            mousePointer.x = touch.px - (SCREEN_WIDTH / 2);
-            mousePointer.y = (-touch.py + (SCREEN_HEIGHT / 2)) -SCREEN_HEIGHT;
+            mousePointer.x = touch.px - (BOTTOM_SCREEN_WIDTH / 2);
+            mousePointer.y = (-touch.py + (SCREEN_HEIGHT)) -SCREEN_HEIGHT;
         }
         
     }
