@@ -1037,7 +1037,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
            waitingBlock = findBlock(block.next);
             runCustomBlock(sprite, block);
-            return;
+            goto nextBlock;
         }
         case block.PROCEDURES_DEFINITION:{
             goto nextBlock;
@@ -1575,6 +1575,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.CONTROL_CREATE_CLONE_OF: {
+            std::cout << "Trying " << std::endl;
             Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
             Sprite* spriteToClone = getAvailableSprite();
             if(!spriteToClone) goto nextBlock;
@@ -1597,7 +1598,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 spriteToClone->isStage = false;
                 spriteToClone->toDelete = false;
                 spriteToClone->id = generateRandomString(15);
-                //std::cout << "Created clone of " << sprite->name << std::endl;
+                std::cout << "Created clone of " << sprite->name << std::endl;
                 std::unordered_map<std::string, Block> newBlocks;
                 for (auto& [id, block] : spriteToClone->blocks) {
                     if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
