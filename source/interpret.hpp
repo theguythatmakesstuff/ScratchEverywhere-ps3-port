@@ -22,6 +22,7 @@ struct Mouse{
     int x;
     int y;
     bool isPressed;
+    bool isMoving;
 };
 
 enum ProjectType{

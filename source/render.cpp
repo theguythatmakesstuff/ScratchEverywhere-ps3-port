@@ -241,6 +241,7 @@ for (const auto& point : collisionPoints) {
     );
 }
     // Draw mouse pointer
+    if(mousePointer.isMoving)
     C2D_DrawRectSolid(mousePointer.x + (screenWidth / 2), (mousePointer.y * -1) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
 }
 

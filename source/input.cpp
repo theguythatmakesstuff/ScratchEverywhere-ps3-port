@@ -5,6 +5,7 @@ std::vector<std::string> inputButtons;
 void getInput(){
     inputButtons.clear();
     mousePointer.isPressed = false;
+    mousePointer.isMoving = false;
     hidScanInput();
     u32 kDown = hidKeysHeld();
 
@@ -59,6 +60,7 @@ void getInput(){
         }
         if(kDown & KEY_L){
             inputButtons.push_back("l");
+            mousePointer.isMoving = true;
         }
         if(kDown & KEY_R){
             if(kDown & KEY_L)
