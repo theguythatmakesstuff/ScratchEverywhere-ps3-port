@@ -1,6 +1,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 #define SCREEN_WIDTH 400
+#define BOTTOM_SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
 #include <citro2d.h>
