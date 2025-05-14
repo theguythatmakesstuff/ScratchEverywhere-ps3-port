@@ -1469,8 +1469,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 return;
             } else {
                 sprite->conditionals[block.id].isTrue = false;
+                sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
                 //waitingBlock = conditionals[block.id].waitingBlock;
-                sprite->conditionals.erase(block.id);
+                //sprite->conditionals.erase(block.id);
             }
             goto nextBlock;
 
