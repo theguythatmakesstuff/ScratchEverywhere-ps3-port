@@ -1469,7 +1469,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 return;
             } else {
                 sprite->conditionals[block.id].isTrue = false;
-                waitingBlock = conditionals[block.id].waitingBlock;
+                //waitingBlock = conditionals[block.id].waitingBlock;
                 sprite->conditionals.erase(block.id);
             }
             goto nextBlock;
