@@ -1243,7 +1243,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
            catch(...){
                 inputValue = getInputValue(block.inputs["COSTUME"],&block,sprite);
             }
-           //std::cout << "costume = " << inputValue << std::endl;
+           std::cout << "costume = " << inputValue << std::endl;
            
            if (isNumber(inputValue)){
                 int costumeIndex = std::stoi(inputValue) - 1;
@@ -1960,6 +1960,11 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
 
         for(const auto &[id,data] : sprite->variables){
             if (id == variableId) {
+
+                if(isNumber(data.value) && floor(std::stod(data.value)) == std::stoi(data.value)){
+                    return std::to_string(std::stoi(data.value));
+                }
+
                 return data.value; // Assuming `Variable` has a `value` field
             }
         }
@@ -1982,6 +1987,12 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
             if(currentSprite->isStage){
                 for(const auto &[id,data] : currentSprite->variables){
                     if (id == variableId) {
+
+                    if(isNumber(data.value) && floor(std::stod(data.value)) == std::stoi(data.value)){
+                        return std::to_string(std::stoi(data.value));
+                }
+
+
                         return data.value; // Assuming `Variable` has a `value` field
                     }
                 }
