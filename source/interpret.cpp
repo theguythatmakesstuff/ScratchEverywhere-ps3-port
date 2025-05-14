@@ -1583,7 +1583,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 *spriteToClone = *sprite;
             } else {
                 for (Sprite* currentSprite : sprites) {
-                    if (currentSprite->name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && currentSprite->isClone == sprite->isClone) {
+                    if (currentSprite->name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && !currentSprite->isClone) {
                         *spriteToClone = *currentSprite;
                     }
                 }
