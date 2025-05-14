@@ -1032,10 +1032,10 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.hostSprite = sprite;
                 newConditional.isTrue = false;
                 newConditional.times = -1;
-                newConditional.waitingBlock = findBlock(block.next);
+                //newConditional.waitingBlock = findBlock(block.next);
                 conditionals[newConditional.id] = newConditional;
             }
-           waitingBlock = findBlock(block.next);
+           //waitingBlock = findBlock(block.next);
             runCustomBlock(sprite, block);
             goto nextBlock;
         }
