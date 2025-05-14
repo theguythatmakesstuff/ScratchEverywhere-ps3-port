@@ -94,6 +94,8 @@ void renderSprites(){
         int costumeIndex = 0;
         for(const auto& costume : currentSprite->costumes){
             if(costumeIndex == currentSprite->currentCostume){
+                currentSprite->rotationCenterX = costume.rotationCenterX;
+                currentSprite->rotationCenterY = costume.rotationCenterY;
                 renderImage(&imageC2Ds[costume.id],currentSprite,costume.id,true);
             }
             costumeIndex++;
@@ -211,8 +213,8 @@ if (!legacyDrawing) {
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
     C2D_DrawImageAtRotated(
         *image,
-        (currentSprite->xPosition * scale) + (screenWidth / 2),
-        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
+        (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
         currentSprite->layer / maxLayer,
         rotation,
         nullptr,

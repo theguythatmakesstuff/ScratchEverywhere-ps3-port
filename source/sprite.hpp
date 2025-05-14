@@ -319,6 +319,8 @@ class Sprite {
         int volume;
         double xPosition;
         double yPosition;
+        int rotationCenterX;
+        int rotationCenterY;
         int size;
         int rotation;
         int layer;
