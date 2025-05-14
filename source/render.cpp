@@ -70,20 +70,32 @@ void renderSprites(){
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
     C2D_SceneBegin(topScreen);
-    //int times = 1;
-    for(Sprite* currentSprite : sprites){
-        if(!currentSprite->visible)continue;
 
-        // look through every costume in sprite for correct one
-        int costumeIndex = 0;
-        for(const auto& costume : currentSprite->costumes){
-            if(costumeIndex == currentSprite->currentCostume){
-                renderImage(&imageC2Ds[costume.id],currentSprite,costume.id);
-            }
-            costumeIndex++;
+    //int times = 1;
+    C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
+
+   // Sort sprites by layer (lowest to highest)
+std::vector<Sprite*> spritesByLayer = sprites;
+std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
+    [](const Sprite* a, const Sprite* b) {
+        return a->layer < b->layer;
+    });
+
+// Now render sprites in order from lowest to highest layer
+for(Sprite* currentSprite : spritesByLayer) {
+    if(!currentSprite->visible) continue;
+    
+    // look through every costume in sprite for correct one
+    int costumeIndex = 0;
+    for(const auto& costume : currentSprite->costumes) {
+        if(costumeIndex == currentSprite->currentCostume) {
+            currentSprite->rotationCenterX = costume.rotationCenterX;
+            currentSprite->rotationCenterY = costume.rotationCenterY;
+            renderImage(&imageC2Ds[costume.id], currentSprite, costume.id);
         }
-        //times++;
+        costumeIndex++;
     }
+}
 
     if(bottomScreenEnabled){
     C2D_SceneBegin(bottomScreen);
@@ -97,6 +109,7 @@ void renderSprites(){
                 currentSprite->rotationCenterX = costume.rotationCenterX;
                 currentSprite->rotationCenterY = costume.rotationCenterY;
                 renderImage(&imageC2Ds[costume.id],currentSprite,costume.id,true);
+
             }
             costumeIndex++;
         }
@@ -211,11 +224,26 @@ if (!legacyDrawing) {
 
 
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
+//    C2D_Sprite sprt;
+//    C2D_SpriteFromImage(&sprt,*image);
+
+//    C2D_SpriteSetPos(
+//     &sprt,
+//     (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
+//     (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2)
+// );
+
+//     C2D_SpriteSetRotation(&sprt,rotation);
+//     C2D_SpriteSetScale(&sprt,(spriteSizeX) * scale / 2.0f, (spriteSizeY) * scale / 2.0f );
+//     C2D_SpriteSetDepth(&sprt,currentSprite->layer / maxLayer);
+//     C2D_DrawSprite(&sprt);
+
+
     C2D_DrawImageAtRotated(
         *image,
         (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
-        currentSprite->layer / maxLayer,
+        1,//currentSprite->layer / maxLayer,
         rotation,
         nullptr,
         (spriteSizeX) * scale / 2.0f,
@@ -226,12 +254,14 @@ if (!legacyDrawing) {
     C2D_DrawRectSolid(
         (currentSprite->xPosition * scale) + (screenWidth / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
-        currentSprite->layer / maxLayer,
+        1,//currentSprite->layer / maxLayer,
         10 * scale,
         10 * scale, 
         clrBlack
     );
 }
+
+
 
 // Draw collision points
 // auto collisionPoints = getCollisionPoints(currentSprite);

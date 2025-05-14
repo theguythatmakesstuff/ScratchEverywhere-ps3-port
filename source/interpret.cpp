@@ -111,6 +111,7 @@ std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite)
 void loadSprites(const nlohmann::json& json){
     std::cout<<"Beginning to load sprites..."<< std::endl;
     sprites.reserve(400);
+    int count = 0;
     for (const auto& target : json["targets"]){ // "target" is sprite in Scratch speak, so for every sprite in sprites
     
         Sprite* newSprite = new Sprite();
@@ -291,7 +292,7 @@ void loadSprites(const nlohmann::json& json){
         }
 
         sprites.push_back(newSprite);
-
+        count++;
 
 
     }
@@ -1391,8 +1392,33 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             std::string forwardBackward = block.fields["FORWARD_BACKWARD"][0];
             if (isNumber(value)) {
             if (forwardBackward == "forward") {
+
+                // check if a sprite is already on the same layer
+                for(Sprite* currentSprite : sprites){
+                    if(currentSprite->isStage) continue;
+                    if(currentSprite->layer == (currentSprite->layer + std::stoi(value))){
+                        for(Sprite* moveupSprite : sprites){
+                            if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer + std::stoi(value)))) continue;
+                            moveupSprite-> layer++;
+                        }
+                    }
+                }
+
                 sprite->layer += std::stoi(value);
+
             } else if (forwardBackward == "backward") {
+
+                // check if a sprite is already on the same layer
+                for(Sprite* currentSprite : sprites){
+                    if(currentSprite->isStage) continue;
+                    if(currentSprite->layer == (currentSprite->layer - std::stoi(value))){
+                        for(Sprite* moveupSprite : sprites){
+                            if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer - std::stoi(value)))) continue;
+                            moveupSprite-> layer++;
+                        }
+                    }
+                }
+
                 sprite->layer -= std::stoi(value);
             }
         } else {
@@ -1405,6 +1431,10 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if (value == "front") {
                 sprite->layer = getMaxSpriteLayer() + 1;
             } else if (value == "back") {
+                for(Sprite* currentSprite : sprites){
+                    if(currentSprite->isStage) continue;
+                    currentSprite->layer+= 2;
+                }
                 sprite->layer = 0;
             }
             goto nextBlock;
