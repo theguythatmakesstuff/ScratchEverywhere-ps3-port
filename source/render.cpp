@@ -150,7 +150,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
 
     
-        if(!legacyDrawing){
+
         for(ImageRGBA rgba : imageRBGAs){
             if(rgba.name == costumeId){
                 currentSprite->spriteWidth = rgba.width / 2;
@@ -163,14 +163,14 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
             }
             else {
                 legacyDrawing = true;
-            // currentSprite->spriteWidth = 128;
-            // currentSprite->spriteHeight = 128;
+                currentSprite->spriteWidth = 64;
+                currentSprite->spriteHeight = 64;
 
             }
 
         }
 
-    }
+    
         
 
     

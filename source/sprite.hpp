@@ -317,8 +317,8 @@ class Sprite {
         bool toDelete;
         int currentCostume;
         int volume;
-        int xPosition;
-        int yPosition;
+        double xPosition;
+        double yPosition;
         int size;
         int rotation;
         int layer;
