@@ -1,4 +1,5 @@
 
+
 # Scratch Runtime for 3DS
 
 A W.I.P. runtime made in C++ aimed to bring any Scratch 3 project over to the Nintendo 3DS.
@@ -35,7 +36,7 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 | :----- | :---- | :----- | :------ |:--------------- |
 |Glide x seconds to|All say and think blocks|When Key pressed|Touching Color|Show/Hide variable|
 |if on edge, bounce||        |When this sprite clicked|Color is Touching Color|Show/Hide List|
-|set rotation style|       |When backdrop switches to|Ask and wait|
+||       |When backdrop switches to|Ask and wait| Cloud variables |
 |        |       |When loudness > x|Answer|
 |        |       |Broadcast and wait|Set Drag mode|
 |        |       |        |Loudness|
@@ -62,10 +63,11 @@ In order to build, you will need to have Devkitpro's SDKs installed with the Dev
 
 - Devkitpro's install instructions are available at : https://devkitpro.org/wiki/Getting_Started
 
-Download the source code from the releases tab.
+Download the source code from the releases tab and unzip it.
 
-Put the scratch project you want to embed inside of the romfs/ folder.
+Make a `romfs` folder inside the unzipped source code and put the Scratch project inside of that.
 - The Scratch project MUST be named `project.png` , all lowercase.
+- For faster load times/less limitations, you can also unzip the sb3 project file and put the contents into a new folder called `project`.
 If you would like to  change the name of the app, go inside the `Makefile` and edit
 `APP_TITLE`, `APP_DESCRIPTION` and `APP_AUTHOR` to whatever you please.
 
