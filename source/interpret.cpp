@@ -308,7 +308,7 @@ void loadSprites(const nlohmann::json& json){
     for (Sprite* currentSprite : sprites) {
     for(auto& [id,block]: currentSprite->blocks){
         if(block.topLevel) continue; // skip top level blocks
-        block.topLevelParentBlock = getBlockParent(block).id; // get parent block id
+        block.topLevelParentBlock = getBlockParent(&block)->id; // get parent block id
         //std::cout<<"block id = "<< block.topLevelParentBlock << std::endl;
     }
 }
@@ -444,7 +444,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             std::string value = block.fields["PROPERTY"][0];
             std::string object;
             try{
-            object = findBlock(block.inputs["OBJECT"][1]).fields["OBJECT"][0];}
+            object = findBlock(block.inputs["OBJECT"][1])->fields["OBJECT"][0];}
             catch(...){
                // std::cerr << "Error: Unable to find object for SENSING_OF block." << std::endl;
                 return "0";
@@ -491,8 +491,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         }
 
         case Block::SENSING_DISTANCETO:{
-            Block inputBlock = findBlock(block.inputs["DISTANCETOMENU"][1]);
-            std::string object = inputBlock.fields["DISTANCETOMENU"][0];
+            Block* inputBlock = findBlock(block.inputs["DISTANCETOMENU"][1]);
+            std::string object = inputBlock->fields["DISTANCETOMENU"][0];
            // std::cout << "Object: " << object << std::endl;
             Sprite* spriteObject = nullptr;
 
@@ -736,35 +736,34 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
 
 
 
-Block findBlock(std::string blockId){
+Block* findBlock(std::string blockId){
 
 
     auto block = blockLookup.find(blockId);
     if(block != blockLookup.end()) {
-        return *block->second;
+        return block->second;
     }
 
-    static Block null;
-    null.id = "null";
-    return null;
+
+    return nullptr;
 }
 
-std::vector<Block> getBlockChain(std::string blockId){
-    std::vector<Block> blockChain;
-    Block currentBlock = findBlock(blockId);
-    while(currentBlock.id != "null"){
+std::vector<Block*> getBlockChain(std::string blockId){
+    std::vector<Block*> blockChain;
+    Block* currentBlock = findBlock(blockId);
+    while(currentBlock != nullptr){
         blockChain.push_back(currentBlock);
-        currentBlock = findBlock(currentBlock.next);
+        currentBlock = findBlock(currentBlock->next);
     }
     return blockChain;
 }
 
-Block getBlockParent(Block block){
-    Block parentBlock;
-    Block currentBlock = block;
-    while(currentBlock.parent != "null"){
-        parentBlock = findBlock(currentBlock.parent);
-        if(parentBlock.id != "null"){
+Block* getBlockParent(Block* block){
+    Block* parentBlock;
+    Block* currentBlock = block;
+    while(currentBlock->parent != "null"){
+        parentBlock = findBlock(currentBlock->parent);
+        if(parentBlock != nullptr){
             currentBlock = parentBlock;
         }
         else{
@@ -775,18 +774,18 @@ Block getBlockParent(Block block){
 }
 
 bool runConditionalStatement(std::string blockId, Sprite* sprite) {
-    Block block = findBlock(blockId);
+    Block* block = findBlock(blockId);
 
-    switch (block.opcode) {
+    switch (block->opcode) {
         case Block::ARGUMENT_REPORTER_BOOLEAN: { // string from a custom block
-            std::string value = findCustomValue(block.fields["VALUE"][0], sprite, block);
+            std::string value = findCustomValue(block->fields["VALUE"][0], sprite, *block);
             return value == "1";
         }
 
         case Block::SENSING_KEYPRESSED: {
-            Block inputBlock = findBlock(block.inputs["KEY_OPTION"][1]);
+            Block* inputBlock = findBlock(block->inputs["KEY_OPTION"][1]);
             for (std::string button : inputButtons) {
-                if (inputBlock.fields["KEY_OPTION"][0] == button) {
+                if (inputBlock->fields["KEY_OPTION"][0] == button) {
                     return true;
                 }
             }
@@ -794,10 +793,10 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::SENSING_TOUCHINGOBJECT: {
-            Block inputBlock = findBlock(block.inputs["TOUCHINGOBJECTMENU"][1]);
+            Block* inputBlock = findBlock(block->inputs["TOUCHINGOBJECTMENU"][1]);
             std::string objectName;
             try {
-                objectName = inputBlock.fields["TOUCHINGOBJECTMENU"][0];
+                objectName = inputBlock->fields["TOUCHINGOBJECTMENU"][0];
             } catch (...) {
                // std::cerr << "Error: Unable to find object for SENSING_TOUCHINGOBJECT block." << std::endl;
                 return false;
@@ -868,8 +867,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::DATA_LIST_CONTAINS_ITEM:{
-            std::string listName = block.fields["LIST"][1];
-            std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
+            std::string listName = block->fields["LIST"][1];
+            std::string itemToFind = getInputValue(block->inputs["ITEM"], block, sprite);
             for (Sprite* currentSprite : sprites) {
                 for (auto& [id, list] : currentSprite->lists) {
                     if (id == listName) {
@@ -888,8 +887,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
             std::string value1;
             std::string value2;
             try{
-            value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
-            value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            value1 = getInputValue(block->inputs["OPERAND1"], block, sprite);
+            value2 = getInputValue(block->inputs["OPERAND2"], block, sprite);
             }
             catch(...){
                 std::cout << "failed to get equals values." << std::endl;
@@ -910,8 +909,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
     
 
         case Block::OPERATOR_GT: {
-            std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            std::string value1 = getInputValue(block->inputs["OPERAND1"], block, sprite);
+            std::string value2 = getInputValue(block->inputs["OPERAND2"], block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 return std::stod(value1) > std::stod(value2);
             }
@@ -919,8 +918,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::OPERATOR_LT: {
-            std::string value1 = getInputValue(block.inputs["OPERAND1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["OPERAND2"], &block, sprite);
+            std::string value1 = getInputValue(block->inputs["OPERAND1"], block, sprite);
+            std::string value2 = getInputValue(block->inputs["OPERAND2"], block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 return std::stod(value1) < std::stod(value2);
             }
@@ -928,25 +927,25 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::OPERATOR_AND: {
-            bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1], sprite);
-            bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1], sprite);
+            bool value1 = runConditionalStatement(block->inputs["OPERAND1"][1], sprite);
+            bool value2 = runConditionalStatement(block->inputs["OPERAND2"][1], sprite);
             return value1 && value2;
         }
 
         case Block::OPERATOR_OR: {
-            bool value1 = runConditionalStatement(block.inputs["OPERAND1"][1], sprite);
-            bool value2 = runConditionalStatement(block.inputs["OPERAND2"][1], sprite);
+            bool value1 = runConditionalStatement(block->inputs["OPERAND1"][1], sprite);
+            bool value2 = runConditionalStatement(block->inputs["OPERAND2"][1], sprite);
             return value1 || value2;
         }
 
         case Block::OPERATOR_NOT: {
-            bool value = runConditionalStatement(block.inputs["OPERAND"][1], sprite);
+            bool value = runConditionalStatement(block->inputs["OPERAND"][1], sprite);
             return !value;
         }
 
         case Block::OPERATOR_CONTAINS: {
-            std::string value1 = getInputValue(block.inputs["STRING1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["STRING2"], &block, sprite);
+            std::string value1 = getInputValue(block->inputs["STRING1"], block, sprite);
+            std::string value2 = getInputValue(block->inputs["STRING2"], block, sprite);
             return value1.find(value2) != std::string::npos;
         }
 
@@ -1035,7 +1034,7 @@ void runCustomBlock(Sprite*sprite,Block block){
            // std::cout<<data.blockId<<std::endl;
             // run the parent of the prototype block since that block is the definition, containing all the blocks
             
-            runBlock(findBlock(findBlock(data.blockId).parent),sprite,conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
+            runBlock(*findBlock(findBlock(data.blockId)->parent),sprite,conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
         }
     }
 
@@ -1088,8 +1087,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_GOTO:{
-            Block inputBlock = findBlock(block.inputs["TO"][1]);
-            std::string objectName = inputBlock.fields["TO"][0];
+            Block* inputBlock = findBlock(block.inputs["TO"][1]);
+            std::string objectName = inputBlock->fields["TO"][0];
 
             if (objectName == "_random_") {
                 sprite->xPosition = rand() % projectWidth - projectWidth / 2;
@@ -1156,14 +1155,14 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_POINT_TOWARD:{
-            Block inputBlock = findBlock(block.inputs["TOWARDS"][1]);
+            Block* inputBlock = findBlock(block.inputs["TOWARDS"][1]);
 
-            if(inputBlock.fields.find("TOWARDS") == inputBlock.fields.end()){
+            if(inputBlock->fields.find("TOWARDS") == inputBlock->fields.end()){
                 //std::cerr << "Error: Unable to find object for POINT_TOWARD block." << std::endl;
                 goto nextBlock;
             }
 
-            std::string objectName = inputBlock.fields["TOWARDS"][0];
+            std::string objectName = inputBlock->fields["TOWARDS"][0];
             double targetX = 0;
             double targetY = 0;
 
@@ -1266,7 +1265,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.LOOKS_SWITCHCOSTUMETO:{
             std::string inputValue;
             try{
-           inputValue = getValueOfBlock(findBlock(block.inputs["COSTUME"][1]),sprite);}
+           inputValue = getValueOfBlock(*findBlock(block.inputs["COSTUME"][1]),sprite);}
            catch(...){
                 inputValue = getInputValue(block.inputs["COSTUME"],&block,sprite);
             }
@@ -1316,7 +1315,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.LOOKS_SWITCHBACKDROPTO:{
-            std::string inputValue = getValueOfBlock(findBlock(block.inputs["BACKDROP"][1]),sprite);
+            std::string inputValue = getValueOfBlock(*findBlock(block.inputs["BACKDROP"][1]),sprite);
             for(Sprite* currentSprite : sprites){
                 if(!currentSprite->isStage){
                     continue;
@@ -1458,8 +1457,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
             if (runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
                 if (!block.inputs["SUBSTACK"][1].is_null()) {
-                    Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                    runBlock(subBlock, sprite);
+                    Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                    runBlock(*subBlock, sprite);
                 }
             }
             goto nextBlock;
@@ -1471,13 +1470,13 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
             if (runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
                 if (!block.inputs["SUBSTACK"][1].is_null()) {
-                    Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                    runBlock(subBlock, sprite);
+                    Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                    runBlock(*subBlock, sprite);
                 }
             } else {
                 if (!block.inputs["SUBSTACK2"][1].is_null()) {
-                    Block subBlock = findBlock(block.inputs["SUBSTACK2"][1]);
-                    runBlock(subBlock, sprite);
+                    Block* subBlock = findBlock(block.inputs["SUBSTACK2"][1]);
+                    runBlock(*subBlock, sprite);
                 }
             }
             goto nextBlock;
@@ -1564,8 +1563,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 //conditionals.erase(block.id);
             }
             if (sprite->conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
-                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                runBlock(subBlock, sprite);
+                Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                runBlock(*subBlock, sprite);
                 return;
             }
             if (sprite->conditionals[block.id].isTrue && block.inputs["SUBSTACK"][1].is_null()) {
@@ -1591,9 +1590,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
             if (sprite->conditionals[block.id].isTrue) {
                 if (!block.inputs["SUBSTACK"][1].is_null()) {
-                    Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                if (subBlock.id != "null") {
-                runBlock(subBlock, sprite); // Run the substack
+                    Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                if (subBlock != nullptr) {
+                runBlock(*subBlock, sprite); // Run the substack
             } else {
                 std::cerr << "Substack block not found for Block ID: " << block.id << std::endl;
             }
@@ -1630,8 +1629,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if(sprite->conditionals[block.id].hasRunThisFrame) goto nextBlock;
 
             if (sprite->conditionals[block.id].isTrue && !block.inputs["SUBSTACK"][1].is_null()) {
-                Block subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                runBlock(subBlock, sprite);
+                Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
+                runBlock(*subBlock, sprite);
             }
             sprite->conditionals[block.id].isTrue = true;
             sprite->conditionals[block.id].hasRunThisFrame = true;
@@ -1640,14 +1639,14 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
         case block.CONTROL_CREATE_CLONE_OF: {
             std::cout << "Trying " << std::endl;
-            Block cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
+            Block* cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
             Sprite* spriteToClone = getAvailableSprite();
             if(!spriteToClone) goto nextBlock;
-            if (cloneOptions.fields["CLONE_OPTION"][0] == "_myself_") {
+            if (cloneOptions->fields["CLONE_OPTION"][0] == "_myself_") {
                 *spriteToClone = *sprite;
             } else {
                 for (Sprite* currentSprite : sprites) {
-                    if (currentSprite->name == removeQuotations(cloneOptions.fields["CLONE_OPTION"][0]) && !currentSprite->isClone) {
+                    if (currentSprite->name == removeQuotations(cloneOptions->fields["CLONE_OPTION"][0]) && !currentSprite->isClone) {
                         *spriteToClone = *currentSprite;
                     }
                 }
@@ -1666,9 +1665,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 std::unordered_map<std::string, Block> newBlocks;
                 for (auto& [id, block] : spriteToClone->blocks) {
                     if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
-                        std::vector<Block> blockChain = getBlockChain(block.id);
-                        for (const Block& block : blockChain) {
-                            newBlocks[block.id] = block;
+                        std::vector<Block*> blockChain = getBlockChain(block.id);
+                        for (const Block* block : blockChain) {
+                            newBlocks[block->id] = *block;
                         }
                     }
                 }
@@ -1708,10 +1707,10 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 break;
             }
             if(stopType == "this script"){
-                Block parent = getBlockParent(block);
+                Block* parent = getBlockParent(&block);
                 //std::cout << "Stopping script " << parent.id << std::endl;
                 for(auto& [id,block] : sprite->blocks){
-                    if(block.topLevelParentBlock == parent.id){
+                    if(block.topLevelParentBlock == parent->id){
                         if(sprite->conditionals.find(id) != sprite->conditionals.end()){
                             sprite->conditionals.erase(id);
                         }
@@ -1721,7 +1720,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             }
 
             if(stopType == "other scripts in sprite"){
-                std::string topLevelParentBlock = getBlockParent(block).id;
+                std::string topLevelParentBlock = getBlockParent(&block)->id;
                 //std::cout << "Stopping other scripts in sprite " << sprite->id << std::endl;
                 for(auto& [id,block] : sprite->blocks){
                     if(block.topLevelParentBlock != topLevelParentBlock){
@@ -1916,12 +1915,12 @@ void runRepeatBlocks(){
             if(data.runWithoutScreenRefresh){
                 while(data.isTrue){
                     data.hasRunThisFrame = false;
-                    runBlock(findBlock(data.blockId),data.hostSprite);
+                    runBlock(*findBlock(data.blockId),data.hostSprite);
                 }
             }
             else{
                 data.hasRunThisFrame = false;
-            runBlock(findBlock(data.blockId),data.hostSprite);
+            runBlock(*findBlock(data.blockId),data.hostSprite);
                 }
             
             }
@@ -2093,12 +2092,12 @@ std::string getInputValue(nlohmann::json& item, Block* block, Sprite* sprite) {
         if (data.is_array()) {
             return getVariableValue(data[2],sprite);
         } else {
-            return getValueOfBlock(findBlock(data), sprite);
+            return getValueOfBlock(*findBlock(data), sprite);
         }
     }
     // 2 SEEMS to be a boolean
     if(type == 2){
-        return std::to_string(runConditionalStatement(findBlock(data).id, sprite));
+        return std::to_string(runConditionalStatement(findBlock(data)->id, sprite));
     }
     return "0";
 }
