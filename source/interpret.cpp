@@ -1420,6 +1420,13 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 }
 
                 sprite->layer -= std::stoi(value);
+                if(sprite->layer < 1){
+                    for(Sprite* currentSprite : sprites){
+                    if(currentSprite->isStage) continue;
+                    currentSprite->layer+= 2;
+                }
+                sprite->layer = 0;
+                }
             }
         } else {
                 //std::cerr << "Invalid layer change " << value << std::endl;

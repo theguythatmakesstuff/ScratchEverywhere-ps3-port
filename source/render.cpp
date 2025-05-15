@@ -74,7 +74,7 @@ void renderSprites(){
     //int times = 1;
     C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
 
-   // Sort sprites by layer (lowest to highest)
+// Sort sprites by layer (lowest to highest)
 std::vector<Sprite*> spritesByLayer = sprites;
 std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
     [](const Sprite* a, const Sprite* b) {
@@ -99,23 +99,29 @@ for(Sprite* currentSprite : spritesByLayer) {
 
     if(bottomScreenEnabled){
     C2D_SceneBegin(bottomScreen);
-    for(Sprite* currentSprite : sprites){
-        if(!currentSprite->visible)continue;
+// Sort sprites by layer (lowest to highest)
+std::vector<Sprite*> spritesByLayer = sprites;
+std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
+    [](const Sprite* a, const Sprite* b) {
+        return a->layer < b->layer;
+    });
 
-        // look through every costume in sprite for correct one
-        int costumeIndex = 0;
-        for(const auto& costume : currentSprite->costumes){
-            if(costumeIndex == currentSprite->currentCostume){
-                currentSprite->rotationCenterX = costume.rotationCenterX;
-                currentSprite->rotationCenterY = costume.rotationCenterY;
-                renderImage(&imageC2Ds[costume.id],currentSprite,costume.id,true);
-
-            }
-            costumeIndex++;
+// Now render sprites in order from lowest to highest layer
+for(Sprite* currentSprite : spritesByLayer) {
+    if(!currentSprite->visible) continue;
+    
+    // look through every costume in sprite for correct one
+    int costumeIndex = 0;
+    for(const auto& costume : currentSprite->costumes) {
+        if(costumeIndex == currentSprite->currentCostume) {
+            currentSprite->rotationCenterX = costume.rotationCenterX;
+            currentSprite->rotationCenterY = costume.rotationCenterY;
+            renderImage(&imageC2Ds[costume.id], currentSprite, costume.id,true);
         }
-        //times++;
+        costumeIndex++;
     }
 }
+    }
 
 
 
