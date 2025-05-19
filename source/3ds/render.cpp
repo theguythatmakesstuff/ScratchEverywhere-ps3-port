@@ -196,7 +196,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
     
 
-    double maxLayer = getMaxSpriteLayer();
+    //double maxLayer = getMaxSpriteLayer();
     double scaleX = static_cast<double>(SCREEN_WIDTH) / projectWidth;
     double scaleY = static_cast<double>(SCREEN_HEIGHT) / projectHeight;
     double spriteSizeX = currentSprite->size * 0.01;
@@ -230,26 +230,13 @@ if (!legacyDrawing) {
 
 
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
-//    C2D_Sprite sprt;
-//    C2D_SpriteFromImage(&sprt,*image);
-
-//    C2D_SpriteSetPos(
-//     &sprt,
-//     (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
-//     (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2)
-// );
-
-//     C2D_SpriteSetRotation(&sprt,rotation);
-//     C2D_SpriteSetScale(&sprt,(spriteSizeX) * scale / 2.0f, (spriteSizeY) * scale / 2.0f );
-//     C2D_SpriteSetDepth(&sprt,currentSprite->layer / maxLayer);
-//     C2D_DrawSprite(&sprt);
 
 
     C2D_DrawImageAtRotated(
         *image,
         (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
-        1,//currentSprite->layer / maxLayer,
+        1,
         rotation,
         nullptr,
         (spriteSizeX) * scale / 2.0f,
@@ -260,7 +247,7 @@ if (!legacyDrawing) {
     C2D_DrawRectSolid(
         (currentSprite->xPosition * scale) + (screenWidth / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
-        1,//currentSprite->layer / maxLayer,
+        1,
         10 * scale,
         10 * scale, 
         clrBlack

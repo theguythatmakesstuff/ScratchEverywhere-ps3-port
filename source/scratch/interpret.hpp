@@ -16,6 +16,7 @@
 #include "render.hpp"
 #include <chrono>
 #include <random>
+#include <time.hpp>
 
 
 struct Mouse{

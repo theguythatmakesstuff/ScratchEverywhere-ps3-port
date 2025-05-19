@@ -512,6 +512,10 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             }
         }
 
+        case Block::SENSING_DAYS_SINCE_2000:{
+            return std::to_string(Time::getDaysSince2000());
+        }
+
         case Block::OPERATOR_ADD: {
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);

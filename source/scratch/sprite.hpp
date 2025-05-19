@@ -109,6 +109,8 @@ struct Block {
         SENSING_MOUSEY,
         SENSING_DISTANCETO,
         SENSING_DISTANCETO_MENU,
+        SENSING_DAYS_SINCE_2000,
+        SENSING_CURRENT,
         OPERATOR_EQUALS,
         OPERATOR_GT,
         OPERATOR_LT,
@@ -213,6 +215,8 @@ struct Block {
         if(opCodeString == "sensing_mousedown")return SENSING_MOUSEDOWN;
         if(opCodeString == "sensing_mousex")return SENSING_MOUSEX;
         if(opCodeString == "sensing_mousey")return SENSING_MOUSEY;
+        if(opCodeString == "sensing_dayssince2000") return SENSING_DAYS_SINCE_2000;
+        if(opCodeString == "sensing_current") return SENSING_CURRENT;
         if(opCodeString == "operator_equals")return OPERATOR_EQUALS;
         if(opCodeString == "operator_gt")return OPERATOR_GT;
         if(opCodeString == "operator_lt")return OPERATOR_LT;
