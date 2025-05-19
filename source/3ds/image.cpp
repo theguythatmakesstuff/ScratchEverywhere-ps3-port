@@ -162,6 +162,8 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8);
    // std::cout << "Setting Texture Filter..." << std::endl;
     C3D_TexSetFilter(tex, GPU_LINEAR, GPU_NEAREST);
+    // GPU_LINEAR TODO try that later on real hardware
+
   
    // std::cout << "Setting Texture Wrap..." << std::endl;
     memset(tex->data, 0, px_count * 4);
@@ -183,45 +185,3 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     return image;
   }
 
-// C2D_Image get_C2D_Image(ImageRGBA rgba) {
-//     std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
-
-//     C2D_Image image;
-
-//     int tex_width = clamp(next_pow2(rgba.width), 64, 1024);
-//     int tex_height = clamp(next_pow2(rgba.height), 64, 1024);
-
-//     C3D_Tex* tex = (C3D_Tex*)malloc(sizeof(C3D_Tex));
-//     image.tex = tex;
-//     C3D_TexInit(tex, tex_width, tex_height, GPU_RGBA8);
-//     C3D_TexSetFilter(tex, GPU_LINEAR, GPU_NEAREST);
-
-//     Tex3DS_SubTexture* subtex = (Tex3DS_SubTexture*)malloc(sizeof(Tex3DS_SubTexture));
-//     image.subtex = subtex;
-//     subtex->width = rgba.width;
-//     subtex->height = rgba.height;
-//     subtex->left = 0.0f;
-//     subtex->top = 1.0f;
-//     subtex->right = (float)rgba.width / tex_width;
-//     subtex->bottom = 1.0f - ((float)rgba.height / tex_height);
-
-//     // Convert RGBA to ABGR (GPU expects ABGR)
-//     u32* temp_buffer = (u32*)malloc(tex_width * tex_height * 4);
-//     memset(temp_buffer, 0, tex_width * tex_height * 4);
-
-//     const u32* rgba_raw = reinterpret_cast<const u32*>(rgba.data);
-//     for (int y = 0; y < rgba.height; y++) {
-//         for (int x = 0; x < rgba.width; x++) {
-//             int src_index = y * rgba.width + x;
-//             int dst_index = y * tex_width + x;
-//             temp_buffer[dst_index] = rgba_to_abgr(rgba_raw[src_index]);
-//         }
-//     }
-
-//     // Upload the texture (swizzle done internally)
-//     C3D_TexUpload(tex, temp_buffer);
-//     free(temp_buffer);
-
-//     std::cout << "Image done!" << std::endl;
-//     return image;
-// }

@@ -1,6 +1,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
-#include "miniz.h"
+#include "miniz/miniz.h"
 #include <stdio.h>
 #include <iostream>
 #include <vector>
