@@ -28,20 +28,21 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - Images will only work if it's in png or jpg format.
 - Images cannot be over about 5mb cumulatively. if you go over this limit, some images may fail to load.
 - Images cannot be over 1024x1024 in resolution.
-- many blocks are not yet implmented, and some implemented blocks has very little testing and may lead to crashing.
+- Extensions (eg: pen and music extensions) are not supported.
+- many blocks are not yet implmented, and some implemented blocks has very little testing and may lead to crashing/unintended behavior.
 
 
 ## Unimplimented blocks
 | Motion | Looks | Events | Sensing | Variables/Lists |
 | :----- | :---- | :----- | :------ |:--------------- |
-|Glide x seconds to|All say and think blocks|When Key pressed|Touching Color|Show/Hide variable|
-|if on edge, bounce||        |When this sprite clicked|Color is Touching Color|Show/Hide List|
-||       |When backdrop switches to|Ask and wait| Cloud variables |
-|        |       |When loudness > x|Answer|
+||All say and think blocks||Touching Color|Show/Hide variable|
+||All Costume Effects|        |When this sprite clicked|Color is Touching Color|Show/Hide List|
+||       |When backdrop switches to|| Cloud variables |
+|        |       |When loudness > x||
 |        |       |Broadcast and wait|Set Drag mode|
 |        |       |        |Loudness|
-|        |       |        |Current x|
-|        |       |        |days since 2000|
+|        |       |        ||
+|        |       |        ||
 
 
 
@@ -64,14 +65,14 @@ In order to build, you will need to have Devkitpro's SDKs installed with the Dev
 - Devkitpro's install instructions are available at : https://devkitpro.org/wiki/Getting_Started
 
 You will also need libvorbisidec installed. open a Terminal and run the following:
-`pacman -S 3ds-libvorbisidec 3ds-pkg-config`
+- `pacman -S 3ds-libvorbisidec 3ds-pkg-config`
 
 Download the source code from the releases tab and unzip it.
 
 Make a `romfs` folder inside the unzipped source code and put the Scratch project inside of that.
 - The Scratch project MUST be named `project.png` , all lowercase.
 - For faster load times/less limitations, you can also unzip the sb3 project file and put the contents into a new folder called `project`.
-If you would like to  change the name of the app, go inside the `Makefile` and edit
+- If you would like to  change the name of the app, go inside the `Makefile` and edit
 `APP_TITLE`, `APP_DESCRIPTION` and `APP_AUTHOR` to whatever you please.
 
 Then it should be as simple as running `make` in the source code folder.

@@ -32,14 +32,14 @@ int main(int argc, char **argv)
 	std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
-	OggAudioPlayer player;
-	const char* audioPath = "romfs:/sample.ogg";
+	// OggAudioPlayer player;
+	// const char* audioPath = "romfs:/sample.ogg";
 
-    if (!player.load(audioPath)) {
-        printf("Failed to load audio file!\n");
-    } else {
-        printf("Audio loaded successfully\n");
-    }
+    // if (!player.load(audioPath)) {
+    //     printf("Failed to load audio file!\n");
+    // } else {
+    //     printf("Audio loaded successfully\n");
+    // }
 
 	if(!openScratchProject()){
 		exitApp();
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
 
-	player.play();
+	//player.play();
 	while (aptMainLoop())
 	{
 		
