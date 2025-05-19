@@ -14,6 +14,7 @@
 #include <vector>
 #include "input.hpp"
 #include "render.hpp"
+#include "keyboard.hpp"
 #include <chrono>
 #include <random>
 #include <time.hpp>
@@ -43,6 +44,7 @@ extern std::unordered_map<std::string, Block*> blockLookup;
 extern Mouse mousePointer;
 extern double timer;
 extern bool toExit;
+extern std::string answer;
 
 
 

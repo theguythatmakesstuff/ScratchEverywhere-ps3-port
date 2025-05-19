@@ -6,6 +6,7 @@ std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string,Conditional> conditionals;
 std::unordered_map<std::string, Block*> blockLookup;
 Mouse mousePointer;
+std::string answer;
 double timer = 0;
 bool toExit = false;
 ProjectType projectType;
@@ -548,6 +549,10 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             }
             return "";
             
+        }
+
+        case Block::SENSING_ANSWER:{
+            return answer;
         }
 
         case Block::OPERATOR_ADD: {
@@ -1913,6 +1918,16 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
         case block.SENSING_RESETTIMER: {
             timer = 0;
+            goto nextBlock;
+        }
+
+        case block.SENSING_ASK_AND_WAIT:{
+
+            Keyboard kbd;
+            std::string inputValue = getInputValue(block.inputs["QUESTION"],&block,sprite);
+            std::string output = kbd.openKeyboard(inputValue.c_str());
+            answer = output;
+
             goto nextBlock;
         }
 
