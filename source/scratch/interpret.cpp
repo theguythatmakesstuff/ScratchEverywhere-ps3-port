@@ -1253,6 +1253,20 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             sprite->rotationStyle = "all around";
             goto nextBlock;
         }
+
+        case block.MOTION_IF_ON_EDGE_BOUNCE:{
+
+            double halfWidth = projectWidth / 2.0;
+            double halfHeight = projectHeight / 2.0;
+
+                // Check if the current sprite is touching the edge of the screen
+            if (sprite->xPosition <= -halfWidth || sprite->xPosition >= halfWidth ||
+                 sprite->yPosition <= -halfHeight || sprite->yPosition >= halfHeight) {
+                    sprite->rotation *= -1;
+                }
+                goto nextBlock;
+
+        }
         
         case block.LOOKS_SHOW:{
             sprite->visible = true;
