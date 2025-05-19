@@ -63,6 +63,9 @@ In order to build, you will need to have Devkitpro's SDKs installed with the Dev
 
 - Devkitpro's install instructions are available at : https://devkitpro.org/wiki/Getting_Started
 
+You will also need libvorbisidec installed. open a Terminal and run the following:
+`pacman -S 3ds-libvorbisidec 3ds-pkg-config`
+
 Download the source code from the releases tab and unzip it.
 
 Make a `romfs` folder inside the unzipped source code and put the Scratch project inside of that.

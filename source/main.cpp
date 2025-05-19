@@ -5,7 +5,7 @@
 #include "render.hpp"
 #include "input.hpp"
 #include "unzip.hpp"
-
+#include "oggAudioPlayer.hpp"
 
 
 
@@ -14,7 +14,7 @@ static void exitApp(){
 	//cleanupSprites(); // delete sprites
 	renderDeInit(); // from render.hpp
 	romfsExit(); // unload the filesystem
-	//ndspExit(); // unload audio
+	ndspExit(); // unload audio
 	romfsExit(); // unload the filesystem
 	//cfguExit(); // i think kills text
 	gfxExit();
@@ -23,7 +23,8 @@ static void exitApp(){
 int main(int argc, char **argv)
 {
 	gfxInitDefault();
-	//consoleInit(GFX_BOTTOM, NULL);
+	ndspInit();
+	consoleInit(GFX_BOTTOM, NULL);
 	renderInit();
 	romfsInit();
 
@@ -31,7 +32,14 @@ int main(int argc, char **argv)
 	std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
+	// OggAudioPlayer player;
+	// const char* audioPath = "romfs:/sample.ogg";
 
+    // if (!player.load(audioPath)) {
+    //     printf("Failed to load audio file!\n");
+    // } else {
+    //     printf("Audio loaded successfully\n");
+    // }
 
 	if(!openScratchProject()){
 		exitApp();
@@ -42,7 +50,7 @@ int main(int argc, char **argv)
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
 
-
+\
 	while (aptMainLoop())
 	{
 		
@@ -67,6 +75,7 @@ int main(int argc, char **argv)
 			break;
 		}
 	}
+	
 
 	exitApp();
 	return 0;
