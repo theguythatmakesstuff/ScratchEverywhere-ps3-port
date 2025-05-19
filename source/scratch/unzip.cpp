@@ -76,7 +76,12 @@ nlohmann::json unzipProject(std::ifstream *file){
         loadImages(&zip);
         mz_zip_reader_end(&zip);
     }
-    else (*file) >> project_json;
+    else {
+        // if project is unzipped
+    file->clear(); // Clear any EOF flags
+    file->seekg(0, std::ios::beg); // Go to the start of the file
+    (*file) >> project_json;
+}
 
     return project_json;
 }
@@ -89,6 +94,7 @@ bool openScratchProject(){
 	}
 	nlohmann::json project_json = unzipProject(&file);
     if(project_json.empty()){
+        std::cerr<<"Project.json is empty."<<std::endl;
         return false;
     }
 	loadSprites(project_json);
