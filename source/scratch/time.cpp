@@ -64,6 +64,13 @@ int Time::getDay(){
         return timeStruct->tm_mday;
 }
 
+int Time::getDayOfWeek() {
+    time_t unixTime = time(NULL);
+    struct tm* timeStruct = gmtime((const time_t *)&unixTime);
+    // tm_wday: days since Sunday [0,6], so add 1 to make Sunday=1, Monday=2, etc.
+    return timeStruct->tm_wday + 1;
+}
+
 int Time::getMonth(){
     	time_t unixTime = time(NULL);
 		struct tm* timeStruct = gmtime((const time_t *)&unixTime);

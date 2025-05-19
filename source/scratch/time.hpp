@@ -15,6 +15,8 @@ static int getSeconds();
 
 static int getDay();
 
+static int getDayOfWeek();
+
 static int getMonth();
 
 static int getYear();

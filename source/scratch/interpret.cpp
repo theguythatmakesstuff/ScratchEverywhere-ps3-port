@@ -516,6 +516,40 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             return std::to_string(Time::getDaysSince2000());
         }
 
+        case Block::SENSING_CURRENT:{
+            std::string inputValue;
+            try{
+            inputValue = block.fields["CURRENTMENU"][0];
+            }
+            catch(...){
+                return "";
+            }
+
+            if(inputValue == "YEAR"){
+                return std::to_string(Time::getYear());
+            }
+            if(inputValue == "MONTH"){
+                return std::to_string(Time::getMonth());
+            }
+            if(inputValue == "DATE"){
+                return std::to_string(Time::getDay());
+            }
+            if(inputValue == "DAYOFWEEK"){
+                return std::to_string(Time::getDayOfWeek());
+            }
+            if(inputValue == "HOUR"){
+                return std::to_string(Time::getHours());
+            }
+            if(inputValue == "MINUTE"){
+                return std::to_string(Time::getMinutes());
+            }
+            if(inputValue == "SECOND"){
+                return std::to_string(Time::getSeconds());
+            }
+            return "";
+            
+        }
+
         case Block::OPERATOR_ADD: {
             std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
             std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
