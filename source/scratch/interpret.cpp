@@ -1310,6 +1310,154 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 goto nextBlock;
 
         }
+
+        case block.MOTION_GLIDE_SECS_TO_XY:{
+
+            if (sprite->conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = true;
+                newConditional.times = -1;
+                newConditional.time = std::chrono::high_resolution_clock::now();
+                std::string duration = getInputValue(block.inputs["SECS"], &block, sprite);
+                if(isNumber(duration)) {
+                    newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
+                } else {
+                    newConditional.endTime = 0;
+                }
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                newConditional.startingX= sprite->xPosition;
+                newConditional.startingY= sprite->yPosition;
+
+                std::string positionXStr = getInputValue(block.inputs["X"],&block,sprite);
+                std::string positionYStr = getInputValue(block.inputs["Y"],&block,sprite);
+                newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
+                newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
+
+                sprite->conditionals[newConditional.id] = newConditional;
+            }
+
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+            
+            double startX = sprite->conditionals[block.id].startingX;
+            double startY = sprite->conditionals[block.id].startingY;
+            double endX = sprite->conditionals[block.id].endX;
+            double endY = sprite->conditionals[block.id].endY;
+
+            double durationMs = sprite->conditionals[block.id].endTime;
+
+            if (elapsedTime < sprite->conditionals[block.id].endTime) {
+                sprite->conditionals[block.id].isTrue = true;
+
+                // Calculate progress (0.0 to 1.0)
+                double progress = static_cast<double>(elapsedTime) / durationMs;
+                if (progress > 1.0) progress = 1.0;
+                // Interpolate position
+                sprite->xPosition = startX + (endX - startX) * progress;
+                sprite->yPosition = startY + (endY - startY) * progress;
+
+                return;
+            } else {
+                sprite->xPosition = endX;
+                sprite->yPosition = endY;
+                sprite->conditionals[block.id].isTrue = false;
+                //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
+            }
+
+            goto nextBlock;
+        }
+
+        case block.MOTION_GLIDE_TO:{
+
+            if (sprite->conditionals.find(block.id) == conditionals.end()) {
+                Conditional newConditional;
+                newConditional.id = block.id;
+                newConditional.blockId = block.id;
+                newConditional.hostSprite = sprite;
+                newConditional.isTrue = true;
+                newConditional.times = -1;
+                newConditional.time = std::chrono::high_resolution_clock::now();
+                std::string duration = getInputValue(block.inputs["SECS"], &block, sprite);
+                if(isNumber(duration)) {
+                    newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
+                } else {
+                    newConditional.endTime = 0;
+                }
+                newConditional.waitingBlock = waitingBlock;
+                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                newConditional.startingX= sprite->xPosition;
+                newConditional.startingY= sprite->yPosition;
+
+                // get ending position
+                Block* inputBlock;
+                try{
+                inputBlock = findBlock(block.inputs["TO"][1]);}
+                catch(...){
+                    goto nextBlock;
+                }
+
+                std::string inputValue = inputBlock->fields["TO"][0];
+                std::string positionXStr;
+                std::string positionYStr;
+
+                if(inputValue == "_random_"){
+                    positionXStr = std::to_string(rand() % projectWidth - projectWidth / 2);
+                    positionYStr = std::to_string(rand() % projectHeight - projectHeight / 2);
+                }
+                else if(inputValue == "_mouse_"){
+                    positionXStr = std::to_string(mousePointer.x);
+                    positionYStr = std::to_string(mousePointer.y);
+                }
+                else{
+                    for(auto & currentSprite : sprites){
+                        if(currentSprite->name == inputValue){
+                            positionXStr = std::to_string(currentSprite->xPosition);
+                            positionYStr = std::to_string(currentSprite->yPosition);
+                            break;
+                        }
+                    }
+                }
+
+                newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
+                newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
+
+                sprite->conditionals[newConditional.id] = newConditional;
+            }
+
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+            
+            double startX = sprite->conditionals[block.id].startingX;
+            double startY = sprite->conditionals[block.id].startingY;
+            double endX = sprite->conditionals[block.id].endX;
+            double endY = sprite->conditionals[block.id].endY;
+
+            double durationMs = sprite->conditionals[block.id].endTime;
+
+            if (elapsedTime < sprite->conditionals[block.id].endTime) {
+                sprite->conditionals[block.id].isTrue = true;
+
+                // Calculate progress (0.0 to 1.0)
+                double progress = static_cast<double>(elapsedTime) / durationMs;
+                if (progress > 1.0) progress = 1.0;
+                // Interpolate position
+                sprite->xPosition = startX + (endX - startX) * progress;
+                sprite->yPosition = startY + (endY - startY) * progress;
+
+                return;
+            } else {
+                sprite->xPosition = endX;
+                sprite->yPosition = endY;
+                sprite->conditionals[block.id].isTrue = false;
+                //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
+            }
+
+            goto nextBlock;
+        }
         
         case block.LOOKS_SHOW:{
             sprite->visible = true;
@@ -1572,7 +1720,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.time = std::chrono::high_resolution_clock::now();
                 std::string duration = getInputValue(block.inputs["DURATION"], &block, sprite);
                 if(isNumber(duration)) {
-                    newConditional.endTime = std::stoi(duration) * 1000; // convert to milliseconds
+                    newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
                 } else {
                     newConditional.endTime = 0;
                 }
@@ -2009,6 +2157,7 @@ void runRepeatBlocks(){
              for (auto it = currentSprite->conditionals.begin(); it != currentSprite->conditionals.end(); ++it) {
               if (&it->second == cond) {
                     currentSprite->conditionals.erase(it);
+                    std::cout << "erased a conditional." << std::endl;
                     break;
                 }
             }

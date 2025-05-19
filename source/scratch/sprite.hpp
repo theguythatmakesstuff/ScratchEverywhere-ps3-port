@@ -45,6 +45,9 @@ struct Block {
         MOTION_SETY,
         MOTION_IF_ON_EDGE_BOUNCE,
         MOTION_SET_ROTATION_STYLE,
+        MOTION_GLIDE_TO,
+        MOTION_GLIDE_TO_MENU,
+        MOTION_GLIDE_SECS_TO_XY,
         LOOKS_SIZE,
         LOOKS_SHOW,
         LOOKS_HIDE,
@@ -153,6 +156,9 @@ struct Block {
         if(opCodeString == "motion_sety")return MOTION_SETY;
         if(opCodeString == "motion_setrotationstyle") return MOTION_SET_ROTATION_STYLE;
         if(opCodeString == "motion_ifonedgebounce") return MOTION_IF_ON_EDGE_BOUNCE;
+        if(opCodeString == "motion_glideto") return MOTION_GLIDE_TO;
+        if(opCodeString == "motion_glideto_menu") return MOTION_GLIDE_TO_MENU;
+        if(opCodeString == "motion_glidesecstoxy") return MOTION_GLIDE_SECS_TO_XY;
         if(opCodeString == "looks_size")return LOOKS_SIZE;
         if(opCodeString == "looks_show")return LOOKS_SHOW;
         if(opCodeString == "looks_hide")return LOOKS_HIDE;
@@ -271,6 +277,10 @@ struct Conditional{
     bool hasRunThisFrame;
     std::chrono::_V2::system_clock::time_point time;
     double endTime;
+    double startingX;
+    double startingY;
+    double endX;
+    double endY;
 };
 
 struct List{
