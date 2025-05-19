@@ -8,6 +8,7 @@ void getInput(){
     mousePointer.isMoving = false;
     hidScanInput();
     u32 kDown = hidKeysHeld();
+    u32 kJustPressed = hidKeysDown();
 
     touchPosition touch;
 
@@ -103,7 +104,8 @@ void getInput(){
             mousePointer.x = touch.px - (BOTTOM_SCREEN_WIDTH / 2);
             mousePointer.y = (-touch.py + (SCREEN_HEIGHT)) -SCREEN_HEIGHT;
         }
-        
+        runAllBlocksByOpcode(Block::EVENT_WHEN_KEY_PRESSED);
     }
+
 
 }

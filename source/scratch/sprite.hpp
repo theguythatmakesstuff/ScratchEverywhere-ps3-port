@@ -22,6 +22,7 @@ struct Block {
         EVENT_WHENFLAGCLICKED,
         EVENT_WHENBROADCASTRECEIVED,
         EVENT_BROADCAST,
+        EVENT_WHEN_KEY_PRESSED,
         PROCEDURES_PROTOTYPE,
         PROCEDURES_DEFINITION,
         PROCEDURES_CALL,
@@ -133,6 +134,7 @@ struct Block {
         if(opCodeString == "event_whenflagclicked")return EVENT_WHENFLAGCLICKED;
         if(opCodeString == "event_whenbroadcastreceived")return EVENT_WHENBROADCASTRECEIVED;
         if(opCodeString == "event_broadcast")return EVENT_BROADCAST;
+        if(opCodeString == "event_whenkeypressed") return EVENT_WHEN_KEY_PRESSED;
         if(opCodeString == "procedures_prototype")return PROCEDURES_PROTOTYPE;
         if(opCodeString == "procedures_definition")return PROCEDURES_DEFINITION;
         if(opCodeString == "procedures_call")return PROCEDURES_CALL;

@@ -1118,6 +1118,16 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             goto nextBlock;
         }
 
+        case block.EVENT_WHEN_KEY_PRESSED:{
+            for (std::string button : inputButtons) {
+                if (block.fields["KEY_OPTION"][0] == button) {
+                    goto nextBlock;
+                }
+
+            }
+            return;
+        }
+
         case block.MOTION_GOTOXY: {
            // std::cout << "GOTOXY!" << std::endl;
             std::string xVal = getInputValue(block.inputs["X"], &block, sprite);
