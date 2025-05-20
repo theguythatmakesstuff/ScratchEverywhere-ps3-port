@@ -57,6 +57,7 @@ void runRepeatBlocks();
 Sprite* getAvailableSprite();
 void initializeSpritePool(int poolSize);
 std::string findCustomValue(std::string valueName,Sprite*sprite,Block block);
+Conditional* getParentConditional(Sprite* sprite, std::string topLevelParentBlockId);
 std::string removeQuotations(std::string value);
 std::string getValueOfBlock(Block block,Sprite*sprite);
 bool runConditionalStatement(std::string blockId,Sprite* sprite);

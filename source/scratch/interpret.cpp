@@ -1799,6 +1799,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"], &block, sprite));
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                newConditional.waitingConditional = getParentConditional(sprite,block.topLevelParentBlock);
+                if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+
                 sprite->conditionals[newConditional.id] = newConditional;
             }
             if(sprite->conditionals[block.id].hasRunThisFrame) goto nextBlock;
@@ -2136,7 +2139,7 @@ void runRepeatBlocks(){
     std::vector<Conditional*> condsToDelete;
     for(auto &currentSprite : sprites){
     for(auto &[id,data] : currentSprite->conditionals){
-        if(data.isTrue){
+        if(data.isActive && data.isTrue){
             if(data.runWithoutScreenRefresh){
                 while(data.isTrue){
                     data.hasRunThisFrame = false;
@@ -2150,7 +2153,7 @@ void runRepeatBlocks(){
             
             }
             //else currentSprite->conditionals.erase(id);
-            else condsToDelete.push_back(&currentSprite->conditionals[id]);
+            else if(!data.isTrue) condsToDelete.push_back(&currentSprite->conditionals[id]);
         }
     }
            // remove sprites ready for deletion
@@ -2164,9 +2167,15 @@ void runRepeatBlocks(){
             // Delete the collected conditionals
         for (Conditional* cond : condsToDelete) {
             for (auto& currentSprite : sprites) {
-             for (auto it = currentSprite->conditionals.begin(); it != currentSprite->conditionals.end(); ++it) {
-              if (&it->second == cond) {
-                    currentSprite->conditionals.erase(it);
+             for (auto currConditional = currentSprite->conditionals.begin(); currConditional != currentSprite->conditionals.end(); ++currConditional) {
+              if (&currConditional->second == cond) {
+
+                // first check if it has a waiting conditional, if does then activate
+                if(currConditional->second.waitingConditional != nullptr){
+                    currConditional->second.waitingConditional->isActive = true;
+                }
+
+                    currentSprite->conditionals.erase(currConditional);
                     std::cout << "erased a conditional." << std::endl;
                     break;
                 }
@@ -2311,6 +2320,19 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
     return "";
 }
 
+
+Conditional* getParentConditional(Sprite* sprite, std::string topLevelParentBlockId){
+    auto blockScript = getBlockChain(topLevelParentBlockId);
+    
+    for(Block* currentBlock : blockScript){
+        if(sprite->conditionals.find(currentBlock->id) != sprite->conditionals.end()){
+            if(sprite->conditionals[currentBlock->id].isActive){
+                return &sprite->conditionals[currentBlock->id];
+            }
+        }
+    }
+    return nullptr;
+}
 
 
 
