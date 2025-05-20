@@ -2249,12 +2249,15 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
         for(const auto &[id,data] : sprite->variables){
             if (id == variableId) {
 
-                double doubleValue = std::stod(data.value); // Convert to double
-                if (std::floor(doubleValue) == doubleValue) { // Check if it's a whole number
-                    return std::to_string(static_cast<int>(doubleValue)); // Convert to int and return as string
+                // check if value is a whole number
+                if(isNumber(data.value)){
+                double doubleValue = std::stod(data.value);
+                if (std::floor(doubleValue) == doubleValue) {
+                    return std::to_string(static_cast<int>(doubleValue));
             }
+        }
 
-                return data.value; // Assuming `Variable` has a `value` field
+                return data.value; 
             }
         }
         // check if it's a list instead
@@ -2277,10 +2280,13 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
                 for(const auto &[id,data] : currentSprite->variables){
                     if (id == variableId) {
 
-                        double doubleValue = std::stod(data.value); // Convert to double
-                        if (std::floor(doubleValue) == doubleValue) { // Check if it's a whole number
-                            return std::to_string(static_cast<int>(doubleValue)); // Convert to int and return as string
+                // check if value is a whole number
+                if(isNumber(data.value)){
+                double doubleValue = std::stod(data.value);
+                if (std::floor(doubleValue) == doubleValue) {
+                    return std::to_string(static_cast<int>(doubleValue));
             }
+        }
 
                         return data.value; // Assuming `Variable` has a `value` field
                     }
@@ -2305,6 +2311,9 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
     return "";
 }
 
+
+
+
 std::string getInputValue(nlohmann::json& item, Block* block, Sprite* sprite) {
     int type = item[0];
     auto& data = item[1];
@@ -2316,9 +2325,9 @@ std::string getInputValue(nlohmann::json& item, Block* block, Sprite* sprite) {
     // 3 is if there is a variable of some kind inside
     if (type == 3) {
         if (data.is_array()) {
-            return getVariableValue(data[2],sprite);
+           return getVariableValue(data[2],sprite);
         } else {
-            return getValueOfBlock(*findBlock(data), sprite);
+           return getValueOfBlock(*findBlock(data), sprite);
         }
     }
     // 2 SEEMS to be a boolean
