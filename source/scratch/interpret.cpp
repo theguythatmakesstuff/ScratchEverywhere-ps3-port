@@ -369,7 +369,7 @@ void loadSprites(const nlohmann::json& json){
     }
 
 
-    initializeSpritePool(100);
+    initializeSpritePool(300);
 
     // add nextBlock during load time so it doesn't have to do it at runtime
         // for(auto& sprite : sprites){
