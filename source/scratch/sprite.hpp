@@ -330,6 +330,15 @@ struct Broadcast{
     std::string name;
 };
 
+struct BlockHierarchyCache {
+
+    std::unordered_map<std::string, std::string> blockToParentConditional;
+
+    std::unordered_map<std::string, std::string> blockToTopLevel;
+
+    bool isCacheBuilt = false;
+};
+
 class Sprite {
     public:
         std::string name;
@@ -363,6 +372,7 @@ class Sprite {
         std::unordered_map<std::string, Broadcast> broadcasts;
         std::unordered_map<std::string, Conditional> conditionals;
         std::unordered_map<std::string, CustomBlock> customBlocks;
+        BlockHierarchyCache blockCache;
     
         void loadFromJson(const nlohmann::json& json);
         void runScript(const std::string& blockId);

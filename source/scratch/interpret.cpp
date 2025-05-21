@@ -48,6 +48,66 @@ std::string removeQuotations(std::string value) {
     return value;
 }
 
+void buildBlockHierarchyCache() {
+    for(auto& sprite : sprites){
+    sprite->blockCache.blockToParentConditional.clear();
+    sprite->blockCache.blockToTopLevel.clear();
+    
+
+        // For each top-level block
+        for (auto& [id,block] : sprite->blocks) {
+            processBlockForCache(sprite,&block,"",getBlockParent(&block));
+        }
+        sprite->blockCache.isCacheBuilt = true;
+    }
+    
+    
+}
+
+void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock) {
+    if (!block) return;
+    
+    // Store the top-level parent for this block
+    sprite->blockCache.blockToTopLevel[block->id] = topLevelBlock->id;
+    
+    // If this is a conditional block (repeat, forever, if, etc.)
+    bool isConditionalBlock = 
+        block->opcode == Block::CONTROL_REPEAT ||
+        block->opcode == Block::CONTROL_FOREVER ||
+        block->opcode == Block::CONTROL_IF ||
+        block->opcode == Block::CONTROL_IF_ELSE;
+    
+    // Update parent conditional if this is a conditional block
+    std::string currentParentId = isConditionalBlock ? block->id : parentConditionalId;
+    
+    // Store parent conditional for this block (even if it's empty)
+    sprite->blockCache.blockToParentConditional[block->id] = parentConditionalId;
+    
+    // Process SUBSTACK (main branch inside repeat/if)
+    if (!block->inputs["SUBSTACK"][1].is_null()) {
+        Block* substack = findBlock(block->inputs["SUBSTACK"][1]);
+        if (substack) {
+            processBlockForCache(sprite,substack, currentParentId, topLevelBlock);
+        }
+    }
+    
+    // Process SUBSTACK2 (else branch)
+    if (!block->inputs["SUBSTACK2"][1].is_null()) {
+        Block* substack2 = findBlock(block->inputs["SUBSTACK2"][1]);
+        if (substack2) {
+            processBlockForCache(sprite,substack2, currentParentId, topLevelBlock);
+        }
+    }
+    
+    // Process next block
+    if (!block->next.empty()) {
+        Block* nextBlock = findBlock(block->next);
+        if (nextBlock) {
+            processBlockForCache(sprite,nextBlock, currentParentId, topLevelBlock);
+        }
+    }
+}
+
 void initializeSpritePool(int poolSize) {
     for (int i = 0; i < poolSize; i++) {
         Sprite newSprite;
@@ -379,7 +439,7 @@ void loadSprites(const nlohmann::json& json){
         // }
     
 
-
+    buildBlockHierarchyCache();
 
     std::cout<<"Loaded " << sprites.size() << " sprites."<< std::endl;
 }
@@ -1124,7 +1184,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.hostSprite = sprite;
                 newConditional.isTrue = false;
                 newConditional.times = -1;
-                newConditional.waitingConditional = getParentConditional(sprite,block.topLevelParentBlock);
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
                 // Block* nextBlockptr = findBlock(block.next);
                 // if(nextBlockptr != nullptr) newConditional.waitingBlock = *nextBlockptr;
@@ -1758,7 +1818,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = -1;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                newConditional.waitingConditional = getParentConditional(sprite,block.topLevelParentBlock);
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
@@ -1789,7 +1849,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 }
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                newConditional.waitingConditional = getParentConditional(sprite,block.topLevelParentBlock);
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
@@ -1819,7 +1879,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = -1;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                newConditional.waitingConditional = getParentConditional(sprite,block.topLevelParentBlock);
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
@@ -1853,7 +1913,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"], &block, sprite));
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                newConditional.waitingConditional = getParentConditional(sprite,block.topLevelParentBlock);
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) {newConditional.waitingConditional->isActive = false;
                     std::cout << "erm..." << std::endl;
                 }
@@ -2384,16 +2444,22 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
 }
 
 
-Conditional* getParentConditional(Sprite* sprite, std::string topLevelParentBlockId){
-    auto blockScript = getBlockChain(topLevelParentBlockId);
+Conditional* getParentConditional(Sprite* sprite, std::string blockId) {
+    // Make sure the cache is built
+    if (!sprite->blockCache.isCacheBuilt) {
+        buildBlockHierarchyCache();
+    }
     
-    for(Block* currentBlock : blockScript){
-        if(sprite->conditionals.find(currentBlock->id) != sprite->conditionals.end()){
-            if(sprite->conditionals[currentBlock->id].isActive){
-                return &sprite->conditionals[currentBlock->id];
-            }
+    // Direct lookup for parent conditional
+    auto it = sprite->blockCache.blockToParentConditional.find(blockId);
+    if (it != sprite->blockCache.blockToParentConditional.end() && !it->second.empty()) {
+        // Check if this conditional is active
+        auto condIt = sprite->conditionals.find(it->second);
+        if (condIt != sprite->conditionals.end() && condIt->second.isActive) {
+            return &condIt->second;
         }
     }
+    
     return nullptr;
 }
 

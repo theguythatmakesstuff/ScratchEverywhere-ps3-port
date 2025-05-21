@@ -57,7 +57,7 @@ void runRepeatBlocks();
 Sprite* getAvailableSprite();
 void initializeSpritePool(int poolSize);
 std::string findCustomValue(std::string valueName,Sprite*sprite,Block block);
-Conditional* getParentConditional(Sprite* sprite, std::string topLevelParentBlockId);
+Conditional* getParentConditional(Sprite* sprite, std::string blockId);
 std::string removeQuotations(std::string value);
 std::string getValueOfBlock(Block block,Sprite*sprite);
 bool runConditionalStatement(std::string blockId,Sprite* sprite);
@@ -71,6 +71,8 @@ void runAllBlocksByOpcode(Block::opCode opcodeToFind);
 std::string getInputValue(nlohmann::json& item,Block* block,Sprite* sprite);
 std::string getVariableValue(std::string variableId,Sprite*sprite);
 bool isNumber(const std::string& id);
+void buildBlockHierarchyCache();
+void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock);
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);
 
 #endif
