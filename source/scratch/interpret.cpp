@@ -1206,7 +1206,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
 
             // check if any repeat blocks are running in the custom block
-            if(getParentConditional(sprite,sprite->conditionals[block.id].customBlock->id) == nullptr){
+            if(!hasActiveConditionalsInside(sprite,sprite->conditionals[block.id].customBlock->id)){
             std::cout << "done with custom!" << std::endl;
                 sprite->conditionals[block.id].isTrue = false;
                 sprite->conditionals[block.id].isActive = false;
@@ -1903,7 +1903,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.CONTROL_REPEAT: {
-            std::cout << "repeat " << block.id << std::endl;
+            //std::cout << "repeat " << block.id << std::endl;
             if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
                 Conditional newConditional;
                 newConditional.id = block.id;
@@ -1915,7 +1915,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) {newConditional.waitingConditional->isActive = false;
-                    std::cout << "erm..." << std::endl;
+                    //std::cout << "erm..." << std::endl;
                 }
 
                 sprite->conditionals[newConditional.id] = newConditional;
@@ -1925,9 +1925,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 if (!block.inputs["SUBSTACK"][1].is_null()) {
                     Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
                 if (subBlock != nullptr) {
-                    std::cout << "running repeat substack " << subBlock->id << std::endl;
+                    //std::cout << "running repeat substack " << subBlock->id << std::endl;
                 runBlock(*subBlock, sprite); // Run the substack
-                std::cout << "done running " << subBlock->id << std::endl;
+                //std::cout << "done running " << subBlock->id << std::endl;
             } else {
                 std::cerr << "Substack block not found for Block ID: " << block.id << std::endl;
             }
@@ -2443,6 +2443,28 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
     return "";
 }
 
+// Function to check if there are any active conditionals within a block's definition
+bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId) {
+    // Look through all conditionals for this sprite
+    for (auto& [condId, conditional] : sprite->conditionals) {
+        // Skip inactive conditionals
+        if (!conditional.isActive) continue;
+        
+        // Check if this conditional is inside the given block's definition
+        // We can use our blockCache to check if the conditional's block is within the custom block
+        if (sprite->blockCache.isCacheBuilt) {
+            // Get the top-level block for this conditional
+            auto topLevelIt = sprite->blockCache.blockToTopLevel.find(conditional.blockId);
+            if (topLevelIt != sprite->blockCache.blockToTopLevel.end()) {
+                // If the conditional's top-level block is the custom block we're checking
+                if (topLevelIt->second == blockId) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 
 Conditional* getParentConditional(Sprite* sprite, std::string blockId) {
     // Make sure the cache is built

@@ -72,6 +72,7 @@ std::string getInputValue(nlohmann::json& item,Block* block,Sprite* sprite);
 std::string getVariableValue(std::string variableId,Sprite*sprite);
 bool isNumber(const std::string& id);
 void buildBlockHierarchyCache();
+bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId);
 void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock);
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);
 
