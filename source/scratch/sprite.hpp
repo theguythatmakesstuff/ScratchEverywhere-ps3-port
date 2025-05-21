@@ -272,13 +272,13 @@ struct Conditional{
     std::string id;
     std::string blockId;
     Sprite* hostSprite;
-    Block waitingBlock;
+    Block waitingBlock = Block();
+    Block* customBlock;
     Conditional* waitingConditional;
-    bool runWithoutScreenRefresh;
+    bool runWithoutScreenRefresh = false;
     bool isTrue;
     bool isActive = true;
     int times;
-    bool hasRunThisFrame;
     std::chrono::_V2::system_clock::time_point time;
     double endTime;
     double startingX;
