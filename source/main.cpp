@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 {
 	gfxInitDefault();
 	ndspInit();
-	//consoleInit(GFX_BOTTOM, NULL);
+	consoleInit(GFX_BOTTOM, NULL);
 	renderInit();
 	romfsInit();
 

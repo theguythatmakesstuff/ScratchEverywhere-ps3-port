@@ -72,10 +72,15 @@ void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditi
     
     // If this is a conditional block (repeat, forever, if, etc.)
     bool isConditionalBlock = 
-        block->opcode == Block::CONTROL_REPEAT ||
-        block->opcode == Block::CONTROL_FOREVER ||
-        block->opcode == Block::CONTROL_IF ||
-        block->opcode == Block::CONTROL_IF_ELSE;
+            block->opcode == Block::CONTROL_REPEAT || 
+            block->opcode == Block::CONTROL_FOREVER ||
+            block->opcode == Block::CONTROL_IF ||
+            block->opcode == Block::CONTROL_REPEAT_UNTIL ||
+            block->opcode == Block::CONTROL_WAIT ||
+            block->opcode == Block::CONTROL_WAIT_UNTIL ||
+            block->opcode == Block::MOTION_GLIDE_SECS_TO_XY ||
+            block->opcode == Block::MOTION_GLIDE_TO ||
+            block->opcode == Block::CONTROL_IF_ELSE;
     
     // Update parent conditional if this is a conditional block
     std::string currentParentId = isConditionalBlock ? block->id : parentConditionalId;
@@ -1851,17 +1856,27 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 newConditional.waitingConditional = getParentConditional(sprite,block.id);
                 if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+
                 sprite->conditionals[newConditional.id] = newConditional;
+
+                // auto parentConditional = sprite->conditionals.find(block.parent);
+                // if(parentConditional != sprite->conditionals.end() && !parentConditional->second.isActive){
+                // std::cout << "curious..." << std::endl;
+                // sprite->conditionals[block.id].waitingConditional = parentConditional->second.waitingConditional;
+                // parentConditional->second.waitingConditional = nullptr;
+                // }
             }
 
             auto currentTime = std::chrono::high_resolution_clock::now();
             auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
             if (elapsedTime < sprite->conditionals[block.id].endTime) {
                 sprite->conditionals[block.id].isTrue = true;
+                
                 return;
             } else {
+                std::cout << "Dione!" << std::endl;
                 sprite->conditionals[block.id].isTrue = false;
-                sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
+                //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
                 waitingBlock = sprite->conditionals[block.id].waitingBlock;
                 //sprite->conditionals.erase(block.id);
             }
@@ -1914,6 +1929,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 newConditional.waitingConditional = getParentConditional(sprite,block.id);
+                std::cout << "cond = " << newConditional.waitingConditional->id << std::endl;
                 if(newConditional.waitingConditional != nullptr) {newConditional.waitingConditional->isActive = false;
                     //std::cout << "erm..." << std::endl;
                 }
@@ -1938,8 +1954,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if (sprite->conditionals[block.id].times > 0) {
                 sprite->conditionals[block.id].isTrue = true;
                 sprite->conditionals[block.id].times--;
-                std::cout << "done with repeat " << block.id << std::endl;
-                std::cout << sprite->conditionals[block.id].isActive << std::endl;
+                //std::cout << "done with repeat " << block.id << std::endl;
+                //std::cout << sprite->conditionals[block.id].isActive << std::endl;
                 return;
             } else {
                 sprite->conditionals[block.id].isTrue = false;
@@ -2258,7 +2274,7 @@ void runRepeatBlocks(){
             
             }
             //else currentSprite->conditionals.erase(id);
-            else if(!data.isTrue) condsToDelete.push_back(&currentSprite->conditionals[id]);
+            else if(data.isActive && !data.isTrue) condsToDelete.push_back(&currentSprite->conditionals[id]);
         }
     }
            // remove sprites ready for deletion
