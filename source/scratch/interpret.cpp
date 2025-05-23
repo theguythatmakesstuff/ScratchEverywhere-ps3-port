@@ -73,6 +73,7 @@ void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditi
     // If this is a conditional block (repeat, forever, if, etc.)
     bool isConditionalBlock = 
             block->opcode == Block::CONTROL_REPEAT || 
+            block->opcode == Block::PROCEDURES_CALL || 
             block->opcode == Block::CONTROL_FOREVER ||
             block->opcode == Block::CONTROL_IF ||
             block->opcode == Block::CONTROL_REPEAT_UNTIL ||
@@ -1196,7 +1197,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 //newConditional.waitingBlock = block;
                 sprite->conditionals[block.id] = newConditional;
             }
-            //std::cout << "doing it " << block.id << std::endl;
+            std::cout << "doing it " << block.id << std::endl;
            //waitingBlock = findBlock(block.next);
            
 
@@ -1214,7 +1215,6 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             if(!hasActiveConditionalsInside(sprite,sprite->conditionals[block.id].customBlock->id)){
             std::cout << "done with custom!" << std::endl;
                 sprite->conditionals[block.id].isTrue = false;
-                sprite->conditionals[block.id].isActive = false;
                 //sprite->conditionals.erase(block.id);
                 goto nextBlock;
             }
@@ -2509,6 +2509,7 @@ bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId) {
         // Check for repeat blocks, if-else blocks, or any other blocks that work over multiple frames
         if (currentBlock->opcode == Block::CONTROL_REPEAT || 
             currentBlock->opcode == Block::CONTROL_FOREVER ||
+            currentBlock->opcode == Block::PROCEDURES_CALL || 
             currentBlock->opcode == Block::CONTROL_IF ||
             currentBlock->opcode == Block::CONTROL_REPEAT_UNTIL ||
             currentBlock->opcode == Block::CONTROL_WAIT ||
