@@ -1461,6 +1461,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
                 newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
 
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
+                if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+
                 sprite->conditionals[newConditional.id] = newConditional;
             }
 
@@ -1549,6 +1552,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
                 newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
                 newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
+
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
+                if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
 
                 sprite->conditionals[newConditional.id] = newConditional;
             }
@@ -1855,16 +1861,11 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 newConditional.waitingConditional = getParentConditional(sprite,block.id);
+                std::cout << "block = " << block.id << ". cond = " << newConditional.waitingConditional->id << std::endl;
                 if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+                else std::cout <<"not found on " << block.id << "." << std::endl;
 
                 sprite->conditionals[newConditional.id] = newConditional;
-
-                // auto parentConditional = sprite->conditionals.find(block.parent);
-                // if(parentConditional != sprite->conditionals.end() && !parentConditional->second.isActive){
-                // std::cout << "curious..." << std::endl;
-                // sprite->conditionals[block.id].waitingConditional = parentConditional->second.waitingConditional;
-                // parentConditional->second.waitingConditional = nullptr;
-                // }
             }
 
             auto currentTime = std::chrono::high_resolution_clock::now();
@@ -1874,11 +1875,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 
                 return;
             } else {
-                std::cout << "Dione!" << std::endl;
+                std::cout << "Dione! " << block.id << std::endl;
                 sprite->conditionals[block.id].isTrue = false;
-                //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
                 waitingBlock = sprite->conditionals[block.id].waitingBlock;
-                //sprite->conditionals.erase(block.id);
             }
             goto nextBlock;
 
@@ -1929,7 +1928,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 newConditional.waitingConditional = getParentConditional(sprite,block.id);
-                std::cout << "cond = " << newConditional.waitingConditional->id << std::endl;
+                std::cout << "repeat cond = " << newConditional.waitingConditional->id << std::endl;
                 if(newConditional.waitingConditional != nullptr) {newConditional.waitingConditional->isActive = false;
                     //std::cout << "erm..." << std::endl;
                 }
@@ -1975,6 +1974,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.times = -1;
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+                newConditional.waitingConditional = getParentConditional(sprite,block.id);
+                if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
                 sprite->conditionals[newConditional.id] = newConditional;
             }
 
@@ -2493,7 +2494,7 @@ Conditional* getParentConditional(Sprite* sprite, std::string blockId) {
     if (it != sprite->blockCache.blockToParentConditional.end() && !it->second.empty()) {
         // Check if this conditional is active
         auto condIt = sprite->conditionals.find(it->second);
-        if (condIt != sprite->conditionals.end() && condIt->second.isActive) {
+        if (condIt != sprite->conditionals.end()) {
             return &condIt->second;
         }
     }
