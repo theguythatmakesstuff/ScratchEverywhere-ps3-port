@@ -27,15 +27,16 @@ int main(int argc, char **argv)
 	//consoleInit(GFX_BOTTOM, NULL);
 	renderInit();
 	romfsInit();
+	initAudioCache();
 
 	// this is for the FPS
 	std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
-	// OggAudioPlayer player;
+	// OggAudioPlayer* player = getAvailableAudio();
 	// const char* audioPath = "romfs:/sample.ogg";
 
-    // if (!player.load(audioPath)) {
+    // if (!player->load(audioPath)) {
     //     printf("Failed to load audio file!\n");
     // } else {
     //     printf("Audio loaded successfully\n");
@@ -50,7 +51,7 @@ int main(int argc, char **argv)
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
 
-	//player.play();
+	// player->play();
 	while (aptMainLoop())
 	{
 		

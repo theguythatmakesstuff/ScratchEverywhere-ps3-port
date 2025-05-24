@@ -2236,6 +2236,7 @@ nextBlock:
     if (duration.count() > 0) {
        // std::cout << block.opcode << " took " << duration.count() << " milliseconds!"<< std::endl;
     }
+
     if (!block.next.empty()) {
 
             block = *blockLookup[block.next];

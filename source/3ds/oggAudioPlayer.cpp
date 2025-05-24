@@ -14,6 +14,8 @@
 
 // ---- OggAudioPlayer Implementation ----
 
+std::vector<OggAudioPlayer> AudioCache;
+
 OggAudioPlayer::OggAudioPlayer() 
     : mFileHandle(nullptr), 
       mAudioBuffer(nullptr),
@@ -34,6 +36,56 @@ OggAudioPlayer::~OggAudioPlayer() {
     stop();
     cleanupAudio();
 }
+
+OggAudioPlayer::OggAudioPlayer(OggAudioPlayer&& other) noexcept
+    : mVorbisFile(other.mVorbisFile),
+      mFileHandle(other.mFileHandle),
+      mAudioBuffer(other.mAudioBuffer),
+      mThreadId(other.mThreadId),
+      mQuit(other.mQuit.load()),
+      mPlaying(other.mPlaying.load()),
+      mFinished(other.mFinished.load()),
+      mLoaded(other.mLoaded),
+      mChannels(other.mChannels),
+      mSampleRate(other.mSampleRate)
+{
+    memcpy(mWaveBufs, other.mWaveBufs, sizeof(mWaveBufs));
+    memcpy(&mEvent, &other.mEvent, sizeof(LightEvent));
+
+    // Reset other's pointers so destructor won't double free
+    other.mFileHandle = nullptr;
+    other.mAudioBuffer = nullptr;
+    other.mThreadId = nullptr;
+    other.mLoaded = false;
+}
+
+OggAudioPlayer& OggAudioPlayer::operator=(OggAudioPlayer&& other) noexcept {
+    if (this != &other) {
+        stop();
+        cleanupAudio();
+
+        mVorbisFile = other.mVorbisFile;
+        mFileHandle = other.mFileHandle;
+        mAudioBuffer = other.mAudioBuffer;
+        mThreadId = other.mThreadId;
+        mQuit = other.mQuit.load();
+        mPlaying = other.mPlaying.load();
+        mFinished = other.mFinished.load();
+        mLoaded = other.mLoaded;
+        mChannels = other.mChannels;
+        currentChannel = other.currentChannel;
+        mSampleRate = other.mSampleRate;
+        memcpy(mWaveBufs, other.mWaveBufs, sizeof(mWaveBufs));
+        memcpy(&mEvent, &other.mEvent, sizeof(LightEvent));
+
+        other.mFileHandle = nullptr;
+        other.mAudioBuffer = nullptr;
+        other.mThreadId = nullptr;
+        other.mLoaded = false;
+    }
+    return *this;
+}
+
 
 bool OggAudioPlayer::load(const std::string& path) {
     // Cleanup any previous audio
@@ -132,7 +184,7 @@ void OggAudioPlayer::stop() {
     }
     
     // Reset NDSP channel
-    ndspChnReset(0);
+    ndspChnReset(currentChannel);
     mPlaying = false;
 }
 
@@ -208,7 +260,7 @@ bool OggAudioPlayer::fillBuffer(ndspWaveBuf* waveBuf) {
 
     // Pass samples to NDSP
     waveBuf->nsamples = totalBytes / sizeof(int16_t);
-    ndspChnWaveBufAdd(0, waveBuf);
+    ndspChnWaveBufAdd(currentChannel, waveBuf);
     DSP_FlushDataCache(waveBuf->data_pcm16, totalBytes);
 
     return true;
@@ -216,11 +268,11 @@ bool OggAudioPlayer::fillBuffer(ndspWaveBuf* waveBuf) {
 
 bool OggAudioPlayer::initAudio() {
     // Setup NDSP channel
-    ndspChnReset(0);
+    ndspChnReset(currentChannel);
     ndspSetOutputMode(NDSP_OUTPUT_STEREO);
-    ndspChnSetInterp(0, NDSP_INTERP_POLYPHASE);
-    ndspChnSetRate(0, mSampleRate);
-    ndspChnSetFormat(0, mChannels == 1 ? NDSP_FORMAT_MONO_PCM16 : NDSP_FORMAT_STEREO_PCM16);
+    ndspChnSetInterp(currentChannel, NDSP_INTERP_POLYPHASE);
+    ndspChnSetRate(currentChannel, mSampleRate);
+    ndspChnSetFormat(currentChannel, mChannels == 1 ? NDSP_FORMAT_MONO_PCM16 : NDSP_FORMAT_STEREO_PCM16);
     
     // Allocate audio buffer
     // 120ms buffer for each waveBuf
@@ -264,6 +316,30 @@ void OggAudioPlayer::cleanupAudio() {
         ov_clear(&mVorbisFile);
         mLoaded = false;
     }
+}
+
+
+void initAudioCache(){
+
+    for(int channelNum = 0;channelNum <24;channelNum++){
+        OggAudioPlayer audio;
+        audio.currentChannel = channelNum;
+        AudioCache.emplace_back(std::move(audio));
+    }
+
+}
+
+// self explanatory
+OggAudioPlayer* getAvailableAudio(){
+
+    for(OggAudioPlayer& audio : AudioCache){
+        if(audio.isFinished() || !audio.isPlaying()){
+            return &audio;
+        }
+    }
+
+    std::cerr<<"Too many sounds playing!" << std::endl;
+    return nullptr;
 }
 
 // Static helper to convert Vorbis error codes to strings

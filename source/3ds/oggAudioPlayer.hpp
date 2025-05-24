@@ -16,11 +16,19 @@
 
 #include <string>
 #include <atomic>
+#include <vector>
+#include <iostream>
 
 class OggAudioPlayer {
 public:
     OggAudioPlayer();
     ~OggAudioPlayer();
+
+    OggAudioPlayer(const OggAudioPlayer&) = delete;
+    OggAudioPlayer& operator=(const OggAudioPlayer&) = delete;
+
+    OggAudioPlayer(OggAudioPlayer&& other) noexcept;
+    OggAudioPlayer& operator=(OggAudioPlayer&& other) noexcept;
 
     /**
      * Load an Ogg Vorbis file from the specified path
@@ -51,6 +59,8 @@ public:
      * @return true if audio is playing, false otherwise
      */
     bool isPlaying() const;
+
+    int currentChannel;
 
 private:
     // Audio thread function and callback
@@ -83,5 +93,19 @@ private:
     int mChannels;
     int mSampleRate;
 };
+
+extern std::vector<OggAudioPlayer> AudioCache;
+
+/**
+ * Initializes the Audio Cache with 24 audio channels.
+ */
+void initAudioCache();
+
+/**
+ * Get a currently not playing audio from the audio cache.
+ * @return an audio if there is one available, nullptr otherwise.
+ */
+OggAudioPlayer* getAvailableAudio();
+
 
 #endif // OGG_AUDIO_PLAYER_HPP
