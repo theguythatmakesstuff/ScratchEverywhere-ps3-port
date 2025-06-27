@@ -589,7 +589,7 @@ void runCustomBlock(Sprite*sprite,Block block){
             sprite->conditionals[block.id].waitingConditional->isActive = true;
             }
             //std::cout << "RWSR = " << data.runWithoutScreenRefresh << std::endl;
-            runBlock(*sprite->conditionals[block.id].customBlock,sprite,sprite->conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
+            executor.runBlock(*sprite->conditionals[block.id].customBlock,sprite,sprite->conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
 
         }
     }
@@ -606,62 +606,6 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
     while(block.id != "null"){
 
     switch (block.opcode) {
-        case block.PROCEDURES_CALL: {
-            if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-                Conditional newConditional;
-                newConditional.id = block.id;
-                newConditional.blockId = block.id;
-                newConditional.hostSprite = sprite;
-                newConditional.isTrue = false;
-                newConditional.times = -1;
-                newConditional.waitingConditional = getParentConditional(sprite,block.id);
-                if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-                // Block* nextBlockptr = findBlock(block.next);
-                // if(nextBlockptr != nullptr) newConditional.waitingBlock = *nextBlockptr;
-                //newConditional.waitingBlock = block;
-                sprite->conditionals[block.id] = newConditional;
-            }
-            std::cout << "doing it " << block.id << std::endl;
-           //waitingBlock = findBlock(block.next);
-           
-
-
-           if(!sprite->conditionals[block.id].isTrue){
-            std::cout << "about to run " << block.id << std::endl;
-            runCustomBlock(sprite, block);
-            sprite->conditionals[block.id].isTrue = true;
-            sprite->conditionals[block.id].isActive = true;
-            if(!sprite->conditionals[block.id].waitingBlock.id.empty()) return;
-           }
-
-
-            // check if any repeat blocks are running in the custom block
-            if(!hasActiveConditionalsInside(sprite,sprite->conditionals[block.id].customBlock->id)){
-            std::cout << "done with custom!" << std::endl;
-                sprite->conditionals[block.id].isTrue = false;
-                //sprite->conditionals.erase(block.id);
-                goto nextBlock;
-            }
-            else return;
-
-
-        }
-        case block.PROCEDURES_DEFINITION:{
-            goto nextBlock;
-        }
-        case block.CONTROL_START_AS_CLONE:{
-            goto nextBlock;
-        }
-
-        case block.EVENT_WHEN_KEY_PRESSED:{
-            for (std::string button : inputButtons) {
-                if (block.fields["KEY_OPTION"][0] == button) {
-                    goto nextBlock;
-                }
-
-            }
-            return;
-        }
 
         case block.MOTION_GLIDE_SECS_TO_XY:{
 
@@ -1064,7 +1008,7 @@ void runRepeatBlocks(){
                 // then check if the conditional has a waiting block, run it if so
                 if(!currConditional->second.waitingBlock.id.empty()){
                     blocksToRun.push_back(currConditional->second.waitingBlock);
-                    //runBlock(currConditional->second.waitingBlock,currentSprite);
+                    //executor.runBlock(currConditional->second.waitingBlock,currentSprite);
                 }
 
                     std::cout << "erased conditional " << currConditional->second.id << std::endl;
@@ -1076,7 +1020,7 @@ void runRepeatBlocks(){
 
                 while (!blocksToRun.empty()) {
                     std::cout << "running block " << blocksToRun.front().id << std::endl;
-                    runBlock(blocksToRun.front(), currentSprite);
+                    executor.runBlock(blocksToRun.front(), currentSprite);
                     blocksToRun.erase(blocksToRun.begin());
                 }
 

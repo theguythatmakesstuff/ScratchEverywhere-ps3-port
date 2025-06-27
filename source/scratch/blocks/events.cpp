@@ -8,3 +8,12 @@ BlockResult EventBlocks::broadcast(const Block& block, Sprite* sprite, const Blo
     broadcastQueue.push_back( Scratch::getInputValue(block.inputs.at("BROADCAST_INPUT"), &block, sprite));
     return BlockResult::CONTINUE;
 }
+
+BlockResult EventBlocks::whenKeyPressed(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh){
+    for (std::string button : inputButtons) {
+        if (block.fields.at("KEY_OPTION")[0] == button) {
+            return BlockResult::CONTINUE;
+        }
+    }
+    return BlockResult::RETURN;
+}

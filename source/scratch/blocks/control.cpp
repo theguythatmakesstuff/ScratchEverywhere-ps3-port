@@ -124,3 +124,7 @@ BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, const Block&
     }
     return BlockResult::CONTINUE;
 }
+
+BlockResult ControlBlocks::startAsClone(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh){
+    return BlockResult::CONTINUE;
+}

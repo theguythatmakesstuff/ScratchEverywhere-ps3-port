@@ -8,4 +8,5 @@ public:
     static BlockResult createCloneOf(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
     static BlockResult deleteThisClone(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
     static BlockResult stop(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
+    static BlockResult startAsClone(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
 };

@@ -56,6 +56,8 @@ void BlockExecutor::registerHandlers(){
     // events
     handlers[Block::EVENT_WHENFLAGCLICKED] = EventBlocks::flagClicked;
     handlers[Block::EVENT_BROADCAST] = EventBlocks::broadcast;
+    handlers[Block::EVENT_WHEN_KEY_PRESSED] = EventBlocks::whenKeyPressed;
+
 
     // control
     handlers[Block::CONTROL_IF] = ControlBlocks::If;
@@ -63,6 +65,7 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::CONTROL_CREATE_CLONE_OF] = ControlBlocks::createCloneOf;
     handlers[Block::CONTROL_DELETE_THIS_CLONE] = ControlBlocks::deleteThisClone;
     handlers[Block::CONTROL_STOP] = ControlBlocks::stop;
+    handlers[Block::CONTROL_START_AS_CLONE] = ControlBlocks::startAsClone;
 
     // operators
     valueHandlers[Block::OPERATOR_ADD] = OperatorBlocks::add;
@@ -114,6 +117,8 @@ void BlockExecutor::registerHandlers(){
     conditionBlockHandlers[Block::SENSING_MOUSEDOWN] = SensingBlocks::mouseDown;
 
     // procedures / arguments
+    handlers[Block::PROCEDURES_CALL] = ProcedureBlocks::call;
+    handlers[Block::PROCEDURES_DEFINITION] = ProcedureBlocks::definition;
     valueHandlers[Block::ARGUMENT_REPORTER_STRING_NUMBER] = ProcedureBlocks::stringNumber;
     conditionBlockHandlers[Block::ARGUMENT_REPORTER_BOOLEAN] = ProcedureBlocks::booleanArgument;
 
