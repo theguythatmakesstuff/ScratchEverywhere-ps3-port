@@ -45,3 +45,4 @@ main.code-workspace
 *.smdh
 *.bat
 *.sb3
+romfs/sample.ogg

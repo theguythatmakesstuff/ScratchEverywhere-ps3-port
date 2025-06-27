@@ -66,7 +66,7 @@ void renderSprites(){
     timer += 1.0 / 60.0;
 
 
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
     C2D_SceneBegin(topScreen);
@@ -160,6 +160,8 @@ void freeImage(Sprite* currentSprite, const std::string& costumeId) {
 
 void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom) {
     //freeImage(currentSprite,costumeId);
+
+    if(!currentSprite || currentSprite == nullptr) return;
 
     if(projectHeight == 480 && projectWidth == 400){
        // projectHeight = 240;

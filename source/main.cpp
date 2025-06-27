@@ -23,8 +23,8 @@ static void exitApp(){
 int main(int argc, char **argv)
 {
 	gfxInitDefault();
-	ndspInit();
-	//consoleInit(GFX_BOTTOM, NULL);
+	//ndspInit();
+	consoleInit(GFX_BOTTOM, NULL);
 	renderInit();
 	romfsInit();
 	initAudioCache();
@@ -46,12 +46,12 @@ int main(int argc, char **argv)
 		exitApp();
 		return 0;
 	}
+	std::cout<<"project loaded!" << std::endl;
 
 	std::cout<<"Running hat blocks"<<std::endl;
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 
 
-	// player->play();
 	while (aptMainLoop())
 	{
 		
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 			renderSprites();
 		}
 
-		//gspWaitForVBlank();
+		gspWaitForVBlank();
 
 		hidScanInput();
     u32 kDown = hidKeysHeld();
