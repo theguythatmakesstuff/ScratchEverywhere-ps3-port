@@ -11,6 +11,8 @@ double timer = 0;
 bool toExit = false;
 ProjectType projectType;
 
+BlockExecutor executor;
+
 bool isNumber(const std::string& str) {
     // i rewrote this function like 5 times vro if ts dont work...
     if (str.empty()) return false; // Reject empty strings
@@ -622,8 +624,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         }
 
         case Block::OPERATOR_ADD: {
-            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 double result = std::stod(value1) + std::stod(value2);
                 if (std::floor(result) == result) {
@@ -635,8 +637,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_SUBTRACT: {
-            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
 
                 double result = std::stod(value1) - std::stod(value2);
@@ -649,8 +651,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_MULTIPLY: {
-            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 double result = std::stod(value1) * std::stod(value2);
                 if (std::floor(result) == result) {
@@ -662,8 +664,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_DIVIDE: {
-            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 double result = std::stod(value1) / std::stod(value2);
                 if (std::floor(result) == result) {
@@ -675,8 +677,8 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_RANDOM: {
-            std::string value1 = getInputValue(block.inputs["FROM"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["TO"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["FROM"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["TO"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 if (value1.find('.') == std::string::npos && value2.find('.') == std::string::npos) {
                     int from = std::stoi(value1);
@@ -691,13 +693,13 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_JOIN: {
-            std::string value1 = getInputValue(block.inputs["STRING1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["STRING2"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["STRING1"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["STRING2"], &block, sprite);
             return value1 + value2;
         }
         case Block::OPERATOR_LETTER_OF: {
-            std::string value1 = getInputValue(block.inputs["LETTER"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["STRING"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["LETTER"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["STRING"], &block, sprite);
             if (isNumber(value1) && !value2.empty()) {
                 int index = std::stoi(value1) - 1;
                 if (index >= 0 && index < static_cast<int>(value2.size())) {
@@ -710,15 +712,15 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_LENGTH: {
-            std::string value1 = getInputValue(block.inputs["STRING"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["STRING"], &block, sprite);
             if (!value1.empty()) {
                 return std::to_string(value1.size());
             }
             break;
         }
         case Block::OPERATOR_MOD: {
-            std::string value1 = getInputValue(block.inputs["NUM1"], &block, sprite);
-            std::string value2 = getInputValue(block.inputs["NUM2"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["NUM1"], &block, sprite);
+            std::string value2 = Scratch::getInputValue(block.inputs["NUM2"], &block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
 
                 if(floor(std::stod(value1)) == std::stoi(value1) && floor(std::stod(value2)) == std::stoi(value2)){
@@ -730,14 +732,14 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::OPERATOR_ROUND: {
-            std::string value1 = getInputValue(block.inputs["NUM"], &block, sprite);
+            std::string value1 = Scratch::getInputValue(block.inputs["NUM"], &block, sprite);
             if (isNumber(value1)) {
                 return std::to_string(std::round(std::stod(value1)));
             }
             break;
         }
         case Block::OPERATOR_MATHOP: {
-            std::string inputValue = getInputValue(block.inputs["NUM"], &block, sprite);
+            std::string inputValue = Scratch::getInputValue(block.inputs["NUM"], &block, sprite);
             if (isNumber(inputValue)) {
                 if (block.fields["OPERATOR"][0] == "abs") {
                     return std::to_string(abs(std::stod(inputValue)));
@@ -785,7 +787,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
             break;
         }
         case Block::DATA_ITEMOFLIST: {
-            std::string indexStr = getInputValue(block.inputs["INDEX"], &block, sprite);
+            std::string indexStr = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
             int index = std::stoi(indexStr) - 1;
             std::string listName = block.fields["LIST"][1];
             for (Sprite* currentSprite : sprites) {
@@ -804,7 +806,7 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         }
         case Block::DATA_ITEMNUMOFLIST: {
             std::string listName = block.fields["LIST"][1];
-            std::string itemToFind = getInputValue(block.inputs["ITEM"], &block, sprite);
+            std::string itemToFind = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
             for (Sprite* currentSprite : sprites) {
                 for (auto& [id, list] : currentSprite->lists) {
                     if (id == listName) {
@@ -991,7 +993,7 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
 
         case Block::DATA_LIST_CONTAINS_ITEM:{
             std::string listName = block->fields["LIST"][1];
-            std::string itemToFind = getInputValue(block->inputs["ITEM"], block, sprite);
+            std::string itemToFind = Scratch::getInputValue(block->inputs["ITEM"], block, sprite);
             for (Sprite* currentSprite : sprites) {
                 for (auto& [id, list] : currentSprite->lists) {
                     if (id == listName) {
@@ -1010,8 +1012,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
             std::string value1;
             std::string value2;
             try{
-            value1 = getInputValue(block->inputs["OPERAND1"], block, sprite);
-            value2 = getInputValue(block->inputs["OPERAND2"], block, sprite);
+            value1 = Scratch::getInputValue(block->inputs["OPERAND1"], block, sprite);
+            value2 = Scratch::getInputValue(block->inputs["OPERAND2"], block, sprite);
             }
             catch(...){
                 std::cout << "failed to get equals values." << std::endl;
@@ -1032,8 +1034,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
     
 
         case Block::OPERATOR_GT: {
-            std::string value1 = getInputValue(block->inputs["OPERAND1"], block, sprite);
-            std::string value2 = getInputValue(block->inputs["OPERAND2"], block, sprite);
+            std::string value1 = Scratch::getInputValue(block->inputs["OPERAND1"], block, sprite);
+            std::string value2 = Scratch::getInputValue(block->inputs["OPERAND2"], block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 return std::stod(value1) > std::stod(value2);
             }
@@ -1041,8 +1043,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::OPERATOR_LT: {
-            std::string value1 = getInputValue(block->inputs["OPERAND1"], block, sprite);
-            std::string value2 = getInputValue(block->inputs["OPERAND2"], block, sprite);
+            std::string value1 = Scratch::getInputValue(block->inputs["OPERAND1"], block, sprite);
+            std::string value2 = Scratch::getInputValue(block->inputs["OPERAND2"], block, sprite);
             if (isNumber(value1) && isNumber(value2)) {
                 return std::stod(value1) < std::stod(value2);
             }
@@ -1067,8 +1069,8 @@ bool runConditionalStatement(std::string blockId, Sprite* sprite) {
         }
 
         case Block::OPERATOR_CONTAINS: {
-            std::string value1 = getInputValue(block->inputs["STRING1"], block, sprite);
-            std::string value2 = getInputValue(block->inputs["STRING2"], block, sprite);
+            std::string value1 = Scratch::getInputValue(block->inputs["STRING1"], block, sprite);
+            std::string value2 = Scratch::getInputValue(block->inputs["STRING2"], block, sprite);
             return value1.find(value2) != std::string::npos;
         }
 
@@ -1143,14 +1145,13 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
     return "";
 }
 
-
 void runCustomBlock(Sprite*sprite,Block block){
     for(auto &[id,data] : sprite->customBlocks){
         if(id == block.mutation["proccode"]){
            // std::cout<<"burrrrp"<<std::endl;
             for(std::string arg : data.argumentIds){
                 if(!block.inputs[arg].is_null()){
-                    data.argumentValues[arg] = getInputValue(block.inputs[arg],&block,sprite);
+                    data.argumentValues[arg] = Scratch::getInputValue(block.inputs[arg],&block,sprite);
                     //std::cout<<"yes! " << data.argumentValues[arg] <<std::endl;
                 }
             }
@@ -1244,8 +1245,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
         case block.MOTION_GOTOXY: {
            // std::cout << "GOTOXY!" << std::endl;
-            std::string xVal = getInputValue(block.inputs["X"], &block, sprite);
-            std::string yVal = getInputValue(block.inputs["Y"], &block, sprite);
+            std::string xVal = Scratch::getInputValue(block.inputs["X"], &block, sprite);
+            std::string yVal = Scratch::getInputValue(block.inputs["Y"], &block, sprite);
             if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
             //else std::cerr << "Set X Position invalid with pos " << xVal << std::endl;
             if (isNumber(yVal)) sprite->yPosition = std::stod(yVal);
@@ -1280,7 +1281,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_POINTINDIRECTION: {
-            std::string value = getInputValue(block.inputs["DIRECTION"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["DIRECTION"], &block, sprite);
             if (isNumber(value)) {
                 sprite->rotation = std::stoi(value);
             } else {
@@ -1290,7 +1291,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_TURNRIGHT: {
-            std::string value = getInputValue(block.inputs["DEGREES"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["DEGREES"], &block, sprite);
             if (isNumber(value)) {
                 sprite->rotation += std::stoi(value);
             } else {
@@ -1300,7 +1301,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_TURNLEFT: {
-            std::string value = getInputValue(block.inputs["DEGREES"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["DEGREES"], &block, sprite);
             if (isNumber(value)) {
                 sprite->rotation -= std::stoi(value);
             } else {
@@ -1310,7 +1311,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_MOVE_STEPS: {
-            std::string value = getInputValue(block.inputs["STEPS"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["STEPS"], &block, sprite);
             if (isNumber(value)) {
                 double angle = (sprite->rotation - 90) * M_PI / 180.0;
                 sprite->xPosition += std::cos(angle) * std::stod(value);
@@ -1362,7 +1363,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_CHANGEXBY: {
-            std::string value = getInputValue(block.inputs["DX"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["DX"], &block, sprite);
             if (isNumber(value)) {
                 sprite->xPosition += std::stod(value);
             } else {
@@ -1372,7 +1373,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_CHANGEYBY: {
-            std::string value = getInputValue(block.inputs["DY"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["DY"], &block, sprite);
             if (isNumber(value)) {
                 sprite->yPosition += std::stod(value);
             } else {
@@ -1382,7 +1383,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_SETX: {
-            std::string value = getInputValue(block.inputs["X"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["X"], &block, sprite);
             if (isNumber(value)) {
                 sprite->xPosition = std::stod(value);
             } else {
@@ -1392,7 +1393,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.MOTION_SETY: {
-            std::string value = getInputValue(block.inputs["Y"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["Y"], &block, sprite);
             if (isNumber(value)) {
                 sprite->yPosition = std::stod(value);
             } else {
@@ -1445,7 +1446,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.isTrue = true;
                 newConditional.times = -1;
                 newConditional.time = std::chrono::high_resolution_clock::now();
-                std::string duration = getInputValue(block.inputs["SECS"], &block, sprite);
+                std::string duration = Scratch::getInputValue(block.inputs["SECS"], &block, sprite);
                 if(isNumber(duration)) {
                     newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
                 } else {
@@ -1456,8 +1457,8 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.startingX= sprite->xPosition;
                 newConditional.startingY= sprite->yPosition;
 
-                std::string positionXStr = getInputValue(block.inputs["X"],&block,sprite);
-                std::string positionYStr = getInputValue(block.inputs["Y"],&block,sprite);
+                std::string positionXStr = Scratch::getInputValue(block.inputs["X"],&block,sprite);
+                std::string positionYStr = Scratch::getInputValue(block.inputs["Y"],&block,sprite);
                 newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
                 newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
 
@@ -1509,7 +1510,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.isTrue = true;
                 newConditional.times = -1;
                 newConditional.time = std::chrono::high_resolution_clock::now();
-                std::string duration = getInputValue(block.inputs["SECS"], &block, sprite);
+                std::string duration = Scratch::getInputValue(block.inputs["SECS"], &block, sprite);
                 if(isNumber(duration)) {
                     newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
                 } else {
@@ -1604,7 +1605,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             try{
            inputValue = getValueOfBlock(*findBlock(block.inputs["COSTUME"][1]),sprite);}
            catch(...){
-                inputValue = getInputValue(block.inputs["COSTUME"],&block,sprite);
+                inputValue = Scratch::getInputValue(block.inputs["COSTUME"],&block,sprite);
             }
            std::cout << "costume = " << inputValue << std::endl;
            
@@ -1705,7 +1706,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.LOOKS_CHANGESIZEBY:{
-            std::string value = getInputValue(block.inputs["CHANGE"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["CHANGE"], &block, sprite);
             if (isNumber(value)) {
                 sprite->size += std::stod(value);
             } else {
@@ -1714,7 +1715,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             goto nextBlock;
         }
         case block.LOOKS_SETSIZETO:{
-            std::string value = getInputValue(block.inputs["SIZE"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["SIZE"], &block, sprite);
             if (isNumber(value)) {
                 sprite->size = std::stod(value);
             } else {
@@ -1724,7 +1725,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.LOOKS_GO_FORWARD_BACKWARD_LAYERS:{
-            std::string value = getInputValue(block.inputs["NUM"], &block, sprite);
+            std::string value = Scratch::getInputValue(block.inputs["NUM"], &block, sprite);
             std::string forwardBackward = block.fields["FORWARD_BACKWARD"][0];
             if (isNumber(value)) {
             if (forwardBackward == "forward") {
@@ -1784,7 +1785,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.EVENT_BROADCAST: {
-            broadcastQueue.push_back(getInputValue(block.inputs["BROADCAST_INPUT"], &block, sprite));
+            broadcastQueue.push_back( Scratch::getInputValue(block.inputs["BROADCAST_INPUT"], &block, sprite));
             goto nextBlock;
         }
 
@@ -1852,7 +1853,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.isTrue = false;
                 newConditional.times = -1;
                 newConditional.time = std::chrono::high_resolution_clock::now();
-                std::string duration = getInputValue(block.inputs["DURATION"], &block, sprite);
+                std::string duration = Scratch::getInputValue(block.inputs["DURATION"], &block, sprite);
                 if(isNumber(duration)) {
                     newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
                 } else {
@@ -1924,7 +1925,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
                 newConditional.blockId = block.id;
                 newConditional.hostSprite = sprite;
                 newConditional.isTrue = false;
-                newConditional.times = std::stoi(getInputValue(block.inputs["TIMES"], &block, sprite));
+                newConditional.times = std::stoi(Scratch::getInputValue(block.inputs["TIMES"], &block, sprite));
                 newConditional.waitingBlock = waitingBlock;
                 newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
                 newConditional.waitingConditional = getParentConditional(sprite,block.id);
@@ -2085,21 +2086,21 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.DATA_SETVARIABLETO: {
-            std::string val = getInputValue(block.inputs["VALUE"], &block, sprite);
+            std::string val = Scratch::getInputValue(block.inputs["VALUE"], &block, sprite);
             std::string varId = block.fields["VARIABLE"][1];
             setVariableValue(varId, val, sprite, false);
             goto nextBlock;
         }
 
         case block.DATA_CHANGEVARIABLEBY: {
-            std::string val = getInputValue(block.inputs["VALUE"], &block, sprite);
+            std::string val = Scratch::getInputValue(block.inputs["VALUE"], &block, sprite);
             std::string varId = block.fields["VARIABLE"][1];
             setVariableValue(varId, val, sprite, true);
             goto nextBlock;
         }
 
         case block.DATA_ADD_TO_LIST:{
-            std::string val = getInputValue(block.inputs["ITEM"], &block, sprite);
+            std::string val = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
             std::string listId = block.fields["LIST"][1];
             for(Sprite* currentSprite : sprites){
             if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
@@ -2112,7 +2113,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.DATA_DELETE_OF_LIST: {
-            std::string val = getInputValue(block.inputs["INDEX"], &block, sprite);
+            std::string val = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
             std::string listId = block.fields["LIST"][1];
         
             for (Sprite* currentSprite : sprites) {
@@ -2152,9 +2153,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.DATA_INSERT_AT_LIST:{
-            std::string val = getInputValue(block.inputs["ITEM"], &block, sprite);
+            std::string val = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
             std::string listId = block.fields["LIST"][1];
-            std::string index = getInputValue(block.inputs["INDEX"], &block, sprite);
+            std::string index = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
         
             for (Sprite* currentSprite : sprites) {
                 if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
@@ -2181,9 +2182,9 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         }
 
         case block.DATA_REPLACE_ITEM_OF_LIST:{
-            std::string val = getInputValue(block.inputs["ITEM"], &block, sprite);
+            std::string val = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
             std::string listId = block.fields["LIST"][1];
-            std::string index = getInputValue(block.inputs["INDEX"], &block, sprite);
+            std::string index = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
         
             for (Sprite* currentSprite : sprites) {
                 if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
@@ -2217,7 +2218,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.SENSING_ASK_AND_WAIT:{
 
             Keyboard kbd;
-            std::string inputValue = getInputValue(block.inputs["QUESTION"],&block,sprite);
+            std::string inputValue = Scratch::getInputValue(block.inputs["QUESTION"],&block,sprite);
             std::string output = kbd.openKeyboard(inputValue.c_str());
             answer = output;
 
@@ -2527,7 +2528,7 @@ bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId) {
 
 
 
-std::string getInputValue(nlohmann::json& item, Block* block, Sprite* sprite) {
+std::string Scratch::getInputValue(const nlohmann::json& item, const Block* block, Sprite* sprite) {
     int type = item[0];
     auto& data = item[1];
 
@@ -2570,7 +2571,8 @@ void runAllBlocksByOpcode(Block::opCode opcodeToFind){
     for(Sprite *currentSprite : sprites){
         for(auto &[id,data] : currentSprite->blocks){
             if(data.opcode == opcodeToFind){
-                runBlock(data,currentSprite);
+                //runBlock(data,currentSprite);
+                executor.runBlock(data,currentSprite);
             }
         }
     }

@@ -1,9 +1,7 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
-
-#ifndef INTERPRET_H
-#define INTERPRET_H
+#pragma once
 #include "sprite.hpp"
 #include <string>
 #include <unordered_map>
@@ -15,6 +13,7 @@
 #include "input.hpp"
 #include "render.hpp"
 #include "keyboard.hpp"
+#include "blockExecutor.hpp"
 #include <chrono>
 #include <random>
 #include <time.hpp>
@@ -33,10 +32,12 @@ enum ProjectType{
 	UNEMBEDDED
 };
 
+class BlockExecutor;
+extern BlockExecutor executor;
+
 extern ProjectType projectType;
 
 extern std::vector<Sprite*> sprites;
-extern std::vector<Sprite> spritePool;
 extern std::vector<Sprite> spritePool;
 extern std::vector<std::string> broadcastQueue;
 //extern std::unordered_map<std::string,Conditional> conditionals;
@@ -46,7 +47,10 @@ extern double timer;
 extern bool toExit;
 extern std::string answer;
 
-
+class Scratch{
+public:
+    static std::string getInputValue(const nlohmann::json& item,const Block* block,Sprite* sprite);
+};
 
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite);
 void loadSprites(const nlohmann::json& json);
@@ -68,12 +72,10 @@ void runBlock(Block block,Sprite*sprite,Block waitingBlock = Block(), bool witho
 Block* findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(Block::opCode opcodeToFind);
-std::string getInputValue(nlohmann::json& item,Block* block,Sprite* sprite);
+
 std::string getVariableValue(std::string variableId,Sprite*sprite);
 bool isNumber(const std::string& id);
 void buildBlockHierarchyCache();
 bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId);
 void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock);
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);
-
-#endif
