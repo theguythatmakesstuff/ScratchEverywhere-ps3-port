@@ -16,4 +16,8 @@ public:
     static BlockResult pointToward(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
     static BlockResult setRotationStyle(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
     static BlockResult ifOnEdgeBounce(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
+
+    static std::string xPosition(const Block& block,Sprite*sprite);
+    static std::string yPosition(const Block& block,Sprite*sprite);
+    static std::string direction(const Block& block,Sprite*sprite);
 };

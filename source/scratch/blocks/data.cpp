@@ -124,3 +124,53 @@ BlockResult DataBlocks::replaceItemOfList(const Block& block, Sprite* sprite, co
     }
     return BlockResult::CONTINUE;
 }
+
+std::string DataBlocks::itemOfList(const Block& block, Sprite* sprite) {
+    std::string indexStr = Scratch::getInputValue(block.inputs.at("INDEX"), &block, sprite);
+    int index = std::stoi(indexStr) - 1;
+    std::string listName = block.fields.at("LIST")[1];
+    
+    for (Sprite* currentSprite : sprites) {
+        for (auto& [id, list] : currentSprite->lists) {
+            if (id == listName) {
+                if (index >= 0 && index < static_cast<int>(list.items.size())) {
+                    return removeQuotations(list.items[index]);
+                }
+                return "";
+            }
+        }
+    }
+    return "";
+}
+
+std::string DataBlocks::itemNumOfList(const Block& block, Sprite* sprite) {
+    std::string listName = block.fields.at("LIST")[1];
+    std::string itemToFind = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    
+    for (Sprite* currentSprite : sprites) {
+        for (auto& [id, list] : currentSprite->lists) {
+            if (id == listName) {
+                int index = 1;
+                for (auto& item : list.items) {
+                    if (removeQuotations(item) == itemToFind) {
+                        return std::to_string(index);
+                    }
+                    index++;
+                }
+            }
+        }
+    }
+    return "0";
+}
+
+std::string DataBlocks::lengthOfList(const Block& block, Sprite* sprite) {
+    std::string listName = block.fields.at("LIST")[1];
+    for (Sprite* currentSprite : sprites) {
+        for (auto& [id, list] : currentSprite->lists) {
+            if (id == listName) {
+                return std::to_string(list.items.size());
+            }
+        }
+    }
+    return "";
+}

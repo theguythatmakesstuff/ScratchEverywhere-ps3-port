@@ -457,15 +457,6 @@ std::string getValueOfBlock(Block block,Sprite*sprite){
         case Block::ARGUMENT_REPORTER_STRING_NUMBER: {
             return findCustomValue(block.fields["VALUE"][0], sprite, block);
         }
-        case Block::MOTION_XPOSITION: {
-            return std::to_string(sprite->xPosition);
-        }
-        case Block::MOTION_YPOSITION: {
-            return std::to_string(sprite->yPosition);
-        }
-        case Block::MOTION_DIRECTION: {
-            return std::to_string(sprite->rotation);
-        }
         case Block::LOOKS_SIZE: {
             return std::to_string(sprite->size);
         }
@@ -1563,7 +1554,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             sprite->conditionals[block.id].isTrue = true;
             goto nextBlock;
         }
-        
+
         default:
         //std::cerr << "Unhandled opcode: " << block.opcode  << "???????????"<< std::endl;
         goto nextBlock;
@@ -1879,7 +1870,7 @@ std::string Scratch::getInputValue(const nlohmann::json& item, const Block* bloc
         if (data.is_array()) {
            return getVariableValue(data[2],sprite);
         } else {
-           return getValueOfBlock(*findBlock(data), sprite);
+           return executor.getBlockValue(*findBlock(data), sprite);
         }
     }
     // 2 SEEMS to be a boolean

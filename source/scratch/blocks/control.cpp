@@ -108,7 +108,7 @@ BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, const Block&
                 }
             }
         }
-        return;
+        return BlockResult::CONTINUE;
     }
 
     if(stopType == "other scripts in sprite"){

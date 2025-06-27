@@ -182,3 +182,43 @@ BlockResult LooksBlocks::changeSizeBy(const Block& block, Sprite* sprite, const 
     }
     return BlockResult::CONTINUE;
 }
+
+std::string LooksBlocks::size(const Block& block, Sprite* sprite) {
+    return std::to_string(sprite->size);
+}
+
+std::string LooksBlocks::costume(const Block& block, Sprite* sprite) {
+    return block.fields.at("COSTUME")[0];
+}
+
+std::string LooksBlocks::backdrops(const Block& block, Sprite* sprite) {
+    return block.fields.at("BACKDROP")[0];
+}
+
+std::string LooksBlocks::costumeNumberName(const Block& block, Sprite* sprite) {
+    std::string value = block.fields.at("NUMBER_NAME")[0];
+    if (value == "name") {
+        return sprite->costumes[sprite->currentCostume].name;
+    } else if (value == "number") {
+        return std::to_string(sprite->currentCostume + 1);
+    }
+    return "";
+}
+
+std::string LooksBlocks::backdropNumberName(const Block& block, Sprite* sprite) {
+    std::string value = block.fields.at("NUMBER_NAME")[0];
+    if (value == "name") {
+        for (Sprite* currentSprite : sprites) {
+            if (currentSprite->isStage) {
+                return currentSprite->costumes[currentSprite->currentCostume].name;
+            }
+        }
+    } else if (value == "number") {
+        for (Sprite* currentSprite : sprites) {
+            if (currentSprite->isStage) {
+                return std::to_string(currentSprite->currentCostume + 1);
+            }
+        }
+    }
+    return "";
+}

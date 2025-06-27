@@ -5,6 +5,9 @@
 #include "blocks/control.hpp"
 #include "blocks/data.hpp"
 #include "blocks/sensing.hpp"
+#include "blocks/operator.hpp"
+#include "blocks/procedure.hpp"
+#include "blocks/sound.hpp"
 #include <iomanip>
 
 BlockExecutor::BlockExecutor(){
@@ -27,7 +30,10 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::MOTION_POINT_TOWARD] = MotionBlocks::pointToward;
     handlers[Block::MOTION_SET_ROTATION_STYLE] = MotionBlocks::setRotationStyle;
     handlers[Block::MOTION_IF_ON_EDGE_BOUNCE] = MotionBlocks::ifOnEdgeBounce;
-
+    valueHandlers[Block::MOTION_XPOSITION] = MotionBlocks::xPosition;
+    valueHandlers[Block::MOTION_YPOSITION] = MotionBlocks::yPosition;
+    valueHandlers[Block::MOTION_DIRECTION] = MotionBlocks::direction;
+    
     // looks
     handlers[Block::LOOKS_SHOW] = LooksBlocks::show;
     handlers[Block::LOOKS_HIDE] = LooksBlocks::hide;
@@ -39,6 +45,14 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::LOOKS_GO_TO_FRONT_BACK] = LooksBlocks::goToFrontBack;
     handlers[Block::LOOKS_SETSIZETO] = LooksBlocks::setSizeTo;
     handlers[Block::LOOKS_CHANGESIZEBY] = LooksBlocks::changeSizeBy;
+    valueHandlers[Block::LOOKS_SIZE] = LooksBlocks::size;
+    valueHandlers[Block::LOOKS_COSTUME] = LooksBlocks::costume;
+    valueHandlers[Block::LOOKS_BACKDROPS] = LooksBlocks::backdrops;
+    valueHandlers[Block::LOOKS_COSTUMENUMBERNAME] = LooksBlocks::costumeNumberName;
+    valueHandlers[Block::LOOKS_BACKDROPNUMBERNAME] = LooksBlocks::backdropNumberName;
+    
+    // sound
+    valueHandlers[Block::SOUND_VOLUME] = SoundBlocks::volume;
 
     // events
     handlers[Block::EVENT_WHENFLAGCLICKED] = EventBlocks::flagClicked;
@@ -51,6 +65,19 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::CONTROL_DELETE_THIS_CLONE] = ControlBlocks::deleteThisClone;
     handlers[Block::CONTROL_STOP] = ControlBlocks::stop;
 
+    // operators
+    valueHandlers[Block::OPERATOR_ADD] = OperatorBlocks::add;
+    valueHandlers[Block::OPERATOR_SUBTRACT] = OperatorBlocks::subtract;
+    valueHandlers[Block::OPERATOR_MULTIPLY] = OperatorBlocks::multiply;
+    valueHandlers[Block::OPERATOR_DIVIDE] = OperatorBlocks::divide;
+    valueHandlers[Block::OPERATOR_RANDOM] = OperatorBlocks::random;
+    valueHandlers[Block::OPERATOR_JOIN] = OperatorBlocks::join;
+    valueHandlers[Block::OPERATOR_LETTER_OF] = OperatorBlocks::letterOf;
+    valueHandlers[Block::OPERATOR_LENGTH] = OperatorBlocks::length;
+    valueHandlers[Block::OPERATOR_MOD] = OperatorBlocks::mod;
+    valueHandlers[Block::OPERATOR_ROUND] = OperatorBlocks::round;
+    valueHandlers[Block::OPERATOR_MATHOP] = OperatorBlocks::mathOp;
+
     // data
     handlers[Block::DATA_SETVARIABLETO] = DataBlocks::setVariable;
     handlers[Block::DATA_CHANGEVARIABLEBY] = DataBlocks::changeVariable;
@@ -59,10 +86,25 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::DATA_DELETE_ALL_OF_LIST] = DataBlocks::deleteAllOfList;
     handlers[Block::DATA_INSERT_AT_LIST] = DataBlocks::insertAtList;
     handlers[Block::DATA_REPLACE_ITEM_OF_LIST] = DataBlocks::replaceItemOfList;
+    valueHandlers[Block::DATA_ITEMOFLIST] = DataBlocks::itemOfList;
+    valueHandlers[Block::DATA_ITEMNUMOFLIST] = DataBlocks::itemNumOfList;
+    valueHandlers[Block::DATA_LENGTHOFLIST] = DataBlocks::lengthOfList;
+
 
     // sensing
     handlers[Block::SENSING_RESETTIMER] = SensingBlocks::resetTimer;
     handlers[Block::SENSING_ASK_AND_WAIT] = SensingBlocks::askAndWait;
+    valueHandlers[Block::SENSING_TIMER] = SensingBlocks::sensingTimer;
+    valueHandlers[Block::SENSING_OF] = SensingBlocks::of;
+    valueHandlers[Block::SENSING_MOUSEX] = SensingBlocks::mouseX;
+    valueHandlers[Block::SENSING_MOUSEY] = SensingBlocks::mouseY;
+    valueHandlers[Block::SENSING_DISTANCETO] = SensingBlocks::distanceTo;
+    valueHandlers[Block::SENSING_DAYS_SINCE_2000] = SensingBlocks::daysSince2000;
+    valueHandlers[Block::SENSING_CURRENT] = SensingBlocks::current;
+    valueHandlers[Block::SENSING_ANSWER] = SensingBlocks::sensingAnswer;
+
+    // procedures / arguments
+    valueHandlers[Block::ARGUMENT_REPORTER_STRING_NUMBER] = ProcedureBlocks::stringNumber;
 
 }
 
@@ -114,4 +156,12 @@ BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite, cons
     }
 
     return BlockResult::CONTINUE;
+}
+
+std::string BlockExecutor::getBlockValue(const Block& block,Sprite*sprite){
+    auto iterator = valueHandlers.find(block.opcode);
+    if (iterator != valueHandlers.end()) {
+        return iterator->second(block, sprite);
+    }
+    return "";
 }

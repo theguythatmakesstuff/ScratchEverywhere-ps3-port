@@ -10,4 +10,8 @@ public:
     static BlockResult deleteAllOfList(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
     static BlockResult insertAtList(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
     static BlockResult replaceItemOfList(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh);
+
+    static std::string itemOfList(const Block& block, Sprite* sprite);
+    static std::string itemNumOfList(const Block& block, Sprite* sprite);
+    static std::string lengthOfList(const Block& block, Sprite* sprite);
 };
