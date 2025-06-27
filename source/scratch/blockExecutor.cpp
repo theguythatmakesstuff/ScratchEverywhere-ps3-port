@@ -1,6 +1,11 @@
 #include "blockExecutor.hpp"
 #include "blocks/motion.hpp"
 #include "blocks/events.hpp"
+#include "blocks/looks.hpp"
+#include "blocks/control.hpp"
+#include "blocks/data.hpp"
+#include "blocks/sensing.hpp"
+#include <iomanip>
 
 BlockExecutor::BlockExecutor(){
     registerHandlers();
@@ -10,9 +15,54 @@ void BlockExecutor::registerHandlers(){
 
     // motion
     handlers[Block::MOTION_MOVE_STEPS] = MotionBlocks::moveSteps;
+    handlers[Block::MOTION_GOTOXY] = MotionBlocks::goToXY;
+    handlers[Block::MOTION_GOTO] = MotionBlocks::goTo;
+    handlers[Block::MOTION_CHANGEXBY] = MotionBlocks::changeXBy;
+    handlers[Block::MOTION_CHANGEYBY] = MotionBlocks::changeYBy;
+    handlers[Block::MOTION_SETX] = MotionBlocks::setX;
+    handlers[Block::MOTION_SETY] = MotionBlocks::setY;
+    handlers[Block::MOTION_TURNRIGHT] = MotionBlocks::turnRight;
+    handlers[Block::MOTION_TURNLEFT] = MotionBlocks::turnLeft;
+    handlers[Block::MOTION_POINTINDIRECTION] = MotionBlocks::pointInDirection;
+    handlers[Block::MOTION_POINT_TOWARD] = MotionBlocks::pointToward;
+    handlers[Block::MOTION_SET_ROTATION_STYLE] = MotionBlocks::setRotationStyle;
+    handlers[Block::MOTION_IF_ON_EDGE_BOUNCE] = MotionBlocks::ifOnEdgeBounce;
+
+    // looks
+    handlers[Block::LOOKS_SHOW] = LooksBlocks::show;
+    handlers[Block::LOOKS_HIDE] = LooksBlocks::hide;
+    handlers[Block::LOOKS_SWITCHCOSTUMETO] = LooksBlocks::switchCostumeTo;
+    handlers[Block::LOOKS_NEXTCOSTUME] = LooksBlocks::nextCostume;
+    handlers[Block::LOOKS_SWITCHBACKDROPTO] = LooksBlocks::switchBackdropTo;
+    handlers[Block::LOOKS_NEXTBACKDROP] = LooksBlocks::nextBackdrop;
+    handlers[Block::LOOKS_GO_FORWARD_BACKWARD_LAYERS] = LooksBlocks::goForwardBackwardLayers;
+    handlers[Block::LOOKS_GO_TO_FRONT_BACK] = LooksBlocks::goToFrontBack;
+    handlers[Block::LOOKS_SETSIZETO] = LooksBlocks::setSizeTo;
+    handlers[Block::LOOKS_CHANGESIZEBY] = LooksBlocks::changeSizeBy;
 
     // events
     handlers[Block::EVENT_WHENFLAGCLICKED] = EventBlocks::flagClicked;
+    handlers[Block::EVENT_BROADCAST] = EventBlocks::broadcast;
+
+    // control
+    handlers[Block::CONTROL_IF] = ControlBlocks::If;
+    handlers[Block::CONTROL_IF_ELSE] = ControlBlocks::ifElse;
+    handlers[Block::CONTROL_CREATE_CLONE_OF] = ControlBlocks::createCloneOf;
+    handlers[Block::CONTROL_DELETE_THIS_CLONE] = ControlBlocks::deleteThisClone;
+    handlers[Block::CONTROL_STOP] = ControlBlocks::stop;
+
+    // data
+    handlers[Block::DATA_SETVARIABLETO] = DataBlocks::setVariable;
+    handlers[Block::DATA_CHANGEVARIABLEBY] = DataBlocks::changeVariable;
+    handlers[Block::DATA_ADD_TO_LIST] = DataBlocks::addToList;
+    handlers[Block::DATA_DELETE_OF_LIST] = DataBlocks::deleteFromList;
+    handlers[Block::DATA_DELETE_ALL_OF_LIST] = DataBlocks::deleteAllOfList;
+    handlers[Block::DATA_INSERT_AT_LIST] = DataBlocks::insertAtList;
+    handlers[Block::DATA_REPLACE_ITEM_OF_LIST] = DataBlocks::replaceItemOfList;
+
+    // sensing
+    handlers[Block::SENSING_RESETTIMER] = SensingBlocks::resetTimer;
+    handlers[Block::SENSING_ASK_AND_WAIT] = SensingBlocks::askAndWait;
 
 }
 
@@ -33,13 +83,6 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block waitingBlock, bo
             break;
         }
         
-        // Timing measurement
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> duration = end - start;
-        if (duration.count() > 0) {
-            // std::cout << block.opcode << " took " << duration.count() << " milliseconds!" << std::endl;
-        }
-        
         // Move to next block
         if (!block.next.empty()) {
             block = *blockLookup[block.next];
@@ -54,6 +97,12 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block waitingBlock, bo
                 break;
             }
         }
+    }
+        // Timing measurement
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> duration = end - start;
+    if (duration.count() > 0) {
+        std::cout << " took " << duration.count() << " milliseconds!" << std::endl;
     }
 }
 

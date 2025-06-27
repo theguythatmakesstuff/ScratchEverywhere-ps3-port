@@ -883,9 +883,9 @@ std::vector<Block*> getBlockChain(std::string blockId){
     return blockChain;
 }
 
-Block* getBlockParent(Block* block){
+Block* getBlockParent(const Block* block){
     Block* parentBlock;
-    Block* currentBlock = block;
+    const Block* currentBlock = block;
     while(currentBlock->parent != "null"){
         parentBlock = findBlock(currentBlock->parent);
         if(parentBlock != nullptr){
@@ -895,7 +895,7 @@ Block* getBlockParent(Block* block){
             break;
         }
     }
-    return currentBlock;
+    return const_cast<Block*>(currentBlock);
 }
 
 bool runConditionalStatement(std::string blockId, Sprite* sprite) {
@@ -1107,7 +1107,7 @@ void runBroadcasts() {
     // Now run all the identified blocks
     for (auto& [blockPtr, spritePtr] : blocksToRun) {
         //std::cout << "Running broadcast block " << blockPtr->id << std::endl;
-        runBlock(*blockPtr, spritePtr);
+        executor.runBlock(*blockPtr, spritePtr);
     }
     
     // Check if new broadcasts were added during execution
@@ -1229,9 +1229,6 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
         case block.CONTROL_START_AS_CLONE:{
             goto nextBlock;
         }
-        case block.EVENT_WHENFLAGCLICKED:{
-            goto nextBlock;
-        }
 
         case block.EVENT_WHEN_KEY_PRESSED:{
             for (std::string button : inputButtons) {
@@ -1241,199 +1238,6 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
             }
             return;
-        }
-
-        case block.MOTION_GOTOXY: {
-           // std::cout << "GOTOXY!" << std::endl;
-            std::string xVal = Scratch::getInputValue(block.inputs["X"], &block, sprite);
-            std::string yVal = Scratch::getInputValue(block.inputs["Y"], &block, sprite);
-            if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
-            //else std::cerr << "Set X Position invalid with pos " << xVal << std::endl;
-            if (isNumber(yVal)) sprite->yPosition = std::stod(yVal);
-           // else std::cerr << "Set Y Position invalid with pos " << yVal << std::endl;
-            goto nextBlock;
-        }
-
-        case block.MOTION_GOTO:{
-            Block* inputBlock = findBlock(block.inputs["TO"][1]);
-            std::string objectName = inputBlock->fields["TO"][0];
-
-            if (objectName == "_random_") {
-                sprite->xPosition = rand() % projectWidth - projectWidth / 2;
-                sprite->yPosition = rand() % projectHeight - projectHeight / 2;
-                goto nextBlock;
-            }
-
-            if (objectName == "_mouse_") {
-                sprite->xPosition = mousePointer.x;
-                sprite->yPosition = mousePointer.y;
-                goto nextBlock;
-            }
-
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->name == objectName) {
-                    sprite->xPosition = currentSprite->xPosition;
-                    sprite->yPosition = currentSprite->yPosition;
-                    break;
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_POINTINDIRECTION: {
-            std::string value = Scratch::getInputValue(block.inputs["DIRECTION"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->rotation = std::stoi(value);
-            } else {
-               // std::cerr << "Invalid Turn direction " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_TURNRIGHT: {
-            std::string value = Scratch::getInputValue(block.inputs["DEGREES"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->rotation += std::stoi(value);
-            } else {
-               // std::cerr << "Invalid Turn direction " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_TURNLEFT: {
-            std::string value = Scratch::getInputValue(block.inputs["DEGREES"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->rotation -= std::stoi(value);
-            } else {
-                //std::cerr << "Invalid Turn direction " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_MOVE_STEPS: {
-            std::string value = Scratch::getInputValue(block.inputs["STEPS"], &block, sprite);
-            if (isNumber(value)) {
-                double angle = (sprite->rotation - 90) * M_PI / 180.0;
-                sprite->xPosition += std::cos(angle) * std::stod(value);
-                sprite->yPosition += std::sin(angle) * std::stod(value);
-            } else {
-               // std::cerr << "Invalid Move steps " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_POINT_TOWARD:{
-            Block* inputBlock = findBlock(block.inputs["TOWARDS"][1]);
-
-            if(inputBlock->fields.find("TOWARDS") == inputBlock->fields.end()){
-                //std::cerr << "Error: Unable to find object for POINT_TOWARD block." << std::endl;
-                goto nextBlock;
-            }
-
-            std::string objectName = inputBlock->fields["TOWARDS"][0];
-            double targetX = 0;
-            double targetY = 0;
-
-            if(objectName == "_random_"){
-                sprite->rotation = rand() % 360;
-                goto nextBlock;
-            }
-
-            if (objectName == "_mouse_") {
-                targetX = mousePointer.x;
-                targetY = mousePointer.y;
-            }
-
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->name == objectName) {
-                    targetX = currentSprite->xPosition;
-                    targetY = currentSprite->yPosition;
-                    break;
-                }
-            }
-
-            const double dx = targetX - sprite->xPosition;
-            const double dy = targetY - sprite->yPosition;
-            double angle = 90 - (atan2(dy,dx) * 180.0 / M_PI);
-            sprite->rotation = angle;
-           // std::cout << "Pointing towards " << sprite->rotation << std::endl;
-
-            goto nextBlock;
-
-        }
-
-        case block.MOTION_CHANGEXBY: {
-            std::string value = Scratch::getInputValue(block.inputs["DX"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->xPosition += std::stod(value);
-            } else {
-                std::cerr << "Invalid X position " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_CHANGEYBY: {
-            std::string value = Scratch::getInputValue(block.inputs["DY"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->yPosition += std::stod(value);
-            } else {
-                std::cerr << "Invalid Y position " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_SETX: {
-            std::string value = Scratch::getInputValue(block.inputs["X"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->xPosition = std::stod(value);
-            } else {
-               // std::cerr << "Invalid X position " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_SETY: {
-            std::string value = Scratch::getInputValue(block.inputs["Y"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->yPosition = std::stod(value);
-            } else {
-                //std::cerr << "Invalid Y position " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.MOTION_SET_ROTATION_STYLE:{
-            std::string value;
-            try{
-            value = block.fields["STYLE"][0];}
-            catch(...){
-                std::cerr<<"unable to find rotation style."<<std::endl;
-            }
-
-            if(value == "left-right"){
-                sprite->rotationStyle = "left-right";
-                goto nextBlock;
-            }
-            if(value == "don't rotate"){
-                sprite->rotationStyle = "don't rotate";
-                goto nextBlock;
-            }
-            sprite->rotationStyle = "all around";
-            goto nextBlock;
-        }
-
-        case block.MOTION_IF_ON_EDGE_BOUNCE:{
-
-            double halfWidth = projectWidth / 2.0;
-            double halfHeight = projectHeight / 2.0;
-
-                // Check if the current sprite is touching the edge of the screen
-            if (sprite->xPosition <= -halfWidth || sprite->xPosition >= halfWidth ||
-                 sprite->yPosition <= -halfHeight || sprite->yPosition >= halfHeight) {
-                    sprite->rotation *= -1;
-                }
-                goto nextBlock;
-
         }
 
         case block.MOTION_GLIDE_SECS_TO_XY:{
@@ -1591,258 +1395,30 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
 
             goto nextBlock;
         }
-        
-        case block.LOOKS_SHOW:{
-            sprite->visible = true;
-            goto nextBlock;
+
+    case block.CONTROL_WAIT_UNTIL: {
+        if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+            Conditional newConditional;
+            newConditional.id = block.id;
+            newConditional.blockId = block.id;
+            newConditional.hostSprite = sprite;
+            newConditional.isTrue = false;
+            newConditional.times = -1;
+            newConditional.waitingBlock = waitingBlock;
+            newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+            newConditional.waitingConditional = getParentConditional(sprite,block.id);
+            if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+            sprite->conditionals[newConditional.id] = newConditional;
         }
-        case block.LOOKS_HIDE:{
-            sprite->visible = false;
-            goto nextBlock;
-        }
-        case block.LOOKS_SWITCHCOSTUMETO:{
-            std::string inputValue;
-            try{
-           inputValue = getValueOfBlock(*findBlock(block.inputs["COSTUME"][1]),sprite);}
-           catch(...){
-                inputValue = Scratch::getInputValue(block.inputs["COSTUME"],&block,sprite);
-            }
-           std::cout << "costume = " << inputValue << std::endl;
-           
-           if (isNumber(inputValue)){
-                int costumeIndex = std::stoi(inputValue) - 1;
-                if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
-                    if(sprite->currentCostume != costumeIndex){
-                        freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
-                    }
-                    sprite->currentCostume = costumeIndex;
-
-                } else {
-                    //std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
-                }
-            } else {
-                for (size_t i = 0; i < sprite->costumes.size(); i++) {
-                    if (sprite->costumes[i].name == inputValue) {
-                        if((size_t)sprite->currentCostume != i){
-                            freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
-                        }
-                        sprite->currentCostume = i;
-                        break;
-                    }
-                }
-            }
-
-                if(projectType == UNZIPPED){
-                    loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
-                }
-
-            goto nextBlock;
-
-        }
-
-        case block.LOOKS_NEXTCOSTUME:{
-            freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
-            sprite->currentCostume++;
-            if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
-                sprite->currentCostume = 0;
-            }
-            if(projectType == UNZIPPED){
-                loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
-            }
-            goto nextBlock;
-        }
-
-        case block.LOOKS_SWITCHBACKDROPTO:{
-            std::string inputValue = getValueOfBlock(*findBlock(block.inputs["BACKDROP"][1]),sprite);
-            for(Sprite* currentSprite : sprites){
-                if(!currentSprite->isStage){
-                    continue;
-                }
-            if (isNumber(inputValue)){
-                int costumeIndex = std::stoi(inputValue) - 1;
-                if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
-                    if(sprite->currentCostume != costumeIndex){
-                    freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);}
-                    currentSprite->currentCostume = costumeIndex;
-                    if(projectType == UNZIPPED){
-                        loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
-                        }
-                } else {
-                   // std::cerr << "Invalid costume index: " << costumeIndex << std::endl;
-                }
-            } else {
-                for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
-                    if (currentSprite->costumes[i].name == inputValue) {
-                        if((size_t)sprite->currentCostume != i){
-                            freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
-                        }
-                        currentSprite->currentCostume = i;
-                        if(projectType == UNZIPPED){
-                            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
-                            }
-                        break;
-                    }
-                }
-            }
-        }
-            goto nextBlock;
-        }
-
-        case block.LOOKS_NEXTBACKDROP:{
-            for(Sprite* currentSprite : sprites){
-                if(!currentSprite->isStage){
-                    continue;
-                }
-            freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
-            currentSprite->currentCostume++;
-            if (currentSprite->currentCostume >= static_cast<int>(currentSprite->costumes.size())) {
-                currentSprite->currentCostume = 0;
-            }
-            if(projectType == UNZIPPED){
-                loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
-            }
-        }
-            goto nextBlock;
-        }
-
-        case block.LOOKS_CHANGESIZEBY:{
-            std::string value = Scratch::getInputValue(block.inputs["CHANGE"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->size += std::stod(value);
-            } else {
-               // std::cerr << "Invalid size change " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-        case block.LOOKS_SETSIZETO:{
-            std::string value = Scratch::getInputValue(block.inputs["SIZE"], &block, sprite);
-            if (isNumber(value)) {
-                sprite->size = std::stod(value);
-            } else {
-              //  std::cerr << "Invalid size change " << value << std::endl;
-            }
-            goto nextBlock;
-        }
-
-        case block.LOOKS_GO_FORWARD_BACKWARD_LAYERS:{
-            std::string value = Scratch::getInputValue(block.inputs["NUM"], &block, sprite);
-            std::string forwardBackward = block.fields["FORWARD_BACKWARD"][0];
-            if (isNumber(value)) {
-            if (forwardBackward == "forward") {
-
-                // check if a sprite is already on the same layer
-                for(Sprite* currentSprite : sprites){
-                    if(currentSprite->isStage) continue;
-                    if(currentSprite->layer == (currentSprite->layer + std::stoi(value))){
-                        for(Sprite* moveupSprite : sprites){
-                            if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer + std::stoi(value)))) continue;
-                            moveupSprite-> layer++;
-                        }
-                    }
-                }
-
-                sprite->layer += std::stoi(value);
-
-            } else if (forwardBackward == "backward") {
-
-                // check if a sprite is already on the same layer
-                for(Sprite* currentSprite : sprites){
-                    if(currentSprite->isStage) continue;
-                    if(currentSprite->layer == (currentSprite->layer - std::stoi(value))){
-                        for(Sprite* moveupSprite : sprites){
-                            if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer - std::stoi(value)))) continue;
-                            moveupSprite-> layer++;
-                        }
-                    }
-                }
-
-                sprite->layer -= std::stoi(value);
-                if(sprite->layer < 1){
-                    for(Sprite* currentSprite : sprites){
-                    if(currentSprite->isStage) continue;
-                    currentSprite->layer+= 2;
-                }
-                sprite->layer = 0;
-                }
-            }
+        if (block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
+            sprite->conditionals[block.id].isTrue = true;
+            return;
         } else {
-                //std::cerr << "Invalid layer change " << value << std::endl;
-            }
-            goto nextBlock;
+            sprite->conditionals[block.id].isTrue = false;
+            waitingBlock = sprite->conditionals[block.id].waitingBlock;
         }
-        case block.LOOKS_GO_TO_FRONT_BACK:{
-            std::string value = block.fields["FRONT_BACK"][0];
-            if (value == "front") {
-                sprite->layer = getMaxSpriteLayer() + 1;
-            } else if (value == "back") {
-                for(Sprite* currentSprite : sprites){
-                    if(currentSprite->isStage) continue;
-                    currentSprite->layer+= 2;
-                }
-                sprite->layer = 0;
-            }
-            goto nextBlock;
-        }
-
-        case block.EVENT_BROADCAST: {
-            broadcastQueue.push_back( Scratch::getInputValue(block.inputs["BROADCAST_INPUT"], &block, sprite));
-            goto nextBlock;
-        }
-
-        case block.CONTROL_IF: {
-            if (block.inputs["CONDITION"][1].is_null()) {
-                goto nextBlock;
-            }
-            if (runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
-                if (!block.inputs["SUBSTACK"][1].is_null()) {
-                    Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                    runBlock(*subBlock, sprite);
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.CONTROL_IF_ELSE: {
-            if (block.inputs["CONDITION"][1].is_null()) {
-                goto nextBlock;
-            }
-            if (runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
-                if (!block.inputs["SUBSTACK"][1].is_null()) {
-                    Block* subBlock = findBlock(block.inputs["SUBSTACK"][1]);
-                    runBlock(*subBlock, sprite);
-                }
-            } else {
-                if (!block.inputs["SUBSTACK2"][1].is_null()) {
-                    Block* subBlock = findBlock(block.inputs["SUBSTACK2"][1]);
-                    runBlock(*subBlock, sprite);
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.CONTROL_WAIT_UNTIL: {
-            if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-                Conditional newConditional;
-                newConditional.id = block.id;
-                newConditional.blockId = block.id;
-                newConditional.hostSprite = sprite;
-                newConditional.isTrue = false;
-                newConditional.times = -1;
-                newConditional.waitingBlock = waitingBlock;
-                newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-                newConditional.waitingConditional = getParentConditional(sprite,block.id);
-                if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-                sprite->conditionals[newConditional.id] = newConditional;
-            }
-            if (block.inputs["CONDITION"][1].is_null() || !runConditionalStatement(block.inputs["CONDITION"][1], sprite)) {
-                sprite->conditionals[block.id].isTrue = true;
-                return;
-            } else {
-                sprite->conditionals[block.id].isTrue = false;
-                waitingBlock = sprite->conditionals[block.id].waitingBlock;
-            }
-            goto nextBlock;
-        }
+        goto nextBlock;
+    }
 
         case block.CONTROL_WAIT: {
             if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
@@ -1987,245 +1563,7 @@ void runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScree
             sprite->conditionals[block.id].isTrue = true;
             goto nextBlock;
         }
-
-        case block.CONTROL_CREATE_CLONE_OF: {
-            std::cout << "Trying " << std::endl;
-            Block* cloneOptions = findBlock(block.inputs["CLONE_OPTION"][1]);
-            Sprite* spriteToClone = getAvailableSprite();
-            if(!spriteToClone) goto nextBlock;
-            if (cloneOptions->fields["CLONE_OPTION"][0] == "_myself_") {
-                *spriteToClone = *sprite;
-            } else {
-                for (Sprite* currentSprite : sprites) {
-                    if (currentSprite->name == removeQuotations(cloneOptions->fields["CLONE_OPTION"][0]) && !currentSprite->isClone) {
-                        *spriteToClone = *currentSprite;
-                    }
-                }
-            }
-            if (spriteToClone != nullptr && !spriteToClone->name.empty()) {
-                spriteToClone->conditionals.clear();
-                // for (auto& [id, conditional] : spriteToClone->conditionals) {
-                //     conditional.hostSprite = spriteToClone;
-                //     conditional.isTrue = false;
-                // }
-                spriteToClone->isClone = true;
-                spriteToClone->isStage = false;
-                spriteToClone->toDelete = false;
-                spriteToClone->id = generateRandomString(15);
-                std::cout << "Created clone of " << sprite->name << std::endl;
-                std::unordered_map<std::string, Block> newBlocks;
-                for (auto& [id, block] : spriteToClone->blocks) {
-                    if (block.opcode == block.CONTROL_START_AS_CLONE || block.opcode == block.EVENT_WHENBROADCASTRECEIVED || block.opcode == block.PROCEDURES_DEFINITION || block.opcode == block.PROCEDURES_PROTOTYPE) {
-                        std::vector<Block*> blockChain = getBlockChain(block.id);
-                        for (const Block* block : blockChain) {
-                            newBlocks[block->id] = *block;
-                        }
-                    }
-                }
-                spriteToClone->blocks.clear();
-                spriteToClone->blocks = newBlocks;
-
-
-                // add clone to sprite list
-                sprites.push_back(spriteToClone);
-                Sprite* addedSprite = sprites.back();
-                // Run "when I start as a clone" scripts for the clone
-                for (Sprite* currentSprite : sprites) {
-                    if (currentSprite == addedSprite) {
-                        for (auto& [id, block] : currentSprite->blocks) {
-                            if (block.opcode == block.CONTROL_START_AS_CLONE) {
-                               // std::cout << "Running clone block " << block.id << std::endl;
-                                runBlock(block, currentSprite);
-                            }
-                        }
-                    }
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.CONTROL_DELETE_THIS_CLONE: {
-           // std::cout << "Deleting clone " << sprite->name << std::endl;
-           if(sprite->isClone)
-           sprite->toDelete = true;
-            goto nextBlock;
-        }
-
-        case block.CONTROL_STOP: {
-            std::string stopType = block.fields["STOP_OPTION"][0];
-            if(stopType == "all"){
-                toExit = true;
-                break;
-            }
-            if(stopType == "this script"){
-                Block* parent = getBlockParent(&block);
-                //std::cout << "Stopping script " << parent.id << std::endl;
-                for(auto& [id,block] : sprite->blocks){
-                    if(block.topLevelParentBlock == parent->id){
-                        if(sprite->conditionals.find(id) != sprite->conditionals.end()){
-                            sprite->conditionals.erase(id);
-                        }
-                    }
-                }
-                return;
-            }
-
-            if(stopType == "other scripts in sprite"){
-                std::string topLevelParentBlock = getBlockParent(&block)->id;
-                //std::cout << "Stopping other scripts in sprite " << sprite->id << std::endl;
-                for(auto& [id,block] : sprite->blocks){
-                    if(block.topLevelParentBlock != topLevelParentBlock){
-                        if(sprite->conditionals.find(id) != sprite->conditionals.end()){
-                            sprite->conditionals.erase(id);
-                        }
-                    }
-                }
-            }
-            goto nextBlock;
-            
-        }
-
-        case block.DATA_SETVARIABLETO: {
-            std::string val = Scratch::getInputValue(block.inputs["VALUE"], &block, sprite);
-            std::string varId = block.fields["VARIABLE"][1];
-            setVariableValue(varId, val, sprite, false);
-            goto nextBlock;
-        }
-
-        case block.DATA_CHANGEVARIABLEBY: {
-            std::string val = Scratch::getInputValue(block.inputs["VALUE"], &block, sprite);
-            std::string varId = block.fields["VARIABLE"][1];
-            setVariableValue(varId, val, sprite, true);
-            goto nextBlock;
-        }
-
-        case block.DATA_ADD_TO_LIST:{
-            std::string val = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
-            std::string listId = block.fields["LIST"][1];
-            for(Sprite* currentSprite : sprites){
-            if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
-               // std::cout << "Adding to list " << listId << std::endl;
-                sprite->lists[listId].items.push_back(val);
-                break;
-            }
-        }
-            goto nextBlock;
-        }
-
-        case block.DATA_DELETE_OF_LIST: {
-            std::string val = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
-            std::string listId = block.fields["LIST"][1];
         
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
-                    //std::cout << "Deleting from list " << listId << std::endl;
-        
-                    // Convert `val` to an integer index
-                    if (isNumber(val)) {
-                        int index = std::stoi(val) - 1; // Convert to 0-based index
-                        auto& items = currentSprite->lists[listId].items;
-        
-                        // Check if the index is within bounds
-                        if (index >= 0 && index < static_cast<int>(items.size())) {
-                            items.erase(items.begin() + index); // Remove the item at the index
-                        } else {
-                           // std::cerr << "Delete list Index out of bounds: " << index << std::endl;
-                        }
-                    } else {
-                       // std::cerr << "Invalid Delete list index: " << val << std::endl;
-                    }
-                    break;
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.DATA_DELETE_ALL_OF_LIST:{
-            std::string listId = block.fields["LIST"][1];
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
-                    //std::cout << "Deleting all from list " << listId << std::endl;
-                    currentSprite->lists[listId].items.clear(); // Clear the list
-                    break;
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.DATA_INSERT_AT_LIST:{
-            std::string val = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
-            std::string listId = block.fields["LIST"][1];
-            std::string index = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
-        
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
-                   // std::cout << "Inserting into list " << listId << std::endl;
-        
-                    // Convert `index` to an integer index
-                    if (isNumber(index)) {
-                        int idx = std::stoi(index) - 1; // Convert to 0-based index
-                        auto& items = currentSprite->lists[listId].items;
-        
-                        // Check if the index is within bounds
-                        if (idx >= 0 && idx <= static_cast<int>(items.size())) {
-                            items.insert(items.begin() + idx, val); // Insert the item at the index
-                        } else {
-                            //std::cerr << "Insert Index out of bounds: " << idx << std::endl;
-                        }
-                    } else {
-                       // std::cerr << "Invalid Insert index: " << index << std::endl;
-                    }
-                    break;
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.DATA_REPLACE_ITEM_OF_LIST:{
-            std::string val = Scratch::getInputValue(block.inputs["ITEM"], &block, sprite);
-            std::string listId = block.fields["LIST"][1];
-            std::string index = Scratch::getInputValue(block.inputs["INDEX"], &block, sprite);
-        
-            for (Sprite* currentSprite : sprites) {
-                if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
-                    //std::cout << "Replacing item in list " << listId << std::endl;
-        
-                    // Convert `index` to an integer index
-                    if (isNumber(index)) {
-                        int idx = std::stoi(index) - 1; // Convert to 0-based index
-                        auto& items = currentSprite->lists[listId].items;
-        
-                        // Check if the index is within bounds
-                        if (idx >= 0 && idx < static_cast<int>(items.size())) {
-                            items[idx] = val; // Replace the item at the index
-                        } else {
-                           // std::cerr << "Replace item Index out of bounds: " << idx << std::endl;
-                        }
-                    } else {
-                       // std::cerr << "Invalid Replace index: " << index << std::endl;
-                    }
-                    break;
-                }
-            }
-            goto nextBlock;
-        }
-
-        case block.SENSING_RESETTIMER: {
-            timer = 0;
-            goto nextBlock;
-        }
-
-        case block.SENSING_ASK_AND_WAIT:{
-
-            Keyboard kbd;
-            std::string inputValue = Scratch::getInputValue(block.inputs["QUESTION"],&block,sprite);
-            std::string output = kbd.openKeyboard(inputValue.c_str());
-            answer = output;
-
-            goto nextBlock;
-        }
-
-
         default:
         //std::cerr << "Unhandled opcode: " << block.opcode  << "???????????"<< std::endl;
         goto nextBlock;
