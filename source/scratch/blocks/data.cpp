@@ -174,3 +174,21 @@ std::string DataBlocks::lengthOfList(const Block& block, Sprite* sprite) {
     }
     return "";
 }
+
+bool DataBlocks::listContainsItem(const Block& block, Sprite* sprite){
+    std::string listName = block.fields.at("LIST")[1];
+    std::string itemToFind = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    
+    for (Sprite* currentSprite : sprites) {
+        for (auto& [id, list] : currentSprite->lists) {
+            if (id == listName) {
+                for (const auto& item : list.items) {
+                    if (removeQuotations(item) == itemToFind) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}

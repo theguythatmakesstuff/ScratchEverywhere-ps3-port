@@ -14,4 +14,8 @@ public:
     static std::string daysSince2000(const Block& block, Sprite* sprite);
     static std::string current(const Block& block, Sprite* sprite);
     static std::string sensingAnswer(const Block& block, Sprite* sprite);
+
+    static bool keyPressed(const Block& block,Sprite* sprite);
+    static bool touchingObject(const Block& block, Sprite* sprite);
+    static bool mouseDown(const Block& block, Sprite* sprite);
 };

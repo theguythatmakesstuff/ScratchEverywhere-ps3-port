@@ -15,11 +15,13 @@ class BlockExecutor {
 private:
     std::unordered_map<Block::opCode, std::function<BlockResult(const Block&, Sprite*, const Block&, bool)>> handlers;
     std::unordered_map<Block::opCode, std::function<std::string(const Block&, Sprite*)>> valueHandlers;
+    std::unordered_map<Block::opCode, std::function<bool(const Block& block,Sprite*)>> conditionBlockHandlers;
     
 public:
     BlockExecutor();
     void runBlock(Block block, Sprite* sprite, Block waitingBlock = Block(), bool withoutScreenRefresh = false);
     std::string getBlockValue(const Block& block,Sprite*sprite);
+    bool runConditionalBlock(std::string blockId, Sprite* sprite);
     
 private:
     void registerHandlers();

@@ -63,8 +63,6 @@ void initializeSpritePool(int poolSize);
 std::string findCustomValue(std::string valueName,Sprite*sprite,Block block);
 Conditional* getParentConditional(Sprite* sprite, std::string blockId);
 std::string removeQuotations(std::string value);
-std::string getValueOfBlock(Block block,Sprite*sprite);
-bool runConditionalStatement(std::string blockId,Sprite* sprite);
 void runBroadcasts();
 void runCustomBlock(Sprite*sprite,Block block);
 bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId);

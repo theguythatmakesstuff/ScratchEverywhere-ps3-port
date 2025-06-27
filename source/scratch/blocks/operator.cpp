@@ -166,3 +166,68 @@ std::string OperatorBlocks::mathOp(const Block& block, Sprite* sprite) {
     }
     return "0";
 }
+
+bool OperatorBlocks::equals(const Block& block, Sprite* sprite){
+    std::string value1;
+    std::string value2;
+    try{
+        value1 = Scratch::getInputValue(block.inputs.at("OPERAND1"), &block, sprite);
+        value2 = Scratch::getInputValue(block.inputs.at("OPERAND2"), &block, sprite);
+    }
+    catch(...){
+        std::cout << "failed to get equals values." << std::endl;
+        return false;
+    }
+    
+    try{
+        if(std::floor(std::stod(value1)) == std::stod(value1) && std::floor(std::stod(value2)) == std::stod(value2) ){
+            return (std::floor(std::stod(value1)) == std::floor(std::stod(value2)));
+        }
+    }
+    catch(...){
+        // If conversion fails, fall back to string comparison
+    }
+
+    return value1 == value2;
+}
+
+bool OperatorBlocks::greaterThan(const Block& block, Sprite* sprite){
+    std::string value1 = Scratch::getInputValue(block.inputs.at("OPERAND1"), &block, sprite);
+    std::string value2 = Scratch::getInputValue(block.inputs.at("OPERAND2"), &block, sprite);
+    if (isNumber(value1) && isNumber(value2)) {
+        return std::stod(value1) > std::stod(value2);
+    }
+    return false;
+}
+
+bool OperatorBlocks::lessThan(const Block& block, Sprite* sprite){
+    std::string value1 = Scratch::getInputValue(block.inputs.at("OPERAND1"), &block, sprite);
+    std::string value2 = Scratch::getInputValue(block.inputs.at("OPERAND2"), &block, sprite);
+    if (isNumber(value1) && isNumber(value2)) {
+        return std::stod(value1) < std::stod(value2);
+    }
+    return false;
+}
+
+bool OperatorBlocks::and_(const Block& block, Sprite* sprite){
+    bool value1 = executor.runConditionalBlock(block.inputs.at("OPERAND1")[1], sprite);
+    bool value2 = executor.runConditionalBlock(block.inputs.at("OPERAND2")[1], sprite);
+    return value1 && value2;
+}
+
+bool OperatorBlocks::or_(const Block& block, Sprite* sprite){
+    bool value1 = executor.runConditionalBlock(block.inputs.at("OPERAND1")[1], sprite);
+    bool value2 = executor.runConditionalBlock(block.inputs.at("OPERAND2")[1], sprite);
+    return value1 || value2;
+}
+
+bool OperatorBlocks::not_(const Block& block, Sprite* sprite){
+    bool value = executor.runConditionalBlock(block.inputs.at("OPERAND")[1], sprite);
+    return !value;
+}
+
+bool OperatorBlocks::contains(const Block& block, Sprite* sprite){
+    std::string value1 = Scratch::getInputValue(block.inputs.at("STRING1"), &block, sprite);
+    std::string value2 = Scratch::getInputValue(block.inputs.at("STRING2"), &block, sprite);
+    return value1.find(value2) != std::string::npos;
+}

@@ -4,7 +4,7 @@ BlockResult ControlBlocks::If(const Block& block, Sprite* sprite, const Block& w
     if (block.inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }
-    if (runConditionalStatement(block.inputs.at("CONDITION")[1], sprite)) {
+    if (executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
         if (!block.inputs.at("SUBSTACK")[1].is_null()) {
             Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
             executor.runBlock(*subBlock, sprite);
@@ -17,7 +17,7 @@ BlockResult ControlBlocks::ifElse(const Block& block, Sprite* sprite, const Bloc
     if (block.inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }
-    if (runConditionalStatement(block.inputs.at("CONDITION")[1], sprite)) {
+    if (executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
         if (!block.inputs.at("SUBSTACK")[1].is_null()) {
             Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
             executor.runBlock(*subBlock, sprite);

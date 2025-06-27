@@ -12,7 +12,7 @@ BlockResult LooksBlocks::hide(const Block& block, Sprite* sprite, const Block& w
 BlockResult LooksBlocks::switchCostumeTo(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh){
     std::string inputValue;
     try{
-    inputValue = getValueOfBlock(*findBlock(block.inputs.at("COSTUME")[1]),sprite);}
+    inputValue = executor.getBlockValue(*findBlock(block.inputs.at("COSTUME")[1]),sprite);}
     catch(...){
         inputValue = Scratch::getInputValue(block.inputs.at("COSTUME"),&block,sprite);
     }
@@ -59,7 +59,7 @@ BlockResult LooksBlocks::nextCostume(const Block& block, Sprite* sprite, const B
 }
 
 BlockResult LooksBlocks::switchBackdropTo(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh){
-    std::string inputValue = getValueOfBlock(*findBlock(block.inputs.at("BACKDROP")[1]),sprite);
+    std::string inputValue = executor.getBlockValue(*findBlock(block.inputs.at("BACKDROP")[1]),sprite);
     for(Sprite* currentSprite : sprites){
         if(!currentSprite->isStage){
             continue;

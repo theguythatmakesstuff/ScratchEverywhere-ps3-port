@@ -115,3 +115,81 @@ std::string SensingBlocks::current(const Block& block, Sprite* sprite) {
 std::string SensingBlocks::sensingAnswer(const Block& block, Sprite* sprite) {
     return answer;
 }
+
+bool SensingBlocks::keyPressed(const Block& block, Sprite* sprite){
+    Block* inputBlock = findBlock(block.inputs.at("KEY_OPTION")[1]);
+    for (std::string button : inputButtons) {
+        if (inputBlock->fields["KEY_OPTION"][0] == button) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SensingBlocks::touchingObject(const Block& block, Sprite* sprite){
+    Block* inputBlock = findBlock(block.inputs.at("TOUCHINGOBJECTMENU")[1]);
+    std::string objectName;
+    try {
+        objectName = inputBlock->fields["TOUCHINGOBJECTMENU"][0];
+    } catch (...) {
+        return false;
+    }
+
+    // Get collision points of the current sprite
+    std::vector<std::pair<double, double>> currentSpritePoints = getCollisionPoints(sprite);
+
+    if(objectName == "_mouse_") {
+        // Check if the mouse pointer's position is within the bounds of the current sprite
+        if (mousePointer.x >= sprite->xPosition - sprite->spriteWidth / 2 &&
+            mousePointer.x <= sprite->xPosition + sprite->spriteWidth / 2 &&
+            mousePointer.y >= sprite->yPosition - sprite->spriteHeight / 2 &&
+            mousePointer.y <= sprite->yPosition + sprite->spriteHeight / 2) {
+            return true;
+        }
+        return false;
+    }
+
+    if (objectName == "_edge_") {
+        double halfWidth = projectWidth / 2.0;
+        double halfHeight = projectHeight / 2.0;
+
+        // Check if the current sprite is touching the edge of the screen
+        if (sprite->xPosition <= -halfWidth || sprite->xPosition >= halfWidth ||
+            sprite->yPosition <= -halfHeight || sprite->yPosition >= halfHeight) {
+            return true;
+        }
+        return false;
+    }
+
+    for (Sprite* targetSprite : sprites) {
+        if (targetSprite->name == objectName) {
+            // Get collision points of the target sprite
+            std::vector<std::pair<double, double>> targetSpritePoints = getCollisionPoints(targetSprite);
+
+            // Check if any point of the current sprite is inside the target sprite's bounds
+            for (const auto& point : currentSpritePoints) {
+                if (point.first >= targetSprite->xPosition - targetSprite->spriteWidth / 2 &&
+                    point.first <= targetSprite->xPosition + targetSprite->spriteWidth / 2 &&
+                    point.second >= targetSprite->yPosition - targetSprite->spriteHeight / 2 &&
+                    point.second <= targetSprite->yPosition + targetSprite->spriteHeight / 2) {
+                    return true;
+                }
+            }
+
+            // Check if any point of the target sprite is inside the current sprite's bounds
+            for (const auto& point : targetSpritePoints) {
+                if (point.first >= sprite->xPosition - sprite->spriteWidth / 2 &&
+                    point.first <= sprite->xPosition + sprite->spriteWidth / 2 &&
+                    point.second >= sprite->yPosition - sprite->spriteHeight / 2 &&
+                    point.second <= sprite->yPosition + sprite->spriteHeight / 2) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool SensingBlocks::mouseDown(const Block& block, Sprite* sprite){
+    return mousePointer.isPressed;
+}
