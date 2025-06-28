@@ -140,7 +140,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
     
     while (block.id != "null") {
 
-        BlockResult result = executeBlock(block, sprite, waitingBlock, withoutScreenRefresh);
+        BlockResult result = executeBlock(block, sprite, &waitingBlock, withoutScreenRefresh);
         
         if (result == BlockResult::RETURN) {
             return;
@@ -172,7 +172,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
 }
 
 
-BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block** waitingBlock, bool withoutScreenRefresh){
     auto iterator = handlers.find(block.opcode);
     if (iterator != handlers.end()) {
         return iterator->second(block, sprite, waitingBlock, withoutScreenRefresh);

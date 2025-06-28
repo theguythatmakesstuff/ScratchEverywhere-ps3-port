@@ -1,6 +1,6 @@
 #include "motion.hpp"
 
-BlockResult MotionBlocks::moveSteps(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::moveSteps(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("STEPS"), &block, sprite);
             if (isNumber(value)) {
                 double angle = (sprite->rotation - 90) * M_PI / 180.0;
@@ -14,7 +14,7 @@ BlockResult MotionBlocks::moveSteps(const Block& block, Sprite* sprite, Block* w
 
 }
 
-BlockResult MotionBlocks::goTo(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::goTo(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     Block* inputBlock = findBlock(block.inputs.at("TO")[1]);
             std::string objectName = inputBlock->fields["TO"][0];
 
@@ -40,7 +40,7 @@ BlockResult MotionBlocks::goTo(const Block& block, Sprite* sprite, Block* waitin
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::goToXY(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::goToXY(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     std::string xVal = Scratch::getInputValue(block.inputs.at("X"), &block, sprite);
     std::string yVal = Scratch::getInputValue(block.inputs.at("Y"), &block, sprite);
     if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
@@ -48,7 +48,7 @@ BlockResult MotionBlocks::goToXY(const Block& block, Sprite* sprite, Block* wait
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::turnLeft(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::turnLeft(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("DEGREES"), &block, sprite);
     if (isNumber(value)) {
         sprite->rotation -= std::stoi(value);
@@ -56,7 +56,7 @@ BlockResult MotionBlocks::turnLeft(const Block& block, Sprite* sprite, Block* wa
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::turnRight(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::turnRight(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("DEGREES"), &block, sprite);
     if (isNumber(value)) {
         sprite->rotation += std::stoi(value);
@@ -64,7 +64,7 @@ BlockResult MotionBlocks::turnRight(const Block& block, Sprite* sprite, Block* w
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::pointInDirection(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::pointInDirection(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("DIRECTION"), &block, sprite);
     if (isNumber(value)) {
         sprite->rotation = std::stoi(value);
@@ -72,7 +72,7 @@ BlockResult MotionBlocks::pointInDirection(const Block& block, Sprite* sprite, B
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::changeXBy(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::changeXBy(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("DX"), &block, sprite);
     if (isNumber(value)) {
         sprite->xPosition += std::stod(value);
@@ -82,7 +82,7 @@ BlockResult MotionBlocks::changeXBy(const Block& block, Sprite* sprite, Block* w
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::changeYBy(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::changeYBy(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("DY"), &block, sprite);
     if (isNumber(value)) {
         sprite->yPosition += std::stod(value);
@@ -92,7 +92,7 @@ BlockResult MotionBlocks::changeYBy(const Block& block, Sprite* sprite, Block* w
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::setX(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::setX(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("X"), &block, sprite);
     if (isNumber(value)) {
         sprite->xPosition = std::stod(value);
@@ -102,7 +102,7 @@ BlockResult MotionBlocks::setX(const Block& block, Sprite* sprite, Block* waitin
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::setY(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::setY(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("Y"), &block, sprite);
     if (isNumber(value)) {
         sprite->yPosition = std::stod(value);
@@ -112,11 +112,10 @@ BlockResult MotionBlocks::setY(const Block& block, Sprite* sprite, Block* waitin
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
         Conditional newConditional;
         newConditional.id = block.id;
-        newConditional.blockId = block.id;
         newConditional.hostSprite = sprite;
         newConditional.isTrue = true;
         newConditional.times = -1;
@@ -127,7 +126,7 @@ BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Bloc
         } else {
             newConditional.endTime = 0;
         }
-        newConditional.waitingBlock = waitingBlock;
+        newConditional.waitingBlock = *waitingBlock;
         newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
         newConditional.startingX= sprite->xPosition;
         newConditional.startingY= sprite->yPosition;
@@ -140,6 +139,10 @@ BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Bloc
         newConditional.waitingConditional = getParentConditional(sprite,block.id);
         if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
 
+        if(newConditional.waitingBlock != nullptr){
+            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+            newConditional.waitingBlockId = newConditional.waitingBlock->id;
+        }
         sprite->conditionals[newConditional.id] = newConditional;
     }
 
@@ -168,19 +171,18 @@ BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Bloc
         sprite->xPosition = endX;
         sprite->yPosition = endY;
         sprite->conditionals[block.id].isTrue = false;
-        waitingBlock = sprite->conditionals[block.id].waitingBlock;
+        *waitingBlock = sprite->conditionals[block.id].waitingBlock;
         //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
     }
 
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     
     if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
         Conditional newConditional;
         newConditional.id = block.id;
-        newConditional.blockId = block.id;
         newConditional.hostSprite = sprite;
         newConditional.isTrue = true;
         newConditional.times = -1;
@@ -191,7 +193,7 @@ BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block* wai
         } else {
             newConditional.endTime = 0;
         }
-        newConditional.waitingBlock = waitingBlock;
+        newConditional.waitingBlock = *waitingBlock;
         newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
         newConditional.startingX= sprite->xPosition;
         newConditional.startingY= sprite->yPosition;
@@ -232,6 +234,11 @@ BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block* wai
         newConditional.waitingConditional = getParentConditional(sprite,block.id);
         if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
 
+        if(newConditional.waitingBlock != nullptr){
+            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+            newConditional.waitingBlockId = newConditional.waitingBlock->id;
+        }
+
         sprite->conditionals[newConditional.id] = newConditional;
     }
 
@@ -260,14 +267,14 @@ BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block* wai
         sprite->xPosition = endX;
         sprite->yPosition = endY;
         sprite->conditionals[block.id].isTrue = false;
-        waitingBlock = sprite->conditionals[block.id].waitingBlock;
+        *waitingBlock = sprite->conditionals[block.id].waitingBlock;
         //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
     }
 
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::pointToward(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::pointToward(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     Block* inputBlock = findBlock(block.inputs.at("TOWARDS")[1]);
     if (inputBlock->fields.find("TOWARDS") == inputBlock->fields.end()) {
         // std::cerr << "Error: Unable to find object for POINT_TOWARD block." << std::endl;
@@ -304,7 +311,7 @@ BlockResult MotionBlocks::pointToward(const Block& block, Sprite* sprite, Block*
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::setRotationStyle(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::setRotationStyle(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     std::string value;
     try {
         value = block.fields.at("STYLE")[0];
@@ -323,7 +330,7 @@ BlockResult MotionBlocks::setRotationStyle(const Block& block, Sprite* sprite, B
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::ifOnEdgeBounce(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult MotionBlocks::ifOnEdgeBounce(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     double halfWidth = projectWidth / 2.0;
     double halfHeight = projectHeight / 2.0;
     

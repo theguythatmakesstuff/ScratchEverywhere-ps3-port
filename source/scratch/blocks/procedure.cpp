@@ -9,11 +9,10 @@ bool ProcedureBlocks::booleanArgument(const Block& block, Sprite* sprite){
     return value == "1";
 }
 
-BlockResult ProcedureBlocks::call(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult ProcedureBlocks::call(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
         Conditional newConditional;
         newConditional.id = block.id;
-        newConditional.blockId = block.id;
         newConditional.hostSprite = sprite;
         newConditional.isTrue = false;
         newConditional.times = -1;
@@ -50,6 +49,6 @@ BlockResult ProcedureBlocks::call(const Block& block, Sprite* sprite, Block* wai
 
 }
 
-BlockResult ProcedureBlocks::definition(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh) {
+BlockResult ProcedureBlocks::definition(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
     return BlockResult::CONTINUE;
 }

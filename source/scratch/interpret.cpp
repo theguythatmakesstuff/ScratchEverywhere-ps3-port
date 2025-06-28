@@ -628,11 +628,12 @@ void runRepeatBlocks(){
         if(data.isActive && data.isTrue){
             if(data.runWithoutScreenRefresh){
                 while(data.isTrue){
-                    executor.runBlock(*findBlock(data.blockId),data.hostSprite);
+                    executor.runBlock(*findBlock(data.id),data.hostSprite);
                 }
             }
             else{
-            executor.runBlock(*findBlock(data.blockId),data.hostSprite);
+                std::cout << "Running repeat " << data.id << std::endl;
+            executor.runBlock(*findBlock(data.id),data.hostSprite);
                 }
             
             }
@@ -654,10 +655,15 @@ void runRepeatBlocks(){
              for (auto currConditional = currentSprite->conditionals.begin(); currConditional != currentSprite->conditionals.end(); ++currConditional) {
               if (&currConditional->second == cond) {
 
+
                 // first check if it has a waiting conditional, if does then activate
                 if(currConditional->second.waitingConditional != nullptr){
                     currConditional->second.waitingConditional->isActive = true;
-                    std::cout << currConditional->second.waitingConditional->id << " is now active." << std::endl;
+                    //std::cout << currConditional->second.waitingConditional->id << " is now active." << std::endl;
+                }
+                // check if it has a waiting block, then activate it's conditional.
+                if(!currConditional->second.waitingBlockId.empty()){
+                    currentSprite->conditionals[currConditional->second.waitingBlockId].isActive = true;
                 }
 
                 // then check if the conditional has a waiting block, run it if so
@@ -833,7 +839,7 @@ bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId) {
         // We can use our blockCache to check if the conditional's block is within the custom block
         if (sprite->blockCache.isCacheBuilt) {
             // Get the top-level block for this conditional
-            auto topLevelIt = sprite->blockCache.blockToTopLevel.find(conditional.blockId);
+            auto topLevelIt = sprite->blockCache.blockToTopLevel.find(conditional.id);
             if (topLevelIt != sprite->blockCache.blockToTopLevel.end()) {
                 // If the conditional's top-level block is the custom block we're checking
                 if (topLevelIt->second == blockId) {

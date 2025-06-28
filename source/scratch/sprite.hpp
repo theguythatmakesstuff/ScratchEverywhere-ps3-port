@@ -271,9 +271,9 @@ struct CustomBlock{
 
 struct Conditional{
     std::string id;
-    std::string blockId;
     Sprite* hostSprite;
     Block* waitingBlock = nullptr;
+    std::string waitingBlockId;
     Block* customBlock;
     Conditional* waitingConditional;
     bool runWithoutScreenRefresh = false;
