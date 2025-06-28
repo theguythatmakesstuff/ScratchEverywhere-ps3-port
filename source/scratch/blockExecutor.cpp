@@ -23,6 +23,8 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::MOTION_CHANGEYBY] = MotionBlocks::changeYBy;
     handlers[Block::MOTION_SETX] = MotionBlocks::setX;
     handlers[Block::MOTION_SETY] = MotionBlocks::setY;
+    handlers[Block::MOTION_GLIDE_SECS_TO_XY] = MotionBlocks::glideSecsToXY;
+    handlers[Block::MOTION_GLIDE_TO] = MotionBlocks::glideTo;
     handlers[Block::MOTION_TURNRIGHT] = MotionBlocks::turnRight;
     handlers[Block::MOTION_TURNLEFT] = MotionBlocks::turnLeft;
     handlers[Block::MOTION_POINTINDIRECTION] = MotionBlocks::pointInDirection;
@@ -66,6 +68,11 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::CONTROL_DELETE_THIS_CLONE] = ControlBlocks::deleteThisClone;
     handlers[Block::CONTROL_STOP] = ControlBlocks::stop;
     handlers[Block::CONTROL_START_AS_CLONE] = ControlBlocks::startAsClone;
+    handlers[Block::CONTROL_WAIT] = ControlBlocks::wait;
+    handlers[Block::CONTROL_WAIT_UNTIL] = ControlBlocks::waitUntil;
+    handlers[Block::CONTROL_REPEAT] = ControlBlocks::repeat;
+    handlers[Block::CONTROL_REPEAT_UNTIL] = ControlBlocks::repeatUntil;
+    handlers[Block::CONTROL_FOREVER] = ControlBlocks::forever;
 
     // operators
     valueHandlers[Block::OPERATOR_ADD] = OperatorBlocks::add;
@@ -124,7 +131,7 @@ void BlockExecutor::registerHandlers(){
 
 }
 
-void BlockExecutor::runBlock(Block block, Sprite* sprite, Block waitingBlock, bool withoutScreenRefresh){
+void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
     auto start = std::chrono::high_resolution_clock::now();
     
     if (!sprite || sprite->toDelete) {
@@ -146,11 +153,11 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block waitingBlock, bo
             block = *blockLookup[block.next];
         } else {
             runBroadcasts();
-            if (!waitingBlock.id.empty() && blockLookup.find(waitingBlock.id) != blockLookup.end()) {
-                block = *blockLookup[waitingBlock.id];
+            if (waitingBlock != nullptr && !waitingBlock->id.empty() && blockLookup.find(waitingBlock->id) != blockLookup.end()) {
+                block = *blockLookup[waitingBlock->id];
                 std::cout << "block is now " << block.id << " from waiting." << std::endl;
                 withoutScreenRefresh = false;
-                waitingBlock = Block(); // reset waiting block
+                waitingBlock = nullptr; // reset waiting block
             } else {
                 break;
             }
@@ -165,7 +172,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block waitingBlock, bo
 }
 
 
-BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite, const Block& waitingBlock, bool withoutScreenRefresh){
+BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block* waitingBlock, bool withoutScreenRefresh){
     auto iterator = handlers.find(block.opcode);
     if (iterator != handlers.end()) {
         return iterator->second(block, sprite, waitingBlock, withoutScreenRefresh);

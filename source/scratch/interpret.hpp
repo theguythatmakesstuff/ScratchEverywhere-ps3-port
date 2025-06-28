@@ -66,7 +66,6 @@ std::string removeQuotations(std::string value);
 void runBroadcasts();
 void runCustomBlock(Sprite*sprite,Block block);
 bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId);
-void runBlock(Block block,Sprite*sprite,Block waitingBlock = Block(), bool withoutScreenRefresh = false);
 Block* findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(Block::opCode opcodeToFind);

@@ -272,7 +272,7 @@ struct Conditional{
     std::string id;
     std::string blockId;
     Sprite* hostSprite;
-    Block waitingBlock = Block();
+    Block* waitingBlock = nullptr;
     Block* customBlock;
     Conditional* waitingConditional;
     bool runWithoutScreenRefresh = false;
