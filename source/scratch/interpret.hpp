@@ -77,4 +77,4 @@ bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId);
 void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock);
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy);
 std::string generateRandomString(int length);
-std::vector<Block*> getBlockChain(std::string blockId);
+std::vector<Block*> getBlockChain(std::string blockId,std::string* outID = nullptr);

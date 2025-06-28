@@ -206,8 +206,22 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block* wai
         newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
         newConditional.waitingConditional = getParentConditional(sprite,block.id);
         //std::cout << "repeat cond = " << newConditional.waitingConditional->id << std::endl;
-        if(newConditional.waitingConditional != nullptr) {newConditional.waitingConditional->isActive = false;
-            //std::cout << "erm..." << std::endl;
+        // for(Block* chainBlock : sprite->blockChains[block.blockChainID]){
+        //     std::cout << "iterating through a block WOWOW = " << std::endl;
+        //     if(sprite->conditionals.find(chainBlock->id) != sprite->conditionals.end()){
+        //         std::cout << "found = " << sprite->conditionals[chainBlock->id].blockId << std::endl;
+        //         if(sprite->conditionals[chainBlock->id].isActive){
+        //             sprite->conditionals[chainBlock->id].isActive = false;
+        //             std::cout << "boop = " << sprite->conditionals[chainBlock->id].blockId << std::endl;
+        //             break;
+        //         }
+        //     }
+        // }
+        if(newConditional.waitingBlock != nullptr){
+            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+            waitingBlock = nullptr;
+            newConditional.waitingBlock = nullptr;
+            std::cout << "WORKED!!!!! !!! ! " << std::endl;
         }
 
         sprite->conditionals[newConditional.id] = newConditional;
@@ -221,7 +235,7 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block* wai
             if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
                 Block* subBlock = findBlock(substack[1]);
                 if (subBlock != nullptr) {
-                    executor.runBlock(*subBlock, sprite);
+                    executor.runBlock(*subBlock, sprite,const_cast<Block*>(&block));
                 }
         }
     }

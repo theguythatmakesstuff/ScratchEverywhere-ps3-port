@@ -45,94 +45,21 @@
       "lists": {},
       "broadcasts": {},
       "blocks": {
-        "v": {
+        "e": {
           "opcode": "event_whenflagclicked",
-          "next": "h",
+          "next": "a",
           "parent": null,
           "inputs": {},
           "fields": {},
           "shadow": false,
           "topLevel": true,
-          "x": 236,
-          "y": -93
+          "x": 326,
+          "y": 204
         },
-        "i": {
-          "opcode": "motion_movesteps",
-          "next": "j",
-          "parent": "c",
-          "inputs": {
-            "STEPS": [
-              1,
-              [
-                4,
-                "50"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "j": {
-          "opcode": "motion_turnright",
-          "next": "d",
-          "parent": "i",
-          "inputs": {
-            "DEGREES": [
-              1,
-              [
-                4,
-                "15"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "d": {
-          "opcode": "motion_goto",
-          "next": "e",
-          "parent": "j",
-          "inputs": {
-            "TO": [
-              1,
-              "w"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "w": {
-          "opcode": "motion_goto_menu",
-          "next": null,
-          "parent": "d",
-          "inputs": {},
-          "fields": {
-            "TO": [
-              "_random_",
-              null
-            ]
-          },
-          "shadow": true,
-          "topLevel": false
-        },
-        "O": {
-          "opcode": "control_start_as_clone",
-          "next": null,
-          "parent": null,
-          "inputs": {},
-          "fields": {},
-          "shadow": false,
-          "topLevel": true,
-          "x": -238,
-          "y": 41
-        },
-        "x": {
+        "a": {
           "opcode": "motion_gotoxy",
-          "next": null,
-          "parent": "a",
+          "next": "b",
+          "parent": "e",
           "inputs": {
             "X": [
               1,
@@ -146,88 +73,6 @@
               [
                 4,
                 "0"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "y": {
-          "opcode": "data_setvariableto",
-          "next": "k",
-          "parent": null,
-          "inputs": {
-            "VALUE": [
-              1,
-              [
-                10,
-                "0"
-              ]
-            ]
-          },
-          "fields": {
-            "VARIABLE": [
-              "velo",
-              "W?o[+Y/79a1X39.ctY^$"
-            ]
-          },
-          "shadow": false,
-          "topLevel": true,
-          "x": 773,
-          "y": 324
-        },
-        "k": {
-          "opcode": "control_repeat_until",
-          "next": null,
-          "parent": "y",
-          "inputs": {
-            "SUBSTACK": [
-              2,
-              "l"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "l": {
-          "opcode": "data_changevariableby",
-          "next": "m",
-          "parent": "k",
-          "inputs": {
-            "VALUE": [
-              1,
-              [
-                4,
-                "-1"
-              ]
-            ]
-          },
-          "fields": {
-            "VARIABLE": [
-              "velo",
-              "W?o[+Y/79a1X39.ctY^$"
-            ]
-          },
-          "shadow": false,
-          "topLevel": false
-        },
-        "m": {
-          "opcode": "motion_changeyby",
-          "next": "b",
-          "parent": "l",
-          "inputs": {
-            "DY": [
-              3,
-              [
-                12,
-                "velo",
-                "W?o[+Y/79a1X39.ctY^$"
-              ],
-              [
-                4,
-                "1"
               ]
             ]
           },
@@ -236,41 +81,36 @@
           "topLevel": false
         },
         "b": {
-          "opcode": "control_if",
-          "next": "f",
-          "parent": "m",
+          "opcode": "control_repeat",
+          "next": null,
+          "parent": "a",
           "inputs": {
-            "CONDITION": [
-              2,
-              "n"
+            "TIMES": [
+              1,
+              [
+                6,
+                "10"
+              ]
             ],
             "SUBSTACK": [
               2,
-              "z"
+              "c"
             ]
           },
           "fields": {},
           "shadow": false,
           "topLevel": false
         },
-        "n": {
-          "opcode": "operator_lt",
-          "next": null,
+        "c": {
+          "opcode": "motion_movesteps",
+          "next": "d",
           "parent": "b",
           "inputs": {
-            "OPERAND1": [
-              3,
-              "A",
-              [
-                10,
-                ""
-              ]
-            ],
-            "OPERAND2": [
+            "STEPS": [
               1,
               [
-                10,
-                "-50"
+                4,
+                "-10"
               ]
             ]
           },
@@ -278,183 +118,34 @@
           "shadow": false,
           "topLevel": false
         },
-        "A": {
-          "opcode": "motion_yposition",
+        "d": {
+          "opcode": "control_repeat",
           "next": null,
-          "parent": "n",
-          "inputs": {},
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "z": {
-          "opcode": "data_setvariableto",
-          "next": null,
-          "parent": "b",
+          "parent": "c",
           "inputs": {
-            "VALUE": [
+            "TIMES": [
               1,
               [
-                10,
+                6,
                 "10"
               ]
+            ],
+            "SUBSTACK": [
+              2,
+              "f"
             ]
           },
-          "fields": {
-            "VARIABLE": [
-              "velo",
-              "W?o[+Y/79a1X39.ctY^$"
-            ]
-          },
+          "fields": {},
           "shadow": false,
           "topLevel": false
         },
         "f": {
-          "opcode": "control_if",
+          "opcode": "motion_movesteps",
           "next": null,
-          "parent": "b",
+          "parent": "d",
           "inputs": {
-            "CONDITION": [
-              2,
-              "o"
-            ],
-            "SUBSTACK": [
-              2,
-              "p"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "o": {
-          "opcode": "sensing_keypressed",
-          "next": null,
-          "parent": "f",
-          "inputs": {
-            "KEY_OPTION": [
+            "STEPS": [
               1,
-              "B"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "B": {
-          "opcode": "sensing_keyoptions",
-          "next": null,
-          "parent": "o",
-          "inputs": {},
-          "fields": {
-            "KEY_OPTION": [
-              "a",
-              null
-            ]
-          },
-          "shadow": true,
-          "topLevel": false
-        },
-        "p": {
-          "opcode": "control_create_clone_of",
-          "next": null,
-          "parent": "f",
-          "inputs": {
-            "CLONE_OPTION": [
-              1,
-              "C"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "C": {
-          "opcode": "control_create_clone_of_menu",
-          "next": null,
-          "parent": "p",
-          "inputs": {},
-          "fields": {
-            "CLONE_OPTION": [
-              "_myself_",
-              null
-            ]
-          },
-          "shadow": true,
-          "topLevel": false
-        },
-        "q": {
-          "opcode": "motion_gotoxy",
-          "next": "r",
-          "parent": "h",
-          "inputs": {
-            "X": [
-              1,
-              [
-                4,
-                "-50"
-              ]
-            ],
-            "Y": [
-              1,
-              [
-                4,
-                "-100"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "r": {
-          "opcode": "control_repeat_until",
-          "next": null,
-          "parent": "q",
-          "inputs": {
-            "SUBSTACK": [
-              2,
-              "D"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "D": {
-          "opcode": "data_changevariableby",
-          "next": null,
-          "parent": "r",
-          "inputs": {
-            "VALUE": [
-              1,
-              [
-                4,
-                "-1"
-              ]
-            ]
-          },
-          "fields": {
-            "VARIABLE": [
-              "velo",
-              "W?o[+Y/79a1X39.ctY^$"
-            ]
-          },
-          "shadow": false,
-          "topLevel": false
-        },
-        "E": {
-          "opcode": "motion_changeyby",
-          "next": "g",
-          "parent": null,
-          "inputs": {
-            "DY": [
-              3,
-              [
-                12,
-                "velo",
-                "W?o[+Y/79a1X39.ctY^$"
-              ],
               [
                 4,
                 "1"
@@ -463,372 +154,7 @@
           },
           "fields": {},
           "shadow": false,
-          "topLevel": true,
-          "x": 264,
-          "y": 259
-        },
-        "g": {
-          "opcode": "control_if",
-          "next": null,
-          "parent": "E",
-          "inputs": {
-            "CONDITION": [
-              2,
-              "s"
-            ],
-            "SUBSTACK": [
-              2,
-              "F"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
           "topLevel": false
-        },
-        "s": {
-          "opcode": "operator_lt",
-          "next": null,
-          "parent": "g",
-          "inputs": {
-            "OPERAND1": [
-              3,
-              "G",
-              [
-                10,
-                ""
-              ]
-            ],
-            "OPERAND2": [
-              1,
-              [
-                10,
-                "-50"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "G": {
-          "opcode": "motion_yposition",
-          "next": null,
-          "parent": "s",
-          "inputs": {},
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "F": {
-          "opcode": "data_setvariableto",
-          "next": null,
-          "parent": "g",
-          "inputs": {
-            "VALUE": [
-              1,
-              [
-                10,
-                "10"
-              ]
-            ]
-          },
-          "fields": {
-            "VARIABLE": [
-              "velo",
-              "W?o[+Y/79a1X39.ctY^$"
-            ]
-          },
-          "shadow": false,
-          "topLevel": false
-        },
-        "e": {
-          "opcode": "looks_switchcostumeto",
-          "next": "a",
-          "parent": "d",
-          "inputs": {
-            "COSTUME": [
-              1,
-              "H"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "H": {
-          "opcode": "looks_costume",
-          "next": null,
-          "parent": "e",
-          "inputs": {},
-          "fields": {
-            "COSTUME": [
-              "costume2",
-              null
-            ]
-          },
-          "shadow": true,
-          "topLevel": false
-        },
-        "a": {
-          "opcode": "control_if",
-          "next": "I",
-          "parent": "e",
-          "inputs": {
-            "CONDITION": [
-              2,
-              "J"
-            ],
-            "SUBSTACK": [
-              2,
-              "x"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "J": {
-          "opcode": "operator_equals",
-          "next": null,
-          "parent": "a",
-          "inputs": {
-            "OPERAND1": [
-              1,
-              [
-                10,
-                "5"
-              ]
-            ],
-            "OPERAND2": [
-              1,
-              [
-                10,
-                "5"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "c": {
-          "opcode": "control_create_clone_of",
-          "next": "i",
-          "parent": "t",
-          "inputs": {
-            "CLONE_OPTION": [
-              1,
-              "K"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "K": {
-          "opcode": "control_create_clone_of_menu",
-          "next": null,
-          "parent": "c",
-          "inputs": {},
-          "fields": {
-            "CLONE_OPTION": [
-              "_myself_",
-              null
-            ]
-          },
-          "shadow": true,
-          "topLevel": false
-        },
-        "h": {
-          "opcode": "motion_gotoxy",
-          "next": "q",
-          "parent": "v",
-          "inputs": {
-            "X": [
-              1,
-              [
-                4,
-                "0"
-              ]
-            ],
-            "Y": [
-              1,
-              [
-                4,
-                "0"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "I": {
-          "opcode": "control_stop",
-          "next": null,
-          "parent": "a",
-          "inputs": {},
-          "fields": {
-            "STOP_OPTION": [
-              "this script",
-              null
-            ]
-          },
-          "shadow": false,
-          "topLevel": false,
-          "mutation": {
-            "tagName": "mutation",
-            "children": [],
-            "hasnext": "false"
-          }
-        },
-        "t": {
-          "opcode": "motion_sety",
-          "next": "c",
-          "parent": null,
-          "inputs": {
-            "Y": [
-              3,
-              "L",
-              [
-                4,
-                "0"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": true,
-          "x": 602,
-          "y": -209
-        },
-        "P": {
-          "opcode": "motion_xposition",
-          "next": null,
-          "parent": null,
-          "inputs": {},
-          "fields": {},
-          "shadow": false,
-          "topLevel": true,
-          "x": 63,
-          "y": -133
-        },
-        "L": {
-          "opcode": "operator_random",
-          "next": null,
-          "parent": "t",
-          "inputs": {
-            "FROM": [
-              1,
-              [
-                4,
-                "-100"
-              ]
-            ],
-            "TO": [
-              1,
-              [
-                4,
-                "100"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "u": {
-          "opcode": "procedures_definition",
-          "next": "M",
-          "parent": null,
-          "inputs": {
-            "custom_block": [
-              1,
-              "N"
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": true,
-          "x": -428,
-          "y": -224
-        },
-        "N": {
-          "opcode": "procedures_prototype",
-          "next": null,
-          "parent": "u",
-          "inputs": {},
-          "fields": {},
-          "shadow": true,
-          "topLevel": false,
-          "mutation": {
-            "tagName": "mutation",
-            "children": [],
-            "proccode": "ok",
-            "argumentids": "[]",
-            "argumentnames": "[]",
-            "argumentdefaults": "[]",
-            "warp": "false"
-          }
-        },
-        "M": {
-          "opcode": "motion_gotoxy",
-          "next": null,
-          "parent": "u",
-          "inputs": {
-            "X": [
-              1,
-              [
-                4,
-                "0"
-              ]
-            ],
-            "Y": [
-              1,
-              [
-                4,
-                "0"
-              ]
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": false
-        },
-        "Q": {
-          "opcode": "procedures_call",
-          "next": null,
-          "parent": null,
-          "inputs": {},
-          "fields": {},
-          "shadow": false,
-          "topLevel": true,
-          "x": 80,
-          "y": -37,
-          "mutation": {
-            "tagName": "mutation",
-            "children": [],
-            "proccode": "ok",
-            "argumentids": "[]",
-            "warp": "false"
-          }
-        },
-        "R": {
-          "opcode": "control_repeat",
-          "next": null,
-          "parent": null,
-          "inputs": {
-            "TIMES": [1,[6,"100"]],
-            "SUBSTACK": [
-              1,
-              null
-            ]
-          },
-          "fields": {},
-          "shadow": false,
-          "topLevel": true,
-          "x": 338,
-          "y": -225
         }
       },
       "comments": {},
@@ -857,8 +183,8 @@
       "volume": 100,
       "layerOrder": 1,
       "visible": true,
-      "x": -50,
-      "y": -19,
+      "x": 9.614242282381081e-31,
+      "y": 0,
       "size": 100,
       "direction": 180,
       "draggable": false,
@@ -880,6 +206,24 @@
       "x": 5,
       "y": 5,
       "visible": true,
+      "sliderMin": 0,
+      "sliderMax": 100,
+      "isDiscrete": true
+    },
+    {
+      "id": "`jEk@4|i[#Fk?(8x)AV.-my variable",
+      "mode": "default",
+      "opcode": "data_variable",
+      "params": {
+        "VARIABLE": "my variable"
+      },
+      "spriteName": null,
+      "value": 0,
+      "width": 0,
+      "height": 0,
+      "x": 5,
+      "y": 32,
+      "visible": false,
       "sliderMin": 0,
       "sliderMax": 100,
       "isDiscrete": true

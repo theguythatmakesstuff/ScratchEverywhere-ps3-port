@@ -153,14 +153,14 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
             block = *blockLookup[block.next];
         } else {
             runBroadcasts();
-            if (waitingBlock != nullptr && !waitingBlock->id.empty() && blockLookup.find(waitingBlock->id) != blockLookup.end()) {
-                block = *blockLookup[waitingBlock->id];
-                std::cout << "block is now " << block.id << " from waiting." << std::endl;
-                withoutScreenRefresh = false;
-                waitingBlock = nullptr; // reset waiting block
-            } else {
+            // if (waitingBlock != nullptr && !waitingBlock->id.empty() && blockLookup.find(waitingBlock->id) != blockLookup.end()) {
+            //     block = *blockLookup[waitingBlock->id];
+            //     std::cout << "block is now " << block.id << " from waiting." << std::endl;
+            //     withoutScreenRefresh = false;
+            //     waitingBlock = nullptr; // reset waiting block
+            // } else {
                 break;
-            }
+           // }
         }
     }
         // Timing measurement

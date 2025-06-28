@@ -246,6 +246,7 @@ struct Block {
     std::string next;
     Block* nextBlock;
     std::string parent;
+    std::string blockChainID;
     std::unordered_map<std::string, nlohmann::json> inputs;
     std::unordered_map<std::string, nlohmann::json> fields;
     std::unordered_map<std::string, nlohmann::json> mutation;
@@ -372,6 +373,7 @@ class Sprite {
         std::unordered_map<std::string, Broadcast> broadcasts;
         std::unordered_map<std::string, Conditional> conditionals;
         std::unordered_map<std::string, CustomBlock> customBlocks;
+        std::unordered_map<std::string, std::vector<Block*> > blockChains;
         BlockHierarchyCache blockCache;
     
         void loadFromJson(const nlohmann::json& json);

@@ -449,8 +449,25 @@ void loadSprites(const nlohmann::json& json){
 
     buildBlockHierarchyCache();
 
+    // get block chains for every block (very inefficiently)
+    for (Sprite* currentSprite : sprites) {
+    for(auto& [id,block]: currentSprite->blocks){
+        if(!block.topLevel) continue;
+        std::string outID;
+        std::vector<Block*> blockChain = getBlockChain(block.id,&outID);
+        if(currentSprite->blockChains[outID].empty()){
+            currentSprite->blockChains[outID] = blockChain;
+            std::cout << "ok = " << outID << std::endl;
+        }
+        block.blockChainID = outID;
+
+    }
+}
+
     std::cout<<"Loaded " << sprites.size() << " sprites."<< std::endl;
 }
+
+
 
 Block* findBlock(std::string blockId){
 
@@ -464,23 +481,29 @@ Block* findBlock(std::string blockId){
     return nullptr;
 }
 
-std::vector<Block*> getBlockChain(std::string blockId){
+std::vector<Block*> getBlockChain(std::string blockId,std::string* outID){
     std::vector<Block*> blockChain;
     Block* currentBlock = findBlock(blockId);
     while(currentBlock != nullptr){
         blockChain.push_back(currentBlock);
+        if(outID)
+        *outID += currentBlock->id;
         if(!currentBlock->inputs["SUBSTACK"][1].is_null()){
             std::vector<Block*> subBlockChain;
-            subBlockChain = getBlockChain(currentBlock->inputs["SUBSTACK"][1]);
+            subBlockChain = getBlockChain(currentBlock->inputs["SUBSTACK"][1],outID);
             for(auto& block : subBlockChain){
                 blockChain.push_back(block);
+                if(outID)
+                *outID += block->id;
             }
         }
         if(!currentBlock->inputs["SUBSTACK2"][1].is_null()){
             std::vector<Block*> subBlockChain;
-            subBlockChain = getBlockChain(currentBlock->inputs["SUBSTACK2"][1]);
+            subBlockChain = getBlockChain(currentBlock->inputs["SUBSTACK2"][1],outID);
             for(auto& block : subBlockChain){
                 blockChain.push_back(block);
+                if(outID)
+                *outID += block->id;
             }
         }
         currentBlock = findBlock(currentBlock->next);
@@ -638,10 +661,10 @@ void runRepeatBlocks(){
                 }
 
                 // then check if the conditional has a waiting block, run it if so
-                if(currConditional->second.waitingBlock != nullptr && !currConditional->second.waitingBlock->id.empty()){
-                    blocksToRun.push_back(*currConditional->second.waitingBlock);
-                    //executor.runBlock(currConditional->second.waitingBlock,currentSprite);
-                }
+                // if(currConditional->second.waitingBlock != nullptr && !currConditional->second.waitingBlock->id.empty()){
+                //     blocksToRun.push_back(*currConditional->second.waitingBlock);
+                //     //executor.runBlock(currConditional->second.waitingBlock,currentSprite);
+                // }
 
                     std::cout << "erased conditional " << currConditional->second.id << std::endl;
                     currentSprite->conditionals.erase(currConditional);
