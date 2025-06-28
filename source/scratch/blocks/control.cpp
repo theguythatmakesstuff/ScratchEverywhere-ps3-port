@@ -200,11 +200,12 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block* wai
         newConditional.blockId = block.id;
         newConditional.hostSprite = sprite;
         newConditional.isTrue = false;
-        newConditional.times = std::stoi(Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite));
+        std::string times = Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite);
+        newConditional.times = std::stoi(times);
         newConditional.waitingBlock = waitingBlock;
         newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
         newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        std::cout << "repeat cond = " << newConditional.waitingConditional->id << std::endl;
+        //std::cout << "repeat cond = " << newConditional.waitingConditional->id << std::endl;
         if(newConditional.waitingConditional != nullptr) {newConditional.waitingConditional->isActive = false;
             //std::cout << "erm..." << std::endl;
         }
@@ -212,32 +213,31 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block* wai
         sprite->conditionals[newConditional.id] = newConditional;
     }
 
+
     if (sprite->conditionals[block.id].isTrue) {
-        if (!block.inputs.at("SUBSTACK")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
-        if (subBlock != nullptr) {
-            //std::cout << "running repeat substack " << subBlock->id << std::endl;
-        executor.runBlock(*subBlock, sprite); // Run the substack
-        //std::cout << "done running " << subBlock->id << std::endl;
-    } else {
-        std::cerr << "Substack block not found for Block ID: " << block.id << std::endl;
+        auto substackIt = block.inputs.find("SUBSTACK");
+        if (substackIt != block.inputs.end()) {
+            const auto& substack = substackIt->second;
+            if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
+                Block* subBlock = findBlock(substack[1]);
+                if (subBlock != nullptr) {
+                    executor.runBlock(*subBlock, sprite);
+                }
+        }
     }
-} else {
-    std::cerr << "Substack is null for Block ID: " << block.id << std::endl;
 }
-}
+
+    // Countdown
     if (sprite->conditionals[block.id].times > 0) {
         sprite->conditionals[block.id].isTrue = true;
         sprite->conditionals[block.id].times--;
-        //std::cout << "done with repeat " << block.id << std::endl;
-        //std::cout << sprite->conditionals[block.id].isActive << std::endl;
         return BlockResult::RETURN;
     } else {
         sprite->conditionals[block.id].isTrue = false;
         waitingBlock = sprite->conditionals[block.id].waitingBlock;
-        // sprite->conditionals.erase(block.id);
     }
     return BlockResult::CONTINUE;
+
 }
 
 BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){

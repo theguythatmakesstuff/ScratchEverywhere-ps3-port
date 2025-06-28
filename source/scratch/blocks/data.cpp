@@ -2,14 +2,14 @@
 
 BlockResult DataBlocks::setVariable(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
     std::string val = Scratch::getInputValue(block.inputs.at("VALUE"), &block, sprite);
-    std::string varId = block.fields.at("VALUE")[1];
+    std::string varId = block.fields.at("VARIABLE")[1];
     setVariableValue(varId, val, sprite, false);
     return BlockResult::CONTINUE;
 }
 
 BlockResult DataBlocks::changeVariable(const Block& block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
     std::string val = Scratch::getInputValue(block.inputs.at("VALUE"), &block, sprite);
-    std::string varId = block.fields.at("VALUE")[1];
+    std::string varId = block.fields.at("VARIABLE")[1];
     setVariableValue(varId, val, sprite, true);
     return BlockResult::CONTINUE;
 }
