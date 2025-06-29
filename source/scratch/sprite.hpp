@@ -256,6 +256,8 @@ struct Block {
 
     int repeatTimes = -1;
     double waitDuration;
+    double glideStartX,glideStartY;
+    double glideEndX,glideEndY;
     std::chrono::high_resolution_clock::time_point waitStartTime;
 
 };

@@ -46,10 +46,6 @@ BlockResult ControlBlocks::createCloneOf(const Block& block, Sprite* sprite, Blo
         }
     }
     if (spriteToClone != nullptr && !spriteToClone->name.empty()) {
-        // for (auto& [id, conditional] : spriteToClone->conditionals) {
-        //     conditional.hostSprite = spriteToClone;
-        //     conditional.isTrue = false;
-        // }
         spriteToClone->isClone = true;
         spriteToClone->isStage = false;
         spriteToClone->toDelete = false;

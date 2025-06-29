@@ -113,165 +113,123 @@ BlockResult MotionBlocks::setY(const Block& block, Sprite* sprite, Block** waiti
 }
 
 BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-    //     Conditional newConditional;
-    //     newConditional.id = block.id;
-    //     newConditional.hostSprite = sprite;
-    //     newConditional.isTrue = true;
-    //     newConditional.times = -1;
-    //     newConditional.time = std::chrono::high_resolution_clock::now();
-    //     std::string duration = Scratch::getInputValue(block.inputs.at("SECS"), &block, sprite);
-    //     if(isNumber(duration)) {
-    //         newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
-    //     } else {
-    //         newConditional.endTime = 0;
-    //     }
-    //     newConditional.waitingBlock = *waitingBlock;
-    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-    //     newConditional.startingX= sprite->xPosition;
-    //     newConditional.startingY= sprite->yPosition;
-
-    //     std::string positionXStr = Scratch::getInputValue(block.inputs.at("X"),&block,sprite);
-    //     std::string positionYStr = Scratch::getInputValue(block.inputs.at("Y"),&block,sprite);
-    //     newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
-    //     newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
-
-    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
-    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-
-    //     if(newConditional.waitingBlock != nullptr){
-    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
-    //     }
-    //     sprite->conditionals[newConditional.id] = newConditional;
-    // }
-
-    // auto currentTime = std::chrono::high_resolution_clock::now();
-    // auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+    Block* blockReference = findBlock(block.id);
     
-    // double startX = sprite->conditionals[block.id].startingX;
-    // double startY = sprite->conditionals[block.id].startingY;
-    // double endX = sprite->conditionals[block.id].endX;
-    // double endY = sprite->conditionals[block.id].endY;
-
-    // double durationMs = sprite->conditionals[block.id].endTime;
-
-    // if (elapsedTime < sprite->conditionals[block.id].endTime) {
-    //     sprite->conditionals[block.id].isTrue = true;
-
-    //     // Calculate progress (0.0 to 1.0)
-    //     double progress = static_cast<double>(elapsedTime) / durationMs;
-    //     if (progress > 1.0) progress = 1.0;
-    //     // Interpolate position
-    //     sprite->xPosition = startX + (endX - startX) * progress;
-    //     sprite->yPosition = startY + (endY - startY) * progress;
-
-    //     return BlockResult::RETURN;
-    // } else {
-    //     sprite->xPosition = endX;
-    //     sprite->yPosition = endY;
-    //     sprite->conditionals[block.id].isTrue = false;
-    //     *waitingBlock = sprite->conditionals[block.id].waitingBlock;
-        //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
-   // }
-
-    return BlockResult::CONTINUE;
+    if(blockReference->repeatTimes == -1){
+        blockReference->repeatTimes = -6;
+        
+        std::string duration = Scratch::getInputValue(block.inputs.at("SECS"), &block, sprite);
+        if(isNumber(duration)) {
+            blockReference->waitDuration = std::stod(duration) * 1000;
+        } else {
+            blockReference->waitDuration = 0;
+        }
+        
+        blockReference->waitStartTime = std::chrono::high_resolution_clock::now();
+        blockReference->glideStartX = sprite->xPosition;
+        blockReference->glideStartY = sprite->yPosition;
+        
+        // Get target positions
+        std::string positionXStr = Scratch::getInputValue(block.inputs.at("X"), &block, sprite);
+        std::string positionYStr = Scratch::getInputValue(block.inputs.at("Y"), &block, sprite);
+        blockReference->glideEndX = isNumber(positionXStr) ? std::stod(positionXStr) : blockReference->glideStartX;
+        blockReference->glideEndY = isNumber(positionYStr) ? std::stod(positionYStr) : blockReference->glideStartY;
+        
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+    
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - blockReference->waitStartTime).count();
+    
+    if (elapsedTime >= blockReference->waitDuration) {
+        sprite->xPosition = blockReference->glideEndX;
+        sprite->yPosition = blockReference->glideEndY;
+        
+        blockReference->repeatTimes = -1;
+        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        return BlockResult::CONTINUE;
+    }
+    
+    double progress = static_cast<double>(elapsedTime) / blockReference->waitDuration;
+    if (progress > 1.0) progress = 1.0;
+    
+    sprite->xPosition = blockReference->glideStartX + (blockReference->glideEndX - blockReference->glideStartX) * progress;
+    sprite->yPosition = blockReference->glideStartY + (blockReference->glideEndY - blockReference->glideStartY) * progress;
+    
+    return BlockResult::RETURN;
 }
 
 BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+    Block* blockReference = findBlock(block.id);
+
+    if(blockReference->repeatTimes == -1){
+        blockReference->repeatTimes = -7;
+        
+        std::string duration = Scratch::getInputValue(block.inputs.at("SECS"), &block, sprite);
+        if(isNumber(duration)) {
+            blockReference->waitDuration = std::stod(duration) * 1000;
+        } else {
+            blockReference->waitDuration = 0;
+        }
+        
+        blockReference->waitStartTime = std::chrono::high_resolution_clock::now();
+        blockReference->glideStartX = sprite->xPosition;
+        blockReference->glideStartY = sprite->yPosition;
+        
+        Block* inputBlock;
+        try {
+            inputBlock = findBlock(block.inputs.at("TO")[1]);
+        } catch(...) {
+            return BlockResult::CONTINUE;
+        }
+        
+        std::string inputValue = inputBlock->fields["TO"][0];
+        std::string positionXStr;
+        std::string positionYStr;
+        
+        if(inputValue == "_random_"){
+            positionXStr = std::to_string(rand() % projectWidth - projectWidth / 2);
+            positionYStr = std::to_string(rand() % projectHeight - projectHeight / 2);
+        }
+        else if(inputValue == "_mouse_"){
+            positionXStr = std::to_string(mousePointer.x);
+            positionYStr = std::to_string(mousePointer.y);
+        }
+        else{
+            for(auto & currentSprite : sprites){
+                if(currentSprite->name == inputValue){
+                    positionXStr = std::to_string(currentSprite->xPosition);
+                    positionYStr = std::to_string(currentSprite->yPosition);
+                    break;
+                }
+            }
+        }
+        
+        blockReference->glideEndX = isNumber(positionXStr) ? std::stod(positionXStr) : blockReference->glideStartX;
+        blockReference->glideEndY = isNumber(positionYStr) ? std::stod(positionYStr) : blockReference->glideStartY;
+        
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - blockReference->waitStartTime).count();
     
-    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-    //     Conditional newConditional;
-    //     newConditional.id = block.id;
-    //     newConditional.hostSprite = sprite;
-    //     newConditional.isTrue = true;
-    //     newConditional.times = -1;
-    //     newConditional.time = std::chrono::high_resolution_clock::now();
-    //     std::string duration = Scratch::getInputValue(block.inputs.at("SECS"), &block, sprite);
-    //     if(isNumber(duration)) {
-    //         newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
-    //     } else {
-    //         newConditional.endTime = 0;
-    //     }
-    //     newConditional.waitingBlock = *waitingBlock;
-    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-    //     newConditional.startingX= sprite->xPosition;
-    //     newConditional.startingY= sprite->yPosition;
-
-    //     // get ending position
-    //     Block* inputBlock;
-    //     try{
-    //     inputBlock = findBlock(block.inputs.at("TO")[1]);}
-    //     catch(...){
-    //         return BlockResult::CONTINUE;
-    //     }
-
-    //     std::string inputValue = inputBlock->fields["TO"][0];
-    //     std::string positionXStr;
-    //     std::string positionYStr;
-
-    //     if(inputValue == "_random_"){
-    //         positionXStr = std::to_string(rand() % projectWidth - projectWidth / 2);
-    //         positionYStr = std::to_string(rand() % projectHeight - projectHeight / 2);
-    //     }
-    //     else if(inputValue == "_mouse_"){
-    //         positionXStr = std::to_string(mousePointer.x);
-    //         positionYStr = std::to_string(mousePointer.y);
-    //     }
-    //     else{
-    //         for(auto & currentSprite : sprites){
-    //             if(currentSprite->name == inputValue){
-    //                 positionXStr = std::to_string(currentSprite->xPosition);
-    //                 positionYStr = std::to_string(currentSprite->yPosition);
-    //                 break;
-    //             }
-    //         }
-    //     }
-
-    //     newConditional.endX = isNumber(positionXStr) ? std::stod(positionXStr) : newConditional.startingX;
-    //     newConditional.endY = isNumber(positionYStr) ? std::stod(positionYStr) : newConditional.startingY;
-
-    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
-    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-
-    //     if(newConditional.waitingBlock != nullptr){
-    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
-    //     }
-
-    //     sprite->conditionals[newConditional.id] = newConditional;
-    // }
-
-    // auto currentTime = std::chrono::high_resolution_clock::now();
-    // auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+    if (elapsedTime >= blockReference->waitDuration) {
+        sprite->xPosition = blockReference->glideEndX;
+        sprite->yPosition = blockReference->glideEndY;
+        
+        blockReference->repeatTimes = -1;
+        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        return BlockResult::CONTINUE;
+    }
     
-    // double startX = sprite->conditionals[block.id].startingX;
-    // double startY = sprite->conditionals[block.id].startingY;
-    // double endX = sprite->conditionals[block.id].endX;
-    // double endY = sprite->conditionals[block.id].endY;
-
-    // double durationMs = sprite->conditionals[block.id].endTime;
-
-    // if (elapsedTime < sprite->conditionals[block.id].endTime) {
-    //     sprite->conditionals[block.id].isTrue = true;
-
-    //     // Calculate progress (0.0 to 1.0)
-    //     double progress = static_cast<double>(elapsedTime) / durationMs;
-    //     if (progress > 1.0) progress = 1.0;
-    //     // Interpolate position
-    //     sprite->xPosition = startX + (endX - startX) * progress;
-    //     sprite->yPosition = startY + (endY - startY) * progress;
-
-    //     return BlockResult::RETURN;
-    // } else {
-    //     sprite->xPosition = endX;
-    //     sprite->yPosition = endY;
-    //     sprite->conditionals[block.id].isTrue = false;
-    //     *waitingBlock = sprite->conditionals[block.id].waitingBlock;
-        //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
-    //}
-
-    return BlockResult::CONTINUE;
+    double progress = static_cast<double>(elapsedTime) / blockReference->waitDuration;
+    if (progress > 1.0) progress = 1.0;
+    
+    sprite->xPosition = blockReference->glideStartX + (blockReference->glideEndX - blockReference->glideStartX) * progress;
+    sprite->yPosition = blockReference->glideStartY + (blockReference->glideEndY - blockReference->glideStartY) * progress;
+    
+    return BlockResult::RETURN;
 }
 
 BlockResult MotionBlocks::pointToward(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
