@@ -223,7 +223,10 @@ std::string BlockExecutor::getBlockValue(const Block& block,Sprite*sprite){
     if (iterator != valueHandlers.end()) {
         return iterator->second(block, sprite);
     }
-    return "";
+
+    bool conditional = runConditionalBlock(block.id,sprite);
+    if(!conditional) return "0";
+    return "1";
 }
 
 bool BlockExecutor::runConditionalBlock(std::string blockId, Sprite* sprite){

@@ -723,6 +723,7 @@ std::string Scratch::getInputValue(const nlohmann::json& item, const Block* bloc
     }
     // 2 SEEMS to be a boolean
     if(type == 2){
+        std::cout << "boleaN!" << std::endl;
         return std::to_string(executor.runConditionalBlock(findBlock(data)->id, sprite));
     }
     return "0";
