@@ -383,7 +383,7 @@ void loadSprites(const nlohmann::json& json){
 
     //buildBlockHierarchyCache();
 
-    // get block chains for every block (very inefficiently)
+    // get block chains for every block
     for (Sprite* currentSprite : sprites) {
     for(auto& [id,block]: currentSprite->blocks){
         if(!block.topLevel) continue;
@@ -393,6 +393,12 @@ void loadSprites(const nlohmann::json& json){
         currentSprite->blockChains[outID] = chain;
         std::cout << "ok = " << outID << std::endl;
         block.blockChainID = outID;
+
+        for(auto& chainBlock : chain.blockChain) {
+            if(currentSprite->blocks.find(chainBlock->id) != currentSprite->blocks.end()) {
+                currentSprite->blocks[chainBlock->id].blockChainID = outID;
+            }
+        }
 
     }
 }

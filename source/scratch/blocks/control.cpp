@@ -92,35 +92,22 @@ BlockResult ControlBlocks::deleteThisClone(const Block& block, Sprite* sprite, B
 }
 
 BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    // std::string stopType = block.fields.at("STOP_OPTION")[0];
-    // if(stopType == "all"){
-    //     toExit = true;
-    //     return BlockResult::BREAK;
-    // }
-    // if(stopType == "this script"){
-    //     Block* parent = getBlockParent(&block);
-    //     //std::cout << "Stopping script " << parent.id << std::endl;
-    //     for(auto& [id,block] : sprite->blocks){
-    //         if(block.topLevelParentBlock == parent->id){
-    //             if(sprite->conditionals.find(id) != sprite->conditionals.end()){
-    //                 sprite->conditionals.erase(id);
-    //             }
-    //         }
-    //     }
-    //     return BlockResult::CONTINUE;
-    // }
+    std::string stopType = block.fields.at("STOP_OPTION")[0];
+    if(stopType == "all"){
+        toExit = true;
+        return BlockResult::RETURN;
+    }
+    if(stopType == "this script"){
+        sprite->blockChains[block.blockChainID].blocksToRepeat.clear();
+        return BlockResult::CONTINUE;
+    }
 
-    // if(stopType == "other scripts in sprite"){
-    //     std::string topLevelParentBlock = getBlockParent(&block)->id;
-    //     //std::cout << "Stopping other scripts in sprite " << sprite->id << std::endl;
-    //     for(auto& [id,block] : sprite->blocks){
-    //         if(block.topLevelParentBlock != topLevelParentBlock){
-    //             if(sprite->conditionals.find(id) != sprite->conditionals.end()){
-    //                 sprite->conditionals.erase(id);
-    //             }
-    //         }
-    //     }
-    // }
+    if(stopType == "other scripts in sprite"){
+        for(auto& [id,chain] : sprite->blockChains){
+            if(id == block.blockChainID) continue;
+            chain.blocksToRepeat.clear();
+        }
+    }
     return BlockResult::CONTINUE;
 }
 
@@ -203,7 +190,7 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** wa
         std::string times = Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite);
         blockReference->repeatTimes = std::stoi(times);
         BlockExecutor::addToRepeatQueue(sprite,const_cast<Block*>(&block));
-        std::cout << "set! " << blockReference->repeatTimes << std::endl;
+        //std::cout << "set! " << blockReference->repeatTimes << std::endl;
     }
 
     if (blockReference->repeatTimes > 0) {
@@ -213,19 +200,21 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** wa
             if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
                 Block* subBlock = findBlock(substack[1]);
                 if (subBlock != nullptr) {
-                    std::cout << "running inside repeat! " << blockReference->repeatTimes << std::endl;
+                    //std::cout << "running inside repeat! " << blockReference->repeatTimes << std::endl;
                     executor.runBlock(*subBlock, sprite,const_cast<Block*>(&block));
                 }
         }
     }
 // Countdown
         blockReference->repeatTimes -= 1;
+        //std::cout << "returning!" << std::endl;
         return BlockResult::RETURN;
 } else {
         blockReference->repeatTimes = -1;
     }
 
     sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+    //std::cout << "continuing!" << std::endl;
     return BlockResult::CONTINUE;
 
 }

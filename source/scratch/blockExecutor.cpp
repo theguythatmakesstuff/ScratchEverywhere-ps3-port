@@ -163,7 +163,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
     if (duration.count() > 0) {
-        std::cout << " took " << duration.count() << " milliseconds!" << std::endl;
+        //std::cout << " took " << duration.count() << " milliseconds!" << std::endl;
     }
 }
 
@@ -179,7 +179,6 @@ BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block
 
 void BlockExecutor::runRepeatBlocks(){
     //std::cout<<"Running repeat blocks..."<< std::endl;
-
     // repeat the block most recently added to the repeat chain
     for(auto& sprite : sprites){
         for(auto& [id, blockChain]: sprite->blockChains){
@@ -188,10 +187,9 @@ void BlockExecutor::runRepeatBlocks(){
                 std::string toRepeat = repeatList.back();
                 if(!toRepeat.empty()){
                 Block* toRun = findBlock(toRepeat);
-                std::cout << "rnning!" << std::endl;
+                //std::cout << "rnning!" << std::endl;
                 if(toRun != nullptr)
                 executor.runBlock(*toRun, sprite);
-                continue;
                 }
             } 
         }
@@ -219,10 +217,10 @@ bool BlockExecutor::runConditionalBlock(std::string blockId, Sprite* sprite){
 }
 
 void BlockExecutor::addToRepeatQueue(Sprite* sprite,Block* block){
-    std::cout << "trying..." << std::endl;
+    //std::cout << "trying..." << std::endl;
             auto& repeatList = sprite->blockChains[block->blockChainID].blocksToRepeat;
             if (std::find(repeatList.begin(), repeatList.end(), block->id) == repeatList.end()) {
-                std::cout << "added to list!" << std::endl;
+                //std::cout << "added to list!" << std::endl;
                 repeatList.push_back(block->id);
             }
 }

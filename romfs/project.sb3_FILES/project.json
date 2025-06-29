@@ -47,18 +47,18 @@
       "blocks": {
         "e": {
           "opcode": "event_whenflagclicked",
-          "next": "a",
+          "next": "f",
           "parent": null,
           "inputs": {},
           "fields": {},
           "shadow": false,
           "topLevel": true,
-          "x": 326,
-          "y": 204
+          "x": -54,
+          "y": 15
         },
-        "a": {
+        "f": {
           "opcode": "motion_gotoxy",
-          "next": "b",
+          "next": null,
           "parent": "e",
           "inputs": {
             "X": [
@@ -80,6 +80,40 @@
           "shadow": false,
           "topLevel": false
         },
+        "g": {
+          "opcode": "event_whenflagclicked",
+          "next": "h",
+          "parent": null,
+          "inputs": {},
+          "fields": {},
+          "shadow": false,
+          "topLevel": true,
+          "x": 223,
+          "y": 29
+        },
+        "i": {
+          "opcode": "control_repeat",
+          "next": null,
+          "parent": null,
+          "inputs": {
+            "TIMES": [
+              1,
+              [
+                6,
+                "100"
+              ]
+            ],
+            "SUBSTACK": [
+              2,
+              "a"
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": true,
+          "x": 217,
+          "y": 284
+        },
         "b": {
           "opcode": "control_repeat",
           "next": null,
@@ -89,7 +123,28 @@
               1,
               [
                 6,
-                "10"
+                "100"
+              ]
+            ],
+            "SUBSTACK": [
+              2,
+              "j"
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "k": {
+          "opcode": "control_repeat",
+          "next": null,
+          "parent": null,
+          "inputs": {
+            "TIMES": [
+              1,
+              [
+                6,
+                "100"
               ]
             ],
             "SUBSTACK": [
@@ -99,18 +154,20 @@
           },
           "fields": {},
           "shadow": false,
-          "topLevel": false
+          "topLevel": true,
+          "x": -55,
+          "y": 209
         },
         "c": {
           "opcode": "motion_movesteps",
           "next": "d",
-          "parent": "b",
+          "parent": "k",
           "inputs": {
             "STEPS": [
               1,
               [
                 4,
-                "-10"
+                "-100"
               ]
             ]
           },
@@ -127,19 +184,19 @@
               1,
               [
                 6,
-                "10"
+                "100"
               ]
             ],
             "SUBSTACK": [
               2,
-              "f"
+              "l"
             ]
           },
           "fields": {},
           "shadow": false,
           "topLevel": false
         },
-        "f": {
+        "l": {
           "opcode": "motion_movesteps",
           "next": null,
           "parent": "d",
@@ -149,6 +206,64 @@
               [
                 4,
                 "1"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "a": {
+          "opcode": "motion_changexby",
+          "next": "b",
+          "parent": "i",
+          "inputs": {
+            "DX": [
+              1,
+              [
+                4,
+                "-100"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "j": {
+          "opcode": "motion_changexby",
+          "next": null,
+          "parent": "b",
+          "inputs": {
+            "DX": [
+              1,
+              [
+                4,
+                "1"
+              ]
+            ]
+          },
+          "fields": {},
+          "shadow": false,
+          "topLevel": false
+        },
+        "h": {
+          "opcode": "motion_gotoxy",
+          "next": null,
+          "parent": "g",
+          "inputs": {
+            "X": [
+              1,
+              [
+                4,
+                "50"
+              ]
+            ],
+            "Y": [
+              1,
+              [
+                4,
+                "0"
               ]
             ]
           },
@@ -183,7 +298,7 @@
       "volume": 100,
       "layerOrder": 1,
       "visible": true,
-      "x": 9.614242282381081e-31,
+      "x": 50,
       "y": 0,
       "size": 100,
       "direction": 180,
