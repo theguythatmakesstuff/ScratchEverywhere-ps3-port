@@ -1,5 +1,4 @@
-#ifndef SPRITE_H
-#define SPRITE_H
+#pragma once
 #include <string>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
@@ -240,7 +239,8 @@ struct Block {
         return NONE;
 
     }
-    
+
+
     std::string id;
     opCode opcode;
     std::string next;
@@ -253,6 +253,8 @@ struct Block {
     bool shadow;
     bool topLevel;
     std::string topLevelParentBlock;
+
+    int repeatTimes = -1;
 
 };
 
@@ -340,6 +342,11 @@ struct BlockHierarchyCache {
     bool isCacheBuilt = false;
 };
 
+struct BlockChain {
+    std::vector<Block*> blockChain;
+    std::vector<std::string> blocksToRepeat;
+};
+
 class Sprite {
     public:
         std::string name;
@@ -373,12 +380,10 @@ class Sprite {
         std::unordered_map<std::string, Broadcast> broadcasts;
         std::unordered_map<std::string, Conditional> conditionals;
         std::unordered_map<std::string, CustomBlock> customBlocks;
-        std::unordered_map<std::string, std::vector<Block*> > blockChains;
+        std::unordered_map<std::string,BlockChain> blockChains;
         BlockHierarchyCache blockCache;
     
         void loadFromJson(const nlohmann::json& json);
         void runScript(const std::string& blockId);
         void executeBlock(const Block& block);
     };
-
-#endif

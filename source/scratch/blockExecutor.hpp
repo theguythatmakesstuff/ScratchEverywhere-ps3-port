@@ -22,6 +22,7 @@ public:
     void runBlock(Block block, Sprite* sprite, Block* waitingBlock = nullptr, bool withoutScreenRefresh = false);
     std::string getBlockValue(const Block& block,Sprite*sprite);
     bool runConditionalBlock(std::string blockId, Sprite* sprite);
+    static void addToRepeatQueue(Sprite* sprite,Block* block);
     
 private:
     void registerHandlers();

@@ -147,20 +147,16 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
         } else if (result == BlockResult::BREAK) {
             break;
         }
+
+
+
         
         // Move to next block
         if (!block.next.empty()) {
             block = *blockLookup[block.next];
         } else {
             runBroadcasts();
-            // if (waitingBlock != nullptr && !waitingBlock->id.empty() && blockLookup.find(waitingBlock->id) != blockLookup.end()) {
-            //     block = *blockLookup[waitingBlock->id];
-            //     std::cout << "block is now " << block.id << " from waiting." << std::endl;
-            //     withoutScreenRefresh = false;
-            //     waitingBlock = nullptr; // reset waiting block
-            // } else {
                 break;
-           // }
         }
     }
         // Timing measurement
@@ -196,4 +192,13 @@ bool BlockExecutor::runConditionalBlock(std::string blockId, Sprite* sprite){
         return iterator->second(*block,sprite);
     }
     return false;
+}
+
+void BlockExecutor::addToRepeatQueue(Sprite* sprite,Block* block){
+    std::cout << "trying..." << std::endl;
+            auto& repeatList = sprite->blockChains[block->blockChainID].blocksToRepeat;
+            if (std::find(repeatList.begin(), repeatList.end(), block->id) == repeatList.end()) {
+                std::cout << "added to list!" << std::endl;
+                repeatList.push_back(block->id);
+            }
 }

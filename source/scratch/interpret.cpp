@@ -454,11 +454,10 @@ void loadSprites(const nlohmann::json& json){
     for(auto& [id,block]: currentSprite->blocks){
         if(!block.topLevel) continue;
         std::string outID;
-        std::vector<Block*> blockChain = getBlockChain(block.id,&outID);
-        if(currentSprite->blockChains[outID].empty()){
-            currentSprite->blockChains[outID] = blockChain;
-            std::cout << "ok = " << outID << std::endl;
-        }
+        BlockChain chain;
+        chain.blockChain = getBlockChain(block.id,&outID);
+        currentSprite->blockChains[outID] = chain;
+        std::cout << "ok = " << outID << std::endl;
         block.blockChainID = outID;
 
     }
@@ -641,6 +640,26 @@ void runRepeatBlocks(){
             else if(data.isActive && !data.isTrue) condsToDelete.push_back(&currentSprite->conditionals[id]);
         }
     }
+
+// repeat the block most recently added to the repeat chain
+    for(auto& sprite : sprites){
+        for(auto& [id, blockChain]: sprite->blockChains){
+        auto& repeatList = blockChain.blocksToRepeat;
+            if (!repeatList.empty()) {
+                std::string toRepeat = repeatList.back();
+                if(!toRepeat.empty()){
+                Block* toRun = findBlock(toRepeat);
+                std::cout << "rnning!" << std::endl;
+                if(toRun != nullptr)
+                executor.runBlock(*toRun, sprite);
+                continue;
+                }
+            } 
+        }
+    }
+
+
+
            // remove sprites ready for deletion
 
         for(auto& currentSprite : sprites){

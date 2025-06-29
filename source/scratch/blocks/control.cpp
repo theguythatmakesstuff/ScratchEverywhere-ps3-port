@@ -130,30 +130,30 @@ BlockResult ControlBlocks::startAsClone(const Block& block, Sprite* sprite, Bloc
 }
 
 BlockResult ControlBlocks::wait(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-        Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.time = std::chrono::high_resolution_clock::now();
-        std::string duration = Scratch::getInputValue(block.inputs.at("DURATION"), &block, sprite);
-        if(isNumber(duration)) {
-            newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
-        } else {
-            newConditional.endTime = 0;
-        }
-        newConditional.waitingBlock = *waitingBlock;
-        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-        newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        //std::cout << "block = " << block.id << ". cond = " << newConditional.waitingConditional->id << std::endl;
-        if(newConditional.waitingBlock != nullptr){
-            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-            newConditional.waitingBlockId = newConditional.waitingBlock->id;
-        }
+//     if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+//         Conditional newConditional;
+//         newConditional.id = block.id;
+//         newConditional.hostSprite = sprite;
+//         newConditional.isTrue = false;
+//         newConditional.times = -1;
+//         newConditional.time = std::chrono::high_resolution_clock::now();
+//         std::string duration = Scratch::getInputValue(block.inputs.at("DURATION"), &block, sprite);
+//         if(isNumber(duration)) {
+//             newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
+//         } else {
+//             newConditional.endTime = 0;
+//         }
+//         newConditional.waitingBlock = *waitingBlock;
+//         newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+//         newConditional.waitingConditional = getParentConditional(sprite,block.id);
+//         //std::cout << "block = " << block.id << ". cond = " << newConditional.waitingConditional->id << std::endl;
+//         if(newConditional.waitingBlock != nullptr){
+//             sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+//             newConditional.waitingBlockId = newConditional.waitingBlock->id;
+//         }
 
-        sprite->conditionals[newConditional.id] = newConditional;
-}
+//         sprite->conditionals[newConditional.id] = newConditional;
+// }
 
     auto currentTime = std::chrono::high_resolution_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
@@ -170,23 +170,23 @@ BlockResult ControlBlocks::wait(const Block& block, Sprite* sprite, Block** wait
 }
 
 BlockResult ControlBlocks::waitUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-        Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.waitingBlock = *waitingBlock;
-        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-        newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+    //     Conditional newConditional;
+    //     newConditional.id = block.id;
+    //     newConditional.hostSprite = sprite;
+    //     newConditional.isTrue = false;
+    //     newConditional.times = -1;
+    //     newConditional.waitingBlock = *waitingBlock;
+    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
+    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
 
-        if(newConditional.waitingBlock != nullptr){
-            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-            newConditional.waitingBlockId = newConditional.waitingBlock->id;
-        }
-        sprite->conditionals[newConditional.id] = newConditional;
-    }
+    //     if(newConditional.waitingBlock != nullptr){
+    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
+    //     }
+    //     sprite->conditionals[newConditional.id] = newConditional;
+    // }
     if (block.inputs.at("CONDITION")[1].is_null() || !executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
         sprite->conditionals[block.id].isTrue = true;
         return BlockResult::RETURN;
@@ -199,68 +199,74 @@ BlockResult ControlBlocks::waitUntil(const Block& block, Sprite* sprite, Block**
 
 BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
     //std::cout << "repeat " << block.id << std::endl;
-    if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-        Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        std::string times = Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite);
-        newConditional.times = std::stoi(times);
-        newConditional.waitingBlock = *waitingBlock;
-        newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-        if(newConditional.waitingBlock != nullptr){
-            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-            newConditional.waitingBlockId = newConditional.waitingBlock->id;
-            //waitingBlock = nullptr;
-        }
+    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+    //     Conditional newConditional;
+    //     newConditional.id = block.id;
+    //     newConditional.hostSprite = sprite;
+    //     newConditional.isTrue = false;
+    //     std::string times = Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite);
+    //     newConditional.times = std::stoi(times);
+    //     newConditional.waitingBlock = *waitingBlock;
+    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
+    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+    //     if(newConditional.waitingBlock != nullptr){
+    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
+    //         //waitingBlock = nullptr;
+    //     }
 
-        sprite->conditionals[newConditional.id] = newConditional;
+    //     sprite->conditionals[newConditional.id] = newConditional;
+    // }
+
+    Block* blockReference = findBlock(block.id);
+
+    if(blockReference->repeatTimes == -1){
+        std::string times = Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite);
+        blockReference->repeatTimes = std::stoi(times);
+        BlockExecutor::addToRepeatQueue(sprite,const_cast<Block*>(&block));
+        std::cout << "set! " << blockReference->repeatTimes << std::endl;
     }
 
-
-    if (sprite->conditionals[block.id].isTrue) {
+    if (blockReference->repeatTimes > 0) {
         auto substackIt = block.inputs.find("SUBSTACK");
         if (substackIt != block.inputs.end()) {
             const auto& substack = substackIt->second;
             if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
                 Block* subBlock = findBlock(substack[1]);
                 if (subBlock != nullptr) {
+                    std::cout << "running inside repeat! " << blockReference->repeatTimes << std::endl;
                     executor.runBlock(*subBlock, sprite,const_cast<Block*>(&block));
                 }
         }
     }
-}
-
-    // Countdown
-    if (sprite->conditionals[block.id].times >= 0) {
-        sprite->conditionals[block.id].isTrue = true;
-        sprite->conditionals[block.id].times--;
+// Countdown
+        blockReference->repeatTimes -= 1;
         return BlockResult::RETURN;
-    } else {
-        sprite->conditionals[block.id].isTrue = false;
-        *waitingBlock = sprite->conditionals[block.id].waitingBlock;
+} else {
+        blockReference->repeatTimes = -1;
     }
+
+    sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
     return BlockResult::CONTINUE;
 
 }
 
 BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-        Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.waitingBlock = *waitingBlock;
-        newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-        if(newConditional.waitingBlock != nullptr){
-            sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-            newConditional.waitingBlockId = newConditional.waitingBlock->id;
-        }
-        sprite->conditionals[newConditional.id] = newConditional;
-    }
+    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+    //     Conditional newConditional;
+    //     newConditional.id = block.id;
+    //     newConditional.hostSprite = sprite;
+    //     newConditional.isTrue = false;
+    //     newConditional.times = -1;
+    //     newConditional.waitingBlock = *waitingBlock;
+    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
+    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+    //     if(newConditional.waitingBlock != nullptr){
+    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
+    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
+    //     }
+    //     sprite->conditionals[newConditional.id] = newConditional;
+    // }
 
     auto it = block.inputs.find("CONDITION");
     if (it != block.inputs.end()) {
@@ -295,18 +301,18 @@ BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block
 }
 
 BlockResult ControlBlocks::forever(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-        Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.waitingBlock = *waitingBlock;
-        newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-        newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-        sprite->conditionals[newConditional.id] = newConditional;
-    }
+    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+    //     Conditional newConditional;
+    //     newConditional.id = block.id;
+    //     newConditional.hostSprite = sprite;
+    //     newConditional.isTrue = false;
+    //     newConditional.times = -1;
+    //     newConditional.waitingBlock = *waitingBlock;
+    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
+    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
+    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+    //     sprite->conditionals[newConditional.id] = newConditional;
+    // }
 
     if (sprite->conditionals[block.id].isTrue) {
         auto substackIt = block.inputs.find("SUBSTACK");

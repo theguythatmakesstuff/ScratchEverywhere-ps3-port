@@ -10,19 +10,19 @@ bool ProcedureBlocks::booleanArgument(const Block& block, Sprite* sprite){
 }
 
 BlockResult ProcedureBlocks::call(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
-    if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-        Conditional newConditional;
-        newConditional.id = block.id;
-        newConditional.hostSprite = sprite;
-        newConditional.isTrue = false;
-        newConditional.times = -1;
-        newConditional.waitingConditional = getParentConditional(sprite,block.id);
-        if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-        // Block* nextBlockptr = findBlock(block.next);
-        // if(nextBlockptr != nullptr) newConditional.waitingBlock = *nextBlockptr;
-        //newConditional.waitingBlock = block;
-        sprite->conditionals[block.id] = newConditional;
-    }
+    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
+    //     Conditional newConditional;
+    //     newConditional.id = block.id;
+    //     newConditional.hostSprite = sprite;
+    //     newConditional.isTrue = false;
+    //     newConditional.times = -1;
+    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
+    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
+    //     // Block* nextBlockptr = findBlock(block.next);
+    //     // if(nextBlockptr != nullptr) newConditional.waitingBlock = *nextBlockptr;
+    //     //newConditional.waitingBlock = block;
+    //     sprite->conditionals[block.id] = newConditional;
+    // }
     std::cout << "doing it " << block.id << std::endl;
     //waitingBlock = findBlock(block.next);
     
