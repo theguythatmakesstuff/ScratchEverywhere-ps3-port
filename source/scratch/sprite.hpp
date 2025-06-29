@@ -255,6 +255,8 @@ struct Block {
     std::string topLevelParentBlock;
 
     int repeatTimes = -1;
+    double waitDuration;
+    std::chrono::high_resolution_clock::time_point waitStartTime;
 
 };
 

@@ -129,71 +129,59 @@ BlockResult ControlBlocks::startAsClone(const Block& block, Sprite* sprite, Bloc
 }
 
 BlockResult ControlBlocks::wait(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-//     if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-//         Conditional newConditional;
-//         newConditional.id = block.id;
-//         newConditional.hostSprite = sprite;
-//         newConditional.isTrue = false;
-//         newConditional.times = -1;
-//         newConditional.time = std::chrono::high_resolution_clock::now();
-//         std::string duration = Scratch::getInputValue(block.inputs.at("DURATION"), &block, sprite);
-//         if(isNumber(duration)) {
-//             newConditional.endTime = std::stod(duration) * 1000; // convert to milliseconds
-//         } else {
-//             newConditional.endTime = 0;
-//         }
-//         newConditional.waitingBlock = *waitingBlock;
-//         newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-//         newConditional.waitingConditional = getParentConditional(sprite,block.id);
-//         //std::cout << "block = " << block.id << ". cond = " << newConditional.waitingConditional->id << std::endl;
-//         if(newConditional.waitingBlock != nullptr){
-//             sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-//             newConditional.waitingBlockId = newConditional.waitingBlock->id;
-//         }
-
-//         sprite->conditionals[newConditional.id] = newConditional;
-// }
-
-    // auto currentTime = std::chrono::high_resolution_clock::now();
-    // auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
-    // if (elapsedTime < sprite->conditionals[block.id].endTime) {
-    //     sprite->conditionals[block.id].isTrue = true;
+    Block* blockReference = findBlock(block.id);
+    
+    if(blockReference->repeatTimes == -1){
+        blockReference->repeatTimes = -5;
         
-    //     return BlockResult::RETURN;
-    // } else {
-    //     std::cout << "Dione! " << block.id << std::endl;
-    //     sprite->conditionals[block.id].isTrue = false;
-    //     *waitingBlock = sprite->conditionals[block.id].waitingBlock;
-    // }
-    return BlockResult::CONTINUE;
+        std::string duration = Scratch::getInputValue(block.inputs.at("DURATION"), &block, sprite);
+        if(isNumber(duration)) {
+            blockReference->waitDuration = std::stod(duration) * 1000; // convert to milliseconds
+        } else {
+            blockReference->waitDuration = 0;
+        }
+        
+        blockReference->waitStartTime = std::chrono::high_resolution_clock::now();
+        
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+    
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - blockReference->waitStartTime).count();
+    
+    if (elapsedTime >= blockReference->waitDuration) {
+        blockReference->repeatTimes = -1;
+        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        return BlockResult::CONTINUE;
+    }
+
+    return BlockResult::RETURN;
 }
 
 BlockResult ControlBlocks::waitUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-    //     Conditional newConditional;
-    //     newConditional.id = block.id;
-    //     newConditional.hostSprite = sprite;
-    //     newConditional.isTrue = false;
-    //     newConditional.times = -1;
-    //     newConditional.waitingBlock = *waitingBlock;
-    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
-    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-
-    //     if(newConditional.waitingBlock != nullptr){
-    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
-    //     }
-    //     sprite->conditionals[newConditional.id] = newConditional;
-    // }
-    // if (block.inputs.at("CONDITION")[1].is_null() || !executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
-    //     sprite->conditionals[block.id].isTrue = true;
-    //     return BlockResult::RETURN;
-    // } else {
-    //     sprite->conditionals[block.id].isTrue = false;
-    //     *waitingBlock = sprite->conditionals[block.id].waitingBlock;
-    // }
-    return BlockResult::CONTINUE;
+    Block* blockReference = findBlock(block.id);
+    
+    if(blockReference->repeatTimes == -1){
+        blockReference->repeatTimes = -4;
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+    
+    bool conditionMet = false;
+    auto conditionIt = block.inputs.find("CONDITION");
+    if (conditionIt != block.inputs.end()) {
+        const auto& condition = conditionIt->second;
+        if (condition.is_array() && condition.size() > 1 && !condition[1].is_null()) {
+            conditionMet = executor.runConditionalBlock(condition[1], sprite);
+        }
+    }
+    
+    if (conditionMet) {
+        blockReference->repeatTimes = -1;
+        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        return BlockResult::CONTINUE;
+    }
+    
+    return BlockResult::RETURN;
 }
 
 BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
