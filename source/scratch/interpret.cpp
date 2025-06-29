@@ -391,7 +391,7 @@ void loadSprites(const nlohmann::json& json){
         BlockChain chain;
         chain.blockChain = getBlockChain(block.id,&outID);
         currentSprite->blockChains[outID] = chain;
-        //std::cout << "ok = " << outID << std::endl;
+        std::cout << "ok = " << outID << std::endl;
         block.blockChainID = outID;
 
         for(auto& chainBlock : chain.blockChain) {
@@ -492,7 +492,7 @@ void runBroadcasts() {
     // Now run all the identified blocks
     for (auto& [blockPtr, spritePtr] : blocksToRun) {
         //std::cout << "Running broadcast block " << blockPtr->id << std::endl;
-        executor.runBlock(blockPtr, spritePtr);
+        executor.runBlock(*blockPtr, spritePtr);
     }
     
     // Check if new broadcasts were added during execution
@@ -530,13 +530,13 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
     return "";
 }
 
-void runCustomBlock(Sprite* sprite,Block* block, Block* callerBlock,bool* withoutScreenRefresh){
+void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool* withoutScreenRefresh){
     for(auto &[id, data] : sprite->customBlocks){
-        if(id == block->mutation.at("proccode").get<std::string>()){
+        if(id == block.mutation.at("proccode").get<std::string>()){
             // Set up argument values
             for(std::string arg : data.argumentIds){
-                if(!block->inputs.at(arg).is_null()){
-                    data.argumentValues[arg] = Scratch::getInputValue(block->inputs.at(arg), block, sprite);
+                if(!block.inputs.at(arg).is_null()){
+                    data.argumentValues[arg] = Scratch::getInputValue(block.inputs.at(arg), &block, sprite);
                 }
             }
             
@@ -557,7 +557,7 @@ void runCustomBlock(Sprite* sprite,Block* block, Block* callerBlock,bool* withou
             //std::cout << "RWSR = " << localWithoutRefresh << std::endl;
             
             // Execute the custom block definition
-            executor.runBlock(customBlockDefinition, sprite, nullptr, &localWithoutRefresh);
+            executor.runBlock(*customBlockDefinition, sprite, nullptr, &localWithoutRefresh);
 
             if(localWithoutRefresh){
                 BlockExecutor::runRepeatsWithoutRefresh(sprite,customBlockDefinition->blockChainID);
@@ -750,7 +750,7 @@ void runAllBlocksByOpcode(Block::opCode opcodeToFind){
         for(auto &[id,data] : currentSprite->blocks){
             if(data.opcode == opcodeToFind){
                 //runBlock(data,currentSprite);
-                executor.runBlock(&data,currentSprite);
+                executor.runBlock(data,currentSprite);
             }
         }
     }
