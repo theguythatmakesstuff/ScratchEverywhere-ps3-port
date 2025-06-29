@@ -530,7 +530,7 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
     return "";
 }
 
-void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock){
+void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool* withoutScreenRefresh){
     for(auto &[id, data] : sprite->customBlocks){
         if(id == block.mutation.at("proccode").get<std::string>()){
             // Set up argument values
@@ -540,16 +540,28 @@ void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock){
                 }
             }
             
-            std::cout << "running custom block " << data.blockId << std::endl;
+            //std::cout << "running custom block " << data.blockId << std::endl;
             
             // Get the parent of the prototype block (the definition containing all blocks)
             Block* customBlockDefinition = findBlock(findBlock(data.blockId)->parent);
             callerBlock->customBlockPtr = customBlockDefinition;
+
+            bool localWithoutRefresh = data.runWithoutScreenRefresh;
+
             
-            std::cout << "RWSR = " << data.runWithoutScreenRefresh << std::endl;
+            // If the parent chain is running without refresh, force this one to also run without refresh
+            if(!localWithoutRefresh && withoutScreenRefresh != nullptr) {
+                localWithoutRefresh = withoutScreenRefresh;
+            }
+            
+            //std::cout << "RWSR = " << localWithoutRefresh << std::endl;
             
             // Execute the custom block definition
-            executor.runBlock(*customBlockDefinition, sprite, nullptr, data.runWithoutScreenRefresh);
+            executor.runBlock(*customBlockDefinition, sprite, nullptr, &localWithoutRefresh);
+
+            if(localWithoutRefresh){
+                BlockExecutor::runRepeatsWithoutRefresh(sprite,customBlockDefinition->blockChainID);
+            }
             
             break;
         }

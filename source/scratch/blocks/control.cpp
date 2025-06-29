@@ -1,6 +1,6 @@
 #include "control.hpp"
 
-BlockResult ControlBlocks::If(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::If(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     if (block.inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }
@@ -13,7 +13,7 @@ BlockResult ControlBlocks::If(const Block& block, Sprite* sprite, Block** waitin
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::ifElse(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::ifElse(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     if (block.inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }
@@ -31,7 +31,7 @@ BlockResult ControlBlocks::ifElse(const Block& block, Sprite* sprite, Block** wa
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::createCloneOf(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::createCloneOf(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::cout << "Trying " << std::endl;
     Block* cloneOptions = findBlock(block.inputs.at("CLONE_OPTION")[1]);
     Sprite* spriteToClone = getAvailableSprite();
@@ -81,13 +81,13 @@ BlockResult ControlBlocks::createCloneOf(const Block& block, Sprite* sprite, Blo
     }
     return BlockResult::CONTINUE;
 }
-BlockResult ControlBlocks::deleteThisClone(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::deleteThisClone(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     if(sprite->isClone)
     sprite->toDelete = true;
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string stopType = block.fields.at("STOP_OPTION")[0];
     if(stopType == "all"){
         toExit = true;
@@ -120,11 +120,11 @@ BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, Block** wait
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::startAsClone(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::startAsClone(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::wait(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::wait(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Block* blockReference = findBlock(block.id);
     
     if(blockReference->repeatTimes == -1){
@@ -154,7 +154,7 @@ BlockResult ControlBlocks::wait(const Block& block, Sprite* sprite, Block** wait
     return BlockResult::RETURN;
 }
 
-BlockResult ControlBlocks::waitUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::waitUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Block* blockReference = findBlock(block.id);
     
     if(blockReference->repeatTimes == -1){
@@ -180,7 +180,7 @@ BlockResult ControlBlocks::waitUntil(const Block& block, Sprite* sprite, Block**
     return BlockResult::RETURN;
 }
 
-BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Block* blockReference = findBlock(block.id);
 
     if(blockReference->repeatTimes == -1){
@@ -214,7 +214,7 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** wa
 
 }
 
-BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Block* blockReference = findBlock(block.id);
 
     if(blockReference->repeatTimes == -1){
@@ -255,7 +255,7 @@ BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block
     return BlockResult::RETURN;
 }
 
-BlockResult ControlBlocks::forever(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult ControlBlocks::forever(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Block* blockReference = findBlock(block.id);
 
     if(blockReference->repeatTimes == -1){

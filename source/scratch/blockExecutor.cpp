@@ -131,8 +131,13 @@ void BlockExecutor::registerHandlers(){
 
 }
 
-void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, bool withoutScreenRefresh){
+void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, bool* withoutScreenRefresh){
     auto start = std::chrono::high_resolution_clock::now();
+
+    bool localWithoutRefresh = false;
+    if (!withoutScreenRefresh) {
+        withoutScreenRefresh = &localWithoutRefresh;
+    }
     
     if (!sprite || sprite->toDelete) {
         return;
@@ -168,7 +173,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
 }
 
 
-BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block** waitingBlock, bool withoutScreenRefresh){
+BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh){
     auto iterator = handlers.find(block.opcode);
     if (iterator != handlers.end()) {
         return iterator->second(block, sprite, waitingBlock, withoutScreenRefresh);
@@ -198,6 +203,20 @@ void BlockExecutor::runRepeatBlocks(){
            sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 
 }
+
+void BlockExecutor::runRepeatsWithoutRefresh(Sprite* sprite,std::string blockChainID){
+    if(sprite->blockChains.find(blockChainID) != sprite->blockChains.end()){
+        while(!sprite->blockChains[blockChainID].blocksToRepeat.empty()){
+            std::string toRepeat = sprite->blockChains[blockChainID].blocksToRepeat.back();
+            Block* toRun = findBlock(toRepeat);
+            if(toRun != nullptr)
+            executor.runBlock(*toRun, sprite);
+                
+        }
+    }    
+}
+
+
 
 std::string BlockExecutor::getBlockValue(const Block& block,Sprite*sprite){
     auto iterator = valueHandlers.find(block.opcode);

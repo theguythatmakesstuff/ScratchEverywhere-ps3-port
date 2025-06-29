@@ -3,8 +3,8 @@
 
 class ProcedureBlocks{
 public:
-    static BlockResult call(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh);
-    static BlockResult definition(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh);
+    static BlockResult call(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
+    static BlockResult definition(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
 
     static std::string stringNumber(const Block& block, Sprite* sprite);
 
