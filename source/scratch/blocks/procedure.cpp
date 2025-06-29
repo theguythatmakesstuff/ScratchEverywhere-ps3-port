@@ -10,45 +10,39 @@ bool ProcedureBlocks::booleanArgument(const Block& block, Sprite* sprite){
 }
 
 BlockResult ProcedureBlocks::call(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {
-    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-    //     Conditional newConditional;
-    //     newConditional.id = block.id;
-    //     newConditional.hostSprite = sprite;
-    //     newConditional.isTrue = false;
-    //     newConditional.times = -1;
-    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
-    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-    //     // Block* nextBlockptr = findBlock(block.next);
-    //     // if(nextBlockptr != nullptr) newConditional.waitingBlock = *nextBlockptr;
-    //     //newConditional.waitingBlock = block;
-    //     sprite->conditionals[block.id] = newConditional;
-    // }
-    std::cout << "doing it " << block.id << std::endl;
-    //waitingBlock = findBlock(block.next);
+    Block* blockReference = findBlock(block.id);
     
-
-
-    // if(!sprite->conditionals[block.id].isTrue){
-    // std::cout << "about to run " << block.id << std::endl;
-    // runCustomBlock(sprite, block);
-    // sprite->conditionals[block.id].isTrue = true;
-    // sprite->conditionals[block.id].isActive = true;
-    // if(sprite->conditionals[block.id].waitingBlock != nullptr && 
-    //     !sprite->conditionals[block.id].waitingBlock->id.empty()) return BlockResult::RETURN;
-    // }
-
-
-    // // check if any repeat blocks are running in the custom block
-    // if(!hasActiveConditionalsInside(sprite,sprite->conditionals[block.id].customBlock->id)){
-    // std::cout << "done with custom!" << std::endl;
-    //     sprite->conditionals[block.id].isTrue = false;
-    //     //sprite->conditionals.erase(block.id);
-    //     return BlockResult::CONTINUE;
-    // }
-    // else return BlockResult::RETURN;
-
-    return BlockResult::CONTINUE; // delete this
-
+    // Initialize the custom block call if not already set up
+    if(blockReference->repeatTimes == -1){
+        // Set up the custom block call (using -8 to distinguish from other blocks)
+        blockReference->repeatTimes = -8;
+        blockReference->customBlockExecuted = false;
+        
+        std::cout << "doing it " << block.id << std::endl;
+        
+        // Run the custom block for the first time
+        runCustomBlock(sprite, block, blockReference);
+        blockReference->customBlockExecuted = true;
+        
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+    
+    // Check if any repeat blocks are still running inside the custom block
+    if(blockReference->customBlockPtr != nullptr && 
+       !BlockExecutor::hasActiveRepeats(sprite, blockReference->customBlockPtr->blockChainID)){
+        
+        std::cout << "done with custom!" << std::endl;
+        
+        // Custom block execution is complete
+        blockReference->repeatTimes = -1; // Reset for next use
+        blockReference->customBlockExecuted = false;
+        blockReference->customBlockPtr = nullptr;
+        
+        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        return BlockResult::CONTINUE;
+    }
+    
+    return BlockResult::RETURN;
 }
 
 BlockResult ProcedureBlocks::definition(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh) {

@@ -530,32 +530,30 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
     return "";
 }
 
-void runCustomBlock(Sprite*sprite,Block block){
-    for(auto &[id,data] : sprite->customBlocks){
-        if(id == block.mutation["proccode"]){
-           // std::cout<<"burrrrp"<<std::endl;
+void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock){
+    for(auto &[id, data] : sprite->customBlocks){
+        if(id == block.mutation.at("proccode").get<std::string>()){
+            // Set up argument values
             for(std::string arg : data.argumentIds){
-                if(!block.inputs[arg].is_null()){
-                    data.argumentValues[arg] = Scratch::getInputValue(block.inputs[arg],&block,sprite);
-                    //std::cout<<"yes! " << data.argumentValues[arg] <<std::endl;
+                if(!block.inputs.at(arg).is_null()){
+                    data.argumentValues[arg] = Scratch::getInputValue(block.inputs.at(arg), &block, sprite);
                 }
             }
-           std::cout << "running custom block "<<data.blockId<<std::endl;
-            // run the parent of the prototype block since that block is the definition, containing all the blocks
             
-            //sprite->conditionals[block.id].customBlock = findBlock(findBlock(data.blockId)->parent);
-
-        //     if(!hasAnyConditionals(sprite,sprite->conditionals[block.id].customBlock->id)){
-        //     sprite->conditionals[block.id].waitingBlock = nullptr;
-        //    if(sprite->conditionals[block.id].waitingConditional != nullptr)
-        //     sprite->conditionals[block.id].waitingConditional->isActive = true;
-        //     }
-            //std::cout << "RWSR = " << data.runWithoutScreenRefresh << std::endl;
-            //executor.runBlock(*sprite->conditionals[block.id].customBlock,sprite,sprite->conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
-
+            std::cout << "running custom block " << data.blockId << std::endl;
+            
+            // Get the parent of the prototype block (the definition containing all blocks)
+            Block* customBlockDefinition = findBlock(findBlock(data.blockId)->parent);
+            callerBlock->customBlockPtr = customBlockDefinition;
+            
+            std::cout << "RWSR = " << data.runWithoutScreenRefresh << std::endl;
+            
+            // Execute the custom block definition
+            executor.runBlock(*customBlockDefinition, sprite, nullptr, data.runWithoutScreenRefresh);
+            
+            break;
         }
     }
-
 }
 
 

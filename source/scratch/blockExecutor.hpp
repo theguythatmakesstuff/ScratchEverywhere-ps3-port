@@ -24,6 +24,7 @@ public:
     std::string getBlockValue(const Block& block,Sprite*sprite);
     bool runConditionalBlock(std::string blockId, Sprite* sprite);
     static void addToRepeatQueue(Sprite* sprite,Block* block);
+    static bool hasActiveRepeats(Sprite* sprite,std::string blockChainID);
     
 private:
     void registerHandlers();

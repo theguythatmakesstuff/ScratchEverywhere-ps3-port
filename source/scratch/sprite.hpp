@@ -259,6 +259,8 @@ struct Block {
     double glideStartX,glideStartY;
     double glideEndX,glideEndY;
     std::chrono::high_resolution_clock::time_point waitStartTime;
+    bool customBlockExecuted = false;
+    Block* customBlockPtr = nullptr; 
 
 };
 

@@ -224,3 +224,10 @@ void BlockExecutor::addToRepeatQueue(Sprite* sprite,Block* block){
                 repeatList.push_back(block->id);
             }
 }
+
+bool BlockExecutor::hasActiveRepeats(Sprite* sprite,std::string blockChainID){
+    if(sprite->blockChains.find(blockChainID) != sprite->blockChains.end()){
+        if(!sprite->blockChains[blockChainID].blocksToRepeat.empty()) return true;
+    }
+    return false;
+}
