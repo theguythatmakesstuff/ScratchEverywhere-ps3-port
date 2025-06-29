@@ -98,6 +98,12 @@ BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, Block** wait
         return BlockResult::RETURN;
     }
     if(stopType == "this script"){
+        for (std::string repeatID : sprite->blockChains[block.blockChainID].blocksToRepeat) {
+            Block* repeatBlock = findBlock(repeatID);
+            if (repeatBlock) {
+                repeatBlock->repeatTimes = -1;
+            }
+        }
         sprite->blockChains[block.blockChainID].blocksToRepeat.clear();
         return BlockResult::CONTINUE;
     }
@@ -105,8 +111,15 @@ BlockResult ControlBlocks::stop(const Block& block, Sprite* sprite, Block** wait
     if(stopType == "other scripts in sprite"){
         for(auto& [id,chain] : sprite->blockChains){
             if(id == block.blockChainID) continue;
+            for (std::string repeatID : chain.blocksToRepeat) {
+                Block* repeatBlock = findBlock(repeatID);
+                if (repeatBlock) {
+                    repeatBlock->repeatTimes = -1;
+                }
+            }
             chain.blocksToRepeat.clear();
         }
+        return BlockResult::CONTINUE;
     }
     return BlockResult::CONTINUE;
 }
@@ -205,95 +218,76 @@ BlockResult ControlBlocks::repeat(const Block& block, Sprite* sprite, Block** wa
                 }
         }
     }
-// Countdown
+        // Countdown
         blockReference->repeatTimes -= 1;
-        //std::cout << "returning!" << std::endl;
         return BlockResult::RETURN;
 } else {
         blockReference->repeatTimes = -1;
     }
 
     sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
-    //std::cout << "continuing!" << std::endl;
     return BlockResult::CONTINUE;
 
 }
 
 BlockResult ControlBlocks::repeatUntil(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-    //     Conditional newConditional;
-    //     newConditional.id = block.id;
-    //     newConditional.hostSprite = sprite;
-    //     newConditional.isTrue = false;
-    //     newConditional.times = -1;
-    //     newConditional.waitingBlock = *waitingBlock;
-    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
-    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-    //     if(newConditional.waitingBlock != nullptr){
-    //         sprite->conditionals[newConditional.waitingBlock->id].isActive = false;
-    //         newConditional.waitingBlockId = newConditional.waitingBlock->id;
-    //     }
-    //     sprite->conditionals[newConditional.id] = newConditional;
-    // }
+    Block* blockReference = findBlock(block.id);
 
-    // auto it = block.inputs.find("CONDITION");
-    // if (it != block.inputs.end()) {
-    //     const auto& condition = it->second;
-    //     if (condition.is_array() && condition.size() > 1 && condition[1].is_null()) {
-    //         if(!executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)){
-    //             sprite->conditionals[block.id].isTrue = true;
-    //         } else {
-    //             sprite->conditionals[block.id].isTrue = false;
-    //             *waitingBlock = sprite->conditionals[block.id].waitingBlock;
-    // }
+    if(blockReference->repeatTimes == -1){
+        blockReference->repeatTimes = -2;
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+    
+
+    bool conditionMet = false;
+    auto conditionIt = block.inputs.find("CONDITION");
+    if (conditionIt != block.inputs.end()) {
+        const auto& condition = conditionIt->second;
+        if (condition.is_array() && condition.size() > 1 && !condition[1].is_null()) {
             
-    //     }
-    // }
-    // else sprite->conditionals[block.id].isTrue = true;
+            conditionMet = executor.runConditionalBlock(condition[1], sprite);
 
-    // // run repeat block if theres any block inside of it
-    // if (sprite->conditionals[block.id].isTrue) {
-    //     auto substackIt = block.inputs.find("SUBSTACK");
-    //     if (substackIt != block.inputs.end()) {
-    //         const auto& substack = substackIt->second;
-    //         if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
-    //             Block* subBlock = findBlock(substack[1]);
-    //             if (subBlock != nullptr) {
-    //                 executor.runBlock(*subBlock, sprite,const_cast<Block*>(&block));
-    //             }
-    //         }
-    //     }
-    //     return BlockResult::RETURN;
-    // }
-    return BlockResult::CONTINUE;
+        }
+    }
+    
+    if (conditionMet) {
+        blockReference->repeatTimes = -1;
+        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        return BlockResult::CONTINUE;
+    }
+    
+    auto substackIt = block.inputs.find("SUBSTACK");
+    if (substackIt != block.inputs.end()) {
+        const auto& substack = substackIt->second;
+        if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
+            Block* subBlock = findBlock(substack[1]);
+            if (subBlock != nullptr) {
+                executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
+            }
+        }
+    }
+    
+    // Continue the loop
+    return BlockResult::RETURN;
 }
 
 BlockResult ControlBlocks::forever(const Block& block, Sprite* sprite, Block** waitingBlock, bool withoutScreenRefresh){
-    // if (sprite->conditionals.find(block.id) == sprite->conditionals.end()) {
-    //     Conditional newConditional;
-    //     newConditional.id = block.id;
-    //     newConditional.hostSprite = sprite;
-    //     newConditional.isTrue = false;
-    //     newConditional.times = -1;
-    //     newConditional.waitingBlock = *waitingBlock;
-    //     newConditional.runWithoutScreenRefresh = withoutScreenRefresh;
-    //     newConditional.waitingConditional = getParentConditional(sprite,block.id);
-    //     if(newConditional.waitingConditional != nullptr) newConditional.waitingConditional->isActive = false;
-    //     sprite->conditionals[newConditional.id] = newConditional;
-    // }
+    Block* blockReference = findBlock(block.id);
 
-    // if (sprite->conditionals[block.id].isTrue) {
-    //     auto substackIt = block.inputs.find("SUBSTACK");
-    //     if (substackIt != block.inputs.end()) {
-    //         const auto& substack = substackIt->second;
-    //         if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
-    //             Block* subBlock = findBlock(substack[1]);
-    //             if (subBlock != nullptr) {
-    //                 executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
-    //             }
-    //         }
-    //     }
-    // }
-    // sprite->conditionals[block.id].isTrue = true;
-    return BlockResult::CONTINUE;
+    if(blockReference->repeatTimes == -1){
+        blockReference->repeatTimes = -3;
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    }
+
+    auto substackIt = block.inputs.find("SUBSTACK");
+    if (substackIt != block.inputs.end()) {
+        const auto& substack = substackIt->second;
+        if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
+            Block* subBlock = findBlock(substack[1]);
+            if (subBlock != nullptr) {
+                executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
+            }
+        }
+    }
+    return BlockResult::RETURN;
 }
