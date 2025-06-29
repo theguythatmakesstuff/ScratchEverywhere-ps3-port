@@ -146,34 +146,34 @@ BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Bloc
     //     sprite->conditionals[newConditional.id] = newConditional;
     // }
 
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+    // auto currentTime = std::chrono::high_resolution_clock::now();
+    // auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
     
-    double startX = sprite->conditionals[block.id].startingX;
-    double startY = sprite->conditionals[block.id].startingY;
-    double endX = sprite->conditionals[block.id].endX;
-    double endY = sprite->conditionals[block.id].endY;
+    // double startX = sprite->conditionals[block.id].startingX;
+    // double startY = sprite->conditionals[block.id].startingY;
+    // double endX = sprite->conditionals[block.id].endX;
+    // double endY = sprite->conditionals[block.id].endY;
 
-    double durationMs = sprite->conditionals[block.id].endTime;
+    // double durationMs = sprite->conditionals[block.id].endTime;
 
-    if (elapsedTime < sprite->conditionals[block.id].endTime) {
-        sprite->conditionals[block.id].isTrue = true;
+    // if (elapsedTime < sprite->conditionals[block.id].endTime) {
+    //     sprite->conditionals[block.id].isTrue = true;
 
-        // Calculate progress (0.0 to 1.0)
-        double progress = static_cast<double>(elapsedTime) / durationMs;
-        if (progress > 1.0) progress = 1.0;
-        // Interpolate position
-        sprite->xPosition = startX + (endX - startX) * progress;
-        sprite->yPosition = startY + (endY - startY) * progress;
+    //     // Calculate progress (0.0 to 1.0)
+    //     double progress = static_cast<double>(elapsedTime) / durationMs;
+    //     if (progress > 1.0) progress = 1.0;
+    //     // Interpolate position
+    //     sprite->xPosition = startX + (endX - startX) * progress;
+    //     sprite->yPosition = startY + (endY - startY) * progress;
 
-        return BlockResult::RETURN;
-    } else {
-        sprite->xPosition = endX;
-        sprite->yPosition = endY;
-        sprite->conditionals[block.id].isTrue = false;
-        *waitingBlock = sprite->conditionals[block.id].waitingBlock;
+    //     return BlockResult::RETURN;
+    // } else {
+    //     sprite->xPosition = endX;
+    //     sprite->yPosition = endY;
+    //     sprite->conditionals[block.id].isTrue = false;
+    //     *waitingBlock = sprite->conditionals[block.id].waitingBlock;
         //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
-    }
+   // }
 
     return BlockResult::CONTINUE;
 }
@@ -242,34 +242,34 @@ BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block** wa
     //     sprite->conditionals[newConditional.id] = newConditional;
     // }
 
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
+    // auto currentTime = std::chrono::high_resolution_clock::now();
+    // auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - sprite->conditionals[block.id].time).count();
     
-    double startX = sprite->conditionals[block.id].startingX;
-    double startY = sprite->conditionals[block.id].startingY;
-    double endX = sprite->conditionals[block.id].endX;
-    double endY = sprite->conditionals[block.id].endY;
+    // double startX = sprite->conditionals[block.id].startingX;
+    // double startY = sprite->conditionals[block.id].startingY;
+    // double endX = sprite->conditionals[block.id].endX;
+    // double endY = sprite->conditionals[block.id].endY;
 
-    double durationMs = sprite->conditionals[block.id].endTime;
+    // double durationMs = sprite->conditionals[block.id].endTime;
 
-    if (elapsedTime < sprite->conditionals[block.id].endTime) {
-        sprite->conditionals[block.id].isTrue = true;
+    // if (elapsedTime < sprite->conditionals[block.id].endTime) {
+    //     sprite->conditionals[block.id].isTrue = true;
 
-        // Calculate progress (0.0 to 1.0)
-        double progress = static_cast<double>(elapsedTime) / durationMs;
-        if (progress > 1.0) progress = 1.0;
-        // Interpolate position
-        sprite->xPosition = startX + (endX - startX) * progress;
-        sprite->yPosition = startY + (endY - startY) * progress;
+    //     // Calculate progress (0.0 to 1.0)
+    //     double progress = static_cast<double>(elapsedTime) / durationMs;
+    //     if (progress > 1.0) progress = 1.0;
+    //     // Interpolate position
+    //     sprite->xPosition = startX + (endX - startX) * progress;
+    //     sprite->yPosition = startY + (endY - startY) * progress;
 
-        return BlockResult::RETURN;
-    } else {
-        sprite->xPosition = endX;
-        sprite->yPosition = endY;
-        sprite->conditionals[block.id].isTrue = false;
-        *waitingBlock = sprite->conditionals[block.id].waitingBlock;
+    //     return BlockResult::RETURN;
+    // } else {
+    //     sprite->xPosition = endX;
+    //     sprite->yPosition = endY;
+    //     sprite->conditionals[block.id].isTrue = false;
+    //     *waitingBlock = sprite->conditionals[block.id].waitingBlock;
         //sprite->conditionals[block.id].time = std::chrono::high_resolution_clock::now();
-    }
+    //}
 
     return BlockResult::CONTINUE;
 }

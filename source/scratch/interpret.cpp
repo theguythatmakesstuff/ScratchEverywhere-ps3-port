@@ -50,72 +50,6 @@ std::string removeQuotations(std::string value) {
     return value;
 }
 
-void buildBlockHierarchyCache() {
-    for(auto& sprite : sprites){
-    sprite->blockCache.blockToParentConditional.clear();
-    sprite->blockCache.blockToTopLevel.clear();
-    
-
-        // For each top-level block
-        for (auto& [id,block] : sprite->blocks) {
-            processBlockForCache(sprite,&block,"",getBlockParent(&block));
-        }
-        sprite->blockCache.isCacheBuilt = true;
-    }
-    
-    
-}
-
-void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock) {
-    if (!block) return;
-    
-    // Store the top-level parent for this block
-    sprite->blockCache.blockToTopLevel[block->id] = topLevelBlock->id;
-    
-    // If this is a conditional block (repeat, forever, if, etc.)
-    bool isConditionalBlock = 
-            block->opcode == Block::CONTROL_REPEAT || 
-            block->opcode == Block::PROCEDURES_CALL || 
-            block->opcode == Block::CONTROL_FOREVER ||
-            block->opcode == Block::CONTROL_IF ||
-            block->opcode == Block::CONTROL_REPEAT_UNTIL ||
-            block->opcode == Block::CONTROL_WAIT ||
-            block->opcode == Block::CONTROL_WAIT_UNTIL ||
-            block->opcode == Block::MOTION_GLIDE_SECS_TO_XY ||
-            block->opcode == Block::MOTION_GLIDE_TO ||
-            block->opcode == Block::CONTROL_IF_ELSE;
-    
-    // Update parent conditional if this is a conditional block
-    std::string currentParentId = isConditionalBlock ? block->id : parentConditionalId;
-    
-    // Store parent conditional for this block (even if it's empty)
-    sprite->blockCache.blockToParentConditional[block->id] = parentConditionalId;
-    
-    // Process SUBSTACK (main branch inside repeat/if)
-    if (!block->inputs["SUBSTACK"][1].is_null()) {
-        Block* substack = findBlock(block->inputs["SUBSTACK"][1]);
-        if (substack) {
-            processBlockForCache(sprite,substack, currentParentId, topLevelBlock);
-        }
-    }
-    
-    // Process SUBSTACK2 (else branch)
-    if (!block->inputs["SUBSTACK2"][1].is_null()) {
-        Block* substack2 = findBlock(block->inputs["SUBSTACK2"][1]);
-        if (substack2) {
-            processBlockForCache(sprite,substack2, currentParentId, topLevelBlock);
-        }
-    }
-    
-    // Process next block
-    if (!block->next.empty()) {
-        Block* nextBlock = findBlock(block->next);
-        if (nextBlock) {
-            processBlockForCache(sprite,nextBlock, currentParentId, topLevelBlock);
-        }
-    }
-}
-
 void initializeSpritePool(int poolSize) {
     for (int i = 0; i < poolSize; i++) {
         Sprite newSprite;
@@ -447,7 +381,7 @@ void loadSprites(const nlohmann::json& json){
         // }
     
 
-    buildBlockHierarchyCache();
+    //buildBlockHierarchyCache();
 
     // get block chains for every block (very inefficiently)
     for (Sprite* currentSprite : sprites) {
@@ -603,114 +537,22 @@ void runCustomBlock(Sprite*sprite,Block block){
            std::cout << "running custom block "<<data.blockId<<std::endl;
             // run the parent of the prototype block since that block is the definition, containing all the blocks
             
-            sprite->conditionals[block.id].customBlock = findBlock(findBlock(data.blockId)->parent);
+            //sprite->conditionals[block.id].customBlock = findBlock(findBlock(data.blockId)->parent);
 
-            if(!hasAnyConditionals(sprite,sprite->conditionals[block.id].customBlock->id)){
-            sprite->conditionals[block.id].waitingBlock = nullptr;
-           if(sprite->conditionals[block.id].waitingConditional != nullptr)
-            sprite->conditionals[block.id].waitingConditional->isActive = true;
-            }
+        //     if(!hasAnyConditionals(sprite,sprite->conditionals[block.id].customBlock->id)){
+        //     sprite->conditionals[block.id].waitingBlock = nullptr;
+        //    if(sprite->conditionals[block.id].waitingConditional != nullptr)
+        //     sprite->conditionals[block.id].waitingConditional->isActive = true;
+        //     }
             //std::cout << "RWSR = " << data.runWithoutScreenRefresh << std::endl;
-            executor.runBlock(*sprite->conditionals[block.id].customBlock,sprite,sprite->conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
+            //executor.runBlock(*sprite->conditionals[block.id].customBlock,sprite,sprite->conditionals[block.id].waitingBlock,data.runWithoutScreenRefresh);
 
         }
     }
 
 }
 
-void runRepeatBlocks(){
-    //std::cout<<"Running repeat blocks..."<< std::endl;
-    std::vector<Conditional*> condsToDelete;
-    std::vector<Block> blocksToRun;
-    for(auto &currentSprite : sprites){
-    for(auto &[id,data] : currentSprite->conditionals){
-        if(data.isActive && data.isTrue){
-            if(data.runWithoutScreenRefresh){
-                while(data.isTrue){
-                    executor.runBlock(*findBlock(data.id),data.hostSprite);
-                }
-            }
-            else{
-                std::cout << "Running repeat " << data.id << std::endl;
-            executor.runBlock(*findBlock(data.id),data.hostSprite);
-                }
-            
-            }
-            //else currentSprite->conditionals.erase(id);
-            else if(data.isActive && !data.isTrue) condsToDelete.push_back(&currentSprite->conditionals[id]);
-        }
-    }
 
-// repeat the block most recently added to the repeat chain
-    for(auto& sprite : sprites){
-        for(auto& [id, blockChain]: sprite->blockChains){
-        auto& repeatList = blockChain.blocksToRepeat;
-            if (!repeatList.empty()) {
-                std::string toRepeat = repeatList.back();
-                if(!toRepeat.empty()){
-                Block* toRun = findBlock(toRepeat);
-                std::cout << "rnning!" << std::endl;
-                if(toRun != nullptr)
-                executor.runBlock(*toRun, sprite);
-                continue;
-                }
-            } 
-        }
-    }
-
-
-
-           // remove sprites ready for deletion
-
-        for(auto& currentSprite : sprites){
-            if(currentSprite->toDelete){
-                currentSprite->conditionals.clear();
-            }
-        }
-
-            // Delete the collected conditionals
-        for (Conditional* cond : condsToDelete) {
-            for (auto& currentSprite : sprites) {
-             for (auto currConditional = currentSprite->conditionals.begin(); currConditional != currentSprite->conditionals.end(); ++currConditional) {
-              if (&currConditional->second == cond) {
-
-
-                // first check if it has a waiting conditional, if does then activate
-                if(currConditional->second.waitingConditional != nullptr){
-                    currConditional->second.waitingConditional->isActive = true;
-                    //std::cout << currConditional->second.waitingConditional->id << " is now active." << std::endl;
-                }
-                // check if it has a waiting block, then activate it's conditional.
-                if(!currConditional->second.waitingBlockId.empty()){
-                    currentSprite->conditionals[currConditional->second.waitingBlockId].isActive = true;
-                }
-
-                // then check if the conditional has a waiting block, run it if so
-                // if(currConditional->second.waitingBlock != nullptr && !currConditional->second.waitingBlock->id.empty()){
-                //     blocksToRun.push_back(*currConditional->second.waitingBlock);
-                //     //executor.runBlock(currConditional->second.waitingBlock,currentSprite);
-                // }
-
-                    std::cout << "erased conditional " << currConditional->second.id << std::endl;
-                    currentSprite->conditionals.erase(currConditional);
-                    break;
-                }
-            }
-
-
-                while (!blocksToRun.empty()) {
-                    std::cout << "running block " << blocksToRun.front().id << std::endl;
-                    executor.runBlock(blocksToRun.front(), currentSprite);
-                    blocksToRun.erase(blocksToRun.begin());
-                }
-
-
-        }
-    }
-
-           sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
-
-}
 
 
 void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){
@@ -846,72 +688,6 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
     
     return "";
 }
-
-// Function to check if there are any active conditionals within a block's definition
-bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId) {
-    // Look through all conditionals for this sprite
-    for (auto& [condId, conditional] : sprite->conditionals) {
-        // Skip inactive conditionals
-        if (!conditional.isActive) continue;
-        
-        // Check if this conditional is inside the given block's definition
-        // We can use our blockCache to check if the conditional's block is within the custom block
-        if (sprite->blockCache.isCacheBuilt) {
-            // Get the top-level block for this conditional
-            auto topLevelIt = sprite->blockCache.blockToTopLevel.find(conditional.id);
-            if (topLevelIt != sprite->blockCache.blockToTopLevel.end()) {
-                // If the conditional's top-level block is the custom block we're checking
-                if (topLevelIt->second == blockId) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-Conditional* getParentConditional(Sprite* sprite, std::string blockId) {
-    // Make sure the cache is built
-    if (!sprite->blockCache.isCacheBuilt) {
-        buildBlockHierarchyCache();
-    }
-    
-    // Direct lookup for parent conditional
-    auto it = sprite->blockCache.blockToParentConditional.find(blockId);
-    if (it != sprite->blockCache.blockToParentConditional.end() && !it->second.empty()) {
-        // Check if this conditional is active
-        auto condIt = sprite->conditionals.find(it->second);
-        if (condIt != sprite->conditionals.end()) {
-            return &condIt->second;
-        }
-    }
-    
-    return nullptr;
-}
-
-bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId) {
-    auto blockScript = getBlockChain(topLevelParentBlockId);
-    
-    for (Block* currentBlock : blockScript) {
-        // Check for repeat blocks, if-else blocks, or any other blocks that work over multiple frames
-        if (currentBlock->opcode == Block::CONTROL_REPEAT || 
-            currentBlock->opcode == Block::CONTROL_FOREVER ||
-            currentBlock->opcode == Block::PROCEDURES_CALL || 
-            currentBlock->opcode == Block::CONTROL_IF ||
-            currentBlock->opcode == Block::CONTROL_REPEAT_UNTIL ||
-            currentBlock->opcode == Block::CONTROL_WAIT ||
-            currentBlock->opcode == Block::CONTROL_WAIT_UNTIL ||
-            currentBlock->opcode == Block::MOTION_GLIDE_SECS_TO_XY ||
-            currentBlock->opcode == Block::MOTION_GLIDE_TO ||
-            currentBlock->opcode == Block::CONTROL_IF_ELSE) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-
 
 std::string Scratch::getInputValue(const nlohmann::json& item, const Block* block, Sprite* sprite) {
     int type = item[0];

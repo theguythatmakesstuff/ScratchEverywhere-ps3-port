@@ -177,6 +177,30 @@ BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block
     return BlockResult::CONTINUE;
 }
 
+void BlockExecutor::runRepeatBlocks(){
+    //std::cout<<"Running repeat blocks..."<< std::endl;
+
+    // repeat the block most recently added to the repeat chain
+    for(auto& sprite : sprites){
+        for(auto& [id, blockChain]: sprite->blockChains){
+        auto& repeatList = blockChain.blocksToRepeat;
+            if (!repeatList.empty()) {
+                std::string toRepeat = repeatList.back();
+                if(!toRepeat.empty()){
+                Block* toRun = findBlock(toRepeat);
+                std::cout << "rnning!" << std::endl;
+                if(toRun != nullptr)
+                executor.runBlock(*toRun, sprite);
+                continue;
+                }
+            } 
+        }
+    }
+        // delete sprites ready for deletion
+           sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
+
+}
+
 std::string BlockExecutor::getBlockValue(const Block& block,Sprite*sprite){
     auto iterator = valueHandlers.find(block.opcode);
     if (iterator != valueHandlers.end()) {

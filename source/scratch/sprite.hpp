@@ -271,25 +271,6 @@ struct CustomBlock{
 
 };
 
-struct Conditional{
-    std::string id;
-    Sprite* hostSprite;
-    Block* waitingBlock = nullptr;
-    std::string waitingBlockId;
-    Block* customBlock;
-    Conditional* waitingConditional;
-    bool runWithoutScreenRefresh = false;
-    bool isTrue;
-    bool isActive = true;
-    int times;
-    std::chrono::_V2::system_clock::time_point time;
-    double endTime;
-    double startingX;
-    double startingY;
-    double endX;
-    double endY;
-};
-
 struct List{
     std::string id;
     std::string name;
@@ -378,7 +359,6 @@ class Sprite {
         std::vector<Costume> costumes;
         std::unordered_map<std::string, Comment> comments;
         std::unordered_map<std::string, Broadcast> broadcasts;
-        std::unordered_map<std::string, Conditional> conditionals;
         std::unordered_map<std::string, CustomBlock> customBlocks;
         std::unordered_map<std::string,BlockChain> blockChains;
         BlockHierarchyCache blockCache;

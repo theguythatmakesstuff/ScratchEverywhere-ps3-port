@@ -28,24 +28,26 @@ BlockResult ProcedureBlocks::call(const Block& block, Sprite* sprite, Block** wa
     
 
 
-    if(!sprite->conditionals[block.id].isTrue){
-    std::cout << "about to run " << block.id << std::endl;
-    runCustomBlock(sprite, block);
-    sprite->conditionals[block.id].isTrue = true;
-    sprite->conditionals[block.id].isActive = true;
-    if(sprite->conditionals[block.id].waitingBlock != nullptr && 
-        !sprite->conditionals[block.id].waitingBlock->id.empty()) return BlockResult::RETURN;
-    }
+    // if(!sprite->conditionals[block.id].isTrue){
+    // std::cout << "about to run " << block.id << std::endl;
+    // runCustomBlock(sprite, block);
+    // sprite->conditionals[block.id].isTrue = true;
+    // sprite->conditionals[block.id].isActive = true;
+    // if(sprite->conditionals[block.id].waitingBlock != nullptr && 
+    //     !sprite->conditionals[block.id].waitingBlock->id.empty()) return BlockResult::RETURN;
+    // }
 
 
-    // check if any repeat blocks are running in the custom block
-    if(!hasActiveConditionalsInside(sprite,sprite->conditionals[block.id].customBlock->id)){
-    std::cout << "done with custom!" << std::endl;
-        sprite->conditionals[block.id].isTrue = false;
-        //sprite->conditionals.erase(block.id);
-        return BlockResult::CONTINUE;
-    }
-    else return BlockResult::RETURN;
+    // // check if any repeat blocks are running in the custom block
+    // if(!hasActiveConditionalsInside(sprite,sprite->conditionals[block.id].customBlock->id)){
+    // std::cout << "done with custom!" << std::endl;
+    //     sprite->conditionals[block.id].isTrue = false;
+    //     //sprite->conditionals.erase(block.id);
+    //     return BlockResult::CONTINUE;
+    // }
+    // else return BlockResult::RETURN;
+
+    return BlockResult::CONTINUE; // delete this
 
 }
 
