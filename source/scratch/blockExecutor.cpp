@@ -173,7 +173,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
 }
 
 
-BlockResult BlockExecutor::executeBlock(const Block& block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult BlockExecutor::executeBlock(Block& block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh){
     auto iterator = handlers.find(block.opcode);
     if (iterator != handlers.end()) {
         return iterator->second(block, sprite, waitingBlock, withoutScreenRefresh);
@@ -192,15 +192,29 @@ void BlockExecutor::runRepeatBlocks(){
                 std::string toRepeat = repeatList.back();
                 if(!toRepeat.empty()){
                 Block* toRun = findBlock(toRepeat);
-                //std::cout << "rnning!" << std::endl;
+                //std::cout << "running for " << sprite->id << std::endl;
                 if(toRun != nullptr)
                 executor.runBlock(*toRun, sprite);
                 }
             } 
         }
     }
-        // delete sprites ready for deletion
-           sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
+    // delete sprites ready for deletion
+
+    for(auto& toDelete : sprites){
+        if(!toDelete->toDelete) continue;
+        for(auto& [id,block] : toDelete->blocks){
+        for (std::string repeatID : toDelete->blockChains[block.blockChainID].blocksToRepeat) {
+            Block* repeatBlock = findBlock(repeatID);
+            if (repeatBlock) {
+                repeatBlock->repeatTimes = -1;
+            }
+        }
+    }
+    
+    }
+
+    sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 
 }
 

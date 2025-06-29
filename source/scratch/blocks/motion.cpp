@@ -1,6 +1,6 @@
 #include "motion.hpp"
 
-BlockResult MotionBlocks::moveSteps(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult MotionBlocks::moveSteps(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("STEPS"), &block, sprite);
             if (isNumber(value)) {
                 double angle = (sprite->rotation - 90) * M_PI / 180.0;
@@ -14,7 +14,7 @@ BlockResult MotionBlocks::moveSteps(const Block& block, Sprite* sprite, Block** 
 
 }
 
-BlockResult MotionBlocks::goTo(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult MotionBlocks::goTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Block* inputBlock = findBlock(block.inputs.at("TO")[1]);
             std::string objectName = inputBlock->fields["TO"][0];
 
@@ -40,7 +40,7 @@ BlockResult MotionBlocks::goTo(const Block& block, Sprite* sprite, Block** waiti
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::goToXY(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult MotionBlocks::goToXY(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string xVal = Scratch::getInputValue(block.inputs.at("X"), &block, sprite);
     std::string yVal = Scratch::getInputValue(block.inputs.at("Y"), &block, sprite);
     if (isNumber(xVal)) sprite->xPosition = std::stod(xVal);
@@ -48,7 +48,7 @@ BlockResult MotionBlocks::goToXY(const Block& block, Sprite* sprite, Block** wai
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::turnLeft(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult MotionBlocks::turnLeft(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("DEGREES"), &block, sprite);
     if (isNumber(value)) {
         sprite->rotation -= std::stoi(value);
@@ -56,7 +56,7 @@ BlockResult MotionBlocks::turnLeft(const Block& block, Sprite* sprite, Block** w
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::turnRight(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult MotionBlocks::turnRight(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("DEGREES"), &block, sprite);
     if (isNumber(value)) {
         sprite->rotation += std::stoi(value);
@@ -64,7 +64,7 @@ BlockResult MotionBlocks::turnRight(const Block& block, Sprite* sprite, Block** 
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::pointInDirection(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult MotionBlocks::pointInDirection(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("DIRECTION"), &block, sprite);
     if (isNumber(value)) {
         sprite->rotation = std::stoi(value);
@@ -72,7 +72,7 @@ BlockResult MotionBlocks::pointInDirection(const Block& block, Sprite* sprite, B
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::changeXBy(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::changeXBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("DX"), &block, sprite);
     if (isNumber(value)) {
         sprite->xPosition += std::stod(value);
@@ -82,7 +82,7 @@ BlockResult MotionBlocks::changeXBy(const Block& block, Sprite* sprite, Block** 
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::changeYBy(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::changeYBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("DY"), &block, sprite);
     if (isNumber(value)) {
         sprite->yPosition += std::stod(value);
@@ -92,7 +92,7 @@ BlockResult MotionBlocks::changeYBy(const Block& block, Sprite* sprite, Block** 
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::setX(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::setX(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("X"), &block, sprite);
     if (isNumber(value)) {
         sprite->xPosition = std::stod(value);
@@ -102,7 +102,7 @@ BlockResult MotionBlocks::setX(const Block& block, Sprite* sprite, Block** waiti
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::setY(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::setY(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("Y"), &block, sprite);
     if (isNumber(value)) {
         sprite->yPosition = std::stod(value);
@@ -112,69 +112,67 @@ BlockResult MotionBlocks::setY(const Block& block, Sprite* sprite, Block** waiti
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::glideSecsToXY(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    Block* blockReference = findBlock(block.id);
+BlockResult MotionBlocks::glideSecsToXY(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     
-    if(blockReference->repeatTimes == -1){
-        blockReference->repeatTimes = -6;
+    if(block.repeatTimes == -1){
+        block.repeatTimes = -6;
         
         std::string duration = Scratch::getInputValue(block.inputs.at("SECS"), &block, sprite);
         if(isNumber(duration)) {
-            blockReference->waitDuration = std::stod(duration) * 1000;
+            block.waitDuration = std::stod(duration) * 1000;
         } else {
-            blockReference->waitDuration = 0;
+            block.waitDuration = 0;
         }
         
-        blockReference->waitStartTime = std::chrono::high_resolution_clock::now();
-        blockReference->glideStartX = sprite->xPosition;
-        blockReference->glideStartY = sprite->yPosition;
+        block.waitStartTime = std::chrono::high_resolution_clock::now();
+        block.glideStartX = sprite->xPosition;
+        block.glideStartY = sprite->yPosition;
         
         // Get target positions
         std::string positionXStr = Scratch::getInputValue(block.inputs.at("X"), &block, sprite);
         std::string positionYStr = Scratch::getInputValue(block.inputs.at("Y"), &block, sprite);
-        blockReference->glideEndX = isNumber(positionXStr) ? std::stod(positionXStr) : blockReference->glideStartX;
-        blockReference->glideEndY = isNumber(positionYStr) ? std::stod(positionYStr) : blockReference->glideStartY;
+        block.glideEndX = isNumber(positionXStr) ? std::stod(positionXStr) : block.glideStartX;
+        block.glideEndY = isNumber(positionYStr) ? std::stod(positionYStr) : block.glideStartY;
         
         BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
     }
     
     auto currentTime = std::chrono::high_resolution_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - blockReference->waitStartTime).count();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - block.waitStartTime).count();
     
-    if (elapsedTime >= blockReference->waitDuration) {
-        sprite->xPosition = blockReference->glideEndX;
-        sprite->yPosition = blockReference->glideEndY;
+    if (elapsedTime >= block.waitDuration) {
+        sprite->xPosition = block.glideEndX;
+        sprite->yPosition = block.glideEndY;
         
-        blockReference->repeatTimes = -1;
+        block.repeatTimes = -1;
         sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
         return BlockResult::CONTINUE;
     }
     
-    double progress = static_cast<double>(elapsedTime) / blockReference->waitDuration;
+    double progress = static_cast<double>(elapsedTime) / block.waitDuration;
     if (progress > 1.0) progress = 1.0;
     
-    sprite->xPosition = blockReference->glideStartX + (blockReference->glideEndX - blockReference->glideStartX) * progress;
-    sprite->yPosition = blockReference->glideStartY + (blockReference->glideEndY - blockReference->glideStartY) * progress;
+    sprite->xPosition = block.glideStartX + (block.glideEndX - block.glideStartX) * progress;
+    sprite->yPosition = block.glideStartY + (block.glideEndY - block.glideStartY) * progress;
     
     return BlockResult::RETURN;
 }
 
-BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    Block* blockReference = findBlock(block.id);
+BlockResult MotionBlocks::glideTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
 
-    if(blockReference->repeatTimes == -1){
-        blockReference->repeatTimes = -7;
+    if(block.repeatTimes == -1){
+        block.repeatTimes = -7;
         
         std::string duration = Scratch::getInputValue(block.inputs.at("SECS"), &block, sprite);
         if(isNumber(duration)) {
-            blockReference->waitDuration = std::stod(duration) * 1000;
+            block.waitDuration = std::stod(duration) * 1000;
         } else {
-            blockReference->waitDuration = 0;
+            block.waitDuration = 0;
         }
         
-        blockReference->waitStartTime = std::chrono::high_resolution_clock::now();
-        blockReference->glideStartX = sprite->xPosition;
-        blockReference->glideStartY = sprite->yPosition;
+        block.waitStartTime = std::chrono::high_resolution_clock::now();
+        block.glideStartX = sprite->xPosition;
+        block.glideStartY = sprite->yPosition;
         
         Block* inputBlock;
         try {
@@ -205,34 +203,34 @@ BlockResult MotionBlocks::glideTo(const Block& block, Sprite* sprite, Block** wa
             }
         }
         
-        blockReference->glideEndX = isNumber(positionXStr) ? std::stod(positionXStr) : blockReference->glideStartX;
-        blockReference->glideEndY = isNumber(positionYStr) ? std::stod(positionYStr) : blockReference->glideStartY;
+        block.glideEndX = isNumber(positionXStr) ? std::stod(positionXStr) : block.glideStartX;
+        block.glideEndY = isNumber(positionYStr) ? std::stod(positionYStr) : block.glideStartY;
         
         BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
     }
 
     auto currentTime = std::chrono::high_resolution_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - blockReference->waitStartTime).count();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - block.waitStartTime).count();
     
-    if (elapsedTime >= blockReference->waitDuration) {
-        sprite->xPosition = blockReference->glideEndX;
-        sprite->yPosition = blockReference->glideEndY;
+    if (elapsedTime >= block.waitDuration) {
+        sprite->xPosition = block.glideEndX;
+        sprite->yPosition = block.glideEndY;
         
-        blockReference->repeatTimes = -1;
+        block.repeatTimes = -1;
         sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
         return BlockResult::CONTINUE;
     }
     
-    double progress = static_cast<double>(elapsedTime) / blockReference->waitDuration;
+    double progress = static_cast<double>(elapsedTime) / block.waitDuration;
     if (progress > 1.0) progress = 1.0;
     
-    sprite->xPosition = blockReference->glideStartX + (blockReference->glideEndX - blockReference->glideStartX) * progress;
-    sprite->yPosition = blockReference->glideStartY + (blockReference->glideEndY - blockReference->glideStartY) * progress;
+    sprite->xPosition = block.glideStartX + (block.glideEndX - block.glideStartX) * progress;
+    sprite->yPosition = block.glideStartY + (block.glideEndY - block.glideStartY) * progress;
     
     return BlockResult::RETURN;
 }
 
-BlockResult MotionBlocks::pointToward(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::pointToward(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     Block* inputBlock = findBlock(block.inputs.at("TOWARDS")[1]);
     if (inputBlock->fields.find("TOWARDS") == inputBlock->fields.end()) {
         // std::cerr << "Error: Unable to find object for POINT_TOWARD block." << std::endl;
@@ -269,7 +267,7 @@ BlockResult MotionBlocks::pointToward(const Block& block, Sprite* sprite, Block*
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::setRotationStyle(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::setRotationStyle(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value;
     try {
         value = block.fields.at("STYLE")[0];
@@ -288,7 +286,7 @@ BlockResult MotionBlocks::setRotationStyle(const Block& block, Sprite* sprite, B
     return BlockResult::CONTINUE;
 }
 
-BlockResult MotionBlocks::ifOnEdgeBounce(const Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult MotionBlocks::ifOnEdgeBounce(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     double halfWidth = projectWidth / 2.0;
     double halfHeight = projectHeight / 2.0;
     

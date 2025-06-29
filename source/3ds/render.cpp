@@ -152,7 +152,7 @@ void freeImage(Sprite* currentSprite, const std::string& costumeId) {
 
         // Erase the costume from imageC2Ds
         imageC2Ds.erase(it);
-        std::cout << "Freed image for costume: " << costumeId << std::endl;
+        //std::cout << "Freed image for costume: " << costumeId << std::endl;
     }
 }
 

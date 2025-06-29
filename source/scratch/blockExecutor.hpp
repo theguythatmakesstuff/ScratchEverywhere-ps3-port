@@ -13,7 +13,7 @@ enum class BlockResult {
 
 class BlockExecutor {
 private:
-    std::unordered_map<Block::opCode, std::function<BlockResult(const Block&, Sprite*,Block**, bool*)>> handlers;
+    std::unordered_map<Block::opCode, std::function<BlockResult(Block&, Sprite*,Block**, bool*)>> handlers;
     std::unordered_map<Block::opCode, std::function<std::string(const Block&, Sprite*)>> valueHandlers;
     std::unordered_map<Block::opCode, std::function<bool(const Block& block,Sprite*)>> conditionBlockHandlers;
     
@@ -29,5 +29,5 @@ public:
     
 private:
     void registerHandlers();
-    BlockResult executeBlock(const Block& block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh);
+    BlockResult executeBlock(Block& block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh);
 };

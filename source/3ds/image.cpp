@@ -181,7 +181,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
       }
     }
   
-    std::cout << "Image Loaded!" << std::endl;
+    //std::cout << "Image Loaded!" << std::endl;
     return image;
   }
 
