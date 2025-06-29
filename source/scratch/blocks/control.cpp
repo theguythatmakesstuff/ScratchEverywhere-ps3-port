@@ -1,39 +1,39 @@
 #include "control.hpp"
 
-BlockResult ControlBlocks::If(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    if (block.inputs.at("CONDITION")[1].is_null()) {
+BlockResult ControlBlocks::If(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    if (block->inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }
-    if (executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
-        if (!block.inputs.at("SUBSTACK")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
-            executor.runBlock(*subBlock, sprite);
+    if (executor.runConditionalBlock(block->inputs.at("CONDITION")[1], sprite)) {
+        if (!block->inputs.at("SUBSTACK")[1].is_null()) {
+            Block* subBlock = findBlock(block->inputs.at("SUBSTACK")[1]);
+            executor.runBlock(subBlock, sprite);
         }
     }
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::ifElse(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    if (block.inputs.at("CONDITION")[1].is_null()) {
+BlockResult ControlBlocks::ifElse(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    if (block->inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }
-    if (executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
-        if (!block.inputs.at("SUBSTACK")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
-            executor.runBlock(*subBlock, sprite);
+    if (executor.runConditionalBlock(block->inputs.at("CONDITION")[1], sprite)) {
+        if (!block->inputs.at("SUBSTACK")[1].is_null()) {
+            Block* subBlock = findBlock(block->inputs.at("SUBSTACK")[1]);
+            executor.runBlock(subBlock, sprite);
         }
     } else {
-        if (!block.inputs.at("SUBSTACK2")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK2")[1]);
-            executor.runBlock(*subBlock, sprite);
+        if (!block->inputs.at("SUBSTACK2")[1].is_null()) {
+            Block* subBlock = findBlock(block->inputs.at("SUBSTACK2")[1]);
+            executor.runBlock(subBlock, sprite);
         }
     }
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::createCloneOf(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::cout << "Trying " << std::endl;
-    Block* cloneOptions = findBlock(block.inputs.at("CLONE_OPTION")[1]);
+    Block* cloneOptions = findBlock(block->inputs.at("CLONE_OPTION")[1]);
     Sprite* spriteToClone = getAvailableSprite();
     if(!spriteToClone) return BlockResult::CONTINUE;
     if (cloneOptions->fields["CLONE_OPTION"][0] == "_myself_") {
@@ -75,8 +75,8 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
             if (currentSprite == addedSprite) {
                 for (auto& [id, block] : currentSprite->blocks) {
                     if (block.opcode == block.CONTROL_START_AS_CLONE) {
-                        // std::cout << "Running clone block " << block.id << std::endl;
-                        executor.runBlock(block, currentSprite);
+                        // std::cout << "Running clone block " << block->id << std::endl;
+                        executor.runBlock(&block, currentSprite);
                     }
                 }
             }
@@ -84,32 +84,32 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
     }
     return BlockResult::CONTINUE;
 }
-BlockResult ControlBlocks::deleteThisClone(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::deleteThisClone(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     if(sprite->isClone)
     sprite->toDelete = true;
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::stop(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string stopType = block.fields.at("STOP_OPTION")[0];
+BlockResult ControlBlocks::stop(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    std::string stopType = block->fields.at("STOP_OPTION")[0];
     if(stopType == "all"){
         toExit = true;
         return BlockResult::RETURN;
     }
     if(stopType == "this script"){
-        for (std::string repeatID : sprite->blockChains[block.blockChainID].blocksToRepeat) {
+        for (std::string repeatID : sprite->blockChains[block->blockChainID].blocksToRepeat) {
             Block* repeatBlock = findBlock(repeatID);
             if (repeatBlock) {
                 repeatBlock->repeatTimes = -1;
             }
         }
-        sprite->blockChains[block.blockChainID].blocksToRepeat.clear();
+        sprite->blockChains[block->blockChainID].blocksToRepeat.clear();
         return BlockResult::CONTINUE;
     }
 
     if(stopType == "other scripts in sprite"){
         for(auto& [id,chain] : sprite->blockChains){
-            if(id == block.blockChainID) continue;
+            if(id == block->blockChainID) continue;
             for (std::string repeatID : chain.blocksToRepeat) {
                 Block* repeatBlock = findBlock(repeatID);
                 if (repeatBlock) {
@@ -123,49 +123,52 @@ BlockResult ControlBlocks::stop(Block& block, Sprite* sprite, Block** waitingBlo
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::startAsClone(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::startAsClone(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     return BlockResult::CONTINUE;
 }
 
-BlockResult ControlBlocks::wait(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    
-    if(block.repeatTimes == -1){
-        block.repeatTimes = -5;
+BlockResult ControlBlocks::wait(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    std::cout << block->repeatTimes << std::endl;
+    if(block->repeatTimes == -1){
+        block->repeatTimes = -5;
+        //std::cout << "initialized!" << std::endl;
         
-        std::string duration = Scratch::getInputValue(block.inputs.at("DURATION"), &block, sprite);
+        std::string duration = Scratch::getInputValue(block->inputs.at("DURATION"), block, sprite);
         if(isNumber(duration)) {
-            block.waitDuration = std::stod(duration) * 1000; // convert to milliseconds
+            block->waitDuration = std::stod(duration) * 1000; // convert to milliseconds
         } else {
-            block.waitDuration = 0;
+            block->waitDuration = 0;
         }
         
-        block.waitStartTime = std::chrono::high_resolution_clock::now();
+        block->waitStartTime = std::chrono::high_resolution_clock::now();
         
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(block));
     }
     
     auto currentTime = std::chrono::high_resolution_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - block.waitStartTime).count();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - block->waitStartTime).count();
     
-    if (elapsedTime >= block.waitDuration) {
-        block.repeatTimes = -1;
-        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+    if (elapsedTime >= block->waitDuration) {
+        block->repeatTimes = -1;
+        sprite->blockChains[block->blockChainID].blocksToRepeat.pop_back();
+        std::cout << "wait block done!" << std::endl;
         return BlockResult::CONTINUE;
     }
+    std::cout << "waiting! "  << block->waitDuration - elapsedTime << " "<< elapsedTime << std::endl;
 
     return BlockResult::RETURN;
 }
 
-BlockResult ControlBlocks::waitUntil(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::waitUntil(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     
-    if(block.repeatTimes == -1){
-        block.repeatTimes = -4;
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    if(block->repeatTimes == -1){
+        block->repeatTimes = -4;
+        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(block));
     }
     
     bool conditionMet = false;
-    auto conditionIt = block.inputs.find("CONDITION");
-    if (conditionIt != block.inputs.end()) {
+    auto conditionIt = block->inputs.find("CONDITION");
+    if (conditionIt != block->inputs.end()) {
         const auto& condition = conditionIt->second;
         if (condition.is_array() && condition.size() > 1 && !condition[1].is_null()) {
             conditionMet = executor.runConditionalBlock(condition[1], sprite);
@@ -173,58 +176,58 @@ BlockResult ControlBlocks::waitUntil(Block& block, Sprite* sprite, Block** waiti
     }
     
     if (conditionMet) {
-        block.repeatTimes = -1;
-        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        block->repeatTimes = -1;
+        sprite->blockChains[block->blockChainID].blocksToRepeat.pop_back();
         return BlockResult::CONTINUE;
     }
     
     return BlockResult::RETURN;
 }
 
-BlockResult ControlBlocks::repeat(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::repeat(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
 
-    if(block.repeatTimes == -1){
-        std::string times = Scratch::getInputValue(block.inputs.at("TIMES"), &block, sprite);
-        block.repeatTimes = std::stoi(times);
-        BlockExecutor::addToRepeatQueue(sprite,const_cast<Block*>(&block));
+    if(block->repeatTimes == -1){
+        std::string times = Scratch::getInputValue(block->inputs.at("TIMES"), block, sprite);
+        block->repeatTimes = std::stoi(times);
+        BlockExecutor::addToRepeatQueue(sprite,block);
         //std::cout << "set! " << blockReference->repeatTimes << std::endl;
     }
 
-    if (block.repeatTimes > 0) {
-        auto substackIt = block.inputs.find("SUBSTACK");
-        if (substackIt != block.inputs.end()) {
+    if (block->repeatTimes > 0) {
+        auto substackIt = block->inputs.find("SUBSTACK");
+        if (substackIt != block->inputs.end()) {
             const auto& substack = substackIt->second;
             if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
                 Block* subBlock = findBlock(substack[1]);
                 if (subBlock != nullptr) {
                     //std::cout << "running inside repeat! " << blockReference->repeatTimes << std::endl;
-                    executor.runBlock(*subBlock, sprite,const_cast<Block*>(&block));
+                    executor.runBlock(subBlock, sprite,block);
                 }
         }
     }
         // Countdown
-        block.repeatTimes -= 1;
+        block->repeatTimes -= 1;
         return BlockResult::RETURN;
 } else {
-        block.repeatTimes = -1;
+        block->repeatTimes = -1;
     }
 
-    sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+    sprite->blockChains[block->blockChainID].blocksToRepeat.pop_back();
     return BlockResult::CONTINUE;
 
 }
 
-BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::repeatUntil(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
 
-    if(block.repeatTimes == -1){
-        block.repeatTimes = -2;
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    if(block->repeatTimes == -1){
+        block->repeatTimes = -2;
+        BlockExecutor::addToRepeatQueue(sprite,block);
     }
     
 
     bool conditionMet = false;
-    auto conditionIt = block.inputs.find("CONDITION");
-    if (conditionIt != block.inputs.end()) {
+    auto conditionIt = block->inputs.find("CONDITION");
+    if (conditionIt != block->inputs.end()) {
         const auto& condition = conditionIt->second;
         if (condition.is_array() && condition.size() > 1 && !condition[1].is_null()) {
             
@@ -234,18 +237,18 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     }
     
     if (conditionMet) {
-        block.repeatTimes = -1;
-        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        block->repeatTimes = -1;
+        sprite->blockChains[block->blockChainID].blocksToRepeat.pop_back();
         return BlockResult::CONTINUE;
     }
     
-    auto substackIt = block.inputs.find("SUBSTACK");
-    if (substackIt != block.inputs.end()) {
+    auto substackIt = block->inputs.find("SUBSTACK");
+    if (substackIt != block->inputs.end()) {
         const auto& substack = substackIt->second;
         if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
             Block* subBlock = findBlock(substack[1]);
             if (subBlock != nullptr) {
-                executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
+                executor.runBlock(subBlock, sprite,block);
             }
         }
     }
@@ -254,20 +257,20 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     return BlockResult::RETURN;
 }
 
-BlockResult ControlBlocks::forever(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult ControlBlocks::forever(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
 
-    if(block.repeatTimes == -1){
-        block.repeatTimes = -3;
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+    if(block->repeatTimes == -1){
+        block->repeatTimes = -3;
+        BlockExecutor::addToRepeatQueue(sprite,block);
     }
 
-    auto substackIt = block.inputs.find("SUBSTACK");
-    if (substackIt != block.inputs.end()) {
+    auto substackIt = block->inputs.find("SUBSTACK");
+    if (substackIt != block->inputs.end()) {
         const auto& substack = substackIt->second;
         if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
             Block* subBlock = findBlock(substack[1]);
             if (subBlock != nullptr) {
-                executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
+                executor.runBlock(subBlock, sprite,block);
             }
         }
     }

@@ -1,20 +1,20 @@
 #include "looks.hpp"
 
-BlockResult LooksBlocks::show(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult LooksBlocks::show(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     sprite->visible = true;
     return BlockResult::CONTINUE;
 }
-BlockResult LooksBlocks::hide(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult LooksBlocks::hide(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     sprite->visible = false;
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+BlockResult LooksBlocks::switchCostumeTo(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string inputValue;
     try{
-    inputValue = executor.getBlockValue(*findBlock(block.inputs.at("COSTUME")[1]),sprite);}
+    inputValue = executor.getBlockValue(*findBlock(block->inputs.at("COSTUME")[1]),sprite);}
     catch(...){
-        inputValue = Scratch::getInputValue(block.inputs.at("COSTUME"),&block,sprite);
+        inputValue = Scratch::getInputValue(block->inputs.at("COSTUME"),block,sprite);
     }
     //std::cout << "costume = " << inputValue << std::endl;
 
@@ -46,7 +46,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult LooksBlocks::nextCostume(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
     sprite->currentCostume++;
     if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
@@ -58,8 +58,8 @@ BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waiti
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string inputValue = executor.getBlockValue(*findBlock(block.inputs.at("BACKDROP")[1]),sprite);
+BlockResult LooksBlocks::switchBackdropTo(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    std::string inputValue = executor.getBlockValue(*findBlock(block->inputs.at("BACKDROP")[1]),sprite);
     for(Sprite* currentSprite : sprites){
         if(!currentSprite->isStage){
             continue;
@@ -92,7 +92,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+BlockResult LooksBlocks::nextBackdrop(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     for(Sprite* currentSprite : sprites){
         if(!currentSprite->isStage){
             continue;
@@ -109,9 +109,9 @@ BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** wait
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::goForwardBackwardLayers(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string value = Scratch::getInputValue(block.inputs.at("NUM"), &block, sprite);
-    std::string forwardBackward = block.fields.at("FORWARD_BACKWARD")[0];
+BlockResult LooksBlocks::goForwardBackwardLayers(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    std::string value = Scratch::getInputValue(block->inputs.at("NUM"), block, sprite);
+    std::string forwardBackward = block->fields.at("FORWARD_BACKWARD")[0];
     if (isNumber(value)) {
     if (forwardBackward == "forward") {
 
@@ -154,8 +154,8 @@ BlockResult LooksBlocks::goForwardBackwardLayers(Block& block, Sprite* sprite, B
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string value = block.fields.at("FRONT_BACK")[0];
+BlockResult LooksBlocks::goToFrontBack(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    std::string value = block->fields.at("FRONT_BACK")[0];
     if (value == "front") {
         sprite->layer = getMaxSpriteLayer() + 1;
     } else if (value == "back") {
@@ -168,15 +168,15 @@ BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** wai
     return BlockResult::CONTINUE;
 }
 
-BlockResult LooksBlocks::setSizeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    std::string value = Scratch::getInputValue(block.inputs.at("SIZE"), &block, sprite);
+BlockResult LooksBlocks::setSizeTo(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+    std::string value = Scratch::getInputValue(block->inputs.at("SIZE"), block, sprite);
     if (isNumber(value)) {
         sprite->size = std::stod(value);
     }
     return BlockResult::CONTINUE;
 }
-BlockResult LooksBlocks::changeSizeBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    std::string value = Scratch::getInputValue(block.inputs.at("CHANGE"), &block, sprite);
+BlockResult LooksBlocks::changeSizeBy(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
+    std::string value = Scratch::getInputValue(block->inputs.at("CHANGE"), block, sprite);
     if (isNumber(value)) {
         sprite->size += std::stod(value);
     }

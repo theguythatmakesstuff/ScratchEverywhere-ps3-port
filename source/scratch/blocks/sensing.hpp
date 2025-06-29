@@ -3,8 +3,8 @@
 
 class SensingBlocks{
 public:
-    static BlockResult resetTimer(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
-    static BlockResult askAndWait(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
+    static BlockResult resetTimer(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
+    static BlockResult askAndWait(Block* block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
 
     static std::string sensingTimer(const Block& block, Sprite* sprite);
     static std::string of(const Block& block, Sprite* sprite);

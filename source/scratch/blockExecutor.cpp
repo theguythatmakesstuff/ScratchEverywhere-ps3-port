@@ -131,7 +131,7 @@ void BlockExecutor::registerHandlers(){
 
 }
 
-void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, bool* withoutScreenRefresh){
+void BlockExecutor::runBlock(Block* block, Sprite* sprite, Block* waitingBlock, bool* withoutScreenRefresh){
     auto start = std::chrono::high_resolution_clock::now();
 
     bool localWithoutRefresh = false;
@@ -143,7 +143,7 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
         return;
     }
     
-    while (block.id != "null") {
+    while (block->id != "null") {
 
         BlockResult result = executeBlock(block, sprite, &waitingBlock, withoutScreenRefresh);
         
@@ -157,8 +157,8 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
 
         
         // Move to next block
-        if (!block.next.empty()) {
-            block = *blockLookup[block.next];
+        if (!block->next.empty()) {
+            block = blockLookup[block->next];
         } else {
             runBroadcasts();
                 break;
@@ -173,8 +173,8 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
 }
 
 
-BlockResult BlockExecutor::executeBlock(Block& block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh){
-    auto iterator = handlers.find(block.opcode);
+BlockResult BlockExecutor::executeBlock(Block* block, Sprite* sprite,Block** waitingBlock, bool* withoutScreenRefresh){
+    auto iterator = handlers.find(block->opcode);
     if (iterator != handlers.end()) {
         return iterator->second(block, sprite, waitingBlock, withoutScreenRefresh);
     }
@@ -194,7 +194,7 @@ void BlockExecutor::runRepeatBlocks(){
                 Block* toRun = findBlock(toRepeat);
                 //std::cout << "running for " << sprite->id << std::endl;
                 if(toRun != nullptr)
-                executor.runBlock(*toRun, sprite);
+                executor.runBlock(toRun, sprite);
                 }
             } 
         }
@@ -224,7 +224,7 @@ void BlockExecutor::runRepeatsWithoutRefresh(Sprite* sprite,std::string blockCha
             std::string toRepeat = sprite->blockChains[blockChainID].blocksToRepeat.back();
             Block* toRun = findBlock(toRepeat);
             if(toRun != nullptr)
-            executor.runBlock(*toRun, sprite);
+            executor.runBlock(toRun, sprite);
                 
         }
     }    
