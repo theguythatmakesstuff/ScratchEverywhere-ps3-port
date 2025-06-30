@@ -7,7 +7,8 @@
 #include "unzip.hpp"
 #include "oggAudioPlayer.hpp"
 
-
+// arm-none-eabi-addr2line -e Scratch.elf xxx
+// ^ for debug perposes
 
 static void exitApp(){
 	//freeText(); // kill text

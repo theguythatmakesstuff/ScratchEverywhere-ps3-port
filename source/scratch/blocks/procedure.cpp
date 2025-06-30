@@ -23,7 +23,7 @@ BlockResult ProcedureBlocks::call(Block& block, Sprite* sprite, Block** waitingB
         runCustomBlock(sprite, block, &block,withoutScreenRefresh);
         block.customBlockExecuted = true;
         
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+        BlockExecutor::addToRepeatQueue(sprite, &block);
     }
     
     // Check if any repeat blocks are still running inside the custom block

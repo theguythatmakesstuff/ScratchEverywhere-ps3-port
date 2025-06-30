@@ -19,7 +19,7 @@ private:
     
 public:
     BlockExecutor();
-    void runBlock(Block block, Sprite* sprite, Block* waitingBlock = nullptr, bool* withoutScreenRefresh = nullptr);
+    void runBlock(Block& block, Sprite* sprite, Block* waitingBlock = nullptr, bool* withoutScreenRefresh = nullptr);
     static void runRepeatBlocks();
     static void runRepeatsWithoutRefresh(Sprite* sprite,std::string blockChainID);
     std::string getBlockValue(const Block& block,Sprite*sprite);

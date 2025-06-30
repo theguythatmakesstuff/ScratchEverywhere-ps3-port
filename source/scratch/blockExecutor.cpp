@@ -131,8 +131,9 @@ void BlockExecutor::registerHandlers(){
 
 }
 
-void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, bool* withoutScreenRefresh){
+void BlockExecutor::runBlock(Block& block, Sprite* sprite, Block* waitingBlock, bool* withoutScreenRefresh){
     auto start = std::chrono::high_resolution_clock::now();
+    Block* currentBlock = &block;
 
     bool localWithoutRefresh = false;
     if (!withoutScreenRefresh) {
@@ -142,10 +143,11 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
     if (!sprite || sprite->toDelete) {
         return;
     }
-    
-    while (block.id != "null") {
+    u16 blocksRun = 0;
+    while (currentBlock && currentBlock->id != "null") {
+        blocksRun += 1;
 
-        BlockResult result = executeBlock(block, sprite, &waitingBlock, withoutScreenRefresh);
+        BlockResult result = executeBlock(*currentBlock, sprite, &waitingBlock, withoutScreenRefresh);
         
         if (result == BlockResult::RETURN) {
             return;
@@ -157,13 +159,17 @@ void BlockExecutor::runBlock(Block block, Sprite* sprite, Block* waitingBlock, b
 
         
         // Move to next block
-        if (!block.next.empty()) {
-            block = *blockLookup[block.next];
+        if (!currentBlock->next.empty()) {
+            currentBlock = &sprite->blocks[currentBlock->next];
+            
         } else {
             runBroadcasts();
                 break;
         }
     }
+
+    //std::cout << blocksRun << " blocks run" << std::endl;
+
         // Timing measurement
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
@@ -191,7 +197,7 @@ void BlockExecutor::runRepeatBlocks(){
             if (!repeatList.empty()) {
                 std::string toRepeat = repeatList.back();
                 if(!toRepeat.empty()){
-                Block* toRun = findBlock(toRepeat);
+                Block* toRun = &sprite->blocks[toRepeat];
                 //std::cout << "running for " << sprite->id << std::endl;
                 if(toRun != nullptr)
                 executor.runBlock(*toRun, sprite);

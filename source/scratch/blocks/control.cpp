@@ -6,7 +6,7 @@ BlockResult ControlBlocks::If(Block& block, Sprite* sprite, Block** waitingBlock
     }
     if (executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
         if (!block.inputs.at("SUBSTACK")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
+            Block* subBlock = &sprite->blocks[block.inputs.at("SUBSTACK")[1]];
             executor.runBlock(*subBlock, sprite);
         }
     }
@@ -19,12 +19,12 @@ BlockResult ControlBlocks::ifElse(Block& block, Sprite* sprite, Block** waitingB
     }
     if (executor.runConditionalBlock(block.inputs.at("CONDITION")[1], sprite)) {
         if (!block.inputs.at("SUBSTACK")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK")[1]);
+            Block* subBlock = &sprite->blocks[block.inputs.at("SUBSTACK")[1]];
             executor.runBlock(*subBlock, sprite);
         }
     } else {
         if (!block.inputs.at("SUBSTACK2")[1].is_null()) {
-            Block* subBlock = findBlock(block.inputs.at("SUBSTACK2")[1]);
+            Block* subBlock = &sprite->blocks[block.inputs.at("SUBSTACK2")[1]];
             executor.runBlock(*subBlock, sprite);
         }
     }
@@ -33,7 +33,7 @@ BlockResult ControlBlocks::ifElse(Block& block, Sprite* sprite, Block** waitingB
 
 BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::cout << "Trying " << std::endl;
-    Block* cloneOptions = findBlock(block.inputs.at("CLONE_OPTION")[1]);
+    Block* cloneOptions = &sprite->blocks[block.inputs.at("CLONE_OPTION")[1]];
     Sprite* spriteToClone = getAvailableSprite();
     if(!spriteToClone) return BlockResult::CONTINUE;
     if (cloneOptions->fields["CLONE_OPTION"][0] == "_myself_") {
@@ -45,6 +45,8 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
             }
         }
     }
+    spriteToClone->blockChains.clear();
+
     if (spriteToClone != nullptr && !spriteToClone->name.empty()) {
         spriteToClone->isClone = true;
         spriteToClone->isStage = false;
@@ -62,10 +64,6 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
         }
         spriteToClone->blocks.clear();
         spriteToClone->blocks = newBlocks;
-
-        for(auto& [id,chainBlock] : spriteToClone->blockChains){
-            chainBlock.blocksToRepeat.clear();
-        }
 
         // add clone to sprite list
         sprites.push_back(spriteToClone);
@@ -98,7 +96,7 @@ BlockResult ControlBlocks::stop(Block& block, Sprite* sprite, Block** waitingBlo
     }
     if(stopType == "this script"){
         for (std::string repeatID : sprite->blockChains[block.blockChainID].blocksToRepeat) {
-            Block* repeatBlock = findBlock(repeatID);
+            Block* repeatBlock = &sprite->blocks[repeatID];
             if (repeatBlock) {
                 repeatBlock->repeatTimes = -1;
             }
@@ -111,7 +109,7 @@ BlockResult ControlBlocks::stop(Block& block, Sprite* sprite, Block** waitingBlo
         for(auto& [id,chain] : sprite->blockChains){
             if(id == block.blockChainID) continue;
             for (std::string repeatID : chain.blocksToRepeat) {
-                Block* repeatBlock = findBlock(repeatID);
+                Block* repeatBlock = &sprite->blocks[repeatID];
                 if (repeatBlock) {
                     repeatBlock->repeatTimes = -1;
                 }
@@ -195,7 +193,7 @@ BlockResult ControlBlocks::repeat(Block& block, Sprite* sprite, Block** waitingB
         if (substackIt != block.inputs.end()) {
             const auto& substack = substackIt->second;
             if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
-                Block* subBlock = findBlock(substack[1]);
+                Block* subBlock = &sprite->blocks[substack[1]];
                 if (subBlock != nullptr) {
                     //std::cout << "running inside repeat! " << blockReference->repeatTimes << std::endl;
                     executor.runBlock(*subBlock, sprite,const_cast<Block*>(&block));
@@ -218,7 +216,8 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
 
     if(block.repeatTimes == -1){
         block.repeatTimes = -2;
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+        BlockExecutor::addToRepeatQueue(sprite, &block);
+        std::cout << "added to repeat queue!" << std::endl;
     }
     
 
@@ -243,9 +242,9 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     if (substackIt != block.inputs.end()) {
         const auto& substack = substackIt->second;
         if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
-            Block* subBlock = findBlock(substack[1]);
+            Block* subBlock = &sprite->blocks[substack[1]];
             if (subBlock != nullptr) {
-                executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
+                executor.runBlock(*subBlock, sprite, &block);
             }
         }
     }
@@ -258,16 +257,16 @@ BlockResult ControlBlocks::forever(Block& block, Sprite* sprite, Block** waiting
 
     if(block.repeatTimes == -1){
         block.repeatTimes = -3;
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block*>(&block));
+        BlockExecutor::addToRepeatQueue(sprite, &block);
     }
 
     auto substackIt = block.inputs.find("SUBSTACK");
     if (substackIt != block.inputs.end()) {
         const auto& substack = substackIt->second;
         if (substack.is_array() && substack.size() > 1 && !substack[1].is_null()) {
-            Block* subBlock = findBlock(substack[1]);
+            Block* subBlock = &sprite->blocks[substack[1]];
             if (subBlock != nullptr) {
-                executor.runBlock(*subBlock, sprite, const_cast<Block*>(&block));
+                executor.runBlock(*subBlock, sprite, &block);
             }
         }
     }

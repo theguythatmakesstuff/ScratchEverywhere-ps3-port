@@ -29,7 +29,7 @@ bool isNumber(const std::string& str) {
 }
 
 std::string generateRandomString(int length) {
-    std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=[];',./_+{}|:<>?~`";
     std::string result;
 
     static std::random_device rd;
@@ -543,7 +543,8 @@ void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool*
             //std::cout << "running custom block " << data.blockId << std::endl;
             
             // Get the parent of the prototype block (the definition containing all blocks)
-            Block* customBlockDefinition = findBlock(findBlock(data.blockId)->parent);
+            Block* customBlockDefinition = &sprite->blocks[sprite->blocks[data.blockId].parent];
+            
             callerBlock->customBlockPtr = customBlockDefinition;
 
             bool localWithoutRefresh = data.runWithoutScreenRefresh;
