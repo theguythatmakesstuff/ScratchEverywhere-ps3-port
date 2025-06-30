@@ -15,7 +15,7 @@ BlockExecutor executor;
 
 bool isNumber(const std::string& str) {
     // i rewrote this function like 5 times vro if ts dont work...
-    if (str.empty()) return false; // Reject empty strings
+    if (str.empty()) return false;
 
     size_t start = 0;
     if (str[0] == '-') { // Allow negative numbers
@@ -391,7 +391,7 @@ void loadSprites(const nlohmann::json& json){
         BlockChain chain;
         chain.blockChain = getBlockChain(block.id,&outID);
         currentSprite->blockChains[outID] = chain;
-        std::cout << "ok = " << outID << std::endl;
+        //std::cout << "ok = " << outID << std::endl;
         block.blockChainID = outID;
 
         for(auto& chainBlock : chain.blockChain) {
@@ -555,7 +555,7 @@ void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool*
                 localWithoutRefresh = *withoutScreenRefresh;
             }
             
-            std::cout << "RWSR = " << localWithoutRefresh << std::endl;
+            //std::cout << "RWSR = " << localWithoutRefresh << std::endl;
             
             // Execute the custom block definition
             executor.runBlock(*customBlockDefinition, sprite, nullptr, &localWithoutRefresh);

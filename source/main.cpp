@@ -17,18 +17,25 @@ static void exitApp(){
 	romfsExit(); // unload the filesystem
 	ndspExit(); // unload audio
 	romfsExit(); // unload the filesystem
-	//cfguExit(); // i think kills text
 	gfxExit();
+}
+
+static void initApp(){
+	gfxInitDefault();
+	//ndspInit();
+
+	hidScanInput();
+    u32 kDown = hidKeysHeld();
+	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
+
+	renderInit();
+	romfsInit();
+	initAudioCache();
 }
 
 int main(int argc, char **argv)
 {
-	gfxInitDefault();
-	//ndspInit();
-	consoleInit(GFX_BOTTOM, NULL);
-	renderInit();
-	romfsInit();
-	initAudioCache();
+	initApp();
 
 	// this is for the FPS
 	std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
