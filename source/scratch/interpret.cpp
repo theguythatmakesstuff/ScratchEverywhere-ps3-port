@@ -183,13 +183,14 @@ void loadSprites(const nlohmann::json& json){
                             parsedInput.variableId = inputValue[2].get<std::string>();
                         } else{
                             parsedInput.inputType = ParsedInput::BLOCK;
-                            parsedInput.blockId = inputValue[2].get<std::string>();
+                            parsedInput.blockId = inputValue.get<std::string>();
                         }
                     } else if(type == 2){
-                        parsedInput.inputType == ParsedInput::BOOLEAN;
+                        parsedInput.inputType = ParsedInput::BOOLEAN;
                         parsedInput.blockId = inputValue.get<std::string>();
                     }
                     newBlock.parsedInputs[inputName] = parsedInput;
+                    //std::cout << "input: " << inputName << ". type = " << "inputType" << std::endl;
                 }
 
         }
