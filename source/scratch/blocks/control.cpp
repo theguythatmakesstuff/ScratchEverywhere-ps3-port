@@ -47,7 +47,7 @@ BlockResult ControlBlocks::ifElse(Block& block, Sprite* sprite, Block** waitingB
 }
 
 BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::cout << "Trying " << std::endl;
+    //std::cout << "Trying " << std::endl;
 
     Block* cloneOptions = nullptr;
     auto it = block.parsedInputs.find("CLONE_OPTION");
@@ -203,7 +203,7 @@ BlockResult ControlBlocks::repeat(Block& block, Sprite* sprite, Block** waitingB
 
     if(block.repeatTimes == -1){
         block.repeatTimes = Scratch::getInputValue(block, "TIMES", sprite).asInt();
-        std::cout << "times = " << block.repeatTimes << std::endl;
+        //std::cout << "times = " << block.repeatTimes << std::endl;
         BlockExecutor::addToRepeatQueue(sprite,&block);
     }
 
@@ -222,7 +222,7 @@ BlockResult ControlBlocks::repeat(Block& block, Sprite* sprite, Block** waitingB
 } else {
         block.repeatTimes = -1;
     }
-    std::cout << "done with repeat " << block.id << std::endl;
+    //std::cout << "done with repeat " << block.id << std::endl;
     sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
     return BlockResult::CONTINUE;
 

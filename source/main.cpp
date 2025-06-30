@@ -58,8 +58,8 @@ int main(int argc, char **argv)
 		if(endTime - startTime >= std::chrono::milliseconds(1000 / FPS)){
 			startTime = std::chrono::high_resolution_clock::now();
 			getInput();
-			BlockExecutor::runRepeatBlocks();
-			renderSprites();
+			//BlockExecutor::runRepeatBlocks();
+			//renderSprites();
 		}
 
 		gspWaitForVBlank();

@@ -167,7 +167,7 @@ void loadSprites(const nlohmann::json& json){
 
                 for(const auto& [inputName,inputData] : data["inputs"].items()){
                     ParsedInput parsedInput;
-                    parsedInput.originalJson = inputData;
+                   // parsedInput.originalJson = inputData;
 
                     int type = inputData[0];
                     auto& inputValue = inputData[1];
@@ -175,9 +175,9 @@ void loadSprites(const nlohmann::json& json){
 
                     if(type == 1){
                         parsedInput.inputType = ParsedInput::LITERAL;
-                        std::cout << "doing it! " << inputValue.dump() << std::endl;
+                        //std::cout << "doing it! " << inputValue.dump() << std::endl;
                         parsedInput.literalValue = Value::fromJson(inputValue);
-                        std::cout << "literal value = " << parsedInput.literalValue.asString();
+                        //std::cout << "literal value = " << parsedInput.literalValue.asString();
 
                     } else if(type == 3){
                         if(inputValue.is_array()){
@@ -192,7 +192,7 @@ void loadSprites(const nlohmann::json& json){
                         parsedInput.blockId = inputValue.get<std::string>();
                     }
                     newBlock.parsedInputs[inputName] = parsedInput;
-                    std::cout << "input: " << inputName << ". type = " << parsedInput.inputType << std::endl;
+                    //std::cout << "input: " << inputName << ". type = " << parsedInput.inputType << std::endl;
                 }
 
         }
@@ -636,14 +636,14 @@ Value getVariableValue(std::string variableId, Sprite* sprite) {
 Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite* sprite){
         auto it = block.parsedInputs.find(inputName);
         if (it == block.parsedInputs.end()) {
-            std::cout << "couldnt find input value for " << block.id << std::endl;
+            //std::cout << "couldnt find input value for " << block.id << std::endl;
             return Value(0);
         }
         
         const ParsedInput& input = it->second;
         switch(input.inputType) {
             case ParsedInput::LITERAL:
-                std::cout << "literal! " << input.literalValue.asString() << std::endl;
+                //std::cout << "literal! " << input.literalValue.asString() << std::endl;
                 return input.literalValue;  // Fast path - no lookup needed
                 
             case ParsedInput::VARIABLE:

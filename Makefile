@@ -61,7 +61,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -D__3DS__ `$(PREFIX)pkg-config vorbisidec --cflags`
+CFLAGS	+=	$(INCLUDE) -D__3DS__ `$(PREFIX)pkg-config vorbisidec --cflags`-g -Wall -O0 -mword-relocations -fomit-frame-pointer -ffast-math $(ARCH)
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11 -Wno-psabi -std=c++17 -fexceptions
 

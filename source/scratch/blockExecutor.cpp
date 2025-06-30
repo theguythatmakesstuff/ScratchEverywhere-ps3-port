@@ -195,11 +195,11 @@ void BlockExecutor::runRepeatBlocks(){
         for(auto& [id, blockChain]: sprite->blockChains){
         auto& repeatList = blockChain.blocksToRepeat;
             if (!repeatList.empty()) {
-                std::cout << "trying..." << std::endl;
+                //std::cout << "trying..." << std::endl;
                 std::string toRepeat = repeatList.back();
                 if(!toRepeat.empty()){
                 Block* toRun = &sprite->blocks[toRepeat];
-                std::cout << "running for " << id << std::endl;
+                //std::cout << "running for " << id << std::endl;
                 if(toRun != nullptr)
                 executor.runBlock(*toRun, sprite);
                 }
@@ -253,7 +253,7 @@ void BlockExecutor::addToRepeatQueue(Sprite* sprite,Block* block){
     //std::cout << "trying..." << std::endl;
             auto& repeatList = sprite->blockChains[block->blockChainID].blocksToRepeat;
             if (std::find(repeatList.begin(), repeatList.end(), block->id) == repeatList.end()) {
-                std::cout << "added to list " << block->blockChainID << std::endl;
+                //std::cout << "added to list " << block->blockChainID << std::endl;
                 repeatList.push_back(block->id);
             }
 }

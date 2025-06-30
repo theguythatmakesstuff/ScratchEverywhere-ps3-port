@@ -233,16 +233,23 @@ if (!legacyDrawing) {
 
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
-
-    C2D_DrawImageAtRotated(
-        *image,
-        (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
-        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
+    // C2D_DrawImageAtRotated(
+    //     *image,
+    //     (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
+    //     (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
+    //     1,
+    //     rotation,
+    //     nullptr,
+    //     (spriteSizeX) * scale / 2.0f,
+    //     (spriteSizeY) * scale / 2.0f 
+    // );
+        C2D_DrawRectSolid(
+        (currentSprite->xPosition * scale) + (screenWidth / 2),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
         1,
-        rotation,
-        nullptr,
-        (spriteSizeX) * scale / 2.0f,
-        (spriteSizeY) * scale / 2.0f 
+        10 * scale,
+        10 * scale, 
+        clrBlack
     );
 } else {
     scale = bottom ? 1.0 : std::min(scaleX, scaleY);
