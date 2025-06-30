@@ -177,7 +177,7 @@ BlockResult MotionBlocks::glideTo(Block& block, Sprite* sprite, Block** waitingB
         
         Block* inputBlock;
         auto itVal = block.parsedInputs.find("TO");
-        inputBlock = findBlock(itVal->second.blockId);
+        inputBlock = findBlock(itVal->second.literalValue.asString());
         if(!inputBlock) return BlockResult::CONTINUE;
         
         std::string inputValue = inputBlock->fields["TO"][0];
@@ -231,7 +231,7 @@ BlockResult MotionBlocks::glideTo(Block& block, Sprite* sprite, Block** waitingB
 
 BlockResult MotionBlocks::pointToward(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     auto itVal = block.parsedInputs.find("TOWARDS");
-    Block* inputBlock = findBlock(itVal->second.blockId);
+    Block* inputBlock = findBlock(itVal->second.literalValue.asString());
     if (inputBlock->fields.find("TOWARDS") == inputBlock->fields.end()) {
         // std::cerr << "Error: Unable to find object for POINT_TOWARD block." << std::endl;
         return BlockResult::CONTINUE;

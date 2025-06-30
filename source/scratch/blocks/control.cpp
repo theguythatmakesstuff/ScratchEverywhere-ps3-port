@@ -51,7 +51,7 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
 
     Block* cloneOptions = nullptr;
     auto it = block.parsedInputs.find("CLONE_OPTION");
-    cloneOptions = &sprite->blocks[it->second.blockId];
+    cloneOptions = &sprite->blocks[it->second.literalValue.asString()];
 
     Sprite* spriteToClone = getAvailableSprite();
     if(!spriteToClone) return BlockResult::CONTINUE;

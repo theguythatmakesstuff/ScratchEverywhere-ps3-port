@@ -36,7 +36,7 @@ static void initApp(){
 int main(int argc, char **argv)
 {
 	initApp();
-
+	
 	// this is for the FPS
 	std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
 		if(endTime - startTime >= std::chrono::milliseconds(1000 / FPS)){
 			startTime = std::chrono::high_resolution_clock::now();
 			getInput();
-			//BlockExecutor::runRepeatBlocks();
+			BlockExecutor::runRepeatBlocks();
 			//renderSprites();
 		}
 

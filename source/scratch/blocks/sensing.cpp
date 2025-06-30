@@ -21,7 +21,6 @@ Value SensingBlocks::of(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("PROPERTY")[0];
     std::string object;
     auto objectFind = block.parsedInputs.find("OBJECT");
-    std::cout << objectFind->second.blockId << std::endl;
     Block* objectBlock = findBlock(objectFind->second.literalValue.asString());
     if(!objectBlock || objectBlock == nullptr)
         return Value();
@@ -74,7 +73,7 @@ Value SensingBlocks::mouseY(Block& block, Sprite* sprite) {
 
 Value SensingBlocks::distanceTo(Block& block, Sprite* sprite) {
     auto inputFind = block.parsedInputs.find("DISTANCETOMENU");
-    Block* inputBlock = findBlock(inputFind->second.blockId);
+    Block* inputBlock = findBlock(inputFind->second.literalValue.asString());
     std::string object = inputBlock->fields.at("DISTANCETOMENU")[0];
     
     if (object == "_mouse_") {
@@ -121,7 +120,7 @@ Value SensingBlocks::sensingAnswer(Block& block, Sprite* sprite) {
 
 Value SensingBlocks::keyPressed(Block& block, Sprite* sprite){
     auto inputFind = block.parsedInputs.find("KEY_OPTION");
-    Block* inputBlock = findBlock(inputFind->second.blockId);
+    Block* inputBlock = findBlock(inputFind->second.literalValue.asString());
     for (std::string button : inputButtons) {
         if (inputBlock->fields["KEY_OPTION"][0] == button) {
             return Value(true);
@@ -132,7 +131,7 @@ Value SensingBlocks::keyPressed(Block& block, Sprite* sprite){
 
 Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
     auto inputFind = block.parsedInputs.find("TOUCHINGOBJECTMENU");
-    Block* inputBlock = findBlock(inputFind->second.blockId);
+    Block* inputBlock = findBlock(inputFind->second.literalValue.asString());
     std::string objectName;
     try {
         objectName = inputBlock->fields["TOUCHINGOBJECTMENU"][0];
