@@ -552,10 +552,10 @@ void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool*
             
             // If the parent chain is running without refresh, force this one to also run without refresh
             if(!localWithoutRefresh && withoutScreenRefresh != nullptr) {
-                localWithoutRefresh = withoutScreenRefresh;
+                localWithoutRefresh = *withoutScreenRefresh;
             }
             
-            //std::cout << "RWSR = " << localWithoutRefresh << std::endl;
+            std::cout << "RWSR = " << localWithoutRefresh << std::endl;
             
             // Execute the custom block definition
             executor.runBlock(*customBlockDefinition, sprite, nullptr, &localWithoutRefresh);
