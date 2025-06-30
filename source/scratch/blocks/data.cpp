@@ -1,21 +1,27 @@
 #include "data.hpp"
 
 BlockResult DataBlocks::setVariable(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string val = Scratch::getInputValue(block.inputs.at("VALUE"), &block, sprite);
+    Value val = Scratch::getInputValue(block,"VALUE",sprite);
     std::string varId = block.fields.at("VARIABLE")[1];
-    setVariableValue(varId, val, sprite, false);
+    setVariableValue(varId, val, sprite);
     return BlockResult::CONTINUE;
 }
 
 BlockResult DataBlocks::changeVariable(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string val = Scratch::getInputValue(block.inputs.at("VALUE"), &block, sprite);
+    Value val = Scratch::getInputValue(block,"VALUE",sprite);
     std::string varId = block.fields.at("VARIABLE")[1];
-    setVariableValue(varId, val, sprite, true);
+    Value oldVariable = getVariableValue(varId,sprite);
+
+    if(val.isNumeric() && oldVariable.isNumeric()){
+        val = val + oldVariable;
+    }
+
+    setVariableValue(varId, val, sprite);
     return BlockResult::CONTINUE;
 }
 
 BlockResult DataBlocks::addToList(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string val = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    Value val = Scratch::getInputValue(block,"ITEM", sprite);
     std::string listId = block.fields.at("LIST")[1];
     for(Sprite* currentSprite : sprites){
     if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
@@ -28,7 +34,7 @@ BlockResult DataBlocks::addToList(Block& block, Sprite* sprite, Block** waitingB
 }
 
 BlockResult DataBlocks::deleteFromList(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string val = Scratch::getInputValue(block.inputs.at("INDEX"), &block, sprite);
+    Value val = Scratch::getInputValue(block,"INDEX", sprite);
     std::string listId = block.fields.at("LIST")[1];
 
     for (Sprite* currentSprite : sprites) {
@@ -36,8 +42,8 @@ BlockResult DataBlocks::deleteFromList(Block& block, Sprite* sprite, Block** wai
             //std::cout << "Deleting from list " << listId << std::endl;
 
             // Convert `val` to an integer index
-            if (Math::isNumber(val)) {
-                int index = std::stoi(val) - 1; // Convert to 0-based index
+            if (val.isNumeric()) {
+                int index = val.asInt() - 1; // Convert to 0-based index
                 auto& items = currentSprite->lists[listId].items;
 
                 // Check if the index is within bounds
@@ -68,17 +74,17 @@ BlockResult DataBlocks::deleteAllOfList(Block& block, Sprite* sprite, Block** wa
 }
 
 BlockResult DataBlocks::insertAtList(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string val = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    Value val = Scratch::getInputValue(block,"ITEM", sprite);
     std::string listId = block.fields.at("LIST")[1];
-    std::string index = Scratch::getInputValue(block.inputs.at("INDEX"), &block, sprite);
+    Value index = Scratch::getInputValue(block,"INDEX", sprite);
 
     for (Sprite* currentSprite : sprites) {
         if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
             // std::cout << "Inserting into list " << listId << std::endl;
 
             // Convert `index` to an integer index
-            if (Math::isNumber(index)) {
-                int idx = std::stoi(index) - 1; // Convert to 0-based index
+            if (index.isNumeric()) {
+                int idx = index.asInt() - 1; // Convert to 0-based index
                 auto& items = currentSprite->lists[listId].items;
 
                 // Check if the index is within bounds
@@ -97,17 +103,17 @@ BlockResult DataBlocks::insertAtList(Block& block, Sprite* sprite, Block** waiti
 }
 
 BlockResult DataBlocks::replaceItemOfList(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string val = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    Value val = Scratch::getInputValue(block,"ITEM", sprite);
     std::string listId = block.fields.at("LIST")[1];
-    std::string index = Scratch::getInputValue(block.inputs.at("INDEX"), &block, sprite);
+    Value index = Scratch::getInputValue(block,"INDEX",sprite);
 
     for (Sprite* currentSprite : sprites) {
         if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
             //std::cout << "Replacing item in list " << listId << std::endl;
 
             // Convert `index` to an integer index
-            if (Math::isNumber(index)) {
-                int idx = std::stoi(index) - 1; // Convert to 0-based index
+            if (index.isNumeric()) {
+                int idx = index.asInt() - 1; // Convert to 0-based index
                 auto& items = currentSprite->lists[listId].items;
 
                 // Check if the index is within bounds
@@ -126,41 +132,41 @@ BlockResult DataBlocks::replaceItemOfList(Block& block, Sprite* sprite, Block** 
 }
 
 Value DataBlocks::itemOfList(Block& block, Sprite* sprite) {
-    std::string indexStr = Scratch::getInputValue(block.inputs.at("INDEX"), &block, sprite);
-    int index = std::stoi(indexStr) - 1;
+    Value indexStr = Scratch::getInputValue(block,"INDEX", sprite);
+    int index = indexStr.asInt() - 1;
     std::string listName = block.fields.at("LIST")[1];
     
     for (Sprite* currentSprite : sprites) {
         for (auto& [id, list] : currentSprite->lists) {
             if (id == listName) {
                 if (index >= 0 && index < static_cast<int>(list.items.size())) {
-                    return removeQuotations(list.items[index]);
+                    return Value(removeQuotations(list.items[index].asString()));
                 }
-                return "";
+                return Value();
             }
         }
     }
-    return "";
+    return Value();
 }
 
 Value DataBlocks::itemNumOfList(Block& block, Sprite* sprite) {
     std::string listName = block.fields.at("LIST")[1];
-    std::string itemToFind = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    Value itemToFind = Scratch::getInputValue(block,"ITEM",sprite);
     
     for (Sprite* currentSprite : sprites) {
         for (auto& [id, list] : currentSprite->lists) {
             if (id == listName) {
                 int index = 1;
                 for (auto& item : list.items) {
-                    if (removeQuotations(item) == itemToFind) {
-                        return std::to_string(index);
+                    if (removeQuotations(item.asString()) == itemToFind.asString()) {
+                        return Value(index);
                     }
                     index++;
                 }
             }
         }
     }
-    return "0";
+    return Value();
 }
 
 Value DataBlocks::lengthOfList(Block& block, Sprite* sprite) {
@@ -168,27 +174,27 @@ Value DataBlocks::lengthOfList(Block& block, Sprite* sprite) {
     for (Sprite* currentSprite : sprites) {
         for (auto& [id, list] : currentSprite->lists) {
             if (id == listName) {
-                return std::to_string(list.items.size());
+                return Value(static_cast<int>(list.items.size()));
             }
         }
     }
-    return "";
+    return Value();
 }
 
 Value DataBlocks::listContainsItem(Block& block, Sprite* sprite){
     std::string listName = block.fields.at("LIST")[1];
-    std::string itemToFind = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
+    Value itemToFind = Scratch::getInputValue(block,"ITEM",sprite);
     
     for (Sprite* currentSprite : sprites) {
         for (auto& [id, list] : currentSprite->lists) {
             if (id == listName) {
                 for (const auto& item : list.items) {
-                    if (removeQuotations(item) == itemToFind) {
-                        return true;
+                    if (item == itemToFind) {
+                        return Value(true);
                     }
                 }
             }
         }
     }
-    return false;
+    return Value(false);
 }

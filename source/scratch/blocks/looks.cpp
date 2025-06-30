@@ -10,16 +10,10 @@ BlockResult LooksBlocks::hide(Block& block, Sprite* sprite, Block** waitingBlock
 }
 
 BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string inputValue;
-    try{
-    inputValue = executor.getBlockValue(*findBlock(block.inputs.at("COSTUME")[1]),sprite);}
-    catch(...){
-        inputValue = Scratch::getInputValue(block.inputs.at("COSTUME"),&block,sprite);
-    }
-    //std::cout << "costume = " << inputValue << std::endl;
+    Value inputValue = Scratch::getInputValue(block,"COSTUME",sprite);
 
-    if (Math::isNumber(inputValue)){
-        int costumeIndex = std::stoi(inputValue) - 1;
+    if (inputValue.isNumeric()){
+        int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
             if(sprite->currentCostume != costumeIndex){
                 freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
@@ -29,7 +23,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
         }
     } else {
         for (size_t i = 0; i < sprite->costumes.size(); i++) {
-            if (sprite->costumes[i].name == inputValue) {
+            if (sprite->costumes[i].name == inputValue.asString()) {
                 if((size_t)sprite->currentCostume != i){
                     freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
                 }
@@ -59,13 +53,13 @@ BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waiti
 }
 
 BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string inputValue = executor.getBlockValue(*findBlock(block.inputs.at("BACKDROP")[1]),sprite);
+    Value inputValue = Scratch::getInputValue(block,"BACKDROP",sprite);
     for(Sprite* currentSprite : sprites){
         if(!currentSprite->isStage){
             continue;
         }
-    if (Math::isNumber(inputValue)){
-        int costumeIndex = std::stoi(inputValue) - 1;
+    if (inputValue.isNumeric()){
+        int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
             if(sprite->currentCostume != costumeIndex){
             freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);}
@@ -76,7 +70,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
         }
     } else {
         for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
-            if (currentSprite->costumes[i].name == inputValue) {
+            if (currentSprite->costumes[i].name == inputValue.asString()) {
                 if((size_t)sprite->currentCostume != i){
                     freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
                 }
@@ -110,38 +104,38 @@ BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** wait
 }
 
 BlockResult LooksBlocks::goForwardBackwardLayers(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    std::string value = Scratch::getInputValue(block.inputs.at("NUM"), &block, sprite);
+    Value value = Scratch::getInputValue(block,"NUM",sprite);
     std::string forwardBackward = block.fields.at("FORWARD_BACKWARD")[0];
-    if (Math::isNumber(value)) {
+    if (value.isNumeric()) {
     if (forwardBackward == "forward") {
 
         // check if a sprite is already on the same layer
         for(Sprite* currentSprite : sprites){
             if(currentSprite->isStage) continue;
-            if(currentSprite->layer == (currentSprite->layer + std::stoi(value))){
+            if(currentSprite->layer == (currentSprite->layer + value.asInt())){
                 for(Sprite* moveupSprite : sprites){
-                    if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer + std::stoi(value)))) continue;
+                    if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer + value.asInt()))) continue;
                     moveupSprite-> layer++;
                 }
             }
         }
 
-        sprite->layer += std::stoi(value);
+        sprite->layer += value.asInt();
 
     } else if (forwardBackward == "backward") {
 
         // check if a sprite is already on the same layer
         for(Sprite* currentSprite : sprites){
             if(currentSprite->isStage) continue;
-            if(currentSprite->layer == (currentSprite->layer - std::stoi(value))){
+            if(currentSprite->layer == (currentSprite->layer - value.asInt())){
                 for(Sprite* moveupSprite : sprites){
-                    if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer - std::stoi(value)))) continue;
+                    if(moveupSprite->isStage || !(moveupSprite->layer >= (currentSprite->layer - value.asInt()))) continue;
                     moveupSprite-> layer++;
                 }
             }
         }
 
-        sprite->layer -= std::stoi(value);
+        sprite->layer -= value.asInt();
         if(sprite->layer < 1){
             for(Sprite* currentSprite : sprites){
             if(currentSprite->isStage) continue;
@@ -169,40 +163,40 @@ BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** wai
 }
 
 BlockResult LooksBlocks::setSizeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    std::string value = Scratch::getInputValue(block.inputs.at("SIZE"), &block, sprite);
-    if (Math::isNumber(value)) {
-        sprite->size = std::stod(value);
+    Value value = Scratch::getInputValue(block,"SIZE",sprite);
+    if (value.isNumeric()) {
+        sprite->size = value.asDouble();
     }
     return BlockResult::CONTINUE;
 }
 BlockResult LooksBlocks::changeSizeBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    std::string value = Scratch::getInputValue(block.inputs.at("CHANGE"), &block, sprite);
-    if (Math::isNumber(value)) {
-        sprite->size += std::stod(value);
+    Value value = Scratch::getInputValue(block,"CHANGE",sprite);
+    if (value.isNumeric()) {
+        sprite->size += value.asDouble();
     }
     return BlockResult::CONTINUE;
 }
 
 Value LooksBlocks::size(Block& block, Sprite* sprite) {
-    return std::to_string(sprite->size);
+    return Value(sprite->size);
 }
 
 Value LooksBlocks::costume(Block& block, Sprite* sprite) {
-    return block.fields.at("COSTUME")[0];
+    return Value(block.fields.at("COSTUME")[0].get<std::string>());
 }
 
 Value LooksBlocks::backdrops(Block& block, Sprite* sprite) {
-    return block.fields.at("BACKDROP")[0];
+    return Value(block.fields.at("BACKDROP")[0].get<std::string>());
 }
 
 Value LooksBlocks::costumeNumberName(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("NUMBER_NAME")[0];
     if (value == "name") {
-        return sprite->costumes[sprite->currentCostume].name;
+        return Value(sprite->costumes[sprite->currentCostume].name);
     } else if (value == "number") {
-        return std::to_string(sprite->currentCostume + 1);
+        return Value(sprite->currentCostume + 1);
     }
-    return "";
+    return Value();
 }
 
 Value LooksBlocks::backdropNumberName(Block& block, Sprite* sprite) {
@@ -210,15 +204,15 @@ Value LooksBlocks::backdropNumberName(Block& block, Sprite* sprite) {
     if (value == "name") {
         for (Sprite* currentSprite : sprites) {
             if (currentSprite->isStage) {
-                return currentSprite->costumes[currentSprite->currentCostume].name;
+                return Value(currentSprite->costumes[currentSprite->currentCostume].name);
             }
         }
     } else if (value == "number") {
         for (Sprite* currentSprite : sprites) {
             if (currentSprite->isStage) {
-                return std::to_string(currentSprite->currentCostume + 1);
+                return Value(currentSprite->currentCostume + 1);
             }
         }
     }
-    return "";
+    return Value();
 }

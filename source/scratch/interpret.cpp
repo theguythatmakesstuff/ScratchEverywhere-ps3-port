@@ -542,7 +542,7 @@ void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withou
             // Set up argument values
             for(std::string arg : data.argumentIds){
                 if(!block.parsedInputs[arg].originalJson.is_null()){
-                    data.argumentValues[arg] = Scratch::getInputValue(block.parsedInputs[arg].originalJson, &block, sprite);
+                    data.argumentValues[arg] = Scratch::getInputValue(block, block.parsedInputs[arg].originalJson,sprite).asString();
                 }
             }
             

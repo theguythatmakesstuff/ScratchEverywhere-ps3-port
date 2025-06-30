@@ -5,7 +5,7 @@ BlockResult EventBlocks::flagClicked(Block& block, Sprite* sprite, Block** waiti
 }
 
 BlockResult EventBlocks::broadcast(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    broadcastQueue.push_back( Scratch::getInputValue(block.inputs.at("BROADCAST_INPUT"), &block, sprite));
+    broadcastQueue.push_back( Scratch::getInputValue(block,"BROADCAST_INPUT",sprite).asString());
     return BlockResult::CONTINUE;
 }
 
