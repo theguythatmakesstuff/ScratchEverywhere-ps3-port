@@ -20,13 +20,14 @@ Value SensingBlocks::sensingTimer(Block& block, Sprite* sprite) {
 Value SensingBlocks::of(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("PROPERTY")[0];
     std::string object;
-    try {
-        auto objectFind = block.parsedInputs.find("OBEJCT");
-        object = findBlock(objectFind->second.blockId)->fields.at("OBJECT")[0];
-    } catch (...) {
-        return Value(0);
-    }
+    auto objectFind = block.parsedInputs.find("OBJECT");
+    std::cout << objectFind->second.blockId << std::endl;
+    Block* objectBlock = findBlock(objectFind->second.literalValue.asString());
+    if(!objectBlock || objectBlock == nullptr)
+        return Value();
     
+    object = objectBlock->fields.at("OBJECT")[0];
+
     Sprite* spriteObject = nullptr;
     for (Sprite* currentSprite : sprites) {
         if (currentSprite->name == object && !currentSprite->isClone) {
