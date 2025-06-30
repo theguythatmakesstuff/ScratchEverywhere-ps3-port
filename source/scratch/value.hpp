@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <cmath>
+#include <iostream>
 #include "math.hpp"
 #include <nlohmann/json.hpp>
 
@@ -53,6 +54,7 @@ public:
             type = other.type;
             switch(type){
                 case ValueType::INTEGER:
+                    intValue = other.intValue;
                     break;
                 case ValueType::DOUBLE:
                     doubleValue = other.doubleValue;
@@ -193,27 +195,46 @@ public:
         return asString() > other.asString();
     }
 
-    static Value fromJson(const nlohmann::json& jsonVal){
-        if(jsonVal.is_number_integer()){
-            return Value(jsonVal.get<int>());
-        } else if(jsonVal.is_number_float()){
-            return Value(jsonVal.get<double>());
-        } else if(jsonVal.is_string()){
-            std::string strVal = jsonVal.get<std::string>();
-            // try to parse as a number for better performance
-            if(Math::isNumber(strVal)){
-                double numVal = std::stod(strVal);
-                if(std::floor(numVal) == numVal){
-                    return Value(static_cast<int>(numVal));
-                }
-                return Value(numVal);
+static Value fromJson(const nlohmann::json& jsonVal){
+    if(jsonVal.is_null()) return Value(0);
+    std::cout << "from json'ing " << jsonVal.dump() << std::endl; // Use dump() instead of get<string>()
+    
+    if(jsonVal.is_number_integer()){
+        std::cout << "is an int! " << jsonVal.get<int>() << std::endl;
+        return Value(jsonVal.get<int>());
+    } else if(jsonVal.is_number_float()){
+        std::cout << "is a FUCKING float! " << jsonVal.get<double>() << std::endl;
+        return Value(jsonVal.get<double>());
+    } else if(jsonVal.is_string()){
+        std::cout << "is a string!.. " << jsonVal.get<std::string>() << std::endl;
+        std::string strVal = jsonVal.get<std::string>();
+        // try to parse as a number for better performance
+        if(Math::isNumber(strVal)){
+            std::cout << "jk ts is a double now " << std::stod(strVal) << std::endl;
+            double numVal = std::stod(strVal);
+            if(std::floor(numVal) == numVal){
+                std::cout << "jk again its an int now " << static_cast<int>(numVal) << std::endl;
+                return Value(static_cast<int>(numVal));
             }
-            return Value(strVal);
-        } else if(jsonVal.is_boolean()){
-            return Value(jsonVal.get<bool>() ? 1 : 0);
+            return Value(numVal);
+        }
+        return Value(strVal);
+    } else if(jsonVal.is_boolean()){
+        std::cout << "is a boolean! " << jsonVal.get<bool>() << std::endl;
+        return Value(jsonVal.get<bool>() ? 1 : 0);
+    } else if(jsonVal.is_array()){
+        std::cout << "is an array! Cannot convert directly to Value" << std::endl;
+        // Handle array case - maybe extract first element or return default
+        if(jsonVal.size() > 1) {
+            std::cout << "Using second element of array: " << jsonVal[1].dump() << std::endl;
+            return fromJson(jsonVal[1]); // Recursively process second element
         }
         return Value(0);
     }
+    
+    std::cout << "um... nothing... type: " << jsonVal.type_name() << std::endl;
+    return Value(0);
+}
 
     ValueType getType() const { return type; }
 
