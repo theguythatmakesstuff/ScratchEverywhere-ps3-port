@@ -36,7 +36,7 @@ BlockResult DataBlocks::deleteFromList(Block& block, Sprite* sprite, Block** wai
             //std::cout << "Deleting from list " << listId << std::endl;
 
             // Convert `val` to an integer index
-            if (isNumber(val)) {
+            if (Math::isNumber(val)) {
                 int index = std::stoi(val) - 1; // Convert to 0-based index
                 auto& items = currentSprite->lists[listId].items;
 
@@ -77,7 +77,7 @@ BlockResult DataBlocks::insertAtList(Block& block, Sprite* sprite, Block** waiti
             // std::cout << "Inserting into list " << listId << std::endl;
 
             // Convert `index` to an integer index
-            if (isNumber(index)) {
+            if (Math::isNumber(index)) {
                 int idx = std::stoi(index) - 1; // Convert to 0-based index
                 auto& items = currentSprite->lists[listId].items;
 
@@ -106,7 +106,7 @@ BlockResult DataBlocks::replaceItemOfList(Block& block, Sprite* sprite, Block** 
             //std::cout << "Replacing item in list " << listId << std::endl;
 
             // Convert `index` to an integer index
-            if (isNumber(index)) {
+            if (Math::isNumber(index)) {
                 int idx = std::stoi(index) - 1; // Convert to 0-based index
                 auto& items = currentSprite->lists[listId].items;
 

@@ -13,20 +13,7 @@ ProjectType projectType;
 
 BlockExecutor executor;
 
-bool isNumber(const std::string& str) {
-    // i rewrote this function like 5 times vro if ts dont work...
-    if (str.empty()) return false;
 
-    size_t start = 0;
-    if (str[0] == '-') { // Allow negative numbers
-        if (str.size() == 1) return false; // just "-" alone is invalid
-        start = 1; // Skip '-' for digit checking
-    }
-
-    return std::count(str.begin() + start, str.end(), '.') <= 1 && // At most one decimal point
-           std::any_of(str.begin() + start, str.end(), ::isdigit) && // At least one digit
-           std::all_of(str.begin() + start, str.end(), [](char c) { return std::isdigit(c) || c == '.'; });
-}
 
 std::string generateRandomString(int length) {
     std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=[];',./_+{}|:<>?~`";
@@ -578,7 +565,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
 
 
         if(!isChangingBy){
-            if(isNumber(value)){
+            if(Math::isNumber(value)){
             double val = std::stod(value); // to make it consistent with changing variables
             var.value = std::to_string(val);}
             else{
@@ -586,12 +573,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
             }
         }
         else{
-            if(isNumber(var.value) && isNumber(value)){
+            if(Math::isNumber(var.value) && Math::isNumber(value)){
             var.value = std::to_string(std::stod(var.value) + std::stod(value));
             }
             else{
-                if(!isNumber(value)) return;
-                if(isNumber(value)){
+                if(!Math::isNumber(value)) return;
+                if(Math::isNumber(value)){
                     double val = std::stod(value); // to make it consistent with changing variables
                     var.value = std::to_string(val);}
                     else{
@@ -610,7 +597,7 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                 Variable& var = currentSprite->variables[variableId];
         
                 if(!isChangingBy){
-                    if(isNumber(value)){
+                    if(Math::isNumber(value)){
                         double val = std::stod(value); // to make it consistent with changing variables
                         var.value = std::to_string(val);}
                         else{
@@ -618,12 +605,12 @@ void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bo
                         }
                 }
                 else{
-                    if(isNumber(var.value) && isNumber(value)){
+                    if(Math::isNumber(var.value) && Math::isNumber(value)){
                     var.value = std::to_string(std::stod(var.value) + std::stod(value));
                     }
                     else{
-                        if(!isNumber(value)) return;
-                        if(isNumber(value)){
+                        if(!Math::isNumber(value)) return;
+                        if(Math::isNumber(value)){
                             double val = std::stod(value); // to make it consistent with changing variables
                             var.value = std::to_string(val);}
                             else{
@@ -645,7 +632,7 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
             if (id == variableId) {
 
                 // check if value is a whole number
-                if(isNumber(data.value)){
+                if(Math::isNumber(data.value)){
                 double doubleValue = std::stod(data.value);
                 if (std::floor(doubleValue) == doubleValue) {
                     return std::to_string(static_cast<int>(doubleValue));
@@ -676,7 +663,7 @@ std::string getVariableValue(std::string variableId,Sprite*sprite){
                     if (id == variableId) {
 
                 // check if value is a whole number
-                if(isNumber(data.value)){
+                if(Math::isNumber(data.value)){
                 double doubleValue = std::stod(data.value);
                 if (std::floor(doubleValue) == doubleValue) {
                     return std::to_string(static_cast<int>(doubleValue));

@@ -14,6 +14,7 @@
 #include "render.hpp"
 #include "keyboard.hpp"
 #include "blockExecutor.hpp"
+#include "math.hpp"
 #include <chrono>
 #include <random>
 #include <time.hpp>
@@ -69,7 +70,6 @@ std::vector<Sprite*> findSprite(std::string spriteName);
 void runAllBlocksByOpcode(Block::opCode opcodeToFind);
 
 std::string getVariableValue(std::string variableId,Sprite*sprite);
-bool isNumber(const std::string& id);
 //void buildBlockHierarchyCache();
 //bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId);
 //void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock);

@@ -131,7 +131,7 @@ BlockResult ControlBlocks::wait(Block& block, Sprite* sprite, Block** waitingBlo
         block.repeatTimes = -5;
         
         std::string duration = Scratch::getInputValue(block.inputs.at("DURATION"), &block, sprite);
-        if(isNumber(duration)) {
+        if(Math::isNumber(duration)) {
             block.waitDuration = std::stod(duration) * 1000; // convert to milliseconds
         } else {
             block.waitDuration = 0;

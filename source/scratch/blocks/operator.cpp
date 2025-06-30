@@ -3,7 +3,7 @@
 std::string OperatorBlocks::add(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("NUM1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("NUM2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         double result = std::stod(value1) + std::stod(value2);
         if (std::floor(result) == result) {
             return std::to_string(static_cast<int>(result));
@@ -16,7 +16,7 @@ std::string OperatorBlocks::add(const Block& block, Sprite* sprite) {
 std::string OperatorBlocks::subtract(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("NUM1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("NUM2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         double result = std::stod(value1) - std::stod(value2);
         if (std::floor(result) == result) {
             return std::to_string(static_cast<int>(result));
@@ -29,7 +29,7 @@ std::string OperatorBlocks::subtract(const Block& block, Sprite* sprite) {
 std::string OperatorBlocks::multiply(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("NUM1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("NUM2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         double result = std::stod(value1) * std::stod(value2);
         if (std::floor(result) == result) {
             return std::to_string(static_cast<int>(result));
@@ -42,7 +42,7 @@ std::string OperatorBlocks::multiply(const Block& block, Sprite* sprite) {
 std::string OperatorBlocks::divide(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("NUM1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("NUM2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         double result = std::stod(value1) / std::stod(value2);
         if (std::floor(result) == result) {
             return std::to_string(static_cast<int>(result));
@@ -55,7 +55,7 @@ std::string OperatorBlocks::divide(const Block& block, Sprite* sprite) {
 std::string OperatorBlocks::random(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("FROM"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("TO"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         if (value1.find('.') == std::string::npos && value2.find('.') == std::string::npos) {
             // Both are integers
             int from = std::stoi(value1);
@@ -80,7 +80,7 @@ std::string OperatorBlocks::join(const Block& block, Sprite* sprite) {
 std::string OperatorBlocks::letterOf(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("LETTER"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("STRING"), &block, sprite);
-    if (isNumber(value1) && !value2.empty()) {
+    if (Math::isNumber(value1) && !value2.empty()) {
         int index = std::stoi(value1) - 1;
         if (index >= 0 && index < static_cast<int>(value2.size())) {
             return std::string(1, value2[index]);
@@ -97,7 +97,7 @@ std::string OperatorBlocks::length(const Block& block, Sprite* sprite) {
 std::string OperatorBlocks::mod(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("NUM1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("NUM2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         if (floor(std::stod(value1)) == std::stod(value1) && floor(std::stod(value2)) == std::stod(value2)) {
             // Both are integers
             return std::to_string(static_cast<int>(std::fmod(std::stod(value1), std::stod(value2))));
@@ -109,7 +109,7 @@ std::string OperatorBlocks::mod(const Block& block, Sprite* sprite) {
 
 std::string OperatorBlocks::round(const Block& block, Sprite* sprite) {
     std::string value1 = Scratch::getInputValue(block.inputs.at("NUM"), &block, sprite);
-    if (isNumber(value1)) {
+    if (Math::isNumber(value1)) {
         return std::to_string(static_cast<int>(std::round(std::stod(value1))));
     }
     return "0";
@@ -117,7 +117,7 @@ std::string OperatorBlocks::round(const Block& block, Sprite* sprite) {
 
 std::string OperatorBlocks::mathOp(const Block& block, Sprite* sprite) {
     std::string inputValue = Scratch::getInputValue(block.inputs.at("NUM"), &block, sprite);
-    if (isNumber(inputValue)) {
+    if (Math::isNumber(inputValue)) {
         std::string operation = block.fields.at("OPERATOR")[0];
         double value = std::stod(inputValue);
         
@@ -194,7 +194,7 @@ bool OperatorBlocks::equals(const Block& block, Sprite* sprite){
 bool OperatorBlocks::greaterThan(const Block& block, Sprite* sprite){
     std::string value1 = Scratch::getInputValue(block.inputs.at("OPERAND1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("OPERAND2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         return std::stod(value1) > std::stod(value2);
     }
     return false;
@@ -203,7 +203,7 @@ bool OperatorBlocks::greaterThan(const Block& block, Sprite* sprite){
 bool OperatorBlocks::lessThan(const Block& block, Sprite* sprite){
     std::string value1 = Scratch::getInputValue(block.inputs.at("OPERAND1"), &block, sprite);
     std::string value2 = Scratch::getInputValue(block.inputs.at("OPERAND2"), &block, sprite);
-    if (isNumber(value1) && isNumber(value2)) {
+    if (Math::isNumber(value1) && Math::isNumber(value2)) {
         return std::stod(value1) < std::stod(value2);
     }
     return false;

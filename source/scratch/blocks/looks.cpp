@@ -18,7 +18,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
     }
     //std::cout << "costume = " << inputValue << std::endl;
 
-    if (isNumber(inputValue)){
+    if (Math::isNumber(inputValue)){
         int costumeIndex = std::stoi(inputValue) - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
             if(sprite->currentCostume != costumeIndex){
@@ -64,7 +64,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
         if(!currentSprite->isStage){
             continue;
         }
-    if (isNumber(inputValue)){
+    if (Math::isNumber(inputValue)){
         int costumeIndex = std::stoi(inputValue) - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
             if(sprite->currentCostume != costumeIndex){
@@ -112,7 +112,7 @@ BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** wait
 BlockResult LooksBlocks::goForwardBackwardLayers(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string value = Scratch::getInputValue(block.inputs.at("NUM"), &block, sprite);
     std::string forwardBackward = block.fields.at("FORWARD_BACKWARD")[0];
-    if (isNumber(value)) {
+    if (Math::isNumber(value)) {
     if (forwardBackward == "forward") {
 
         // check if a sprite is already on the same layer
@@ -170,14 +170,14 @@ BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** wai
 
 BlockResult LooksBlocks::setSizeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("SIZE"), &block, sprite);
-    if (isNumber(value)) {
+    if (Math::isNumber(value)) {
         sprite->size = std::stod(value);
     }
     return BlockResult::CONTINUE;
 }
 BlockResult LooksBlocks::changeSizeBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     std::string value = Scratch::getInputValue(block.inputs.at("CHANGE"), &block, sprite);
-    if (isNumber(value)) {
+    if (Math::isNumber(value)) {
         sprite->size += std::stod(value);
     }
     return BlockResult::CONTINUE;
