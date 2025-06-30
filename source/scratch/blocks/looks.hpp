@@ -14,9 +14,9 @@ public:
     static BlockResult setSizeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
     static BlockResult changeSizeBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
 
-    static std::string size(const Block& block, Sprite* sprite);
-    static std::string costume(const Block& block, Sprite* sprite);
-    static std::string backdrops(const Block& block, Sprite* sprite);
-    static std::string costumeNumberName(const Block& block, Sprite* sprite);
-    static std::string backdropNumberName(const Block& block, Sprite* sprite);
+    static Value size(Block& block, Sprite* sprite);
+    static Value costume(Block& block, Sprite* sprite);
+    static Value backdrops(Block& block, Sprite* sprite);
+    static Value costumeNumberName(Block& block, Sprite* sprite);
+    static Value backdropNumberName(Block& block, Sprite* sprite);
 };

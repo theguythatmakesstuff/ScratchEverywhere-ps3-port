@@ -125,7 +125,7 @@ BlockResult DataBlocks::replaceItemOfList(Block& block, Sprite* sprite, Block** 
     return BlockResult::CONTINUE;
 }
 
-std::string DataBlocks::itemOfList(const Block& block, Sprite* sprite) {
+Value DataBlocks::itemOfList(Block& block, Sprite* sprite) {
     std::string indexStr = Scratch::getInputValue(block.inputs.at("INDEX"), &block, sprite);
     int index = std::stoi(indexStr) - 1;
     std::string listName = block.fields.at("LIST")[1];
@@ -143,7 +143,7 @@ std::string DataBlocks::itemOfList(const Block& block, Sprite* sprite) {
     return "";
 }
 
-std::string DataBlocks::itemNumOfList(const Block& block, Sprite* sprite) {
+Value DataBlocks::itemNumOfList(Block& block, Sprite* sprite) {
     std::string listName = block.fields.at("LIST")[1];
     std::string itemToFind = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
     
@@ -163,7 +163,7 @@ std::string DataBlocks::itemNumOfList(const Block& block, Sprite* sprite) {
     return "0";
 }
 
-std::string DataBlocks::lengthOfList(const Block& block, Sprite* sprite) {
+Value DataBlocks::lengthOfList(Block& block, Sprite* sprite) {
     std::string listName = block.fields.at("LIST")[1];
     for (Sprite* currentSprite : sprites) {
         for (auto& [id, list] : currentSprite->lists) {
@@ -175,7 +175,7 @@ std::string DataBlocks::lengthOfList(const Block& block, Sprite* sprite) {
     return "";
 }
 
-bool DataBlocks::listContainsItem(const Block& block, Sprite* sprite){
+Value DataBlocks::listContainsItem(Block& block, Sprite* sprite){
     std::string listName = block.fields.at("LIST")[1];
     std::string itemToFind = Scratch::getInputValue(block.inputs.at("ITEM"), &block, sprite);
     

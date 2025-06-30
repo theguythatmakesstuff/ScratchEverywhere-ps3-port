@@ -3,5 +3,5 @@
 
 class SoundBlocks{
 public:
-    static std::string volume(const Block& block, Sprite* sprite);
+    static Value volume(Block& block, Sprite* sprite);
 };

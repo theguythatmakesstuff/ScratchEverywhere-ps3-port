@@ -145,16 +145,7 @@ void loadSprites(const nlohmann::json& json){
             Variable newVariable;
             newVariable.id = id;
             newVariable.name = data[0];
-            //newVariable.value = std::to_string(data[1]);
-            if (data[1].is_number_integer()) {
-                newVariable.value = std::to_string(data[1].get<int>());
-            } else if (data[1].is_number_float()) {
-                newVariable.value = std::to_string(data[1].get<double>());
-            } else if (data[1].is_string()) {
-                newVariable.value = data[1].get<std::string>();
-            } else {
-                newVariable.value = "0";
-            }
+            newVariable.value = Value::fromJson(data[1]);
             newSprite->variables[newVariable.id] = newVariable; // add variable to sprite
         }
 
@@ -173,7 +164,35 @@ void loadSprites(const nlohmann::json& json){
             if (data.contains("fields")){
             newBlock.fields = data["fields"];}
             if (data.contains("inputs")){
-            newBlock.inputs = data["inputs"];}
+
+                for(const auto& [inputName,inputData] : data["inputs"].items()){
+                    ParsedInput parsedInput;
+                    parsedInput.originalJson = inputData;
+
+                    int type = inputData[0];
+                    auto& inputValue = inputData[1];
+
+
+                    if(type == 1){
+                        parsedInput.inputType = ParsedInput::LITERAL;
+                        parsedInput.literalValue = Value::fromJson(inputValue[1]);
+
+                    } else if(type == 3){
+                        if(inputValue.is_array()){
+                            parsedInput.inputType = ParsedInput::VARIABLE;
+                            parsedInput.variableId = inputValue[2].get<std::string>();
+                        } else{
+                            parsedInput.inputType = ParsedInput::BLOCK;
+                            parsedInput.blockId = inputValue[2].get<std::string>();
+                        }
+                    } else if(type == 2){
+                        parsedInput.inputType == ParsedInput::BOOLEAN;
+                        parsedInput.blockId = inputValue.get<std::string>();
+                    }
+                    newBlock.parsedInputs[inputName] = parsedInput;
+                }
+
+        }
             if (data.contains("topLevel")){
             newBlock.topLevel = data["topLevel"].get<bool>();}
             if (data.contains("shadow")){
@@ -221,7 +240,7 @@ void loadSprites(const nlohmann::json& json){
             newList.id = id;
             newList.name = data[0];
             for(const auto &listItem : data[1]){
-            newList.items.push_back(listItem.dump());
+            newList.items.push_back(Value::fromJson(listItem));
             }
             newSprite->lists[newList.id] = newList; // add list
         }
@@ -414,18 +433,18 @@ std::vector<Block*> getBlockChain(std::string blockId,std::string* outID){
         blockChain.push_back(currentBlock);
         if(outID)
         *outID += currentBlock->id;
-        if(!currentBlock->inputs["SUBSTACK"][1].is_null()){
+        if(!currentBlock->parsedInputs["SUBSTACK"].originalJson[1].is_null()){
             std::vector<Block*> subBlockChain;
-            subBlockChain = getBlockChain(currentBlock->inputs["SUBSTACK"][1],outID);
+            subBlockChain = getBlockChain(currentBlock->parsedInputs["SUBSTACK"].originalJson[1],outID);
             for(auto& block : subBlockChain){
                 blockChain.push_back(block);
                 if(outID)
                 *outID += block->id;
             }
         }
-        if(!currentBlock->inputs["SUBSTACK2"][1].is_null()){
+        if(!currentBlock->parsedInputs["SUBSTACK2"].originalJson[1].is_null()){
             std::vector<Block*> subBlockChain;
-            subBlockChain = getBlockChain(currentBlock->inputs["SUBSTACK2"][1],outID);
+            subBlockChain = getBlockChain(currentBlock->parsedInputs["SUBSTACK2"].originalJson[1],outID);
             for(auto& block : subBlockChain){
                 blockChain.push_back(block);
                 if(outID)
@@ -517,13 +536,13 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
     return "";
 }
 
-void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool* withoutScreenRefresh){
+void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh){
     for(auto &[id, data] : sprite->customBlocks){
         if(id == block.mutation.at("proccode").get<std::string>()){
             // Set up argument values
             for(std::string arg : data.argumentIds){
-                if(!block.inputs.at(arg).is_null()){
-                    data.argumentValues[arg] = Scratch::getInputValue(block.inputs.at(arg), &block, sprite);
+                if(!block.parsedInputs[arg].originalJson.is_null()){
+                    data.argumentValues[arg] = Scratch::getInputValue(block.parsedInputs[arg].originalJson, &block, sprite);
                 }
             }
             
@@ -559,163 +578,79 @@ void runCustomBlock(Sprite* sprite, const Block& block, Block* callerBlock,bool*
 
 
 
-void setVariableValue(std::string variableId,std::string value,Sprite* sprite,bool isChangingBy){
-    if(sprite->variables.find(variableId) != sprite->variables.end()){ // if not a global Variable
-        Variable& var = sprite->variables[variableId];
-
-
-        if(!isChangingBy){
-            if(Math::isNumber(value)){
-            double val = std::stod(value); // to make it consistent with changing variables
-            var.value = std::to_string(val);}
-            else{
-                var.value = value;
-            }
-        }
-        else{
-            if(Math::isNumber(var.value) && Math::isNumber(value)){
-            var.value = std::to_string(std::stod(var.value) + std::stod(value));
-            }
-            else{
-                if(!Math::isNumber(value)) return;
-                if(Math::isNumber(value)){
-                    double val = std::stod(value); // to make it consistent with changing variables
-                    var.value = std::to_string(val);}
-                    else{
-                        var.value = value;
-                    }
-            }
-        }
-
-        //std::cout<<"Local Variable set. "  << sprite->variables[variableId].name  << " = "<< sprite->variables[variableId].value << std::endl;
-
+void setVariableValue(const std::string& variableId, const Value& newValue, Sprite* sprite) {
+    // Set sprite variable
+    auto it = sprite->variables.find(variableId);
+    if (it != sprite->variables.end()) {
+        it->second.value = newValue;
+        return;
     }
-    // global Variable (TODO fix redundant code later :grin:)
-    else{
-        for(Sprite *currentSprite : sprites){
-            if (currentSprite->isStage){
-                Variable& var = currentSprite->variables[variableId];
-        
-                if(!isChangingBy){
-                    if(Math::isNumber(value)){
-                        double val = std::stod(value); // to make it consistent with changing variables
-                        var.value = std::to_string(val);}
-                        else{
-                            var.value = value;
-                        }
-                }
-                else{
-                    if(Math::isNumber(var.value) && Math::isNumber(value)){
-                    var.value = std::to_string(std::stod(var.value) + std::stod(value));
-                    }
-                    else{
-                        if(!Math::isNumber(value)) return;
-                        if(Math::isNumber(value)){
-                            double val = std::stod(value); // to make it consistent with changing variables
-                            var.value = std::to_string(val);}
-                            else{
-                                var.value = value;
-                            }
-                    }
-                }
-        
-              // std::cout<<"Global Variable set. "  << var.name << " = "<< var.value << std::endl;
-            }
-        }
-    }
-
-}
-
-std::string getVariableValue(std::string variableId,Sprite*sprite){
-
-        for(const auto &[id,data] : sprite->variables){
-            if (id == variableId) {
-
-                // check if value is a whole number
-                if(Math::isNumber(data.value)){
-                double doubleValue = std::stod(data.value);
-                if (std::floor(doubleValue) == doubleValue) {
-                    return std::to_string(static_cast<int>(doubleValue));
-            }
-        }
-
-                return data.value; 
-            }
-        }
-        // check if it's a list instead
-      //  std::cout<<"Checking list " << variableId << std::endl;
-        for(const auto &[id,data] : sprite->lists){
-            if(id == variableId){
-                std::string finalValue;
-                for(const auto &listItem : data.items){
-               //     std::cout<<"Found one " << std::endl;
-                    finalValue += listItem + " ";
-                }
-                finalValue.pop_back(); // remove extra space
-                return finalValue;
-            }
-
-        }
-        //check globally (blahblah redundant code TODO fix)
-        for(const auto &currentSprite : sprites){
-            if(currentSprite->isStage){
-                for(const auto &[id,data] : currentSprite->variables){
-                    if (id == variableId) {
-
-                // check if value is a whole number
-                if(Math::isNumber(data.value)){
-                double doubleValue = std::stod(data.value);
-                if (std::floor(doubleValue) == doubleValue) {
-                    return std::to_string(static_cast<int>(doubleValue));
-            }
-        }
-
-                        return data.value; // Assuming `Variable` has a `value` field
-                    }
-                }
-                // check if it's a list instead
-              //  std::cout<<"Checking list " << variableId << std::endl;
-                for(const auto &[id,data] : currentSprite->lists){
-                    if(id == variableId){
-                        std::string finalValue;
-                        for(const auto &listItem : data.items){
-                       //     std::cout<<"Found one " << std::endl;
-                            finalValue += listItem + " ";
-                        }
-                        finalValue.pop_back(); // remove extra space
-                        return finalValue;
-                    }
-
-                }
-            }
-        }
     
-    return "";
-}
-
-std::string Scratch::getInputValue(const nlohmann::json& item, const Block* block, Sprite* sprite) {
-    int type = item[0];
-    auto& data = item[1];
-
-    // 1 is just a plain number
-    if (type == 1) {
-        return data[1].get<std::string>(); // Convert JSON to string
-    }
-    // 3 is if there is a variable of some kind inside
-    if (type == 3) {
-        if (data.is_array()) {
-           return getVariableValue(data[2],sprite);
-        } else {
-           return executor.getBlockValue(*findBlock(data), sprite);
+    // Set global variable
+    for (auto& currentSprite : sprites) {
+        if (currentSprite->isStage) {
+            auto globalIt = currentSprite->variables.find(variableId);
+            if (globalIt != currentSprite->variables.end()) {
+                globalIt->second.value = newValue;
+                return;
+            }
         }
     }
-    // 2 SEEMS to be a boolean
-    if(type == 2){
-        std::cout << "boleaN!" << std::endl;
-        return std::to_string(executor.runConditionalBlock(findBlock(data)->id, sprite));
-    }
-    return "0";
 }
+
+Value getVariableValue(std::string variableId, Sprite* sprite) {
+    // Check sprite variables
+    auto it = sprite->variables.find(variableId);
+    if (it != sprite->variables.end()) {
+        return it->second.value;  // Fast conversion
+    }
+    
+    // Check lists
+    auto listIt = sprite->lists.find(variableId);
+    if (listIt != sprite->lists.end()) {
+        std::string result;
+        for (const auto& item : listIt->second.items) {
+            result += item.asString() + " ";
+        }
+        if (!result.empty()) result.pop_back();
+        Value val(result);
+        return val;
+    }
+    
+    // Check global variables
+    for (const auto& currentSprite : sprites) {
+        if (currentSprite->isStage) {
+            auto globalIt = currentSprite->variables.find(variableId);
+            if (globalIt != currentSprite->variables.end()) {
+                return globalIt->second.value;
+            }
+        }
+    }
+    
+    return Value(0);
+}
+
+Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite* sprite){
+        auto it = block.parsedInputs.find(inputName);
+        if (it == block.parsedInputs.end()) {
+            return Value(0);
+        }
+        
+        const ParsedInput& input = it->second;
+        switch(input.inputType) {
+            case ParsedInput::LITERAL:
+                return input.literalValue;  // Fast path - no lookup needed
+                
+            case ParsedInput::VARIABLE:
+                return getVariableValue(input.variableId, sprite);
+                
+            case ParsedInput::BLOCK:
+                return executor.getBlockValue(*findBlock(input.blockId), sprite);
+            case ParsedInput::BOOLEAN:
+                return executor.getBlockValue(*findBlock(input.blockId), sprite);
+        }
+        return Value(0);
+    }
 
 
 

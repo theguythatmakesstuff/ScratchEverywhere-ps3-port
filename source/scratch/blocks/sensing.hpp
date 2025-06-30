@@ -6,16 +6,16 @@ public:
     static BlockResult resetTimer(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
     static BlockResult askAndWait(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
 
-    static std::string sensingTimer(const Block& block, Sprite* sprite);
-    static std::string of(const Block& block, Sprite* sprite);
-    static std::string mouseX(const Block& block, Sprite* sprite);
-    static std::string mouseY(const Block& block, Sprite* sprite);
-    static std::string distanceTo(const Block& block, Sprite* sprite);
-    static std::string daysSince2000(const Block& block, Sprite* sprite);
-    static std::string current(const Block& block, Sprite* sprite);
-    static std::string sensingAnswer(const Block& block, Sprite* sprite);
+    static Value sensingTimer(Block& block, Sprite* sprite);
+    static Value of(Block& block, Sprite* sprite);
+    static Value mouseX(Block& block, Sprite* sprite);
+    static Value mouseY(Block& block, Sprite* sprite);
+    static Value distanceTo(Block& block, Sprite* sprite);
+    static Value daysSince2000(Block& block, Sprite* sprite);
+    static Value current(Block& block, Sprite* sprite);
+    static Value sensingAnswer(Block& block, Sprite* sprite);
 
-    static bool keyPressed(const Block& block,Sprite* sprite);
-    static bool touchingObject(const Block& block, Sprite* sprite);
-    static bool mouseDown(const Block& block, Sprite* sprite);
+    static Value keyPressed(Block& block,Sprite* sprite);
+    static Value touchingObject(Block& block, Sprite* sprite);
+    static Value mouseDown(Block& block, Sprite* sprite);
 };

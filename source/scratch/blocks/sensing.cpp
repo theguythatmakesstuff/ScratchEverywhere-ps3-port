@@ -13,11 +13,11 @@ BlockResult SensingBlocks::askAndWait(Block& block, Sprite* sprite, Block** wait
     return BlockResult::CONTINUE;
 }
 
-std::string SensingBlocks::sensingTimer(const Block& block, Sprite* sprite) {
+std::string SensingBlocks::sensingTimer(Block& block, Sprite* sprite) {
     return std::to_string(timer);
 }
 
-std::string SensingBlocks::of(const Block& block, Sprite* sprite) {
+Value SensingBlocks::of(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("PROPERTY")[0];
     std::string object;
     try {
@@ -62,15 +62,15 @@ std::string SensingBlocks::of(const Block& block, Sprite* sprite) {
     return "0";
 }
 
-std::string SensingBlocks::mouseX(const Block& block, Sprite* sprite) {
+Value SensingBlocks::mouseX(Block& block, Sprite* sprite) {
     return std::to_string(mousePointer.x);
 }
 
-std::string SensingBlocks::mouseY(const Block& block, Sprite* sprite) {
+Value SensingBlocks::mouseY(Block& block, Sprite* sprite) {
     return std::to_string(mousePointer.y);
 }
 
-std::string SensingBlocks::distanceTo(const Block& block, Sprite* sprite) {
+Value SensingBlocks::distanceTo(Block& block, Sprite* sprite) {
     Block* inputBlock = findBlock(block.inputs.at("DISTANCETOMENU")[1]);
     std::string object = inputBlock->fields.at("DISTANCETOMENU")[0];
     
@@ -89,11 +89,11 @@ std::string SensingBlocks::distanceTo(const Block& block, Sprite* sprite) {
     return "0";
 }
 
-std::string SensingBlocks::daysSince2000(const Block& block, Sprite* sprite) {
+Value SensingBlocks::daysSince2000(Block& block, Sprite* sprite) {
     return std::to_string(Time::getDaysSince2000());
 }
 
-std::string SensingBlocks::current(const Block& block, Sprite* sprite) {
+Value SensingBlocks::current(Block& block, Sprite* sprite) {
     std::string inputValue;
     try {
         inputValue = block.fields.at("CURRENTMENU")[0];
@@ -112,11 +112,11 @@ std::string SensingBlocks::current(const Block& block, Sprite* sprite) {
     return "";
 }
 
-std::string SensingBlocks::sensingAnswer(const Block& block, Sprite* sprite) {
+Value SensingBlocks::sensingAnswer(Block& block, Sprite* sprite) {
     return answer;
 }
 
-bool SensingBlocks::keyPressed(const Block& block, Sprite* sprite){
+Value SensingBlocks::keyPressed(Block& block, Sprite* sprite){
     Block* inputBlock = findBlock(block.inputs.at("KEY_OPTION")[1]);
     for (std::string button : inputButtons) {
         if (inputBlock->fields["KEY_OPTION"][0] == button) {
@@ -126,7 +126,7 @@ bool SensingBlocks::keyPressed(const Block& block, Sprite* sprite){
     return false;
 }
 
-bool SensingBlocks::touchingObject(const Block& block, Sprite* sprite){
+Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
     Block* inputBlock = findBlock(block.inputs.at("TOUCHINGOBJECTMENU")[1]);
     std::string objectName;
     try {
@@ -190,6 +190,6 @@ bool SensingBlocks::touchingObject(const Block& block, Sprite* sprite){
     return false;
 }
 
-bool SensingBlocks::mouseDown(const Block& block, Sprite* sprite){
+Value SensingBlocks::mouseDown(Block& block, Sprite* sprite){
     return mousePointer.isPressed;
 }

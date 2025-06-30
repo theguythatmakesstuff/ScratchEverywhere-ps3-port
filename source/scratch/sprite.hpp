@@ -1,4 +1,5 @@
 #pragma once
+#include "value.hpp"
 #include <string>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
@@ -10,10 +11,26 @@ class Sprite;
 struct Variable {
     std::string id;
     std::string name;
-    std::string value;
+    Value value;
 };
 
+struct ParsedInput{
+    enum InputType{
+        LITERAL,
+        VARIABLE,
+        BLOCK,
+        BOOLEAN
+    };
 
+    InputType inputType;
+    Value literalValue;
+    std::string variableId;
+    std::string blockId;
+    nlohmann::json originalJson;
+
+    ParsedInput() : inputType(LITERAL), literalValue(Value(0)) {}
+
+};
 
 struct Block {
     enum opCode{
@@ -247,7 +264,7 @@ struct Block {
     Block* nextBlock;
     std::string parent;
     std::string blockChainID;
-    std::unordered_map<std::string, nlohmann::json> inputs;
+    std::map<std::string, ParsedInput> parsedInputs;
     std::unordered_map<std::string, nlohmann::json> fields;
     std::unordered_map<std::string, nlohmann::json> mutation;
     bool shadow;
@@ -261,6 +278,27 @@ struct Block {
     std::chrono::high_resolution_clock::time_point waitStartTime;
     bool customBlockExecuted = false;
     Block* customBlockPtr = nullptr; 
+
+private:
+    Value getVariableValue(const std::string& variableId, Sprite* sprite) const {
+        // Fast variable lookup
+        auto it = sprite->variables.find(variableId);
+        if (it != sprite->variables.end()) {
+            return it->second.value;
+        }
+        
+        // Check global variables (stage sprite)
+        for (const auto& currentSprite : sprites) {
+            if (currentSprite->isStage) {
+                auto globalIt = currentSprite->variables.find(variableId);
+                if (globalIt != currentSprite->variables.end()) {
+                    return globalIt->second.value;
+                }
+            }
+        }
+        
+        return Value(0);
+    }
 
 };
 
@@ -280,7 +318,7 @@ struct CustomBlock{
 struct List{
     std::string id;
     std::string name;
-    std::vector<std::string> items;
+    std::vector<Value> items;
 };
 
 struct Sound{

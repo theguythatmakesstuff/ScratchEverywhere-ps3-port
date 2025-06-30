@@ -183,19 +183,19 @@ BlockResult LooksBlocks::changeSizeBy(Block& block, Sprite* sprite, Block** wait
     return BlockResult::CONTINUE;
 }
 
-std::string LooksBlocks::size(const Block& block, Sprite* sprite) {
+Value LooksBlocks::size(Block& block, Sprite* sprite) {
     return std::to_string(sprite->size);
 }
 
-std::string LooksBlocks::costume(const Block& block, Sprite* sprite) {
+Value LooksBlocks::costume(Block& block, Sprite* sprite) {
     return block.fields.at("COSTUME")[0];
 }
 
-std::string LooksBlocks::backdrops(const Block& block, Sprite* sprite) {
+Value LooksBlocks::backdrops(Block& block, Sprite* sprite) {
     return block.fields.at("BACKDROP")[0];
 }
 
-std::string LooksBlocks::costumeNumberName(const Block& block, Sprite* sprite) {
+Value LooksBlocks::costumeNumberName(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("NUMBER_NAME")[0];
     if (value == "name") {
         return sprite->costumes[sprite->currentCostume].name;
@@ -205,7 +205,7 @@ std::string LooksBlocks::costumeNumberName(const Block& block, Sprite* sprite) {
     return "";
 }
 
-std::string LooksBlocks::backdropNumberName(const Block& block, Sprite* sprite) {
+Value LooksBlocks::backdropNumberName(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("NUMBER_NAME")[0];
     if (value == "name") {
         for (Sprite* currentSprite : sprites) {

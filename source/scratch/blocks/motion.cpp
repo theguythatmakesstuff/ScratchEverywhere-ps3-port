@@ -298,15 +298,15 @@ BlockResult MotionBlocks::ifOnEdgeBounce(Block& block, Sprite* sprite, Block** w
     return BlockResult::CONTINUE;
 }
 
-std::string MotionBlocks::xPosition(const Block& block,Sprite*sprite){
+Value MotionBlocks::xPosition(Block& block,Sprite*sprite){
    return std::to_string(sprite->xPosition); 
 }
 
-std::string MotionBlocks::yPosition(const Block& block,Sprite*sprite){
+Value MotionBlocks::yPosition(Block& block,Sprite*sprite){
    return std::to_string(sprite->yPosition); 
 }
 
-std::string MotionBlocks::direction(const Block& block,Sprite*sprite){
+Value MotionBlocks::direction(Block& block,Sprite*sprite){
    return std::to_string(sprite->rotation); 
 }
 

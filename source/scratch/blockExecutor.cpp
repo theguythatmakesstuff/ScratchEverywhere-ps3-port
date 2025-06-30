@@ -86,13 +86,13 @@ void BlockExecutor::registerHandlers(){
     valueHandlers[Block::OPERATOR_MOD] = OperatorBlocks::mod;
     valueHandlers[Block::OPERATOR_ROUND] = OperatorBlocks::round;
     valueHandlers[Block::OPERATOR_MATHOP] = OperatorBlocks::mathOp;
-    conditionBlockHandlers[Block::OPERATOR_EQUALS] = OperatorBlocks::equals;
-    conditionBlockHandlers[Block::OPERATOR_GT] = OperatorBlocks::greaterThan;
-    conditionBlockHandlers[Block::OPERATOR_LT] = OperatorBlocks::lessThan;
-    conditionBlockHandlers[Block::OPERATOR_AND] = OperatorBlocks::and_;
-    conditionBlockHandlers[Block::OPERATOR_OR] = OperatorBlocks::or_;
-    conditionBlockHandlers[Block::OPERATOR_NOT] = OperatorBlocks::not_;
-    conditionBlockHandlers[Block::OPERATOR_CONTAINS] = OperatorBlocks::contains;
+    valueHandlers[Block::OPERATOR_EQUALS] = OperatorBlocks::equals;
+    valueHandlers[Block::OPERATOR_GT] = OperatorBlocks::greaterThan;
+    valueHandlers[Block::OPERATOR_LT] = OperatorBlocks::lessThan;
+    valueHandlers[Block::OPERATOR_AND] = OperatorBlocks::and_;
+    valueHandlers[Block::OPERATOR_OR] = OperatorBlocks::or_;
+    valueHandlers[Block::OPERATOR_NOT] = OperatorBlocks::not_;
+    valueHandlers[Block::OPERATOR_CONTAINS] = OperatorBlocks::contains;
 
     // data
     handlers[Block::DATA_SETVARIABLETO] = DataBlocks::setVariable;
@@ -105,7 +105,7 @@ void BlockExecutor::registerHandlers(){
     valueHandlers[Block::DATA_ITEMOFLIST] = DataBlocks::itemOfList;
     valueHandlers[Block::DATA_ITEMNUMOFLIST] = DataBlocks::itemNumOfList;
     valueHandlers[Block::DATA_LENGTHOFLIST] = DataBlocks::lengthOfList;
-    conditionBlockHandlers[Block::DATA_LIST_CONTAINS_ITEM] = DataBlocks::listContainsItem;
+    valueHandlers[Block::DATA_LIST_CONTAINS_ITEM] = DataBlocks::listContainsItem;
 
 
     // sensing
@@ -119,15 +119,15 @@ void BlockExecutor::registerHandlers(){
     valueHandlers[Block::SENSING_DAYS_SINCE_2000] = SensingBlocks::daysSince2000;
     valueHandlers[Block::SENSING_CURRENT] = SensingBlocks::current;
     valueHandlers[Block::SENSING_ANSWER] = SensingBlocks::sensingAnswer;
-    conditionBlockHandlers[Block::SENSING_KEYPRESSED] = SensingBlocks::keyPressed;
-    conditionBlockHandlers[Block::SENSING_TOUCHINGOBJECT] = SensingBlocks::touchingObject;
-    conditionBlockHandlers[Block::SENSING_MOUSEDOWN] = SensingBlocks::mouseDown;
+    valueHandlers[Block::SENSING_KEYPRESSED] = SensingBlocks::keyPressed;
+    valueHandlers[Block::SENSING_TOUCHINGOBJECT] = SensingBlocks::touchingObject;
+    valueHandlers[Block::SENSING_MOUSEDOWN] = SensingBlocks::mouseDown;
 
     // procedures / arguments
     handlers[Block::PROCEDURES_CALL] = ProcedureBlocks::call;
     handlers[Block::PROCEDURES_DEFINITION] = ProcedureBlocks::definition;
     valueHandlers[Block::ARGUMENT_REPORTER_STRING_NUMBER] = ProcedureBlocks::stringNumber;
-    conditionBlockHandlers[Block::ARGUMENT_REPORTER_BOOLEAN] = ProcedureBlocks::booleanArgument;
+    valueHandlers[Block::ARGUMENT_REPORTER_BOOLEAN] = ProcedureBlocks::booleanArgument;
 
 }
 
@@ -238,25 +238,27 @@ void BlockExecutor::runRepeatsWithoutRefresh(Sprite* sprite,std::string blockCha
 
 
 
-std::string BlockExecutor::getBlockValue(const Block& block,Sprite*sprite){
+Value BlockExecutor::getBlockValue(Block& block,Sprite*sprite){
     auto iterator = valueHandlers.find(block.opcode);
     if (iterator != valueHandlers.end()) {
         return iterator->second(block, sprite);
     }
 
-    bool conditional = runConditionalBlock(block.id,sprite);
-    if(!conditional) return "0";
-    return "1";
+    return Value(0);
+
+    // bool conditional = runConditionalBlock(block.id,sprite);
+    // if(!conditional) return Value(0);
+    // return Value(1);
 }
 
-bool BlockExecutor::runConditionalBlock(std::string blockId, Sprite* sprite){
-    Block* block = findBlock(blockId);
-    auto iterator = conditionBlockHandlers.find(block->opcode);
-    if (iterator != conditionBlockHandlers.end()) {
-        return iterator->second(*block,sprite);
-    }
-    return false;
-}
+// Value BlockExecutor::runConditionalBlock(std::string blockId, Sprite* sprite){
+//     Block* block = findBlock(blockId);
+//     auto iterator = conditionBlockHandlers.find(block->opcode);
+//     if (iterator != conditionBlockHandlers.end()) {
+//         return iterator->second(*block,sprite);
+//     }
+//     return false;
+// }
 
 void BlockExecutor::addToRepeatQueue(Sprite* sprite,Block* block){
     //std::cout << "trying..." << std::endl;

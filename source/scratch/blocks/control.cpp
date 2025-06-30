@@ -1,6 +1,7 @@
 #include "control.hpp"
 
 BlockResult ControlBlocks::If(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    Value conditionValue = Scratch::getInputValue(block,"CONDITION",sprite);
     if (block.inputs.at("CONDITION")[1].is_null()) {
         return BlockResult::CONTINUE;
     }

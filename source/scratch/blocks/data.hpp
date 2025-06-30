@@ -11,9 +11,9 @@ public:
     static BlockResult insertAtList(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
     static BlockResult replaceItemOfList(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh);
 
-    static std::string itemOfList(const Block& block, Sprite* sprite);
-    static std::string itemNumOfList(const Block& block, Sprite* sprite);
-    static std::string lengthOfList(const Block& block, Sprite* sprite);
+    static Value itemOfList(Block& block, Sprite* sprite);
+    static Value itemNumOfList(Block& block, Sprite* sprite);
+    static Value lengthOfList(Block& block, Sprite* sprite);
 
-    static bool listContainsItem(const Block& block, Sprite* sprite);
+    static Value listContainsItem(Block& block, Sprite* sprite);
 };
