@@ -526,7 +526,7 @@ Value findCustomValue(std::string valueName, Sprite* sprite, Block block) {
                 // Find the value in argumentValues using argumentId
                 auto valueIt = custBlock.argumentValues.find(argumentId);
                 if (valueIt != custBlock.argumentValues.end()) {
-                   std::cout << "FOUND that shit BAAANG: " << valueIt->second.asString() << std::endl;
+                   //std::cout << "FOUND that shit BAAANG: " << valueIt->second.asString() << std::endl;
                     return valueIt->second;
                 } else {
                    std::cout << "Argument ID found, but no value exists for it." << std::endl;

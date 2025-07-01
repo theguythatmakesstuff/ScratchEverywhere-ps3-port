@@ -1,9 +1,9 @@
 #include "data.hpp"
 
 BlockResult DataBlocks::setVariable(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    // Value val = Scratch::getInputValue(block,"VALUE",sprite);
-    // std::string varId = block.fields.at("VARIABLE")[1];
-    // setVariableValue(varId, val, sprite);
+    Value val = Scratch::getInputValue(block,"VALUE",sprite);
+    std::string varId = block.fields.at("VARIABLE")[1];
+    setVariableValue(varId, val, sprite);
     return BlockResult::CONTINUE;
 }
 
