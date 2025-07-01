@@ -16,7 +16,7 @@ BlockResult MotionBlocks::moveSteps(Block& block, Sprite* sprite, Block** waitin
 
 BlockResult MotionBlocks::goTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     auto inputValue = block.parsedInputs.find("TO");
-    Block* inputBlock = findBlock(inputValue->second.blockId);
+    Block* inputBlock = findBlock(inputValue->second.literalValue.asString());
             std::string objectName = inputBlock->fields["TO"][0];
 
             if (objectName == "_random_") {
