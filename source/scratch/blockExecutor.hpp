@@ -5,6 +5,8 @@
 #include "sprite.hpp"
 #include "interpret.hpp"
 
+extern size_t blocksRun;
+
 enum class BlockResult {
     CONTINUE,
     RETURN,

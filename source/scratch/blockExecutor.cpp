@@ -9,6 +9,8 @@
 #include "blocks/procedure.hpp"
 #include "blocks/sound.hpp"
 
+size_t blocksRun = 0;
+
 BlockExecutor::BlockExecutor(){
     registerHandlers();
 }
@@ -143,9 +145,14 @@ void BlockExecutor::runBlock(Block& block, Sprite* sprite, Block* waitingBlock, 
     if (!sprite || sprite->toDelete) {
         return;
     }
-    u16 blocksRun = 0;
+
     while (currentBlock && currentBlock->id != "null") {
         blocksRun += 1;
+
+        if(blocksRun > 1000){
+            std::cout <<"too many blocks running, skipping" << std::endl;
+            return;
+            }
 
         BlockResult result = executeBlock(*currentBlock, sprite, &waitingBlock, withoutScreenRefresh);
         
@@ -168,7 +175,7 @@ void BlockExecutor::runBlock(Block& block, Sprite* sprite, Block* waitingBlock, 
         }
     }
 
-    //std::cout << blocksRun << " blocks run" << std::endl;
+
 
         // Timing measurement
     auto end = std::chrono::high_resolution_clock::now();
@@ -189,19 +196,24 @@ BlockResult BlockExecutor::executeBlock(Block& block, Sprite* sprite,Block** wai
 }
 
 void BlockExecutor::runRepeatBlocks(){
+    blocksRun = 0;
     //std::cout<<"Running repeat blocks..."<< std::endl;
     // repeat the block most recently added to the repeat chain
     for(auto& sprite : sprites){
         for(auto& [id, blockChain]: sprite->blockChains){
         auto& repeatList = blockChain.blocksToRepeat;
             if (!repeatList.empty()) {
-                //std::cout << "trying..." << std::endl;
                 std::string toRepeat = repeatList.back();
                 if(!toRepeat.empty()){
                 Block* toRun = &sprite->blocks[toRepeat];
-                //std::cout << "running for " << id << std::endl;
-                if(toRun != nullptr)
+                if(toRun != nullptr){
+                if(blocksRun > 1000){
+                    std::cout <<"too many blocks running, skipping" << std::endl;
+                    continue;
+                }
                 executor.runBlock(*toRun, sprite);
+
+                }
                 }
             } 
         }
@@ -220,7 +232,7 @@ void BlockExecutor::runRepeatBlocks(){
     }
     
     }
-
+    std::cout << "\x1b[10;1HBlocks run: " << blocksRun << std::endl;
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 
 }
