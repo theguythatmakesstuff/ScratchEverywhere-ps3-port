@@ -1,12 +1,12 @@
 #include "procedure.hpp"
 
 Value ProcedureBlocks::stringNumber(Block& block, Sprite* sprite) {
-    return Value(findCustomValue(block.fields.at("VALUE")[0], sprite, block));
+    return findCustomValue(block.fields.at("VALUE")[0], sprite, block);
 }
 
 Value ProcedureBlocks::booleanArgument(Block& block, Sprite* sprite){
-    std::string value = findCustomValue(block.fields.at("VALUE")[0], sprite, block);
-    return Value(value == "1");
+    Value value = findCustomValue(block.fields.at("VALUE")[0], sprite, block);
+    return Value(value.asInt() == 1);
 }
 
 BlockResult ProcedureBlocks::call(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {

@@ -292,7 +292,7 @@ struct CustomBlock{
     std::vector<std::string> argumentIds;
     std::vector<std::string> argumentNames;
     std::vector<std::string> argumentDefaults;
-    std::unordered_map<std::string,std::string> argumentValues;
+    std::unordered_map<std::string,Value> argumentValues;
     bool runWithoutScreenRefresh;
 
 };

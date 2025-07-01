@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 			startTime = std::chrono::high_resolution_clock::now();
 			getInput();
 			BlockExecutor::runRepeatBlocks();
-			//renderSprites();
+			renderSprites();
 		}
 
 		gspWaitForVBlank();

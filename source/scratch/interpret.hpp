@@ -60,7 +60,7 @@ Block* getBlockParent(const Block* block);
 void initializeSpritePool(int poolSize);
 Sprite* getAvailableSprite();
 void initializeSpritePool(int poolSize);
-std::string findCustomValue(std::string valueName,Sprite*sprite,Block block);
+Value findCustomValue(std::string valueName,Sprite*sprite,Block block);
 std::string removeQuotations(std::string value);
 void runBroadcasts();
 void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh);

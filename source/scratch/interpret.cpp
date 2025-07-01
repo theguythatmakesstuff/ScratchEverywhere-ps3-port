@@ -510,7 +510,7 @@ void runBroadcasts() {
     }
 }
 
-std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) {
+Value findCustomValue(std::string valueName, Sprite* sprite, Block block) {
     for (auto& [custId, custBlock] : sprite->customBlocks) {
         // Find the index of valueName in argumentNames
         auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
@@ -526,17 +526,17 @@ std::string findCustomValue(std::string valueName, Sprite* sprite, Block block) 
                 // Find the value in argumentValues using argumentId
                 auto valueIt = custBlock.argumentValues.find(argumentId);
                 if (valueIt != custBlock.argumentValues.end()) {
-                   // std::cout << "FOUND that shit BAAANG: " << valueIt->second << std::endl;
+                   std::cout << "FOUND that shit BAAANG: " << valueIt->second.asString() << std::endl;
                     return valueIt->second;
                 } else {
-                   // std::cout << "Argument ID found, but no value exists for it." << std::endl;
+                   std::cout << "Argument ID found, but no value exists for it." << std::endl;
                 }
             } else {
-              //  std::cout << "Index out of bounds for argumentIds!" << std::endl;
+              std::cout << "Index out of bounds for argumentIds!" << std::endl;
             }
         }
     }
-    return "";
+    return Value();
 }
 
 void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh){
@@ -544,8 +544,8 @@ void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withou
         if(id == block.mutation.at("proccode").get<std::string>()){
             // Set up argument values
             for(std::string arg : data.argumentIds){
-                if(!block.parsedInputs[arg].originalJson.is_null()){
-                    data.argumentValues[arg] = Scratch::getInputValue(block, block.parsedInputs[arg].originalJson,sprite).asString();
+                if(block.parsedInputs.find(arg) != block.parsedInputs.end()){
+                    data.argumentValues[arg] = Scratch::getInputValue(block, arg,sprite);
                 }
             }
             
