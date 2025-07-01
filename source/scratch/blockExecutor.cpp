@@ -149,11 +149,6 @@ void BlockExecutor::runBlock(Block& block, Sprite* sprite, Block* waitingBlock, 
     while (currentBlock && currentBlock->id != "null") {
         blocksRun += 1;
 
-        if(blocksRun > 1000){
-            std::cout <<"too many blocks running, skipping" << std::endl;
-            return;
-            }
-
         BlockResult result = executeBlock(*currentBlock, sprite, &waitingBlock, withoutScreenRefresh);
         
         if (result == BlockResult::RETURN) {
@@ -207,10 +202,6 @@ void BlockExecutor::runRepeatBlocks(){
                 if(!toRepeat.empty()){
                 Block* toRun = &sprite->blocks[toRepeat];
                 if(toRun != nullptr){
-                if(blocksRun > 1000){
-                    std::cout <<"too many blocks running, skipping" << std::endl;
-                    continue;
-                }
                 executor.runBlock(*toRun, sprite);
 
                 }
@@ -232,7 +223,7 @@ void BlockExecutor::runRepeatBlocks(){
     }
     
     }
-    std::cout << "\x1b[10;1HBlocks run: " << blocksRun << std::endl;
+    std::cout << "\x1b[19;1HBlocks Running: " << blocksRun << std::endl;
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 
 }
