@@ -166,7 +166,7 @@ Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
     }
 
     for (Sprite* targetSprite : sprites) {
-        if (targetSprite->name == objectName) {
+        if (targetSprite->name == objectName && targetSprite->visible) {
             // Get collision points of the target sprite
             std::vector<std::pair<double, double>> targetSpritePoints = getCollisionPoints(targetSprite);
 
