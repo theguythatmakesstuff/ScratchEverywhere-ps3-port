@@ -207,6 +207,7 @@ Value LooksBlocks::backdrops(Block& block, Sprite* sprite) {
 Value LooksBlocks::costumeNumberName(Block& block, Sprite* sprite) {
     std::string value = block.fields.at("NUMBER_NAME")[0];
     if (value == "name") {
+        std::cout << sprite->costumes[sprite->currentCostume].name << std::endl;
         return Value(sprite->costumes[sprite->currentCostume].name);
     } else if (value == "number") {
         return Value(sprite->currentCostume + 1);

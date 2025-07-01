@@ -161,16 +161,13 @@ Value OperatorBlocks::equals(Block& block, Sprite* sprite){
         return Value(false);
     }
     
-    try{
-        if(std::floor(value1.asDouble()) == value1.asDouble() && std::floor(value2.asDouble()) == value2.asDouble() ){
-            return Value(std::floor(value1.asDouble()) == std::floor(value2.asDouble()));
-        }
+    if(value1.isNumeric() && value2.isNumeric()){
+        return Value(value1.asDouble() == value2.asDouble());
     }
-    catch(...){
-        // If conversion fails, fall back to string comparison
+    else{
+            return Value(value1.asString() == value2.asString());
     }
-
-    return Value(value1.asString() == value2.asString());
+    
 }
 
 Value OperatorBlocks::greaterThan(Block& block, Sprite* sprite){
