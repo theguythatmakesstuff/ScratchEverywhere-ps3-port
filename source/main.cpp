@@ -5,7 +5,6 @@
 #include "render.hpp"
 #include "input.hpp"
 #include "unzip.hpp"
-#include "oggAudioPlayer.hpp"
 
 // arm-none-eabi-addr2line -e Scratch.elf xxx
 // ^ for debug perposes
@@ -30,7 +29,6 @@ static void initApp(){
 
 	renderInit();
 	romfsInit();
-	initAudioCache();
 }
 
 int main(int argc, char **argv)
