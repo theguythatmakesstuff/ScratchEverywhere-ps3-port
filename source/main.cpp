@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 			renderSprites();
 			frameEndTime = std::chrono::high_resolution_clock::now();
 			auto frameDuration = frameEndTime - frameStartTime;
-			std::cout << "\x1b[8;1HFrame time: " << frameDuration.count() << " ns" << std::endl;
+			std::cout << "\x1b[8;1HFrame time: " << frameDuration.count() << " ms" << std::endl;
 		}
 
 		gspWaitForVBlank();

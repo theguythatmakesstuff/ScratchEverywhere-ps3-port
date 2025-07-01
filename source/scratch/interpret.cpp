@@ -341,10 +341,10 @@ void loadSprites(const nlohmann::json& json){
 
         try {
             config = nlohmann::json::parse(json_str);
-            std::cout << "Parsed JSON:\n" << config.dump(4) << "\n";
+            //std::cout << "Parsed JSON:\n" << config.dump(4) << "\n";
             break;
     } catch (nlohmann::json::parse_error& e) {
-        std::cerr << "Failed to parse JSON: " << e.what() << "\n";
+        //std::cerr << "Failed to parse JSON: " << e.what() << "\n";
         continue;
     }
         }
@@ -355,21 +355,21 @@ void loadSprites(const nlohmann::json& json){
        FPS = framerate;
     }
     catch(...){
-        std::cerr << "no framerate property." << std::endl;
+        //std::cerr << "no framerate property." << std::endl;
     }
         try{
        int wdth = config["width"].get<int>();
        projectWidth = wdth;
     }
     catch(...){
-        std::cerr << "no width property." << std::endl;
+        //std::cerr << "no width property." << std::endl;
     }
         try{
        int hght = config["height"].get<int>();
        projectHeight = hght;
     }
     catch(...){
-        std::cerr << "no height property." << std::endl;
+        //std::cerr << "no height property." << std::endl;
     }
     
     // if unzipped, load initial sprites

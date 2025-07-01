@@ -1,5 +1,4 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#pragma once
 #include "miniz/miniz.h"
 #include <stdio.h>
 #include <iostream>
@@ -21,8 +20,13 @@ struct ImageRGBA {
     unsigned char* data;
 };
 
+struct Image{
+    C2D_Image image;
+    u16 freeTimer = 120;
+};
+
 extern std::vector<ImageRGBA> imageRBGAs;
-extern std::unordered_map<std::string, C2D_Image> imageC2Ds;
+extern std::unordered_map<std::string, Image> imageC2Ds;
 
 void loadImages(mz_zip_archive *zip);
 void loadImageFromFile(std::string filePath);
@@ -30,6 +34,5 @@ const u32 next_pow2(u32 n);
 const u32 clamp(u32 n, u32 lower, u32 upper);
 const u32 rgba_to_abgr(u32 px);
 C2D_Image get_C2D_Image(ImageRGBA rgba);
-
-
-#endif
+void freeImage(const std::string& costumeId);
+void FlushImages();

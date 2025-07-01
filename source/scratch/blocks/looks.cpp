@@ -1,4 +1,5 @@
 #include "looks.hpp"
+#include "../../3ds/image.hpp"
 
 BlockResult LooksBlocks::show(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     sprite->visible = true;
@@ -16,7 +17,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
         int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
             if(sprite->currentCostume != costumeIndex){
-                freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
+                //freeImage(sprite->costumes[sprite->currentCostume].id);
             }
             sprite->currentCostume = costumeIndex;
 
@@ -25,7 +26,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
         for (size_t i = 0; i < sprite->costumes.size(); i++) {
             if (sprite->costumes[i].name == inputValue.asString()) {
                 if((size_t)sprite->currentCostume != i){
-                    freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
+                    //freeImage(sprite->costumes[sprite->currentCostume].id);
                 }
                 sprite->currentCostume = i;
                 break;
@@ -41,7 +42,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
 }
 
 BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    freeImage(sprite,sprite->costumes[sprite->currentCostume].id);
+    //freeImage(sprite->costumes[sprite->currentCostume].id);
     sprite->currentCostume++;
     if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
         sprite->currentCostume = 0;
@@ -62,7 +63,8 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
         int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
             if(sprite->currentCostume != costumeIndex){
-            freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);}
+            //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
+        }
             currentSprite->currentCostume = costumeIndex;
             if(projectType == UNZIPPED){
                 loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
@@ -72,7 +74,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
         for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
             if (currentSprite->costumes[i].name == inputValue.asString()) {
                 if((size_t)sprite->currentCostume != i){
-                    freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
+                    //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
                 }
                 currentSprite->currentCostume = i;
                 if(projectType == UNZIPPED){
@@ -91,7 +93,7 @@ BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** wait
         if(!currentSprite->isStage){
             continue;
         }
-        freeImage(currentSprite,currentSprite->costumes[currentSprite->currentCostume].id);
+        //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
         currentSprite->currentCostume++;
         if (currentSprite->currentCostume >= static_cast<int>(currentSprite->costumes.size())) {
             currentSprite->currentCostume = 0;

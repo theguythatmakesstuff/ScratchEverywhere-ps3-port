@@ -91,7 +91,7 @@ for(Sprite* currentSprite : spritesByLayer) {
         if(costumeIndex == currentSprite->currentCostume) {
             currentSprite->rotationCenterX = costume.rotationCenterX;
             currentSprite->rotationCenterY = costume.rotationCenterY;
-            renderImage(&imageC2Ds[costume.id], currentSprite, costume.id);
+            renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id);
         }
         costumeIndex++;
     }
@@ -116,7 +116,7 @@ for(Sprite* currentSprite : spritesByLayer) {
         if(costumeIndex == currentSprite->currentCostume) {
             currentSprite->rotationCenterX = costume.rotationCenterX;
             currentSprite->rotationCenterY = costume.rotationCenterY;
-            renderImage(&imageC2Ds[costume.id], currentSprite, costume.id,true);
+            renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id,true);
         }
         costumeIndex++;
     }
@@ -127,6 +127,7 @@ for(Sprite* currentSprite : spritesByLayer) {
 
     C2D_Flush();
     C3D_FrameEnd(0);
+    FlushImages();
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
     //int FPS = 1000.0 / std::round(duration.count());
@@ -134,27 +135,7 @@ for(Sprite* currentSprite : spritesByLayer) {
     startTime = std::chrono::high_resolution_clock::now();
 }
 
-void freeImage(Sprite* currentSprite, const std::string& costumeId) {
-    // Check if the costume exists in imageC2Ds
-    auto it = imageC2Ds.find(costumeId);
-    if (it != imageC2Ds.end()) {
-        // Free the texture if it exists
-        if (it->second.tex) {
-            C3D_TexDelete(it->second.tex);
-            free(it->second.tex);
-           // imageC2Ds.erase(it);
-        }
 
-        // Free the subtexture if it exists
-        if (it->second.subtex) {
-            free((Tex3DS_SubTexture*)it->second.subtex);
-        }
-
-        // Erase the costume from imageC2Ds
-        imageC2Ds.erase(it);
-        //std::cout << "Freed image for costume: " << costumeId << std::endl;
-    }
-}
 
 
 
@@ -180,7 +161,8 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
                 currentSprite->spriteHeight = rgba.height / 2;
                 
                 if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr)
-                imageC2Ds[costumeId] = get_C2D_Image(rgba);
+                imageC2Ds[costumeId].image = get_C2D_Image(rgba);
+                imageC2Ds[costumeId].freeTimer = 120;
                 legacyDrawing = false;
                 break;
             }
@@ -281,13 +263,13 @@ void renderDeInit(){
     C2D_Fini();
     C3D_Fini();
     for(auto &[id,data] : imageC2Ds){
-        if(data.tex){
-        C3D_TexDelete(data.tex);
-        free(data.tex);
+        if(data.image.tex){
+        C3D_TexDelete(data.image.tex);
+        free(data.image.tex);
         }
     
-        if(data.subtex){
-            free((Tex3DS_SubTexture*)data.subtex);
+        if(data.image.subtex){
+            free((Tex3DS_SubTexture*)data.image.subtex);
         }
     }
 
