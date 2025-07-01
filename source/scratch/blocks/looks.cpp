@@ -13,6 +13,12 @@ BlockResult LooksBlocks::hide(Block& block, Sprite* sprite, Block** waitingBlock
 BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Value inputValue = Scratch::getInputValue(block,"COSTUME",sprite);
 
+    std::string inputString = inputValue.asString();
+    Block* inputBlock = findBlock(inputValue.asString());
+    if(inputBlock && inputBlock != nullptr){
+        inputString = inputBlock->fields["COSTUME"][0].get<std::string>();
+    }
+
     if (inputValue.isNumeric()){
         int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
@@ -24,7 +30,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
         }
     } else {
         for (size_t i = 0; i < sprite->costumes.size(); i++) {
-            if (sprite->costumes[i].name == inputValue.asString()) {
+            if (sprite->costumes[i].name == inputString) {
                 if((size_t)sprite->currentCostume != i){
                     //freeImage(sprite->costumes[sprite->currentCostume].id);
                 }
@@ -55,6 +61,13 @@ BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waiti
 
 BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Value inputValue = Scratch::getInputValue(block,"BACKDROP",sprite);
+
+    std::string inputString = inputValue.asString();
+    Block* inputBlock = findBlock(inputValue.asString());
+    if(inputBlock && inputBlock != nullptr){
+        inputString = inputBlock->fields["BACKDROP"][0].get<std::string>();
+    }
+
     for(Sprite* currentSprite : sprites){
         if(!currentSprite->isStage){
             continue;
