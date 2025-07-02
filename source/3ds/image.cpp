@@ -203,7 +203,7 @@ void freeImage(const std::string& costumeId) {
 
 void FlushImages(){
   for(auto& [id,img] : imageC2Ds){
-    if(img.freeTimer <= 90 && imageC2Ds.size() > 28){
+    if(img.freeTimer <= 00 || imageC2Ds.size() > 28){
       freeImage(id);
       continue;
     }

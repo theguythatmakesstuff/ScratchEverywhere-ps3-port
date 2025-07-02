@@ -62,6 +62,7 @@ void renderInit(){
 }
 
 void renderSprites(){
+    //std::cout << "\x1b[20;1HImages Loaded: " << imageC2Ds.size() << std::endl;
 
     timer += 1.0 / 60.0;
 
@@ -91,7 +92,7 @@ for(Sprite* currentSprite : spritesByLayer) {
         if(costumeIndex == currentSprite->currentCostume) {
             currentSprite->rotationCenterX = costume.rotationCenterX;
             currentSprite->rotationCenterY = costume.rotationCenterY;
-            renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id);
+            renderImage(currentSprite, costume.id);
         }
         costumeIndex++;
     }
@@ -116,7 +117,7 @@ for(Sprite* currentSprite : spritesByLayer) {
         if(costumeIndex == currentSprite->currentCostume) {
             currentSprite->rotationCenterX = costume.rotationCenterX;
             currentSprite->rotationCenterY = costume.rotationCenterY;
-            renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id,true);
+            renderImage(currentSprite, costume.id,true);
         }
         costumeIndex++;
     }
@@ -139,7 +140,7 @@ for(Sprite* currentSprite : spritesByLayer) {
 
 
 
-void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom) {
+void renderImage(Sprite* currentSprite, std::string costumeId,bool bottom) {
     //freeImage(currentSprite,costumeId);
 
     if(!currentSprite || currentSprite == nullptr) return;
@@ -150,7 +151,6 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     }
 
     bool legacyDrawing = false;
-    
     double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
 
     
@@ -160,7 +160,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
                 currentSprite->spriteWidth = rgba.width / 2;
                 currentSprite->spriteHeight = rgba.height / 2;
                 
-                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr)
+                if(imageC2Ds.find(costumeId) == imageC2Ds.end())
                 imageC2Ds[costumeId].image = get_C2D_Image(rgba);
                 imageC2Ds[costumeId].freeTimer = 120;
                 legacyDrawing = false;
@@ -174,7 +174,6 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
             }
 
         }
-
     
         
 
@@ -215,8 +214,13 @@ if (!legacyDrawing) {
 
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
+    if(imageC2Ds.find(costumeId) != imageC2Ds.end()){
+    C2D_Image& image = imageC2Ds[costumeId].image;
+    if(!image.tex || !image.subtex) return;
+    
+
     C2D_DrawImageAtRotated(
-        *image,
+        image,
         (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
         1,
@@ -225,6 +229,7 @@ if (!legacyDrawing) {
         (spriteSizeX) * scale / 2.0f,
         (spriteSizeY) * scale / 2.0f 
     );
+}
 } else {
     scale = bottom ? 1.0 : std::min(scaleX, scaleY);
     C2D_DrawRectSolid(
