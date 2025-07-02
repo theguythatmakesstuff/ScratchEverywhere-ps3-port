@@ -33,9 +33,8 @@ void renderSprites();
 void renderDeInit();
 
 class LoadingScreen{
-private:
-    TextObject* text;
 public:
+    TextObject* text;
     void init();
     void renderLoadingScreen();
     void cleanup();

@@ -28,7 +28,6 @@ bool openFile(std::ifstream *file){
             projectType = UNEMBEDDED;
             if (!(*file)){
                 std::cerr<<"Couldnt find file. jinkies.";
-                svcBreak(USERBREAK_PANIC);
                 return false;
             }
         }
@@ -47,7 +46,6 @@ nlohmann::json unzipProject(std::ifstream *file){
         file->seekg(0,std::ios::beg); // go to the beginning of the file
         std::vector<char> buffer(size);
         if (!file->read(buffer.data(), size)){
-            svcBreak(USERBREAK_PANIC);
             return project_json;
         }
 
@@ -56,7 +54,6 @@ nlohmann::json unzipProject(std::ifstream *file){
         mz_zip_archive zip;
         memset(&zip,0,sizeof(zip));
         if (!mz_zip_reader_init_mem(&zip,buffer.data(),buffer.size(),0)){
-            svcBreak(USERBREAK_PANIC);
             return project_json;
         }
 
@@ -64,7 +61,6 @@ nlohmann::json unzipProject(std::ifstream *file){
         std::cout<<"Extracting project.json..."<<std::endl;
         int file_index = mz_zip_reader_locate_file(&zip,"project.json",NULL,0);
         if (file_index < 0){
-            svcBreak(USERBREAK_PANIC);
             return project_json;
         }
 

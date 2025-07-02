@@ -66,6 +66,26 @@ int main(int argc, char **argv)
     }
 	threadJoin(projectThread, U64_MAX);
     threadFree(projectThread);
+	if(projectOpened != 1){
+
+		if(projectOpened == -1)
+		loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
+		if(projectOpened == -2)
+		loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
+		loading.renderLoadingScreen();
+
+		while(aptMainLoop()){
+			hidScanInput();
+			if(hidKeysDown() & KEY_START){
+				break;
+			}
+			gspWaitForVBlank();
+		}
+		loading.cleanup();
+		exitApp();
+		return 0;
+	}
+
 	loading.cleanup();
 
 	std::cout<<"project loaded!" << std::endl;
