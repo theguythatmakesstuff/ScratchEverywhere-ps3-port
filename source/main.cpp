@@ -2,7 +2,7 @@
 #include <3ds.h>
 #include <chrono>
 #include <thread>
-#include "scratch/interpret.hpp"
+#include "scratch/blockExecutor.hpp"
 #include "render.hpp"
 #include "input.hpp"
 #include "unzip.hpp"
@@ -94,7 +94,8 @@ int main(int argc, char **argv)
 	osSetSpeedupEnable(false);
 
 	std::cout<<"Running hat blocks"<<std::endl;
-	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
+	BlockExecutor::runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
+	BlockExecutor::timer = std::chrono::high_resolution_clock::now();
 
 
 	while (aptMainLoop())

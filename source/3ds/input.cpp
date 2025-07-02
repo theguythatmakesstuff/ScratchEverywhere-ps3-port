@@ -104,7 +104,7 @@ void getInput(){
             mousePointer.x = touch.px - (BOTTOM_SCREEN_WIDTH / 2);
             mousePointer.y = (-touch.py + (SCREEN_HEIGHT)) -SCREEN_HEIGHT;
         }
-        runAllBlocksByOpcode(Block::EVENT_WHEN_KEY_PRESSED);
+        BlockExecutor::runAllBlocksByOpcode(Block::EVENT_WHEN_KEY_PRESSED);
     }
 
 

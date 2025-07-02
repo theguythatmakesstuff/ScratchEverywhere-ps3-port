@@ -1,7 +1,7 @@
 #include "sensing.hpp"
 
 BlockResult SensingBlocks::resetTimer(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    timer = 0;
+    BlockExecutor::timer = std::chrono::high_resolution_clock::now();
     return BlockResult::CONTINUE;
 }
 
@@ -14,7 +14,9 @@ BlockResult SensingBlocks::askAndWait(Block& block, Sprite* sprite, Block** wait
 }
 
 Value SensingBlocks::sensingTimer(Block& block, Sprite* sprite) {
-    return Value(timer);
+    auto now = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - BlockExecutor::timer).count();
+    return Value(elapsed);
 }
 
 Value SensingBlocks::of(Block& block, Sprite* sprite) {
@@ -38,7 +40,9 @@ Value SensingBlocks::of(Block& block, Sprite* sprite) {
     if (!spriteObject) return Value(0);
     
     if (value == "timer") {
-        return Value(timer);
+        auto now = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::duration<double>>(now - BlockExecutor::timer).count();
+        return Value(elapsed);
     } else if (value == "x position") {
         return Value(spriteObject->xPosition);
     } else if (value == "y position") {

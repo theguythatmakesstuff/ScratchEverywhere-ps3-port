@@ -10,6 +10,7 @@
 #include "blocks/sound.hpp"
 
 size_t blocksRun = 0;
+std::chrono::_V2::system_clock::time_point BlockExecutor::timer;
 
 BlockExecutor::BlockExecutor(){
     registerHandlers();
@@ -239,7 +240,17 @@ void BlockExecutor::runRepeatsWithoutRefresh(Sprite* sprite,std::string blockCha
     }    
 }
 
-
+void BlockExecutor::runAllBlocksByOpcode(Block::opCode opcodeToFind){
+    //std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
+    for(Sprite *currentSprite : sprites){
+        for(auto &[id,data] : currentSprite->blocks){
+            if(data.opcode == opcodeToFind){
+                //runBlock(data,currentSprite);
+                executor.runBlock(data,currentSprite);
+            }
+        }
+    }
+}
 
 Value BlockExecutor::getBlockValue(Block& block,Sprite*sprite){
     auto iterator = valueHandlers.find(block.opcode);

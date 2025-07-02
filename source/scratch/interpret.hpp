@@ -44,7 +44,6 @@ extern std::vector<std::string> broadcastQueue;
 //extern std::unordered_map<std::string,Conditional> conditionals;
 extern std::unordered_map<std::string, Block*> blockLookup;
 extern Mouse mousePointer;
-extern double timer;
 extern bool toExit;
 extern std::string answer;
 
@@ -67,7 +66,6 @@ void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withou
 //bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId);
 Block* findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
-void runAllBlocksByOpcode(Block::opCode opcodeToFind);
 
 Value getVariableValue(std::string variableId,Sprite*sprite);
 //void buildBlockHierarchyCache();

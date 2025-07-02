@@ -7,7 +7,6 @@ std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string, Block*> blockLookup;
 Mouse mousePointer;
 std::string answer;
-double timer = 0;
 bool toExit = false;
 ProjectType projectType;
 
@@ -672,14 +671,3 @@ std::vector<Sprite*> findSprite(std::string spriteName){
 
 
 
-void runAllBlocksByOpcode(Block::opCode opcodeToFind){
-    //std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
-    for(Sprite *currentSprite : sprites){
-        for(auto &[id,data] : currentSprite->blocks){
-            if(data.opcode == opcodeToFind){
-                //runBlock(data,currentSprite);
-                executor.runBlock(data,currentSprite);
-            }
-        }
-    }
-}
