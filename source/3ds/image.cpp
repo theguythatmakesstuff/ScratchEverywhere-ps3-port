@@ -202,11 +202,17 @@ void freeImage(const std::string& costumeId) {
 }
 
 void FlushImages(){
-  for(auto& [id,img] : imageC2Ds){
-    if(img.freeTimer <= 90 && imageC2Ds.size() > 28){
-      freeImage(id);
-      continue;
+    std::vector<std::string> toDelete;
+    
+    for(auto& [id, img] : imageC2Ds){
+        if(img.freeTimer <= 0 || imageC2Ds.size() > 28){
+            toDelete.push_back(id);
+        } else {
+            img.freeTimer -= 1;
+        }
     }
-    img.freeTimer -= 1;
-  }
+    
+    for(const std::string& id : toDelete){
+        freeImage(id);
+    }
 }

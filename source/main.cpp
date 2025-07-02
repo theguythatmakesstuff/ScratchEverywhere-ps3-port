@@ -21,12 +21,12 @@ static void exitApp(){
 
 static void initApp(){
 	gfxInitDefault();
-	osSetSpeedupEnable(true); //🐅
 
 	hidScanInput();
     u32 kDown = hidKeysHeld();
 	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
 
+	osSetSpeedupEnable(true);
 	renderInit();
 	romfsInit();
 }
@@ -47,6 +47,9 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	std::cout<<"project loaded!" << std::endl;
+
+	// disable new 3ds clock speeds for a bit cus it crashes for some reason otherwise????
+	osSetSpeedupEnable(false);
 
 	std::cout<<"Running hat blocks"<<std::endl;
 	runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
@@ -69,7 +72,8 @@ int main(int argc, char **argv)
 			
 		}
 
-		//gspWaitForVBlank();
+		gspWaitForVBlank();
+		osSetSpeedupEnable(true);
 
 		hidScanInput();
     u32 kDown = hidKeysHeld();

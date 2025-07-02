@@ -171,7 +171,6 @@ void BlockExecutor::runBlock(Block& block, Sprite* sprite, Block* waitingBlock, 
     }
 
 
-
         // Timing measurement
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = end - start;
