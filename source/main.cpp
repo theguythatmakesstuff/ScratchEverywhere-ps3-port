@@ -21,8 +21,8 @@ static void exitApp(){
 
 static void initApp(){
 	gfxInitDefault();
-	osSetSpeedupEnable(true);
-	
+	osSetSpeedupEnable(true); //🐅
+
 	hidScanInput();
     u32 kDown = hidKeysHeld();
 	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
