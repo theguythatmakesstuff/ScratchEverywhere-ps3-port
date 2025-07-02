@@ -1,31 +1,28 @@
 #ifdef __3DS__
 #include <3ds.h>
 #include <chrono>
+#include <thread>
 #include "scratch/interpret.hpp"
 #include "render.hpp"
 #include "input.hpp"
 #include "unzip.hpp"
 
 // arm-none-eabi-addr2line -e Scratch.elf xxx
-// ^ for debug perposes
+// ^ for debug purposes
 
 static void exitApp(){
-	//freeText(); // kill text
-	//cleanupSprites(); // delete sprites
-	renderDeInit(); // from render.hpp
-	romfsExit(); // unload the filesystem
-	ndspExit(); // unload audio
-	romfsExit(); // unload the filesystem
+	renderDeInit();
+	romfsExit();
+	ndspExit();
+	romfsExit();
 	gfxExit();
 }
 
 static void initApp(){
 	gfxInitDefault();
-
 	hidScanInput();
     u32 kDown = hidKeysHeld();
 	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
-
 	osSetSpeedupEnable(true);
 	renderInit();
 	romfsInit();
@@ -46,6 +43,7 @@ int main(int argc, char **argv)
 		exitApp();
 		return 0;
 	}
+
 	std::cout<<"project loaded!" << std::endl;
 
 	// disable new 3ds clock speeds for a bit cus it crashes for some reason otherwise????
@@ -76,11 +74,6 @@ int main(int argc, char **argv)
 		osSetSpeedupEnable(true);
 
 		hidScanInput();
-    u32 kDown = hidKeysHeld();
-		if(kDown & KEY_START){
-			toExit = true;
-		}
-
 
 		if(toExit){
 			break;
