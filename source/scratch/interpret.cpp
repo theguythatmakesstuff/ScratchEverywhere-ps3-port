@@ -634,13 +634,13 @@ Value getVariableValue(std::string variableId, Sprite* sprite) {
 }
 
 Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite* sprite){
-        auto it = block.parsedInputs.find(inputName);
-        if (it == block.parsedInputs.end()) {
+        auto parsedFind = block.parsedInputs.find(inputName);
+        if (parsedFind == block.parsedInputs.end()) {
             //std::cout << "couldnt find input value for " << block.id << std::endl;
             return Value(0);
         }
         
-        const ParsedInput& input = it->second;
+        const ParsedInput& input = parsedFind->second;
         switch(input.inputType) {
             case ParsedInput::LITERAL:
                 //std::cout << "literal! " << input.literalValue.asString() << std::endl;

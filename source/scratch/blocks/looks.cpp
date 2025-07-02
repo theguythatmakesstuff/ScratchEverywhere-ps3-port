@@ -12,33 +12,38 @@ BlockResult LooksBlocks::hide(Block& block, Sprite* sprite, Block** waitingBlock
 
 BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Value inputValue = Scratch::getInputValue(block,"COSTUME",sprite);
-
     std::string inputString = inputValue.asString();
-    Block* inputBlock = findBlock(inputValue.asString());
-    if(inputBlock && inputBlock != nullptr){
-        inputString = inputBlock->fields["COSTUME"][0].get<std::string>();
+
+    auto inputFind = block.parsedInputs.find("COSTUME");
+    if(inputFind != block.parsedInputs.end() && inputFind->second.inputType == ParsedInput::LITERAL){
+        Block* inputBlock = findBlock(inputValue.asString());
+        if(inputBlock != nullptr){
+            inputString = inputBlock->fields["COSTUME"][0].get<std::string>();
+        }
     }
 
-    if (inputValue.isNumeric()){
-        int costumeIndex = inputValue.asInt() - 1;
-        if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
-            if(sprite->currentCostume != costumeIndex){
-                //freeImage(sprite->costumes[sprite->currentCostume].id);
-            }
-            sprite->currentCostume = costumeIndex;
 
-        }
-    } else {
+    bool foundImage = false;
         for (size_t i = 0; i < sprite->costumes.size(); i++) {
             if (sprite->costumes[i].name == inputString) {
                 if((size_t)sprite->currentCostume != i){
                     //freeImage(sprite->costumes[sprite->currentCostume].id);
                 }
                 sprite->currentCostume = i;
+                foundImage = true;
                 break;
             }
         }
-    }
+        if(!foundImage && inputValue.isNumeric()){
+            int costumeIndex = inputValue.asInt() - 1;
+            if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
+                if(sprite->currentCostume != costumeIndex){
+                    //freeImage(sprite->costumes[sprite->currentCostume].id);
+            }
+            foundImage = true;
+            sprite->currentCostume = costumeIndex;
+        }
+        }
 
         if(projectType == UNZIPPED){
             loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
@@ -60,44 +65,50 @@ BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waiti
 }
 
 BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    Value inputValue = Scratch::getInputValue(block,"BACKDROP",sprite);
-
+    Value inputValue = Scratch::getInputValue(block, "BACKDROP", sprite);
     std::string inputString = inputValue.asString();
-    Block* inputBlock = findBlock(inputValue.asString());
-    if(inputBlock && inputBlock != nullptr){
-        inputString = inputBlock->fields["BACKDROP"][0].get<std::string>();
+    
+    auto inputFind = block.parsedInputs.find("BACKDROP");
+    if(inputFind != block.parsedInputs.end() && inputFind->second.inputType == ParsedInput::LITERAL){
+        Block* inputBlock = findBlock(inputValue.asString());
+        if(inputBlock != nullptr){
+            inputString = inputBlock->fields["BACKDROP"][0].get<std::string>();
+        }
     }
-
+    
     for(Sprite* currentSprite : sprites){
         if(!currentSprite->isStage){
             continue;
         }
-    if (inputValue.isNumeric()){
-        int costumeIndex = inputValue.asInt() - 1;
-        if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
-            if(sprite->currentCostume != costumeIndex){
-            //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
-        }
-            currentSprite->currentCostume = costumeIndex;
-            if(projectType == UNZIPPED){
-                loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
-                }
-        }
-    } else {
+        
+        bool foundImage = false;
+        
         for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
-            if (currentSprite->costumes[i].name == inputValue.asString()) {
-                if((size_t)sprite->currentCostume != i){
+            if (currentSprite->costumes[i].name == inputString) {
+                if((size_t)currentSprite->currentCostume != i){
                     //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
                 }
                 currentSprite->currentCostume = i;
-                if(projectType == UNZIPPED){
-                    loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
-                    }
+                foundImage = true;
                 break;
             }
         }
+        if(!foundImage && inputValue.isNumeric()){
+            int costumeIndex = inputValue.asInt() - 1;
+            if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
+                if(currentSprite->currentCostume != costumeIndex){
+                    //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
+                }
+                foundImage = true;
+                currentSprite->currentCostume = costumeIndex;
+            }
+        }
+        
+        if(projectType == UNZIPPED){
+            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+        }
     }
-}
+    
     return BlockResult::CONTINUE;
 }
 
