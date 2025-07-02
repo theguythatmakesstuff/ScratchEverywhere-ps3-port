@@ -20,8 +20,7 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 
 **List of known limitations:**
 - Sound is not yet implemented.
-- The "Touching" block may be a bit innacurate, due to using a different collision method.
-- Overall performance is pretty bad when many scripts are run at once, so try to keep cloning and long looping scripts down to a minimum.
+- Performance on old 3DS starts to tank with alot of blocks running.
 - There is no vector/svg sprite rendering. Images will only render if converted to bitmap beforehand, otherwise the sprite will show as a black square.
 - Images will only work if it's in png or jpg format.
 - If you have a bunch of large images, some may not load.
