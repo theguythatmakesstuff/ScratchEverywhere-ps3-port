@@ -26,7 +26,7 @@ double degreesToRadians(double degrees);
 double getMaxSpriteLayer();
 std::string getUsername();
 void renderInit();
-void renderImage(Sprite* currentSprite,std::string costumeId,bool bottom = false);
+void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId,bool bottom = false);
 void renderSprites();
 void renderDeInit();
 

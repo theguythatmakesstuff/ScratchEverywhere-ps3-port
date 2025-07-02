@@ -223,14 +223,7 @@ void BlockExecutor::runRepeatBlocks(){
     }
     
     }
-    //std::cout << "\x1b[19;1HBlocks Running: " << blocksRun << std::endl;
-
-    // delete sprites ready for deletion
-    for(Sprite* sprite : sprites){
-        if(sprite->toDelete){
-            freeImage(sprite->costumes[sprite->currentCostume].id);
-        }
-    }
+    std::cout << "\x1b[19;1HBlocks Running: " << blocksRun << std::endl;
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());
 
 }
