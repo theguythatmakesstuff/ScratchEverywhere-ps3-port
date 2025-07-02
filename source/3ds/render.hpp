@@ -9,6 +9,7 @@
 #include <3ds.h>
 #include "interpret.hpp"
 #include "image.hpp"
+#include "text.hpp"
 #include <chrono>
 
 extern C3D_RenderTarget* topScreen;
@@ -27,7 +28,17 @@ double getMaxSpriteLayer();
 std::string getUsername();
 void renderInit();
 void renderImage(C2D_Image *image,Sprite* currentSprite,std::string costumeId,bool bottom = false);
+
 void renderSprites();
 void renderDeInit();
+
+class LoadingScreen{
+private:
+    TextObject* text;
+public:
+    void init();
+    void renderLoadingScreen();
+    void cleanup();
+};
 
 #endif

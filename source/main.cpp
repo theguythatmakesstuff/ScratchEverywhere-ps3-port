@@ -39,11 +39,14 @@ int main(int argc, char **argv)
 	std::chrono::_V2::system_clock::time_point frameStartTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point frameEndTime = std::chrono::high_resolution_clock::now();
 
+    s32 mainPrio = 0;
+    svcGetThreadPriority(&mainPrio, CUR_THREAD_HANDLE);
+
 	Thread projectThread = threadCreate(
         openScratchProject,
         NULL,
         0x4000,
-        0x20,
+        mainPrio - 1,
         -1,
         false
     );
@@ -53,17 +56,17 @@ int main(int argc, char **argv)
         exitApp();
         return -1;
     }
-    
+  
+	LoadingScreen loading;
+	loading.init();
   
     while(!threadFinished){
-        hidScanInput();
-        if(hidKeysDown() & KEY_START) {
-            break;
-        }
-		svcSleepThread(16666666);
+		loading.renderLoadingScreen();
+		gspWaitForVBlank();
     }
 	threadJoin(projectThread, U64_MAX);
     threadFree(projectThread);
+	loading.cleanup();
 
 	std::cout<<"project loaded!" << std::endl;
 

@@ -135,8 +135,24 @@ for(Sprite* currentSprite : spritesByLayer) {
     startTime = std::chrono::high_resolution_clock::now();
 }
 
+void LoadingScreen::renderLoadingScreen(){
+    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C2D_TargetClear(topScreen,clrBlack);
+    C2D_SceneBegin(topScreen);
 
+    text->render();
 
+    C2D_Flush();
+    C3D_FrameEnd(0);
+}
+
+void LoadingScreen::init(){
+    text = new TextObject("Loading...",200,120);
+}
+
+void LoadingScreen::cleanup(){
+    delete text;
+}
 
 
 void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom) {
