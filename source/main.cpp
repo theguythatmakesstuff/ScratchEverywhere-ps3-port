@@ -39,10 +39,31 @@ int main(int argc, char **argv)
 	std::chrono::_V2::system_clock::time_point frameStartTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point frameEndTime = std::chrono::high_resolution_clock::now();
 
-	if(!openScratchProject()){
-		exitApp();
-		return 0;
-	}
+	Thread projectThread = threadCreate(
+        openScratchProject,
+        NULL,
+        0x4000,
+        0x20,
+        -1,
+        false
+    );
+
+    if(!projectThread) {
+        std::cerr << "Failed to create thread!" << std::endl;
+        exitApp();
+        return -1;
+    }
+    
+  
+    while(!threadFinished){
+        hidScanInput();
+        if(hidKeysDown() & KEY_START) {
+            break;
+        }
+		svcSleepThread(16666666);
+    }
+	threadJoin(projectThread, U64_MAX);
+    threadFree(projectThread);
 
 	std::cout<<"project loaded!" << std::endl;
 

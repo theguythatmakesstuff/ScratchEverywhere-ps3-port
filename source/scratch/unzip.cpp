@@ -1,5 +1,8 @@
 #include "unzip.hpp"
 
+volatile int projectOpened = 0;
+volatile bool threadFinished = false;
+
 bool openFile(std::ifstream *file){
     std::cout<<"Unzipping Scratch Project..."<<std::endl;
 
@@ -86,17 +89,23 @@ nlohmann::json unzipProject(std::ifstream *file){
     return project_json;
 }
 
-bool openScratchProject(){
+void openScratchProject(void* arg){
     	std::ifstream file;
 	if(!openFile(&file)){
 		std::cerr<<"Failed to open Scratch project."<<std::endl;
-		return false;
+        projectOpened = -1;
+        threadFinished = true;
+		return;
 	}
 	nlohmann::json project_json = unzipProject(&file);
     if(project_json.empty()){
         std::cerr<<"Project.json is empty."<<std::endl;
-        return false;
+        projectOpened = -2;
+        threadFinished = true;
+        return;
     }
 	loadSprites(project_json);
-    return true;
+    projectOpened = 1;
+    threadFinished = true;
+    return;
 }
