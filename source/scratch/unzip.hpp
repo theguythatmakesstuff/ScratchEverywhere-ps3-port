@@ -2,11 +2,19 @@
 #include <fstream>
 #include "interpret.hpp"
 
-bool openScratchFile(std::ifstream *file);
+class Unzip{
+public:
+    static volatile int projectOpened;
+    static volatile bool threadFinished;
+    
+    static void openScratchProject(void* arg);
 
-nlohmann::json unzipProject(std::ifstream *file);
+    static bool openScratchFile(std::ifstream *file);
 
-void openScratchProject(void* arg);
+    static nlohmann::json unzipProject(std::ifstream *file);
 
-extern volatile int projectOpened;
-extern volatile bool threadFinished;
+    static bool openFile(std::ifstream *file);
+
+    static bool load();
+
+};

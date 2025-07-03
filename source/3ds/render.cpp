@@ -28,11 +28,23 @@ bool bottomScreenEnabled = false;
 
 
 void Render::Init(){
+	gfxInitDefault();
+	hidScanInput();
+    u32 kDown = hidKeysHeld();
+	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
+	osSetSpeedupEnable(true);
+
    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
     topScreen = C2D_CreateScreenTarget(GFX_TOP,GFX_LEFT);
     bottomScreen = C2D_CreateScreenTarget(GFX_BOTTOM,GFX_LEFT);
+
+    romfsInit();
+}
+
+bool Render::appShouldRun(){
+    return aptMainLoop();
 }
 
 void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom = false) {
@@ -157,7 +169,7 @@ if (!legacyDrawing) {
 
 void Render::renderSprites(){
 
-
+    
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
@@ -225,6 +237,7 @@ for(Sprite* currentSprite : spritesByLayer) {
     //int FPS = 1000.0 / std::round(duration.count());
    //std::cout << "\x1b[8;0HCPU: " <<C3D_GetProcessingTime()*6.0f<<"\nGPU: "<< C3D_GetDrawingTime()*6.0f << "\nCmdBuf: " <<C3D_GetCmdBufUsage()*100.0f << "\nFPS: " << FPS <<  std::endl;
     startTime = std::chrono::high_resolution_clock::now();
+    osSetSpeedupEnable(true);
 }
 
 void LoadingScreen::renderLoadingScreen(){
@@ -274,5 +287,8 @@ void Render::deInit(){
         }
     }
     Image::imageRBGAs.clear();
+
+    romfsExit();
+	gfxExit();
 
 }

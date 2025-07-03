@@ -1,29 +1,19 @@
-#ifdef __3DS__
-#include <3ds.h>
 #include <chrono>
 #include <thread>
 #include "scratch/blockExecutor.hpp"
 #include "scratch/render.hpp"
 #include "scratch/input.hpp"
-#include "unzip.hpp"
+#include "scratch/unzip.hpp"
 
 // arm-none-eabi-addr2line -e Scratch.elf xxx
 // ^ for debug purposes
 
 static void exitApp(){
 	Render::deInit();
-	romfsExit();
-	gfxExit();
 }
 
 static void initApp(){
-	gfxInitDefault();
-	hidScanInput();
-    u32 kDown = hidKeysHeld();
-	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
-	osSetSpeedupEnable(true);
 	Render::Init();
-	romfsInit();
 }
 
 int main(int argc, char **argv)
@@ -37,72 +27,16 @@ int main(int argc, char **argv)
 	std::chrono::_V2::system_clock::time_point frameStartTime = std::chrono::high_resolution_clock::now();
 	std::chrono::_V2::system_clock::time_point frameEndTime = std::chrono::high_resolution_clock::now();
 
-    s32 mainPrio = 0;
-    svcGetThreadPriority(&mainPrio, CUR_THREAD_HANDLE);
-
-	Thread projectThread = threadCreate(
-        openScratchProject,
-        NULL,
-        0x4000,
-        mainPrio + 1,
-        -1,
-        false
-    );
-
-    if(!projectThread) {
-		threadFinished = true;
-		projectOpened = -3;
-    }
-  
-	LoadingScreen loading;
-	loading.init();
-  
-    while(!threadFinished){
-		loading.renderLoadingScreen();
-		gspWaitForVBlank();
-    }
-	threadJoin(projectThread, U64_MAX);
-    threadFree(projectThread);
-	if(projectOpened != 1){
-
-		//if(projectOpened == -1)
-		// loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
-		// else if(projectOpened == -2)
-		// loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
-		// else if(projectOpened == -2)
-		// loading.text->setText("Loading failed!\nThread loading failed...\nPlease restart.\nStart to exit.");
-		// else
-		// loading.text->setText("Loading failed!\nStart to exit.");
-
-		// loading.text->x = 200;
-		// loading.text->y = 120;
-		loading.renderLoadingScreen();
-
-		while(aptMainLoop()){
-			hidScanInput();
-			if(hidKeysDown() & KEY_START){
-				break;
-			}
-			gspWaitForVBlank();
-		}
-		loading.cleanup();
+	if(!Unzip::load()){
 		exitApp();
 		return 0;
 	}
 
-	loading.cleanup();
-
-	std::cout<<"project loaded!" << std::endl;
-
-	// disable new 3ds clock speeds for a bit cus it crashes for some reason otherwise????
-	osSetSpeedupEnable(false);
-
-	std::cout<<"Running hat blocks"<<std::endl;
 	BlockExecutor::runAllBlocksByOpcode(Block::EVENT_WHENFLAGCLICKED);
 	BlockExecutor::timer = std::chrono::high_resolution_clock::now();
 
 
-	while (aptMainLoop())
+	while (Render::appShouldRun())
 	{
 		
 		endTime = std::chrono::high_resolution_clock::now();
@@ -120,12 +54,6 @@ int main(int argc, char **argv)
 			std::cout << "\x1b[18;1HSprites: " << sprites.size() << std::endl;
 			
 		}
-
-		gspWaitForVBlank();
-		osSetSpeedupEnable(true);
-
-		hidScanInput();
-
 		if(toExit){
 			break;
 		}
@@ -135,6 +63,3 @@ int main(int argc, char **argv)
 	exitApp();
 	return 0;
 }
-
-
-#endif
