@@ -46,7 +46,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
         }
 
         if(projectType == UNZIPPED){
-            loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
+            Image::loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
         }
 
     return BlockResult::CONTINUE;
@@ -59,7 +59,7 @@ BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waiti
         sprite->currentCostume = 0;
     }
     if(projectType == UNZIPPED){
-        loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
+        Image::loadImageFromFile(sprite->costumes[sprite->currentCostume].id);
     }
     return BlockResult::CONTINUE;
 }
@@ -105,7 +105,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
         }
         
         if(projectType == UNZIPPED){
-            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
         }
     }
     
@@ -123,7 +123,7 @@ BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** wait
             currentSprite->currentCostume = 0;
         }
         if(projectType == UNZIPPED){
-            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
         }
 }
     return BlockResult::CONTINUE;
@@ -177,7 +177,16 @@ BlockResult LooksBlocks::goForwardBackwardLayers(Block& block, Sprite* sprite, B
 BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     std::string value = block.fields.at("FRONT_BACK")[0];
     if (value == "front") {
-        sprite->layer = getMaxSpriteLayer() + 1;
+
+        double maxLayer = 0.0;
+        for (Sprite* currentSprite : sprites) {
+            if (currentSprite->layer > maxLayer) {
+                maxLayer = currentSprite->layer;
+            }
+        }
+
+        sprite->layer = maxLayer + 1;
+        
     } else if (value == "back") {
         for(Sprite* currentSprite : sprites){
             if(currentSprite->isStage) continue;

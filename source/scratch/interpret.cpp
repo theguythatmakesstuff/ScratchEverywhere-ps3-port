@@ -12,7 +12,9 @@ ProjectType projectType;
 
 BlockExecutor executor;
 
-
+int Scratch::projectWidth = 480;
+int Scratch::projectHeight = 360;
+int Scratch::FPS = 30;
 
 std::string generateRandomString(int length) {
     std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=[];',./_+{}|:<>?~`";
@@ -351,21 +353,21 @@ void loadSprites(const nlohmann::json& json){
     // set advanced project settings properties
     try{
        int framerate = config["framerate"].get<int>();
-       FPS = framerate;
+       Scratch::FPS = framerate;
     }
     catch(...){
         //std::cerr << "no framerate property." << std::endl;
     }
         try{
        int wdth = config["width"].get<int>();
-       projectWidth = wdth;
+       Scratch::projectWidth = wdth;
     }
     catch(...){
         //std::cerr << "no width property." << std::endl;
     }
         try{
        int hght = config["height"].get<int>();
-       projectHeight = hght;
+       Scratch::projectHeight = hght;
     }
     catch(...){
         //std::cerr << "no height property." << std::endl;
@@ -374,22 +376,12 @@ void loadSprites(const nlohmann::json& json){
     // if unzipped, load initial sprites
     if(projectType == UNZIPPED){
         for(auto& currentSprite : sprites){
-            loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
+            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].id);
         }
     }
 
 
     initializeSpritePool(300);
-
-    // add nextBlock during load time so it doesn't have to do it at runtime
-        // for(auto& sprite : sprites){
-        //     for(auto& [id,block] : sprite.blocks){
-        //         block.nextBlock = blockLookup[block.next];
-        //     }
-        // }
-    
-
-    //buildBlockHierarchyCache();
 
     // get block chains for every block
     for (Sprite* currentSprite : sprites) {

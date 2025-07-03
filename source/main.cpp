@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	{
 		
 		endTime = std::chrono::high_resolution_clock::now();
-		if(endTime - startTime >= std::chrono::milliseconds(1000 / FPS)){
+		if(endTime - startTime >= std::chrono::milliseconds(1000 / Scratch::FPS)){
 			startTime = std::chrono::high_resolution_clock::now();
 			frameStartTime = std::chrono::high_resolution_clock::now();
 			getInput();

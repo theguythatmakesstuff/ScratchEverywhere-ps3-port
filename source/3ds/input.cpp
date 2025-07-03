@@ -1,4 +1,5 @@
 #include "input.hpp"
+#include "render.hpp"
 
 std::vector<std::string> inputButtons;
 

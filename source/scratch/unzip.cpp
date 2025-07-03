@@ -1,4 +1,5 @@
 #include "unzip.hpp"
+#include "image.hpp"
 
 volatile int projectOpened = 0;
 volatile bool threadFinished = false;
@@ -72,7 +73,7 @@ nlohmann::json unzipProject(std::ifstream *file){
         project_json = nlohmann::json::parse(std::string(json_data,json_size));
         mz_free((void*)json_data);
 
-        loadImages(&zip);
+        Image::loadImages(&zip);
         mz_zip_reader_end(&zip);
     }
     else {

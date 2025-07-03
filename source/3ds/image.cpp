@@ -1,10 +1,16 @@
 #include "image.hpp"
+#include <algorithm>
+#include <vector>
+#include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+using u32 = uint32_t;
+using u8 = uint8_t;
 
-std::vector<ImageRGBA> imageRBGAs;
-std::unordered_map<std::string, Image> imageC2Ds;
+std::unordered_map<std::string, ImageData> imageC2Ds;
+std::vector<Image::ImageRGBA> Image::imageRBGAs;
+
 
 const u32 next_pow2(u32 n) {
     n--;
@@ -31,7 +37,7 @@ const u32 next_pow2(u32 n) {
     return (a << 24) | (b << 16) | (g << 8) | r;
   }
 
-void loadImages(mz_zip_archive*zip){
+void Image::loadImages(mz_zip_archive*zip){
 // Loop through all files in the ZIP
 std::cout << "Loading images..." << std::endl;
 int file_count = (int)mz_zip_reader_get_num_files(zip);
@@ -71,13 +77,13 @@ for (int i = 0; i < file_count; i++) {
             continue;
         }
        //std::cout << "Adding PNG: " << zipFileName << std::endl;
-        ImageRGBA newRGBA;
+        Image::ImageRGBA newRGBA;
         newRGBA.name = zipFileName.substr(0, zipFileName.find_last_of('.'));
         newRGBA.width = width;
         newRGBA.height = height;
         newRGBA.data = rgba_data;
         //memorySize += sizeof(newRGBA);
-        imageRBGAs.push_back(newRGBA);
+        Image::imageRBGAs.push_back(newRGBA);
 
         mz_free(png_data);
     }
@@ -85,7 +91,7 @@ for (int i = 0; i < file_count; i++) {
 //std::cout << "size = " << memorySize << std::endl;
 }
 
-void loadImageFromFile(std::string filePath){
+void Image::loadImageFromFile(std::string filePath){
   
   auto it = std::find_if(imageRBGAs.begin(), imageRBGAs.end(), [&](const ImageRGBA& img) {
     return img.name == filePath;
@@ -127,7 +133,7 @@ void loadImageFromFile(std::string filePath){
  * Assumes image data is stored left->right, top->bottom.
  * Dimensions must be within 64x64 and 1024x1024.
  * Code here mostly from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/ */
-C2D_Image get_C2D_Image(ImageRGBA rgba) {
+C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
     //std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
 
     u32 px_count = rgba.width * rgba.height;
@@ -186,7 +192,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     return image;
   }
 
-void freeImage(const std::string& costumeId) {
+void Image::freeImage(const std::string& costumeId) {
     auto it = imageC2Ds.find(costumeId);
     if (it != imageC2Ds.end()) {
         if (it->second.image.tex) {
@@ -201,7 +207,7 @@ void freeImage(const std::string& costumeId) {
     }
 }
 
-void FlushImages(){
+void Image::FlushImages(){
     std::vector<std::string> toDelete;
     
     for(auto& [id, img] : imageC2Ds){
@@ -213,6 +219,6 @@ void FlushImages(){
     }
     
     for(const std::string& id : toDelete){
-        freeImage(id);
+        Image::freeImage(id);
     }
 }

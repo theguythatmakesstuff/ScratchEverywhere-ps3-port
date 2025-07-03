@@ -11,13 +11,15 @@
 #include <cmath>
 #include <vector>
 #include "input.hpp"
-#include "render.hpp"
 #include "keyboard.hpp"
 #include "blockExecutor.hpp"
+#include "image.hpp"
 #include "math.hpp"
 #include <chrono>
 #include <random>
 #include <time.hpp>
+
+
 
 
 struct Mouse{
@@ -50,7 +52,12 @@ extern std::string answer;
 class Scratch{
 public:
     static Value getInputValue(Block& block, const std::string& inputName, Sprite* sprite);
+
+    static int projectWidth;
+    static int projectHeight;
+    static int FPS;
 };
+
 
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite* currentSprite);
 void loadSprites(const nlohmann::json& json);

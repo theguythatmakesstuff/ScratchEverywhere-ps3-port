@@ -158,8 +158,8 @@ Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
     }
 
     if (objectName == "_edge_") {
-        double halfWidth = projectWidth / 2.0;
-        double halfHeight = projectHeight / 2.0;
+        double halfWidth = Scratch::projectWidth / 2.0;
+        double halfHeight = Scratch::projectHeight / 2.0;
 
         // Check if the current sprite is touching the edge of the screen
         if (sprite->xPosition <= -halfWidth || sprite->xPosition >= halfWidth ||

@@ -10,9 +10,7 @@ u32 clrGreen = C2D_Color32f(0,0,1,1);
 std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
-int projectWidth = 480;
-int projectHeight = 360;
-int FPS = 30;
+
 bool bottomScreenEnabled = false;
 
 
@@ -43,15 +41,15 @@ double degreesToRadians(double degrees) {
     return degrees * (M_PI / 180.0);
 }
 
-double getMaxSpriteLayer() {
-    double maxLayer = 0.0;
-    for (Sprite* currentSprite : sprites) {
-        if (currentSprite->layer > maxLayer) {
-            maxLayer = currentSprite->layer;
-        }
-    }
-    return maxLayer;
-}
+// double getMaxSpriteLayer() {
+//     double maxLayer = 0.0;
+//     for (Sprite* currentSprite : sprites) {
+//         if (currentSprite->layer > maxLayer) {
+//             maxLayer = currentSprite->layer;
+//         }
+//     }
+//     return maxLayer;
+// }
 
 void renderInit(){
    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
@@ -125,7 +123,7 @@ for(Sprite* currentSprite : spritesByLayer) {
 
     C2D_Flush();
     C3D_FrameEnd(0);
-    FlushImages();
+    Image::FlushImages();
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
     //int FPS = 1000.0 / std::round(duration.count());
@@ -169,7 +167,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
     if(!currentSprite || currentSprite == nullptr) return;
 
-    if(projectHeight == 480 && projectWidth == 400){
+    if(Scratch::projectHeight == 480 && Scratch::projectWidth == 400){
        // projectHeight = 240;
         bottomScreenEnabled = true;
     }
@@ -180,7 +178,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
     
 
-        for(ImageRGBA rgba : imageRBGAs){
+        for(Image::ImageRGBA rgba : Image::imageRBGAs){
             if(rgba.name == costumeId){
                 currentSprite->spriteWidth = rgba.width / 2;
                 currentSprite->spriteHeight = rgba.height / 2;
@@ -206,8 +204,8 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     
 
     //double maxLayer = getMaxSpriteLayer();
-    double scaleX = static_cast<double>(SCREEN_WIDTH) / projectWidth;
-    double scaleY = static_cast<double>(SCREEN_HEIGHT) / projectHeight;
+    double scaleX = static_cast<double>(SCREEN_WIDTH) / Scratch::projectWidth;
+    double scaleY = static_cast<double>(SCREEN_HEIGHT) / Scratch::projectHeight;
     double spriteSizeX = currentSprite->size * 0.01;
     double spriteSizeY = currentSprite->size * 0.01;
     double scale;
@@ -215,7 +213,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     int screenWidth = SCREEN_WIDTH;
 
     if(bottomScreenEnabled){
-        scaleY = static_cast<double>(SCREEN_HEIGHT) / (projectHeight / 2.0);
+        scaleY = static_cast<double>(SCREEN_HEIGHT) / (Scratch::projectHeight / 2.0);
         heightMultiplier = 1.0;
     }
     if(bottom){
@@ -297,6 +295,6 @@ void renderDeInit(){
             free((Tex3DS_SubTexture*)data.image.subtex);
         }
     }
-    imageRBGAs.clear();
+    Image::imageRBGAs.clear();
 
 }

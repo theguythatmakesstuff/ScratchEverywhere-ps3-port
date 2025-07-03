@@ -20,8 +20,8 @@ BlockResult MotionBlocks::goTo(Block& block, Sprite* sprite, Block** waitingBloc
             std::string objectName = inputBlock->fields["TO"][0];
 
             if (objectName == "_random_") {
-                sprite->xPosition = rand() % projectWidth - projectWidth / 2;
-                sprite->yPosition = rand() % projectHeight - projectHeight / 2;
+                sprite->xPosition = rand() % Scratch::projectWidth - Scratch::projectWidth / 2;
+                sprite->yPosition = rand() % Scratch::projectHeight - Scratch::projectHeight / 2;
                 return BlockResult::CONTINUE;
             }
 
@@ -185,8 +185,8 @@ BlockResult MotionBlocks::glideTo(Block& block, Sprite* sprite, Block** waitingB
         std::string positionYStr;
         
         if(inputValue == "_random_"){
-            positionXStr = std::to_string(rand() % projectWidth - projectWidth / 2);
-            positionYStr = std::to_string(rand() % projectHeight - projectHeight / 2);
+            positionXStr = std::to_string(rand() % Scratch::projectWidth - Scratch::projectWidth / 2);
+            positionYStr = std::to_string(rand() % Scratch::projectHeight - Scratch::projectHeight / 2);
         }
         else if(inputValue == "_mouse_"){
             positionXStr = std::to_string(mousePointer.x);
@@ -287,8 +287,8 @@ BlockResult MotionBlocks::setRotationStyle(Block& block, Sprite* sprite, Block**
 }
 
 BlockResult MotionBlocks::ifOnEdgeBounce(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    double halfWidth = projectWidth / 2.0;
-    double halfHeight = projectHeight / 2.0;
+    double halfWidth = Scratch::projectWidth / 2.0;
+    double halfHeight = Scratch::projectHeight / 2.0;
     
     // Check if the current sprite is touching the edge of the screen
     if (sprite->xPosition <= -halfWidth || sprite->xPosition >= halfWidth ||
