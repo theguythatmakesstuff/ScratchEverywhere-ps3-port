@@ -278,11 +278,11 @@ BlockResult MotionBlocks::setRotationStyle(Block& block, Sprite* sprite, Block**
     }
     
     if (value == "left-right") {
-        sprite->rotationStyle = "left-right";
+        sprite->rotationStyle = sprite->LEFT_RIGHT;
     } else if (value == "don't rotate") {
-        sprite->rotationStyle = "don't rotate";
+        sprite->rotationStyle = sprite->NONE;
     } else {
-        sprite->rotationStyle = "all around";
+        sprite->rotationStyle = sprite->ALL_AROUND;
     }
     return BlockResult::CONTINUE;
 }

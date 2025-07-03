@@ -133,7 +133,13 @@ void loadSprites(const nlohmann::json& json){
         newSprite->layer = target["layerOrder"].get<int>();}
         else newSprite->layer = 0;
         if(target.contains("rotationStyle")){
-        newSprite->rotationStyle = target["rotationStyle"].get<std::string>();}
+            if(target["rotationStyle"].get<std::string>() == "all around")
+            newSprite->rotationStyle = newSprite->ALL_AROUND;
+            else if(target["rotationStyle"].get<std::string>() == "left-right")
+            newSprite->rotationStyle = newSprite->LEFT_RIGHT;
+            else
+            newSprite->rotationStyle = newSprite->NONE;
+    }
         newSprite->toDelete = false;
         newSprite->isClone = false;
        // std::cout<<"name = "<< newSprite.name << std::endl;

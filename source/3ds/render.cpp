@@ -110,13 +110,13 @@ if (!legacyDrawing) {
     double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
 
     // check for rotation style
-    if(currentSprite->rotationStyle == "left-right"){
+    if(currentSprite->rotationStyle == currentSprite->LEFT_RIGHT){
         if(rotation < 0){
             spriteSizeX *= -1;
         }
         rotation = 0;
     }
-    if(currentSprite->rotationStyle == "don't rotate"){
+    if(currentSprite->rotationStyle == currentSprite->NONE){
         rotation = 0;
     }
 

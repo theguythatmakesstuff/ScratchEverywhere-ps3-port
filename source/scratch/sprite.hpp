@@ -375,7 +375,14 @@ class Sprite {
         int size;
         int rotation;
         int layer;
-        std::string rotationStyle;
+
+        enum RotationStyle{
+            NONE,
+            LEFT_RIGHT,
+            ALL_AROUND
+        };
+
+        RotationStyle rotationStyle;
         std::vector<std::pair<double, double>> collisionPoints;
         int spriteWidth;
         int spriteHeight;
