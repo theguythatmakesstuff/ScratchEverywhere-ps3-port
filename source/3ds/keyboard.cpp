@@ -1,10 +1,12 @@
-#include "keyboard.hpp"
+#include "../scratch/keyboard.hpp"
+#include <3ds.h>
 
-SwkbdState Keyboard::swkbd;
-char Keyboard::mybuf[60];
-SwkbdStatusData Keyboard::swkbdStatus;
-SwkbdLearningData Keyboard::swkbdLearning;
-
+static SwkbdState swkbd;
+static char mybuf[60];
+static SwkbdStatusData swkbdStatus;
+static SwkbdLearningData swkbdLearning;
+static SwkbdButton button = SWKBD_BUTTON_NONE;
+static bool didit = false;
 
 std::string Keyboard::openKeyboard(const char* hintText){
 
