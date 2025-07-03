@@ -1,4 +1,5 @@
 #include "sensing.hpp"
+#include "../input.hpp"
 
 BlockResult SensingBlocks::resetTimer(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     BlockExecutor::timer = std::chrono::high_resolution_clock::now();
@@ -125,7 +126,7 @@ Value SensingBlocks::sensingAnswer(Block& block, Sprite* sprite) {
 Value SensingBlocks::keyPressed(Block& block, Sprite* sprite){
     auto inputFind = block.parsedInputs.find("KEY_OPTION");
     Block* inputBlock = findBlock(inputFind->second.literalValue.asString());
-    for (std::string button : inputButtons) {
+    for (std::string button : Input::inputButtons) {
         if (inputBlock->fields["KEY_OPTION"][0] == button) {
             return Value(true);
         }

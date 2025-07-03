@@ -10,7 +10,6 @@
 #include <list>
 #include <cmath>
 #include <vector>
-#include "input.hpp"
 #include "keyboard.hpp"
 #include "blockExecutor.hpp"
 #include "image.hpp"

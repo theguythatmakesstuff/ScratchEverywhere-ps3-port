@@ -4,7 +4,7 @@
 #include <thread>
 #include "scratch/blockExecutor.hpp"
 #include "render.hpp"
-#include "input.hpp"
+#include "scratch/input.hpp"
 #include "unzip.hpp"
 
 // arm-none-eabi-addr2line -e Scratch.elf xxx
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 		if(endTime - startTime >= std::chrono::milliseconds(1000 / Scratch::FPS)){
 			startTime = std::chrono::high_resolution_clock::now();
 			frameStartTime = std::chrono::high_resolution_clock::now();
-			getInput();
+			Input::getInput();
 			BlockExecutor::runRepeatBlocks();
 			renderSprites();
 			frameEndTime = std::chrono::high_resolution_clock::now();

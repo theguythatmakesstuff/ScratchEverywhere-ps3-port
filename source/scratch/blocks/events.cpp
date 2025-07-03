@@ -1,4 +1,5 @@
 #include "events.hpp"
+#include "../input.hpp"
 
 BlockResult EventBlocks::flagClicked(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     return BlockResult::CONTINUE;
@@ -32,7 +33,7 @@ BlockResult EventBlocks::broadcastAndWait(Block& block, Sprite* sprite, Block** 
 }
 
 BlockResult EventBlocks::whenKeyPressed(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
-    for (std::string button : inputButtons) {
+    for (std::string button : Input::inputButtons) {
         if (block.fields.at("KEY_OPTION")[0] == button) {
             return BlockResult::CONTINUE;
         }

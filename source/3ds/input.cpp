@@ -1,9 +1,10 @@
 #include "input.hpp"
 #include "render.hpp"
+#include "../scratch/input.hpp"
 
-std::vector<std::string> inputButtons;
+std::vector<std::string> Input::inputButtons;
 
-void getInput(){
+void Input::getInput(){
     inputButtons.clear();
     mousePointer.isPressed = false;
     mousePointer.isMoving = false;
