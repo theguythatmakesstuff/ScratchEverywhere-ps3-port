@@ -4,7 +4,7 @@
 TextObject::TextObject(std::string txt,double posX,double posY,std::string fontPath) {
     x = posX;
     y = posY;
-    StaticTextBuffer = C2D_TextBufNew(256); // originally 4096 but old 3ds crashed with that size 😭
+    StaticTextBuffer = C2D_TextBufNew(128);
 
     if(fontPath == "")
 	font = C2D_FontLoadSystem(CFG_REGION_USA);

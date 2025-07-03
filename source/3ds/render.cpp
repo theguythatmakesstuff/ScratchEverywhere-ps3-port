@@ -138,12 +138,10 @@ void LoadingScreen::renderLoadingScreen(){
     C2D_TargetClear(topScreen,clrBlack);
     C2D_SceneBegin(topScreen);
 
-    if(text){
+    if(text != nullptr){
     text->render();
-    text->y = sin(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count() * 0.001) * 10 + 120;
     }
     for(squareObject& square : squares){
-        //square.x += 2;
         square.y -= square.size * 0.1;
         if(square.x > 400 + square.size) square.x = 0 - square.size;
         if(square.y < 0 - square.size) square.y = 240 + square.size;
@@ -160,6 +158,7 @@ void LoadingScreen::init(){
 }
 
 void LoadingScreen::cleanup(){
+    if(text && text != nullptr)
     delete text;
     squares.clear();
 }
@@ -298,5 +297,6 @@ void renderDeInit(){
             free((Tex3DS_SubTexture*)data.image.subtex);
         }
     }
+    imageRBGAs.clear();
 
 }
