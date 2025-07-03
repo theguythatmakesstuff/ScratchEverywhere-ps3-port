@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean debug release
 
 TARGET     := Scratch-pc
 BUILD      := build/pc
@@ -8,39 +8,80 @@ INCLUDES   := include source/scratch source/scratch/blocks source/sdl include/nl
 CXX        := g++
 CC         := gcc
 
-CXXFLAGS   := -g -Wall -O2 -std=c++17 -D__PC__
-CFLAGS     := -g -Wall -O2 -D__PC__
+# Base compiler flags
+CXXFLAGS_BASE := -std=c++17 -Wall -D__PC__
+CFLAGS_BASE   := -D__PC__
+
+# Debug and Release flags
+CXXFLAGS_DEBUG   := $(CXXFLAGS_BASE) -g -O0 -DDEBUG
+CXXFLAGS_RELEASE := $(CXXFLAGS_BASE) -O2 -DNDEBUG
+
+CFLAGS_DEBUG   := $(CFLAGS_BASE) -g -O0 -DDEBUG
+CFLAGS_RELEASE := $(CFLAGS_BASE) -O2 -DNDEBUG
+
 LDFLAGS    := -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 # Find all .cpp and .c files recursively
 SRC_CPP    := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.cpp))
 SRC_C      := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.c))
-SRCS       := $(SRC_CPP) $(SRC_C)
 
 # Convert source files to object files in the build dir with matching structure
-OBJS := $(foreach src, $(SRC_CPP), $(BUILD)/$(src:.cpp=.o))
-OBJS += $(foreach src, $(SRC_C),   $(BUILD)/$(src:.c=.o))
+OBJS_CPP   := $(foreach src, $(SRC_CPP), $(BUILD)/$(src:.cpp=.o))
+OBJS_C     := $(foreach src, $(SRC_C),   $(BUILD)/$(src:.c=.o))
+OBJS       := $(OBJS_CPP) $(OBJS_C)
 
 INCLUDE_FLAGS := $(foreach dir,$(INCLUDES),-I$(dir))
 
-all: $(TARGET)
+# Default build target (debug)
+all: debug
 
-# Rule to build target
-$(TARGET): $(OBJS)
-	@echo "Linking..."
-	@$(CXX) $^ -o $@ $(LDFLAGS)
-	@echo "Built $(TARGET)"
+# Debug build
+debug: CXXFLAGS := $(CXXFLAGS_DEBUG)
+debug: CFLAGS   := $(CFLAGS_DEBUG)
+debug: $(BUILD)/debug/$(TARGET)
 
-# Rule to build object files, create dirs as needed
-$(BUILD)/%.o: %.cpp
+# Release build
+release: CXXFLAGS := $(CXXFLAGS_RELEASE)
+release: CFLAGS   := $(CFLAGS_RELEASE)
+release: $(BUILD)/release/$(TARGET)
+
+# Link debug executable
+$(BUILD)/debug/$(TARGET): $(patsubst $(BUILD)/%,$(BUILD)/debug/%,$(OBJS))
 	@mkdir -p $(dir $@)
-	@echo "Compiling $<"
+	@echo "Linking debug build..."
+	@$(CXX) $^ -o $@ $(LDFLAGS)
+	@echo "Built debug $(TARGET)"
+
+# Link release executable
+$(BUILD)/release/$(TARGET): $(patsubst $(BUILD)/%,$(BUILD)/release/%,$(OBJS))
+	@mkdir -p $(dir $@)
+	@echo "Linking release build..."
+	@$(CXX) $^ -o $@ $(LDFLAGS)
+	@echo "Built release $(TARGET)"
+
+# Compile C++ debug objects
+$(BUILD)/debug/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	@echo "Compiling debug $<"
 	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
 
-$(BUILD)/%.o: %.c
+# Compile C debug objects
+$(BUILD)/debug/%.o: %.c
 	@mkdir -p $(dir $@)
-	@echo "Compiling $<"
+	@echo "Compiling debug $<"
+	@$(CC) $(CFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
+
+# Compile C++ release objects
+$(BUILD)/release/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	@echo "Compiling release $<"
+	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
+
+# Compile C release objects
+$(BUILD)/release/%.o: %.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling release $<"
 	@$(CC) $(CFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(BUILD) $(TARGET)
+	rm -rf $(BUILD)
