@@ -1,0 +1,46 @@
+.PHONY: all clean
+
+TARGET     := Scratch-pc
+BUILD      := build/pc
+SOURCES    := source source/scratch source/scratch/blocks source/sdl include/miniz include/nlohmann
+INCLUDES   := include source/scratch source/scratch/blocks source/sdl include/nlohmann
+
+CXX        := g++
+CC         := gcc
+
+CXXFLAGS   := -g -Wall -O2 -std=c++17 -D__PC__
+CFLAGS     := -g -Wall -O2 -D__PC__
+LDFLAGS    := -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+
+# Find all .cpp and .c files recursively
+SRC_CPP    := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.cpp))
+SRC_C      := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.c))
+SRCS       := $(SRC_CPP) $(SRC_C)
+
+# Convert source files to object files in the build dir with matching structure
+OBJS := $(foreach src, $(SRC_CPP), $(BUILD)/$(src:.cpp=.o))
+OBJS += $(foreach src, $(SRC_C),   $(BUILD)/$(src:.c=.o))
+
+INCLUDE_FLAGS := $(foreach dir,$(INCLUDES),-I$(dir))
+
+all: $(TARGET)
+
+# Rule to build target
+$(TARGET): $(OBJS)
+	@echo "Linking..."
+	@$(CXX) $^ -o $@ $(LDFLAGS)
+	@echo "Built $(TARGET)"
+
+# Rule to build object files, create dirs as needed
+$(BUILD)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<"
+	@$(CXX) $(CXXFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
+
+$(BUILD)/%.o: %.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) $(INCLUDE_FLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(BUILD) $(TARGET)

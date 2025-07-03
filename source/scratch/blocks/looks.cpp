@@ -1,5 +1,5 @@
 #include "looks.hpp"
-#include "../../3ds/image.hpp"
+
 
 BlockResult LooksBlocks::show(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     sprite->visible = true;
@@ -186,7 +186,7 @@ BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** wai
         }
 
         sprite->layer = maxLayer + 1;
-        
+
     } else if (value == "back") {
         for(Sprite* currentSprite : sprites){
             if(currentSprite->isStage) continue;
