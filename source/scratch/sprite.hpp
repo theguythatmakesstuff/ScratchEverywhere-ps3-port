@@ -38,6 +38,7 @@ struct Block {
         EVENT_WHENFLAGCLICKED,
         EVENT_WHENBROADCASTRECEIVED,
         EVENT_BROADCAST,
+        EVENT_BROADCASTANDWAIT,
         EVENT_WHEN_KEY_PRESSED,
         PROCEDURES_PROTOTYPE,
         PROCEDURES_DEFINITION,
@@ -149,6 +150,7 @@ struct Block {
     opCode stringToOpcode(std::string opCodeString){
         if(opCodeString == "event_whenflagclicked")return EVENT_WHENFLAGCLICKED;
         if(opCodeString == "event_whenbroadcastreceived")return EVENT_WHENBROADCASTRECEIVED;
+        if(opCodeString == "event_broadcastandwait") return EVENT_BROADCASTANDWAIT;
         if(opCodeString == "event_broadcast")return EVENT_BROADCAST;
         if(opCodeString == "event_whenkeypressed") return EVENT_WHEN_KEY_PRESSED;
         if(opCodeString == "procedures_prototype")return PROCEDURES_PROTOTYPE;
@@ -277,7 +279,8 @@ struct Block {
     double glideEndX,glideEndY;
     std::chrono::high_resolution_clock::time_point waitStartTime;
     bool customBlockExecuted = false;
-    Block* customBlockPtr = nullptr; 
+    Block* customBlockPtr = nullptr;
+    std::vector<std::pair<Block*, Sprite*>> broadcastsRun;
 
 private:
     Value getVariableValue(const std::string& variableId, Sprite* sprite) const;

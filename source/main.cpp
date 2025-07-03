@@ -54,29 +54,29 @@ int main(int argc, char **argv)
 		projectOpened = -3;
     }
   
-	LoadingScreen loading;
-	loading.init();
+	// LoadingScreen loading;
+	// loading.init();
   
     while(!threadFinished){
-		loading.renderLoadingScreen();
+		//loading.renderLoadingScreen();
 		gspWaitForVBlank();
     }
 	threadJoin(projectThread, U64_MAX);
     threadFree(projectThread);
 	if(projectOpened != 1){
 
-		if(projectOpened == -1)
-		loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
-		else if(projectOpened == -2)
-		loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
-		else if(projectOpened == -2)
-		loading.text->setText("Loading failed!\nThread loading failed...\nPlease restart.\nStart to exit.");
-		else
-		loading.text->setText("Loading failed!\nStart to exit.");
+		// if(projectOpened == -1)
+		// loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
+		// else if(projectOpened == -2)
+		// loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
+		// else if(projectOpened == -2)
+		// loading.text->setText("Loading failed!\nThread loading failed...\nPlease restart.\nStart to exit.");
+		// else
+		// loading.text->setText("Loading failed!\nStart to exit.");
 
-		loading.text->x = 200;
-		loading.text->y = 120;
-		loading.renderLoadingScreen();
+		// loading.text->x = 200;
+		// loading.text->y = 120;
+		// loading.renderLoadingScreen();
 
 		while(aptMainLoop()){
 			hidScanInput();
@@ -85,12 +85,12 @@ int main(int argc, char **argv)
 			}
 			gspWaitForVBlank();
 		}
-		loading.cleanup();
+		//loading.cleanup();
 		exitApp();
 		return 0;
 	}
 
-	loading.cleanup();
+	//loading.cleanup();
 
 	std::cout<<"project loaded!" << std::endl;
 

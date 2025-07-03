@@ -474,40 +474,7 @@ Block* getBlockParent(const Block* block){
 }
 
 
-void runBroadcasts() {
-    // Process broadcasts one at a time until the queue is empty
-    if (broadcastQueue.empty()) {
-        return;
-    }
-    
-    // Take the first broadcast from the queue
-    std::string currentBroadcast = broadcastQueue.front();
-    broadcastQueue.erase(broadcastQueue.begin());
-    
-    // Keep a copy of the sprites to avoid iterator invalidation
-    std::vector<std::pair<Block*, Sprite*>> blocksToRun;
-    
-    // Identify all blocks that should respond to this broadcast
-    for (auto* currentSprite : sprites) {
-        for (auto& [id, block] : currentSprite->blocks) {
-            if (block.opcode == block.EVENT_WHENBROADCASTRECEIVED && 
-                block.fields["BROADCAST_OPTION"][0] == currentBroadcast) {
-                blocksToRun.push_back({&block, currentSprite});
-            }
-        }
-    }
-    
-    // Now run all the identified blocks
-    for (auto& [blockPtr, spritePtr] : blocksToRun) {
-        //std::cout << "Running broadcast block " << blockPtr->id << std::endl;
-        executor.runBlock(*blockPtr, spritePtr);
-    }
-    
-    // Check if new broadcasts were added during execution
-    if (!broadcastQueue.empty()) {
-        runBroadcasts(); // Process the next broadcast
-    }
-}
+
 
 Value findCustomValue(std::string valueName, Sprite* sprite, Block block) {
     for (auto& [custId, custBlock] : sprite->customBlocks) {

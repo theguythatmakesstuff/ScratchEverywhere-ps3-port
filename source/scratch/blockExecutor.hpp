@@ -22,9 +22,10 @@ private:
 public:
     BlockExecutor();
     void runBlock(Block& block, Sprite* sprite, Block* waitingBlock = nullptr, bool* withoutScreenRefresh = nullptr);
-    static void runAllBlocksByOpcode(Block::opCode opcodeToFind);
+    static std::vector<Block*> runAllBlocksByOpcode(Block::opCode opcodeToFind);
     static void runRepeatBlocks();
     static void runRepeatsWithoutRefresh(Sprite* sprite,std::string blockChainID);
+    static std::vector<std::pair<Block*, Sprite*>> runBroadcasts();
     Value getBlockValue(Block& block,Sprite*sprite);
     Value runConditionalBlock(std::string blockId, Sprite* sprite);
     static void addToRepeatQueue(Sprite* sprite,Block* block);

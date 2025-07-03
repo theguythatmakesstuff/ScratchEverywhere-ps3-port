@@ -61,6 +61,7 @@ void BlockExecutor::registerHandlers(){
     // events
     handlers[Block::EVENT_WHENFLAGCLICKED] = EventBlocks::flagClicked;
     handlers[Block::EVENT_BROADCAST] = EventBlocks::broadcast;
+    handlers[Block::EVENT_BROADCASTANDWAIT] = EventBlocks::broadcastAndWait;
     handlers[Block::EVENT_WHEN_KEY_PRESSED] = EventBlocks::whenKeyPressed;
 
 
@@ -240,16 +241,51 @@ void BlockExecutor::runRepeatsWithoutRefresh(Sprite* sprite,std::string blockCha
     }    
 }
 
-void BlockExecutor::runAllBlocksByOpcode(Block::opCode opcodeToFind){
+std::vector<std::pair<Block*, Sprite*>> BlockExecutor::runBroadcasts() {
+
+std::vector<std::pair<Block*, Sprite*>> blocksToRun;
+
+    if (broadcastQueue.empty()) {
+        return blocksToRun;
+    }
+    
+    std::string currentBroadcast = broadcastQueue.front();
+    broadcastQueue.erase(broadcastQueue.begin());
+    
+
+    for (auto* currentSprite : sprites) {
+        for (auto& [id, block] : currentSprite->blocks) {
+            if (block.opcode == block.EVENT_WHENBROADCASTRECEIVED && 
+                block.fields["BROADCAST_OPTION"][0] == currentBroadcast) {
+                blocksToRun.push_back({&block, currentSprite});
+            }
+        }
+    }
+
+    for (auto& [blockPtr, spritePtr] : blocksToRun) {
+        //std::cout << "Running broadcast block " << blockPtr->id << std::endl;
+        executor.runBlock(*blockPtr, spritePtr);
+    }
+
+    if (!broadcastQueue.empty()) {
+        runBroadcasts();
+    }
+    return blocksToRun;
+}
+
+std::vector<Block*> BlockExecutor::runAllBlocksByOpcode(Block::opCode opcodeToFind){
     //std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
+    std::vector<Block*> blocksRun;
     for(Sprite *currentSprite : sprites){
         for(auto &[id,data] : currentSprite->blocks){
             if(data.opcode == opcodeToFind){
                 //runBlock(data,currentSprite);
+                blocksRun.push_back(&data);
                 executor.runBlock(data,currentSprite);
             }
         }
     }
+    return blocksRun;
 }
 
 Value BlockExecutor::getBlockValue(Block& block,Sprite*sprite){

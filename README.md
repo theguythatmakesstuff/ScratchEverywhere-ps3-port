@@ -36,7 +36,7 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 ||All Costume Effects|        |When this sprite clicked|Color is Touching Color|Show/Hide List|
 ||       |When backdrop switches to|| Cloud variables |
 |        |       |When loudness > x||
-|        |       |Broadcast and wait|Set Drag mode|
+|        |       ||Set Drag mode|
 |        |       |        |Loudness|
 |        |       |        ||
 |        |       |        ||

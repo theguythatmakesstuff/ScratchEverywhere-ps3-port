@@ -61,7 +61,6 @@ Sprite* getAvailableSprite();
 void initializeSpritePool(int poolSize);
 Value findCustomValue(std::string valueName,Sprite*sprite,Block block);
 std::string removeQuotations(std::string value);
-void runBroadcasts();
 void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh);
 //bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId);
 Block* findBlock(std::string blockId);
