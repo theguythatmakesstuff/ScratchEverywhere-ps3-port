@@ -3,6 +3,7 @@
 #include "../scratch/input.hpp"
 
 std::vector<std::string> Input::inputButtons;
+Input::Mouse Input::mousePointer;
 
 void Input::getInput(){
     inputButtons.clear();

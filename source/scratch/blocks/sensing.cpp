@@ -70,11 +70,11 @@ Value SensingBlocks::of(Block& block, Sprite* sprite) {
 }
 
 Value SensingBlocks::mouseX(Block& block, Sprite* sprite) {
-    return Value(mousePointer.x);
+    return Value(Input::mousePointer.x);
 }
 
 Value SensingBlocks::mouseY(Block& block, Sprite* sprite) {
-    return Value(mousePointer.y);
+    return Value(Input::mousePointer.y);
 }
 
 Value SensingBlocks::distanceTo(Block& block, Sprite* sprite) {
@@ -83,8 +83,8 @@ Value SensingBlocks::distanceTo(Block& block, Sprite* sprite) {
     std::string object = inputBlock->fields.at("DISTANCETOMENU")[0];
     
     if (object == "_mouse_") {
-        return Value(sqrt(pow(mousePointer.x - sprite->xPosition, 2) + 
-                                 pow(mousePointer.y - sprite->yPosition, 2)));
+        return Value(sqrt(pow(Input::mousePointer.x - sprite->xPosition, 2) + 
+                                 pow(Input::mousePointer.y - sprite->yPosition, 2)));
     }
     
     for (Sprite* currentSprite : sprites) {
@@ -150,10 +150,10 @@ Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
 
     if(objectName == "_mouse_") {
         // Check if the mouse pointer's position is within the bounds of the current sprite
-        if (mousePointer.x >= sprite->xPosition - sprite->spriteWidth / 2 &&
-            mousePointer.x <= sprite->xPosition + sprite->spriteWidth / 2 &&
-            mousePointer.y >= sprite->yPosition - sprite->spriteHeight / 2 &&
-            mousePointer.y <= sprite->yPosition + sprite->spriteHeight / 2) {
+        if (Input::mousePointer.x >= sprite->xPosition - sprite->spriteWidth / 2 &&
+            Input::mousePointer.x <= sprite->xPosition + sprite->spriteWidth / 2 &&
+            Input::mousePointer.y >= sprite->yPosition - sprite->spriteHeight / 2 &&
+            Input::mousePointer.y <= sprite->yPosition + sprite->spriteHeight / 2) {
             return Value(true);
         }
         return Value(false);
@@ -201,5 +201,5 @@ Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
 }
 
 Value SensingBlocks::mouseDown(Block& block, Sprite* sprite){
-    return Value(mousePointer.isPressed);
+    return Value(Input::mousePointer.isPressed);
 }

@@ -1,8 +1,4 @@
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
 #pragma once
-#include "sprite.hpp"
 #include <string>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
@@ -10,22 +6,15 @@
 #include <list>
 #include <cmath>
 #include <vector>
-#include "blockExecutor.hpp"
-#include "image.hpp"
-#include "math.hpp"
 #include <chrono>
 #include <random>
 #include <time.hpp>
+#include "blockExecutor.hpp"
+#include "image.hpp"
+#include "math.hpp"
+#include "sprite.hpp"
 
 
-
-
-struct Mouse{
-    int x;
-    int y;
-    bool isPressed;
-    bool isMoving;
-};
 
 enum ProjectType{
 	UNZIPPED,
@@ -43,7 +32,6 @@ extern std::vector<Sprite> spritePool;
 extern std::vector<std::string> broadcastQueue;
 //extern std::unordered_map<std::string,Conditional> conditionals;
 extern std::unordered_map<std::string, Block*> blockLookup;
-extern Mouse mousePointer;
 extern bool toExit;
 extern std::string answer;
 

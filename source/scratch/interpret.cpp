@@ -5,7 +5,6 @@ std::vector<Sprite> spritePool;
 std::vector<std::string> broadcastQueue;
 //std::unordered_map<std::string,Conditional> conditionals;
 std::unordered_map<std::string, Block*> blockLookup;
-Mouse mousePointer;
 std::string answer;
 bool toExit = false;
 ProjectType projectType;

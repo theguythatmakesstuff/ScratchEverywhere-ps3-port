@@ -1,4 +1,5 @@
 #include "render.hpp"
+#include "../scratch/input.hpp"
 
 
 
@@ -278,8 +279,8 @@ if (!legacyDrawing) {
 //     );
 // }
     // Draw mouse pointer
-    if(mousePointer.isMoving)
-    C2D_DrawRectSolid(mousePointer.x + (screenWidth / 2), (mousePointer.y * -1) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
+    if(Input::mousePointer.isMoving)
+    C2D_DrawRectSolid(Input::mousePointer.x + (screenWidth / 2), (Input::mousePointer.y * -1) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
 }
 
 void renderDeInit(){

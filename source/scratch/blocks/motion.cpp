@@ -1,4 +1,5 @@
 #include "motion.hpp"
+#include "../scratch/input.hpp"
 
 BlockResult MotionBlocks::moveSteps(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     Value value = Scratch::getInputValue(block,"STEPS",sprite);
@@ -26,8 +27,8 @@ BlockResult MotionBlocks::goTo(Block& block, Sprite* sprite, Block** waitingBloc
             }
 
             if (objectName == "_mouse_") {
-                sprite->xPosition = mousePointer.x;
-                sprite->yPosition = mousePointer.y;
+                sprite->xPosition = Input::mousePointer.x;
+                sprite->yPosition = Input::mousePointer.y;
                 return BlockResult::CONTINUE;
             }
 
@@ -189,8 +190,8 @@ BlockResult MotionBlocks::glideTo(Block& block, Sprite* sprite, Block** waitingB
             positionYStr = std::to_string(rand() % Scratch::projectHeight - Scratch::projectHeight / 2);
         }
         else if(inputValue == "_mouse_"){
-            positionXStr = std::to_string(mousePointer.x);
-            positionYStr = std::to_string(mousePointer.y);
+            positionXStr = std::to_string(Input::mousePointer.x);
+            positionYStr = std::to_string(Input::mousePointer.y);
         }
         else{
             for(auto & currentSprite : sprites){
@@ -247,8 +248,8 @@ BlockResult MotionBlocks::pointToward(Block& block, Sprite* sprite, Block** wait
     }
     
     if (objectName == "_mouse_") {
-        targetX = mousePointer.x;
-        targetY = mousePointer.y;
+        targetX = Input::mousePointer.x;
+        targetY = Input::mousePointer.y;
     } else {
         for (Sprite* currentSprite : sprites) {
             if (currentSprite->name == objectName) {
