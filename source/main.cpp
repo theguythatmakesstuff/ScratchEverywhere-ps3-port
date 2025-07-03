@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         openScratchProject,
         NULL,
         0x4000,
-        mainPrio - 1,
+        mainPrio + 1,
         -1,
         false
     );
@@ -70,8 +70,12 @@ int main(int argc, char **argv)
 
 		if(projectOpened == -1)
 		loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
-		if(projectOpened == -2)
+		else if(projectOpened == -2)
 		loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
+		else
+		loading.text->setText("Loading failed!\nStart to exit.");
+		loading.text->x = 200;
+		loading.text->y = 120;
 		loading.renderLoadingScreen();
 
 		while(aptMainLoop()){

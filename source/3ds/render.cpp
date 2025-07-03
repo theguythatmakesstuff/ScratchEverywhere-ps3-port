@@ -138,7 +138,17 @@ void LoadingScreen::renderLoadingScreen(){
     C2D_TargetClear(topScreen,clrBlack);
     C2D_SceneBegin(topScreen);
 
+    if(text){
     text->render();
+    text->y = sin(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count() * 0.001) * 10 + 120;
+    }
+    for(squareObject& square : squares){
+        //square.x += 2;
+        square.y -= square.size * 0.1;
+        if(square.x > 400 + square.size) square.x = 0 - square.size;
+        if(square.y < 0 - square.size) square.y = 240 + square.size;
+        C2D_DrawRectSolid(square.x,square.y,1,square.size,square.size,C2D_Color32(255,255,255,75));
+    }
 
     C2D_Flush();
     C3D_FrameEnd(0);
@@ -146,10 +156,12 @@ void LoadingScreen::renderLoadingScreen(){
 
 void LoadingScreen::init(){
     text = new TextObject("Loading...",200,120);
+    createSquares(20);
 }
 
 void LoadingScreen::cleanup(){
     delete text;
+    squares.clear();
 }
 
 

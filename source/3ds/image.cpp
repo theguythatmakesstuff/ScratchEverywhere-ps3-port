@@ -162,7 +162,7 @@ C2D_Image get_C2D_Image(ImageRGBA rgba) {
     if(!C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8))
     std::cerr << "error- failed to initialize image." << std::endl;
    //std::cout << "Setting Texture Filter..." << std::endl;
-    C3D_TexSetFilter(tex, GPU_LINEAR, GPU_NEAREST);
+    C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST);
     // GPU_LINEAR TODO try that later on real hardware
 
   
