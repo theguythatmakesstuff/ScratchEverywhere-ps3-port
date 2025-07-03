@@ -26,20 +26,22 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - If you have a bunch of large images, some may not load.
 - Images cannot be over 1024x1024 in resolution.
 - Extensions (eg: pen and music extensions) are not yet supported.
-- many blocks are not yet implmented, and some implemented blocks has very little testing and may lead to crashing/unintended behavior.
+- Some blocks may lead to crashing / unintended behavior. (Please open an issue if you know a block that's causing problems...,,.,, 🥺)
 
 
 ## Unimplimented blocks
-| Motion | Looks | Events | Sensing | Variables/Lists |
-| :----- | :---- | :----- | :------ |:--------------- |
-||All say and think blocks||Touching Color|Show/Hide variable|
-||All Costume Effects|        |When this sprite clicked|Color is Touching Color|Show/Hide List|
-||       |When backdrop switches to|| Cloud variables |
-|        |       |When loudness > x||
-|        |       ||Set Drag mode|
-|        |       |        |Loudness|
-|        |       |        ||
-|        |       |        ||
+- All say and think blocks
+- All Costume Effects
+- Cloud variables
+- Show/hide variable | Show/hide list
+- When backdrop switches to
+- When this sprite clicked
+- When backdrop switches to
+- When loudness > ___
+- all Color touching blocks
+- Set drag mode
+- Loudness
+
 
 
 
@@ -71,4 +73,7 @@ Make a `romfs` folder inside the unzipped source code and put the Scratch projec
 `APP_TITLE`, `APP_DESCRIPTION` and `APP_AUTHOR` to whatever you please.
 
 Then it should be as simple as running `make` in the source code folder.
-    
+
+## Other info
+
+This project is not affiliated with Scratch or the Scratch team.
