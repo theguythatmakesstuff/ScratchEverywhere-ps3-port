@@ -3,7 +3,7 @@
 #include <chrono>
 #include <thread>
 #include "scratch/blockExecutor.hpp"
-#include "render.hpp"
+#include "scratch/render.hpp"
 #include "scratch/input.hpp"
 #include "unzip.hpp"
 
@@ -11,7 +11,7 @@
 // ^ for debug purposes
 
 static void exitApp(){
-	renderDeInit();
+	Render::deInit();
 	romfsExit();
 	gfxExit();
 }
@@ -22,7 +22,7 @@ static void initApp(){
     u32 kDown = hidKeysHeld();
 	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
 	osSetSpeedupEnable(true);
-	renderInit();
+	Render::Init();
 	romfsInit();
 }
 
@@ -65,17 +65,17 @@ int main(int argc, char **argv)
     threadFree(projectThread);
 	if(projectOpened != 1){
 
-		if(projectOpened == -1)
-		loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
-		else if(projectOpened == -2)
-		loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
-		else if(projectOpened == -2)
-		loading.text->setText("Loading failed!\nThread loading failed...\nPlease restart.\nStart to exit.");
-		else
-		loading.text->setText("Loading failed!\nStart to exit.");
+		//if(projectOpened == -1)
+		// loading.text->setText("Loading failed!\nCouldn't find a scratch project...\nis it named 'project.sb3'??\nStart to exit.");
+		// else if(projectOpened == -2)
+		// loading.text->setText("Loading failed!\nproject.json is empty...\nStart to exit.");
+		// else if(projectOpened == -2)
+		// loading.text->setText("Loading failed!\nThread loading failed...\nPlease restart.\nStart to exit.");
+		// else
+		// loading.text->setText("Loading failed!\nStart to exit.");
 
-		loading.text->x = 200;
-		loading.text->y = 120;
+		// loading.text->x = 200;
+		// loading.text->y = 120;
 		loading.renderLoadingScreen();
 
 		while(aptMainLoop()){
@@ -109,9 +109,11 @@ int main(int argc, char **argv)
 		if(endTime - startTime >= std::chrono::milliseconds(1000 / Scratch::FPS)){
 			startTime = std::chrono::high_resolution_clock::now();
 			frameStartTime = std::chrono::high_resolution_clock::now();
+
 			Input::getInput();
 			BlockExecutor::runRepeatBlocks();
-			renderSprites();
+			Render::renderSprites();
+
 			frameEndTime = std::chrono::high_resolution_clock::now();
 			auto frameDuration = frameEndTime - frameStartTime;
 			std::cout << "\x1b[17;1HFrame time: " << frameDuration.count() << " ms" << std::endl;

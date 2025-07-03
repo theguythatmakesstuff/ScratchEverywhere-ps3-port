@@ -1,5 +1,13 @@
 #include "render.hpp"
+#include "interpret.hpp"
+#include "image.hpp"
 #include "../scratch/input.hpp"
+#include "../scratch/image.hpp"
+#include "../scratch/render.hpp"
+
+#define SCREEN_WIDTH 400
+#define BOTTOM_SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 240
 
 
 
@@ -15,44 +23,11 @@ std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolutio
 bool bottomScreenEnabled = false;
 
 
-std::string getUsername() {
-    const u16* block = (const u16*)malloc(0x1C);
 
-    cfguInit();
-    CFGU_GetConfigInfoBlk2(0x1C, 0xA0000, (u8*)block);
-    cfguExit();
 
-    char* usernameBuffer = (char*)malloc(0x14);
-    ssize_t length = utf16_to_utf8((u8*)usernameBuffer, block, 0x14);
 
-    std::string username;
-    if (length <= 0) {
-        username = "Player";
-    } else {
-        username = std::string(usernameBuffer, length); // Convert char* to std::string
-    }
 
-    free((void*)block); // Free the memory allocated for block
-    free(usernameBuffer); // Free the memory allocated for usernameBuffer
-
-    return username;
-}
-
-double degreesToRadians(double degrees) {
-    return degrees * (M_PI / 180.0);
-}
-
-// double getMaxSpriteLayer() {
-//     double maxLayer = 0.0;
-//     for (Sprite* currentSprite : sprites) {
-//         if (currentSprite->layer > maxLayer) {
-//             maxLayer = currentSprite->layer;
-//         }
-//     }
-//     return maxLayer;
-// }
-
-void renderInit(){
+void Render::Init(){
    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
@@ -60,7 +35,127 @@ void renderInit(){
     bottomScreen = C2D_CreateScreenTarget(GFX_BOTTOM,GFX_LEFT);
 }
 
-void renderSprites(){
+void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom = false) {
+    //freeImage(currentSprite,costumeId);
+
+    if(!currentSprite || currentSprite == nullptr) return;
+
+    if(Scratch::projectHeight == 480 && Scratch::projectWidth == 400){
+       // projectHeight = 240;
+        bottomScreenEnabled = true;
+    }
+
+    bool legacyDrawing = false;
+    
+    double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
+
+    
+
+        for(Image::ImageRGBA rgba : Image::imageRBGAs){
+            if(rgba.name == costumeId){
+                currentSprite->spriteWidth = rgba.width / 2;
+                currentSprite->spriteHeight = rgba.height / 2;
+                
+                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr)
+                imageC2Ds[costumeId].image = get_C2D_Image(rgba);
+                imageC2Ds[costumeId].freeTimer = 120;
+                legacyDrawing = false;
+                break;
+            }
+            else {
+                legacyDrawing = true;
+                currentSprite->spriteWidth = 64;
+                currentSprite->spriteHeight = 64;
+
+            }
+
+        }
+
+    
+        
+
+    
+
+    //double maxLayer = getMaxSpriteLayer();
+    double scaleX = static_cast<double>(SCREEN_WIDTH) / Scratch::projectWidth;
+    double scaleY = static_cast<double>(SCREEN_HEIGHT) / Scratch::projectHeight;
+    double spriteSizeX = currentSprite->size * 0.01;
+    double spriteSizeY = currentSprite->size * 0.01;
+    double scale;
+    double heightMultiplier = 0.5;
+    int screenWidth = SCREEN_WIDTH;
+
+    if(bottomScreenEnabled){
+        scaleY = static_cast<double>(SCREEN_HEIGHT) / (Scratch::projectHeight / 2.0);
+        heightMultiplier = 1.0;
+    }
+    if(bottom){
+        screenWidth = BOTTOM_SCREEN_WIDTH;
+    }
+
+
+if (!legacyDrawing) {
+    double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
+
+    // check for rotation style
+    if(currentSprite->rotationStyle == "left-right"){
+        if(rotation < 0){
+            spriteSizeX *= -1;
+        }
+        rotation = 0;
+    }
+    if(currentSprite->rotationStyle == "don't rotate"){
+        rotation = 0;
+    }
+
+
+   scale = bottom ? 1.0 : std::min(scaleX, scaleY);
+
+    C2D_DrawImageAtRotated(
+        *image,
+        (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
+        1,
+        rotation,
+        nullptr,
+        (spriteSizeX) * scale / 2.0f,
+        (spriteSizeY) * scale / 2.0f 
+    );
+} else {
+    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
+    C2D_DrawRectSolid(
+        (currentSprite->xPosition * scale) + (screenWidth / 2),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
+        1,
+        10 * scale,
+        10 * scale, 
+        clrBlack
+    );
+}
+
+
+
+// Draw collision points
+// auto collisionPoints = getCollisionPoints(currentSprite);
+// for (const auto& point : collisionPoints) {
+//     double screenOffset = bottom ? -SCREEN_HEIGHT : 0; // Adjust for bottom screen
+//     double scale = bottom ? 1.0 : std::min(scaleX, scaleY); // Skip scaling if bottom is true
+
+//     C2D_DrawRectSolid(
+//         (point.first * scale) + (screenWidth / 2),
+//         (point.second * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
+//         1, // Layer depth
+//         2 * scale, // Width of the rectangle
+//         2 * scale, // Height of the rectangle
+//         clrBlack
+//     );
+// }
+    // Draw mouse pointer
+    if(Input::mousePointer.isMoving)
+    C2D_DrawRectSolid(Input::mousePointer.x + (screenWidth / 2), (Input::mousePointer.y * -1) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
+}
+
+void Render::renderSprites(){
 
 
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
@@ -137,9 +232,9 @@ void LoadingScreen::renderLoadingScreen(){
     C2D_TargetClear(topScreen,clrBlack);
     C2D_SceneBegin(topScreen);
 
-    if(text != nullptr){
-    text->render();
-    }
+    // if(text != nullptr){
+    // text->render();
+    // }
     for(squareObject& square : squares){
         square.y -= square.size * 0.1;
         if(square.x > 400 + square.size) square.x = 0 - square.size;
@@ -152,138 +247,20 @@ void LoadingScreen::renderLoadingScreen(){
 }
 
 void LoadingScreen::init(){
-    text = new TextObject("Loading...",200,120);
+    //text = new TextObject("Loading...",200,120);
     createSquares(20);
 }
 
 void LoadingScreen::cleanup(){
-    if(text && text != nullptr)
-    delete text;
+    // if(text && text != nullptr)
+    // delete text;
     squares.clear();
 }
 
 
-void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom) {
-    //freeImage(currentSprite,costumeId);
-
-    if(!currentSprite || currentSprite == nullptr) return;
-
-    if(Scratch::projectHeight == 480 && Scratch::projectWidth == 400){
-       // projectHeight = 240;
-        bottomScreenEnabled = true;
-    }
-
-    bool legacyDrawing = false;
-    
-    double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
-
-    
-
-        for(Image::ImageRGBA rgba : Image::imageRBGAs){
-            if(rgba.name == costumeId){
-                currentSprite->spriteWidth = rgba.width / 2;
-                currentSprite->spriteHeight = rgba.height / 2;
-                
-                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr)
-                imageC2Ds[costumeId].image = get_C2D_Image(rgba);
-                imageC2Ds[costumeId].freeTimer = 120;
-                legacyDrawing = false;
-                break;
-            }
-            else {
-                legacyDrawing = true;
-                currentSprite->spriteWidth = 64;
-                currentSprite->spriteHeight = 64;
-
-            }
-
-        }
-
-    
-        
-
-    
-
-    //double maxLayer = getMaxSpriteLayer();
-    double scaleX = static_cast<double>(SCREEN_WIDTH) / Scratch::projectWidth;
-    double scaleY = static_cast<double>(SCREEN_HEIGHT) / Scratch::projectHeight;
-    double spriteSizeX = currentSprite->size * 0.01;
-    double spriteSizeY = currentSprite->size * 0.01;
-    double scale;
-    double heightMultiplier = 0.5;
-    int screenWidth = SCREEN_WIDTH;
-
-    if(bottomScreenEnabled){
-        scaleY = static_cast<double>(SCREEN_HEIGHT) / (Scratch::projectHeight / 2.0);
-        heightMultiplier = 1.0;
-    }
-    if(bottom){
-        screenWidth = BOTTOM_SCREEN_WIDTH;
-    }
 
 
-if (!legacyDrawing) {
-    double rotation = degreesToRadians(currentSprite->rotation - 90.0f);
-
-    // check for rotation style
-    if(currentSprite->rotationStyle == "left-right"){
-        if(rotation < 0){
-            spriteSizeX *= -1;
-        }
-        rotation = 0;
-    }
-    if(currentSprite->rotationStyle == "don't rotate"){
-        rotation = 0;
-    }
-
-
-   scale = bottom ? 1.0 : std::min(scaleX, scaleY);
-
-    C2D_DrawImageAtRotated(
-        *image,
-        (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
-        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
-        1,
-        rotation,
-        nullptr,
-        (spriteSizeX) * scale / 2.0f,
-        (spriteSizeY) * scale / 2.0f 
-    );
-} else {
-    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
-    C2D_DrawRectSolid(
-        (currentSprite->xPosition * scale) + (screenWidth / 2),
-        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
-        1,
-        10 * scale,
-        10 * scale, 
-        clrBlack
-    );
-}
-
-
-
-// Draw collision points
-// auto collisionPoints = getCollisionPoints(currentSprite);
-// for (const auto& point : collisionPoints) {
-//     double screenOffset = bottom ? -SCREEN_HEIGHT : 0; // Adjust for bottom screen
-//     double scale = bottom ? 1.0 : std::min(scaleX, scaleY); // Skip scaling if bottom is true
-
-//     C2D_DrawRectSolid(
-//         (point.first * scale) + (screenWidth / 2),
-//         (point.second * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
-//         1, // Layer depth
-//         2 * scale, // Width of the rectangle
-//         2 * scale, // Height of the rectangle
-//         clrBlack
-//     );
-// }
-    // Draw mouse pointer
-    if(Input::mousePointer.isMoving)
-    C2D_DrawRectSolid(Input::mousePointer.x + (screenWidth / 2), (Input::mousePointer.y * -1) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
-}
-
-void renderDeInit(){
+void Render::deInit(){
     C2D_Fini();
     C3D_Fini();
     for(auto &[id,data] : imageC2Ds){

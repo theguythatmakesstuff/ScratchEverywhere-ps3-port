@@ -2,6 +2,9 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 class Math{
     public:
@@ -19,5 +22,9 @@ class Math{
         return std::count(str.begin() + start, str.end(), '.') <= 1 && // At most one decimal point
             std::any_of(str.begin() + start, str.end(), ::isdigit) && // At least one digit
             std::all_of(str.begin() + start, str.end(), [](char c) { return std::isdigit(c) || c == '.'; });
+    }
+
+    static double degreesToRadians(double degrees) {
+    return degrees * (M_PI / 180.0);
     }
 };

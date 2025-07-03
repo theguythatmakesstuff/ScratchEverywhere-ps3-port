@@ -55,14 +55,10 @@ void initializeSpritePool(int poolSize);
 Value findCustomValue(std::string valueName,Sprite*sprite,Block block);
 std::string removeQuotations(std::string value);
 void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh);
-//bool hasAnyConditionals(Sprite* sprite, std::string topLevelParentBlockId);
 Block* findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 
 Value getVariableValue(std::string variableId,Sprite*sprite);
-//void buildBlockHierarchyCache();
-//bool hasActiveConditionalsInside(Sprite* sprite, std::string blockId);
-//void processBlockForCache(Sprite* sprite,Block* block, std::string parentConditionalId, Block* topLevelBlock);
 void setVariableValue(const std::string& variableId, const Value& newValue, Sprite* sprite);
 std::string generateRandomString(int length);
 std::vector<Block*> getBlockChain(std::string blockId,std::string* outID = nullptr);

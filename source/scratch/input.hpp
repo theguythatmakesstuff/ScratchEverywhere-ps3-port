@@ -15,5 +15,6 @@ public:
 
     static std::vector<std::string> inputButtons;
     static void getInput();
+    static std::string getUsername();
 
 };
