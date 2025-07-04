@@ -79,6 +79,7 @@ BlockResult DataBlocks::insertAtList(Block& block, Sprite* sprite, Block** waiti
     Value index = Scratch::getInputValue(block,"INDEX", sprite);
 
     for (Sprite* currentSprite : sprites) {
+        if(!currentSprite) continue;
         if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
             // std::cout << "Inserting into list " << listId << std::endl;
 

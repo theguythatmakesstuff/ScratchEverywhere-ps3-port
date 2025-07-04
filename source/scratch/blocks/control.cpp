@@ -250,9 +250,13 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     
         auto it = block.parsedInputs.find("SUBSTACK");
         if(it != block.parsedInputs.end()){
-            Block* subBlock = &sprite->blocks[it->second.blockId];
-            if(subBlock){
-                executor.runBlock(*subBlock,sprite);
+            const std::string& blockId = it->second.blockId;
+            auto blockIt = sprite->blocks.find(blockId);
+            if (blockIt != sprite->blocks.end()) {
+                Block* subBlock = &blockIt->second;
+                executor.runBlock(*subBlock, sprite);
+            } else {
+                std::cerr << "Invalid blockId: " << blockId << std::endl;
             }
         }
     

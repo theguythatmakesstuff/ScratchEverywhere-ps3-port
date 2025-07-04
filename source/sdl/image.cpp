@@ -4,7 +4,7 @@
 #include <iostream>
 
 std::vector<Image::ImageRGBA> Image::imageRBGAs;
-std::unordered_map<std::string,SDL_Image> images;
+std::unordered_map<std::string,SDL_Image*> images;
 
 void Image::loadImages(mz_zip_archive *zip){
     std::cout << "Loading images..." << std::endl;
@@ -36,7 +36,7 @@ void Image::loadImages(mz_zip_archive *zip){
                 continue;
             }
 
-            SDL_Surface* surface = IMG_Load_RW(rw, 0); // 0 = don't free RWops
+            SDL_Surface* surface = IMG_Load_RW(rw, 0);
             SDL_RWclose(rw);
             mz_free(file_data);
 
@@ -52,13 +52,14 @@ void Image::loadImages(mz_zip_archive *zip){
                 continue;
             }
 
+            SDL_FreeSurface(surface);
+
             // Build SDL_Image object
-            SDL_Image image;
-            image.spriteTexture = texture;
-            image.spriteSurface = surface; // not used after creation but fine to keep if needed
-            SDL_QueryTexture(texture, nullptr, nullptr, &image.width, &image.height);
-            image.renderRect = {0, 0, image.width, image.height};
-            image.textureRect = {0, 0, image.width, image.height};
+            SDL_Image* image = new SDL_Image();
+            image->spriteTexture = texture;
+            SDL_QueryTexture(texture, nullptr, nullptr, &image->width, &image->height);
+            image->renderRect = {0, 0, image->width, image->height};
+            image->textureRect = {0, 0, image->width, image->height};
 
             // Strip extension from filename for the ID
             std::string imageId = zipFileName.substr(0, zipFileName.find_last_of('.'));
@@ -67,7 +68,7 @@ void Image::loadImages(mz_zip_archive *zip){
     }
 }
 void Image::loadImageFromFile(std::string filePath){
-    SDL_Image image(filePath);
+    SDL_Image* image = new SDL_Image(filePath);
     images[filePath] = image;
 }
 void Image::freeImage(const std::string& costumeId){
@@ -81,10 +82,10 @@ void Image::FlushImages(){
     std::vector<std::string> toDelete;
     
     for(auto& [id, img] : images){
-        if(img.freeTimer <= 0){
+        if(img->freeTimer <= 0){
             toDelete.push_back(id);
         } else {
-            img.freeTimer -= 1;
+            img->freeTimer -= 1;
         }
     }
     
