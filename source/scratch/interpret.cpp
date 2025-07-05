@@ -43,14 +43,16 @@ void initializeSpritePool(int poolSize) {
         newSprite.id = generateRandomString(15);
         newSprite.isClone = true;
         newSprite.toDelete = true;
+        newSprite.isDeleted = true;
         spritePool.push_back(newSprite);
     }
 }
 
 Sprite* getAvailableSprite() {
     for (Sprite& sprite : spritePool) {
-        if (sprite.toDelete) {
-            sprite.toDelete = false;  // Reactivate sprite
+        if (sprite.isDeleted) {
+            sprite.isDeleted = false;
+            sprite.toDelete = false;
             return &sprite;
         }
     }

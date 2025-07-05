@@ -193,8 +193,8 @@ BlockResult BlockExecutor::executeBlock(Block& block, Sprite* sprite,Block** wai
 
 void BlockExecutor::runRepeatBlocks(){
     blocksRun = 0;
-    //std::cout<<"Running repeat blocks..."<< std::endl;
-    // repeat the block most recently added to the repeat chain
+
+    // repeat ONLY the block most recently added to the repeat chain,,,
     for(auto& sprite : sprites){
         for(auto& [id, blockChain]: sprite->blockChains){
         auto& repeatList = blockChain.blocksToRepeat;
@@ -204,7 +204,6 @@ void BlockExecutor::runRepeatBlocks(){
                 Block* toRun = &sprite->blocks[toRepeat];
                 if(toRun != nullptr){
                 executor.runBlock(*toRun, sprite);
-
                 }
                 }
             } 
@@ -222,7 +221,7 @@ void BlockExecutor::runRepeatBlocks(){
             }
         }
     }
-    
+    toDelete->isDeleted = true;
     }
     //std::cout << "\x1b[19;1HBlocks Running: " << blocksRun << std::endl;
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite* s) { return s->toDelete; }), sprites.end());

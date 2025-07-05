@@ -366,6 +366,7 @@ class Sprite {
         bool visible;
         bool isClone;
         bool toDelete;
+        bool isDeleted = false;
         int currentCostume;
         int volume;
         double xPosition;
