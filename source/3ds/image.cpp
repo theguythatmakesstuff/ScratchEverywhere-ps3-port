@@ -40,22 +40,21 @@ const u32 next_pow2(u32 n) {
 void Image::loadImages(mz_zip_archive*zip){
 // Loop through all files in the ZIP
 std::cout << "Loading images..." << std::endl;
+
 int file_count = (int)mz_zip_reader_get_num_files(zip);
-//int memorySize = 0;
+
 for (int i = 0; i < file_count; i++) {
     mz_zip_archive_file_stat file_stat;
     if (!mz_zip_reader_file_stat(zip, i, &file_stat)) continue;
 
     std::string zipFileName = file_stat.m_filename;
-    //std::cout << "Found file: " << zipFileName << std::endl;
 
     // Check if file is a PNG or JPG
     if (zipFileName.size() >= 4 && 
         (zipFileName.substr(zipFileName.size() - 4) == ".png" || zipFileName.substr(zipFileName.size() - 4) == ".PNG"\
         || zipFileName.substr(zipFileName.size() - 4) == ".jpg" || zipFileName.substr(zipFileName.size() - 4) == ".JPG")) {
 
-        // Extract the file to memory
-       //std::cout << "Loading into memory: " << zipFileName << std::endl;
+
         size_t png_size;
         void* png_data = mz_zip_reader_extract_to_heap(zip, i, &png_size, 0);
         if (!png_data) {
@@ -64,7 +63,6 @@ for (int i = 0; i < file_count; i++) {
         }
 
         // Load image from memory into RGBA
-       //std::cout << "Decoding PNG: " << zipFileName << std::endl;
         int width, height, channels;
         unsigned char* rgba_data = stbi_load_from_memory(
             (unsigned char*)png_data, png_size,
@@ -76,19 +74,17 @@ for (int i = 0; i < file_count; i++) {
             mz_free(png_data);
             continue;
         }
-       //std::cout << "Adding PNG: " << zipFileName << std::endl;
+
         Image::ImageRGBA newRGBA;
         newRGBA.name = zipFileName.substr(0, zipFileName.find_last_of('.'));
         newRGBA.width = width;
         newRGBA.height = height;
         newRGBA.data = rgba_data;
-        //memorySize += sizeof(newRGBA);
         Image::imageRBGAs.push_back(newRGBA);
 
         mz_free(png_data);
     }
 }
-//std::cout << "size = " << memorySize << std::endl;
 }
 
 void Image::loadImageFromFile(std::string filePath){
@@ -132,9 +128,10 @@ void Image::loadImageFromFile(std::string filePath){
  * and return a `C2D_Image` object.
  * Assumes image data is stored left->right, top->bottom.
  * Dimensions must be within 64x64 and 1024x1024.
- * Code here mostly from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/ */
+ * Code here originally from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/
+ * then edited to fit my code
+ */
 C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
-    //std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
 
     u32 px_count = rgba.width * rgba.height;
     u32 *rgba_raw = reinterpret_cast<u32*>(rgba.data);
@@ -144,7 +141,6 @@ C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
     C2D_Image image;
   
     // Base texture
-  //std::cout << "Creating C3D_Tex..." << std::endl;
     C3D_Tex *tex = (C3D_Tex *)malloc(sizeof(C3D_Tex));
     image.tex = tex;
     // Texture dimensions must be square powers of two between 64x64 and 1024x1024
@@ -153,26 +149,22 @@ C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
 
 
     // Subtexture
-   //std::cout << "Creating C3D_SubTex..." << std::endl;
     Tex3DS_SubTexture *subtex = (Tex3DS_SubTexture *)malloc(sizeof(Tex3DS_SubTexture));
     image.subtex = subtex;
     subtex->width = rgba.width;
     subtex->height = rgba.height;
+
     // (U, V) coordinates
     subtex->left = 0.0f;
     subtex->top = 1.0f;
     subtex->right = (float)rgba.width / (float)tex->width;
     subtex->bottom = 1.0 - ((float)rgba.height / (float)tex->height);
   
-    //std::cout << "Allocating texture data..." << std::endl;
     if(!C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8))
     std::cerr << "error- failed to initialize image." << std::endl;
-   //std::cout << "Setting Texture Filter..." << std::endl;
-    C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST);
-    // GPU_LINEAR TODO try that later on real hardware
+    C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST); // TODO maybe give users the choice of image filtering?
 
   
-   //std::cout << "Setting Texture Wrap..." << std::endl;
     memset(tex->data, 0, px_count * 4);
     for (u32 i = 0; i < (u32)rgba.width; i++) {
     for (u32 j = 0; j < (u32)rgba.height; j++) {

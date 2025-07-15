@@ -203,7 +203,6 @@ BlockResult ControlBlocks::repeat(Block& block, Sprite* sprite, Block** waitingB
 
     if(block.repeatTimes == -1){
         block.repeatTimes = Scratch::getInputValue(block, "TIMES", sprite).asInt();
-        //std::cout << "times = " << block.repeatTimes << std::endl;
         BlockExecutor::addToRepeatQueue(sprite,&block);
     }
 

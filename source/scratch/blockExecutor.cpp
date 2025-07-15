@@ -159,9 +159,6 @@ void BlockExecutor::runBlock(Block& block, Sprite* sprite, Block* waitingBlock, 
             break;
         }
 
-
-
-        
         // Move to next block
         if (!currentBlock->next.empty()) {
             currentBlock = &sprite->blocks[currentBlock->next];
@@ -298,10 +295,8 @@ Value BlockExecutor::getBlockValue(Block& block,Sprite*sprite){
 
 
 void BlockExecutor::addToRepeatQueue(Sprite* sprite,Block* block){
-    //std::cout << "trying..." << std::endl;
             auto& repeatList = sprite->blockChains[block->blockChainID].blocksToRepeat;
             if (std::find(repeatList.begin(), repeatList.end(), block->id) == repeatList.end()) {
-                //std::cout << "added to list " << block->blockChainID << std::endl;
                 repeatList.push_back(block->id);
             }
 }

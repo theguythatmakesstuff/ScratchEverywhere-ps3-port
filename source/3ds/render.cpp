@@ -24,9 +24,6 @@ bool bottomScreenEnabled = false;
 
 
 
-
-
-
 void Render::Init(){
 	gfxInitDefault();
 	hidScanInput();

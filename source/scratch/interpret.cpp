@@ -477,18 +477,15 @@ Block* getBlockParent(const Block* block){
 
 Value findCustomValue(std::string valueName, Sprite* sprite, Block block) {
     for (auto& [custId, custBlock] : sprite->customBlocks) {
-        // Find the index of valueName in argumentNames
+
         auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
         
         if (it != custBlock.argumentNames.end()) {
-            // Get the index of the found argument name
             size_t index = std::distance(custBlock.argumentNames.begin(), it);
 
-            // Ensure index is within bounds of argumentIds
             if (index < custBlock.argumentIds.size()) {
                 std::string argumentId = custBlock.argumentIds[index];
 
-                // Find the value in argumentValues using argumentId
                 auto valueIt = custBlock.argumentValues.find(argumentId);
                 if (valueIt != custBlock.argumentValues.end()) {
                    //std::cout << "FOUND that shit BAAANG: " << valueIt->second.asString() << std::endl;
@@ -600,24 +597,26 @@ Value getVariableValue(std::string variableId, Sprite* sprite) {
 
 Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite* sprite){
         auto parsedFind = block.parsedInputs.find(inputName);
+
         if (parsedFind == block.parsedInputs.end()) {
-            //std::cout << "couldnt find input value for " << block.id << std::endl;
             return Value(0);
         }
         
         const ParsedInput& input = parsedFind->second;
         switch(input.inputType) {
+
             case ParsedInput::LITERAL:
-                //std::cout << "literal! " << input.literalValue.asString() << std::endl;
-                return input.literalValue;  // Fast path - no lookup needed
+                return input.literalValue;
                 
             case ParsedInput::VARIABLE:
                 return getVariableValue(input.variableId, sprite);
                 
             case ParsedInput::BLOCK:
                 return executor.getBlockValue(*findBlock(input.blockId), sprite);
+                
             case ParsedInput::BOOLEAN:
                 return executor.getBlockValue(*findBlock(input.blockId), sprite);
+                
         }
         return Value(0);
     }

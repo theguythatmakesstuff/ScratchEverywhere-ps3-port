@@ -29,7 +29,7 @@ bool Unzip::openFile(std::ifstream *file){
             file->open(filename, std::ios::binary | std::ios::ate); // loads file from location of executable
             projectType = UNEMBEDDED;
             if (!(*file)){
-                std::cerr<<"Couldnt find file. jinkies.";
+                std::cerr<<"Couldnt find file. jinkies." << std::endl;
                 return false;
             }
         }

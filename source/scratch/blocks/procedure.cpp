@@ -11,13 +11,9 @@ Value ProcedureBlocks::booleanArgument(Block& block, Sprite* sprite){
 
 BlockResult ProcedureBlocks::call(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
     
-    // Initialize the custom block call if not already set up
     if(block.repeatTimes == -1){
-        // Set up the custom block call (using -8 to distinguish from other blocks)
         block.repeatTimes = -8;
         block.customBlockExecuted = false;
-        
-        //std::cout << "doing it " << block.id << std::endl;
         
         // Run the custom block for the first time
         runCustomBlock(sprite, block, &block,withoutScreenRefresh);
