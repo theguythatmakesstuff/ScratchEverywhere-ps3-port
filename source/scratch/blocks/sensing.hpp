@@ -18,4 +18,5 @@ public:
     static Value keyPressed(Block& block,Sprite* sprite);
     static Value touchingObject(Block& block, Sprite* sprite);
     static Value mouseDown(Block& block, Sprite* sprite);
+    static Value username(Block& block, Sprite* sprite);
 };

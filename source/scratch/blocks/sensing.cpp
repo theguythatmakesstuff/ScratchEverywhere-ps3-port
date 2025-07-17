@@ -203,3 +203,7 @@ Value SensingBlocks::touchingObject(Block& block, Sprite* sprite){
 Value SensingBlocks::mouseDown(Block& block, Sprite* sprite){
     return Value(Input::mousePointer.isPressed);
 }
+
+Value SensingBlocks::username(Block& block, Sprite* sprite){
+    return Value(Input::getUsername());
+}

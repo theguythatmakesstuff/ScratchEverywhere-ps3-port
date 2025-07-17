@@ -126,6 +126,7 @@ void BlockExecutor::registerHandlers(){
     valueHandlers[Block::SENSING_KEYPRESSED] = SensingBlocks::keyPressed;
     valueHandlers[Block::SENSING_TOUCHINGOBJECT] = SensingBlocks::touchingObject;
     valueHandlers[Block::SENSING_MOUSEDOWN] = SensingBlocks::mouseDown;
+    valueHandlers[Block::SENSING_USERNAME] = SensingBlocks::username;
 
     // procedures / arguments
     handlers[Block::PROCEDURES_CALL] = ProcedureBlocks::call;
