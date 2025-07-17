@@ -80,7 +80,7 @@ void Input::getInput(){
             inputButtons.push_back("z");
         }
         if(kDown & KEY_ZR){
-            inputButtons.push_back("x");
+            inputButtons.push_back("f");
         }
         if(kDown & KEY_CPAD_UP){
             inputButtons.push_back("up arrow");
