@@ -175,7 +175,7 @@ void loadSprites(const nlohmann::json& json){
 
                 for(const auto& [inputName,inputData] : data["inputs"].items()){
                     ParsedInput parsedInput;
-                   // parsedInput.originalJson = inputData;
+                    parsedInput.originalJson = inputData;
 
                     int type = inputData[0];
                     auto& inputValue = inputData[1];
