@@ -1,6 +1,6 @@
 
 
-# Scratch Runtime for 3DS
+# Scratch-3DS
 
 A W.I.P. runtime made in C++ aimed to bring any Scratch 3 project over to the Nintendo 3DS.
 
