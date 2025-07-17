@@ -66,7 +66,7 @@ for (int i = 0; i < file_count; i++) {
         int width, height, channels;
         unsigned char* rgba_data = stbi_load_from_memory(
             (unsigned char*)png_data, png_size,
-            &width, &height, &channels, 4 // force RGBA
+            &width, &height, &channels, 4
         );
 
         if (!rgba_data) {
@@ -131,44 +131,48 @@ void Image::loadImageFromFile(std::string filePath){
  * Code here originally from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/
  * then edited to fit my code
  */
-C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
+C2D_Image get_C2D_Image(Image::ImageRGBA* rgba) {
+    //std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
 
-    u32 px_count = rgba.width * rgba.height;
-    u32 *rgba_raw = reinterpret_cast<u32*>(rgba.data);
+    u32 px_count = rgba->width * rgba->height;
+    u32 *rgba_raw = reinterpret_cast<u32*>(rgba->data);
 
   
     // Image data
     C2D_Image image;
   
     // Base texture
+  // std::cout << "Creating C3D_Tex..." << std::endl;
     C3D_Tex *tex = (C3D_Tex *)malloc(sizeof(C3D_Tex));
     image.tex = tex;
     // Texture dimensions must be square powers of two between 64x64 and 1024x1024
-    tex->width = clamp(next_pow2(rgba.width), 64, 1024);
-    tex->height = clamp(next_pow2(rgba.height), 64, 1024);
-
-
+    tex->width = clamp(next_pow2(rgba->width), 64, 1024);
+    tex->height = clamp(next_pow2(rgba->height), 64, 1024);
+  
     // Subtexture
+   //std::cout << "Creating C3D_SubTex..." << std::endl;
     Tex3DS_SubTexture *subtex = (Tex3DS_SubTexture *)malloc(sizeof(Tex3DS_SubTexture));
     image.subtex = subtex;
-    subtex->width = rgba.width;
-    subtex->height = rgba.height;
-
+    subtex->width = rgba->width;
+    subtex->height = rgba->height;
     // (U, V) coordinates
     subtex->left = 0.0f;
     subtex->top = 1.0f;
-    subtex->right = (float)rgba.width / (float)tex->width;
-    subtex->bottom = 1.0 - ((float)rgba.height / (float)tex->height);
+    subtex->right = (float)rgba->width / (float)tex->width;
+    subtex->bottom = 1.0 - ((float)rgba->height / (float)tex->height);
   
-    if(!C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8))
-    std::cerr << "error- failed to initialize image." << std::endl;
-    C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST); // TODO maybe give users the choice of image filtering?
+    //std::cout << "Allocating texture data..." << std::endl;
+    C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8);
+   // std::cout << "Setting Texture Filter..." << std::endl;
+    C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST);
+    // GPU_LINEAR TODO try that later on real hardware
 
   
+   // std::cout << "Setting Texture Wrap..." << std::endl;
     memset(tex->data, 0, px_count * 4);
-    for (u32 i = 0; i < (u32)rgba.width; i++) {
-    for (u32 j = 0; j < (u32)rgba.height; j++) {
-        u32 src_idx = (j * rgba.width) + i;
+    for (u32 i = 0; i < (u32)rgba->width; i++) {
+    for (u32 j = 0; j < (u32)rgba->height; j++) {
+        u32 src_idx = (j * rgba->width) + i;
         u32 rgba_px = rgba_raw[src_idx];
         u32 abgr_px = rgba_to_abgr(rgba_px);
   
@@ -180,7 +184,8 @@ C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
       }
     }
   
-    //std::cout << "Image Loaded!" << std::endl;
+    std::cout << "Image Loaded!" << std::endl;
+
     return image;
   }
 

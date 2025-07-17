@@ -8,6 +8,7 @@
 
 std::vector<std::string> Input::inputButtons;
 Input::Mouse Input::mousePointer;
+int keyHeldFrames = 0;
 
 void Input::getInput(){
     inputButtons.clear();
@@ -23,6 +24,7 @@ void Input::getInput(){
     hidTouchRead(&touch);
 
     if(kDown){
+        keyHeldFrames += 1;
         inputButtons.push_back("any");
         if(kDown & KEY_A){
             inputButtons.push_back("a");
@@ -111,7 +113,11 @@ void Input::getInput(){
             mousePointer.x = touch.px - (BOTTOM_SCREEN_WIDTH / 2);
             mousePointer.y = (-touch.py + (SCREEN_HEIGHT)) -SCREEN_HEIGHT;
         }
+        if (keyHeldFrames == 1 || keyHeldFrames > 30)
         BlockExecutor::runAllBlocksByOpcode(Block::EVENT_WHEN_KEY_PRESSED);
+    }
+    else{
+        keyHeldFrames = 0;
     }
 
 

@@ -45,7 +45,6 @@ bool Render::appShouldRun(){
 }
 
 void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,bool bottom = false) {
-    //freeImage(currentSprite,costumeId);
 
     if(!currentSprite || currentSprite == nullptr) return;
 
@@ -62,13 +61,17 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
         for(Image::ImageRGBA rgba : Image::imageRBGAs){
             if(rgba.name == costumeId){
+                legacyDrawing = false;
                 currentSprite->spriteWidth = rgba.width / 2;
                 currentSprite->spriteHeight = rgba.height / 2;
                 
-                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr)
-                imageC2Ds[costumeId].image = get_C2D_Image(rgba);
+                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
+                C2D_Image newImage = get_C2D_Image(&rgba);
+                imageC2Ds[costumeId].image = newImage;
+
+                return; // hacky solution to fix crashing, causes flickering, TODO fix that 😁
+                }
                 imageC2Ds[costumeId].freeTimer = 120;
-                legacyDrawing = false;
                 break;
             }
             else {
@@ -121,7 +124,7 @@ if (!legacyDrawing) {
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
     C2D_DrawImageAtRotated(
-        *image,
+        imageC2Ds[costumeId].image,
         (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
         1,
@@ -141,7 +144,6 @@ if (!legacyDrawing) {
         clrBlack
     );
 }
-
 
 
 // Draw collision points
@@ -193,6 +195,7 @@ for(Sprite* currentSprite : spritesByLayer) {
             currentSprite->rotationCenterX = costume.rotationCenterX;
             currentSprite->rotationCenterY = costume.rotationCenterY;
             renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id);
+            break;
         }
         costumeIndex++;
     }
@@ -218,12 +221,12 @@ for(Sprite* currentSprite : spritesByLayer) {
             currentSprite->rotationCenterX = costume.rotationCenterX;
             currentSprite->rotationCenterY = costume.rotationCenterY;
             renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id,true);
+            break;
         }
         costumeIndex++;
     }
 }
     }
-
 
 
     C2D_Flush();

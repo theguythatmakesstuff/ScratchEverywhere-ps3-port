@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 			frameEndTime = std::chrono::high_resolution_clock::now();
 			auto frameDuration = frameEndTime - frameStartTime;
 			//std::cout << "\x1b[17;1HFrame time: " << frameDuration.count() << " ms" << std::endl;
-			std::cout << "\x1b[18;1HSprites: " << sprites.size() << std::endl;
+			//std::cout << "\x1b[18;1HSprites: " << sprites.size() << std::endl;
 			
 		}
 		if(toExit){
