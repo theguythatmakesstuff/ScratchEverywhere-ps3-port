@@ -20,13 +20,13 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 
 **List of known limitations:**
 - Sound is not yet implemented.
-- Performance on old 3DS starts to tank with alot of blocks running.
+- Performance on old 3DS starts to tank with many blocks running.
 - There is no vector/svg sprite rendering. Images will only render if converted to bitmap beforehand, otherwise the sprite will show as a black square.
 - Images will only work if it's in png or jpg format.
 - If you have a bunch of large images, some may not load.
 - Images cannot be over 1024x1024 in resolution.
 - Extensions (eg: pen and music extensions) are not yet supported.
-- Some blocks may lead to crashing / unintended behavior. (Please open an issue if you know a block that's causing problems...,,.,, 🥺)
+- Some blocks may lead to crashing / unintended behavior. (Please open an issue if you know a block that's causing problems.)
 
 
 ## Unimplimented blocks
@@ -38,7 +38,7 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - When this sprite clicked
 - When backdrop switches to
 - When loudness > ___
-- all Color touching blocks
+- All Color touching blocks
 - Set drag mode
 - Loudness
 
