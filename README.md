@@ -50,8 +50,11 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - Turbowarp extensions
 - Cloud variables (maybe.....)
 
-
-## Get up and running the easy way
+## Installation
+There are 2 methods to install the runtime.
+- Download the release (easy)
+- Build the file yourself (harder)
+### Get up and running the easy way
 
 Download the .3dsx file in the Releases tab.
 
@@ -61,7 +64,7 @@ Place the .3dsx file in the `3ds/` folder of your 3DS SD card, along with the Sc
 Then it should be as simple as opening the homebrew launcher on your 3DS and running the app.
 
 
-## Building
+### Building
 
 In order to embed a Scratch project in the 3dsx executable, you'll need to compile the source code.
 
