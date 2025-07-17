@@ -42,8 +42,15 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - Set drag mode
 - Loudness
 
-
-
+## Roadmap / to-do list
+- Pen support (Highly Requested!)
+- Better start menu
+- File picker for Scratch projects
+- Ability to remap controls
+- Get all unimplimented blocks working
+- Audio support
+- Look into getting some Turbowarp extensions working
+- Cloud variables (maybe.....)
 
 
 ## Get up and running the easy way
