@@ -53,7 +53,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
         bottomScreenEnabled = true;
     }
 
-    bool legacyDrawing = false;
+    bool legacyDrawing = true;
     
     double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
 
