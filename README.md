@@ -1,5 +1,3 @@
-
-
 # Scratch-3DS
 
 A W.I.P. runtime made in C++ aimed to bring any Scratch 3 project over to the Nintendo 3DS.
@@ -22,7 +20,7 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - Sound is not yet implemented.
 - Performance on old 3DS starts to tank with many blocks running.
 - There is no vector/svg sprite rendering. Images will only render if converted to bitmap beforehand, otherwise the sprite will show as a black square.
-- Images will only work if it's in png or jpg format.
+- Images will only work if it's in .png or .jpg format.
 - If you have a bunch of large images, some may not load.
 - Images cannot be over 1024x1024 in resolution.
 - Extensions (eg: pen and music extensions) are not yet supported.
@@ -47,17 +45,17 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - Better start menu
 - File picker for Scratch projects
 - Ability to remap controls
-- Get all unimplimented blocks working
+- Get all blocks working
 - Audio support
-- Look into getting some Turbowarp extensions working
+- Turbowarp extensions
 - Cloud variables (maybe.....)
 
 
 ## Get up and running the easy way
 
-Download the 3dsx file in the Releases tab.
+Download the .3dsx file in the Releases tab.
 
-Place the 3dsx file in the `3ds/` folder of your 3DS SD card, along with the Scratch project you want to run.
+Place the .3dsx file in the `3ds/` folder of your 3DS SD card, along with the Scratch project you want to run.
 - The Scratch project MUST be named `project.sb3` , all lowercase.
 
 Then it should be as simple as opening the homebrew launcher on your 3DS and running the app.
