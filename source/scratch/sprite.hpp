@@ -81,6 +81,9 @@ struct Block {
         LOOKS_SETSIZETO,
         LOOKS_GO_FORWARD_BACKWARD_LAYERS,
         LOOKS_GO_TO_FRONT_BACK,
+        LOOKS_SET_EFFECT_TO,
+        LOOKS_CHANGE_EFFECT_BY,
+        LOOKS_CLEAR_GRAPHIC_EFFECTS,
         SOUND_VOLUME,
         SENSING_TIMER,
         SENSING_RESETTIMER,
@@ -195,6 +198,9 @@ struct Block {
         if(opCodeString == "looks_setsizeto")return LOOKS_SETSIZETO;
         if(opCodeString == "looks_goforwardbackwardlayers")return LOOKS_GO_FORWARD_BACKWARD_LAYERS;
         if(opCodeString == "looks_gotofrontback")return LOOKS_GO_TO_FRONT_BACK;
+        if(opCodeString == "looks_seteffectto") return LOOKS_SET_EFFECT_TO;
+        if(opCodeString == "looks_changeeffectby") return LOOKS_CHANGE_EFFECT_BY;
+        if(opCodeString == "looks_cleargraphiceffects") return LOOKS_CLEAR_GRAPHIC_EFFECTS;
         if(opCodeString == "sound_volume")return SOUND_VOLUME;
         if(opCodeString == "sensing_timer")return SENSING_TIMER;
         if(opCodeString == "sensing_resettimer")return SENSING_RESETTIMER;
@@ -380,6 +386,9 @@ class Sprite {
         int size;
         int rotation;
         int layer;
+
+        int ghostEffect;
+        int colorEffect = -99999;
 
         enum RotationStyle{
             NONE,

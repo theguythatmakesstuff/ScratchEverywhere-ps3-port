@@ -49,6 +49,9 @@ void BlockExecutor::registerHandlers(){
     handlers[Block::LOOKS_GO_TO_FRONT_BACK] = LooksBlocks::goToFrontBack;
     handlers[Block::LOOKS_SETSIZETO] = LooksBlocks::setSizeTo;
     handlers[Block::LOOKS_CHANGESIZEBY] = LooksBlocks::changeSizeBy;
+    handlers[Block::LOOKS_SET_EFFECT_TO] = LooksBlocks::setEffectTo;
+    handlers[Block::LOOKS_CHANGE_EFFECT_BY] = LooksBlocks::changeEffectBy;
+    handlers[Block::LOOKS_CLEAR_GRAPHIC_EFFECTS] = LooksBlocks::clearGraphicEffects;
     valueHandlers[Block::LOOKS_SIZE] = LooksBlocks::size;
     valueHandlers[Block::LOOKS_COSTUME] = LooksBlocks::costume;
     valueHandlers[Block::LOOKS_BACKDROPS] = LooksBlocks::backdrops;

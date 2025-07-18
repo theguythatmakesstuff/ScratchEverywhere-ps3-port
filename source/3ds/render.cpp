@@ -126,13 +126,17 @@ if (!legacyDrawing) {
 
    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
+   float alpha = 1.0f - (currentSprite->ghostEffect / 100.0f);
+   C2D_ImageTint tinty;
+   C2D_AlphaImageTint(&tinty,alpha);
+
     C2D_DrawImageAtRotated(
         imageC2Ds[costumeId].image,
         (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
         1,
         rotation,
-        nullptr,
+        &tinty,
         (spriteSizeX) * scale / 2.0f,
         (spriteSizeY) * scale / 2.0f 
     );

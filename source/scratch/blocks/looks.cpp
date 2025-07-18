@@ -226,7 +226,69 @@ BlockResult LooksBlocks::changeSizeBy(Block& block, Sprite* sprite, Block** wait
     return BlockResult::CONTINUE;
 }
 
+BlockResult LooksBlocks::setEffectTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    
+    std::string effect = block.fields.at("EFFECT")[0];
+    Value amount = Scratch::getInputValue(block,"VALUE",sprite);
 
+    if(!amount.isNumeric()) return BlockResult::CONTINUE;
+
+    if (effect == "COLOR") {
+        // doable....
+    } else if (effect == "FISHEYE") {
+        // blehhh
+    } else if (effect == "WHIRL") {
+        // blehhh
+    }else if (effect == "PIXELATE") {
+        // blehhh
+    }else if (effect == "MOSAIC") {
+        // blehhh
+    }else if (effect == "BRIGHTNESS") {
+        // doable....
+    }else if (effect == "GHOST") {
+        sprite->ghostEffect = std::clamp(amount.asInt(),0,100);
+    }
+    else {
+       std::cerr << "what effect did you even put??" << std::endl;
+    }
+    
+return BlockResult::CONTINUE;
+
+}
+BlockResult LooksBlocks::changeEffectBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+    std::string effect = block.fields.at("EFFECT")[0];
+    Value amount = Scratch::getInputValue(block,"CHANGE",sprite);
+
+    if(!amount.isNumeric()) return BlockResult::CONTINUE;
+
+    if (effect == "COLOR") {
+        // doable....
+    } else if (effect == "FISHEYE") {
+        // blehhh
+    } else if (effect == "WHIRL") {
+        // blehhh
+    }else if (effect == "PIXELATE") {
+        // blehhh
+    }else if (effect == "MOSAIC") {
+        // blehhh
+    }else if (effect == "BRIGHTNESS") {
+        // doable....
+    }else if (effect == "GHOST") {
+        sprite->ghostEffect += amount.asInt();
+        sprite->ghostEffect = std::clamp(sprite->ghostEffect,0,100);
+    }
+    else {
+       std::cerr << "what effect did you even put??" << std::endl;
+    }
+return BlockResult::CONTINUE;
+}
+BlockResult LooksBlocks::clearGraphicEffects(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
+
+sprite->ghostEffect = 0;
+sprite->colorEffect = -99999;
+
+return BlockResult::CONTINUE;
+}
 
 Value LooksBlocks::size(Block& block, Sprite* sprite) {
     return Value(sprite->size);
