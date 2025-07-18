@@ -1,4 +1,5 @@
 #include "interpret.hpp"
+#include "render.hpp"
 
 std::vector<Sprite*> sprites;
 std::vector<Sprite> spritePool;
@@ -370,27 +371,38 @@ void loadSprites(const nlohmann::json& json){
         }
     }
     // set advanced project settings properties
+    int wdth = 0;
+    int hght = 0;
+    int framerate = 0;
+
     try{
-       int framerate = config["framerate"].get<int>();
+       framerate = config["framerate"].get<int>();
        Scratch::FPS = framerate;
     }
     catch(...){
         //std::cerr << "no framerate property." << std::endl;
     }
         try{
-       int wdth = config["width"].get<int>();
+       wdth = config["width"].get<int>();
        Scratch::projectWidth = wdth;
     }
     catch(...){
         //std::cerr << "no width property." << std::endl;
     }
         try{
-       int hght = config["height"].get<int>();
+       hght = config["height"].get<int>();
        Scratch::projectHeight = hght;
     }
     catch(...){
         //std::cerr << "no height property." << std::endl;
     }
+
+    if(wdth == 400 && hght == 480)
+    Render::renderMode = Render::BOTH_SCREENS;
+    else if(wdth == 320 && hght == 240)
+    Render::renderMode = Render::BOTTOM_SCREEN_ONLY;
+    else
+    Render::renderMode = Render::TOP_SCREEN_ONLY;
     
     // if unzipped, load initial sprites
     if(projectType == UNZIPPED){

@@ -20,8 +20,7 @@ std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolut
 std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
 
-bool bottomScreenEnabled = false;
-
+Render::RenderModes Render::renderMode = Render::TOP_SCREEN_ONLY;
 
 
 void Render::Init(){
@@ -48,14 +47,10 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
     if(!currentSprite || currentSprite == nullptr) return;
 
-    if(Scratch::projectHeight == 480 && Scratch::projectWidth == 400){
-       // projectHeight = 240;
-        bottomScreenEnabled = true;
-    }
 
     bool legacyDrawing = true;
     
-    double screenOffset = bottom ? -SCREEN_HEIGHT : 0;
+    double screenOffset = (bottom && Render::renderMode != Render::BOTTOM_SCREEN_ONLY) ? -SCREEN_HEIGHT : 0;
 
     
 
@@ -101,7 +96,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     double heightMultiplier = 0.5;
     int screenWidth = SCREEN_WIDTH;
 
-    if(bottomScreenEnabled){
+    if(Render::renderMode == Render::BOTH_SCREENS){
         scaleY = static_cast<double>(SCREEN_HEIGHT) / (Scratch::projectHeight / 2.0);
         heightMultiplier = 1.0;
     }
@@ -178,61 +173,64 @@ void Render::renderSprites(){
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
+
+    if(Render::renderMode != Render::BOTTOM_SCREEN_ONLY){
     C2D_SceneBegin(topScreen);
 
     //int times = 1;
     C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
 
-// Sort sprites by layer (lowest to highest)
-std::vector<Sprite*> spritesByLayer = sprites;
-std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
-    [](const Sprite* a, const Sprite* b) {
-        return a->layer < b->layer;
-    });
+    // Sort sprites by layer (lowest to highest)
+    std::vector<Sprite*> spritesByLayer = sprites;
+    std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
+        [](const Sprite* a, const Sprite* b) {
+            return a->layer < b->layer;
+        });
 
 // Now render sprites in order from lowest to highest layer
-for(Sprite* currentSprite : spritesByLayer) {
-    if(!currentSprite->visible) continue;
+    for(Sprite* currentSprite : spritesByLayer) {
+        if(!currentSprite->visible) continue;
     
     // look through every costume in sprite for correct one
-    int costumeIndex = 0;
-    for(const auto& costume : currentSprite->costumes) {
-        if(costumeIndex == currentSprite->currentCostume) {
-            currentSprite->rotationCenterX = costume.rotationCenterX;
-            currentSprite->rotationCenterY = costume.rotationCenterY;
-            renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id);
-            break;
+        int costumeIndex = 0;
+        for(const auto& costume : currentSprite->costumes) {
+            if(costumeIndex == currentSprite->currentCostume) {
+                currentSprite->rotationCenterX = costume.rotationCenterX;
+                currentSprite->rotationCenterY = costume.rotationCenterY;
+                renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id);
+                break;
+            }
+            costumeIndex++;
         }
-        costumeIndex++;
     }
 }
 
-    if(bottomScreenEnabled){
+    if(Render::renderMode == Render::BOTH_SCREENS || Render::renderMode == Render::BOTTOM_SCREEN_ONLY){
     C2D_SceneBegin(bottomScreen);
-// Sort sprites by layer (lowest to highest)
-std::vector<Sprite*> spritesByLayer = sprites;
-std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
-    [](const Sprite* a, const Sprite* b) {
-        return a->layer < b->layer;
-    });
+    // Sort sprites by layer (lowest to highest)
+    std::vector<Sprite*> spritesByLayer = sprites;
+    std::sort(spritesByLayer.begin(), spritesByLayer.end(), 
+        [](const Sprite* a, const Sprite* b) {
+            return a->layer < b->layer;
+        });
 
-// Now render sprites in order from lowest to highest layer
-for(Sprite* currentSprite : spritesByLayer) {
-    if(!currentSprite->visible) continue;
-    
-    // look through every costume in sprite for correct one
-    int costumeIndex = 0;
-    for(const auto& costume : currentSprite->costumes) {
-        if(costumeIndex == currentSprite->currentCostume) {
-            currentSprite->rotationCenterX = costume.rotationCenterX;
-            currentSprite->rotationCenterY = costume.rotationCenterY;
-            renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id,true);
-            break;
+    // Now render sprites in order from lowest to highest layer
+    for(Sprite* currentSprite : spritesByLayer) {
+        if(!currentSprite->visible) continue;
+        
+        // look through every costume in sprite for correct one
+        int costumeIndex = 0;
+        for(const auto& costume : currentSprite->costumes) {
+            if(costumeIndex == currentSprite->currentCostume) {
+                currentSprite->rotationCenterX = costume.rotationCenterX;
+                currentSprite->rotationCenterY = costume.rotationCenterY;
+                renderImage(&imageC2Ds[costume.id].image, currentSprite, costume.id,true);
+                break;
+            }
+            costumeIndex++;
         }
-        costumeIndex++;
     }
-}
-    }
+        }
 
 
     C2D_Flush();
@@ -275,6 +273,13 @@ void LoadingScreen::cleanup(){
     // if(text && text != nullptr)
     // delete text;
     squares.clear();
+
+    C2D_Flush();
+    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C2D_TargetClear(topScreen,clrBlack);
+    C2D_SceneBegin(topScreen);
+    C3D_FrameEnd(0);
+
 }
 
 

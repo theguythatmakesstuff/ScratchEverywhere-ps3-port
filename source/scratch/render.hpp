@@ -10,6 +10,14 @@ public:
     static void renderSprites();
     static bool appShouldRun();
 
+    enum RenderModes{
+        TOP_SCREEN_ONLY,
+        BOTTOM_SCREEN_ONLY,
+        BOTH_SCREENS
+    };
+
+    static RenderModes renderMode;
+
 };
 
 class LoadingScreen{
