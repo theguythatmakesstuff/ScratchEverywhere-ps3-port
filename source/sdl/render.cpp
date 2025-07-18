@@ -132,3 +132,13 @@ void LoadingScreen::renderLoadingScreen(){
 void LoadingScreen::cleanup(){
 
 }
+// or these,,,
+void MainMenu::init(){
+
+}
+void MainMenu::render(){
+
+}
+void MainMenu::cleanup(){
+
+}

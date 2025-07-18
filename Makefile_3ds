@@ -21,7 +21,7 @@ include $(DEVKITARM)/3ds_rules
 
 #---------------------------------------------------------------------------------
 APP_TITLE 	:=	Scratch 3DS Runtime
-APP_DESCRIPTION := Play Scratch Games on the 3DS! [Beta v4].
+APP_DESCRIPTION := Play Scratch Games on the 3DS! [Beta v5].
 APP_AUTHOR 	:= NateXS
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
@@ -29,9 +29,10 @@ SOURCES		:=	source source/3ds source/scratch source/scratch/blocks include/miniz
 DATA		:=	data
 INCLUDES	:=	include source/3ds source/scratch source/scratch/blocks
 GRAPHICS	:=	gfx
-GFXBUILD	:=	$(BUILD)/gfx
+#GFXBUILD	:=	$(BUILD)/gfx
 ROMFS		:=	romfs
-#GFXBUILD	:=	$(ROMFS)/gfx
+ICON		:=	gfx/icon.png
+GFXBUILD	:=	$(ROMFS)/gfx
 
 #---------------------------------------------------------------------------------
 # options for code generation

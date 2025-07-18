@@ -42,3 +42,22 @@ public:
     void renderLoadingScreen();
     void cleanup();
 };
+
+class MainMenu{
+private:
+
+public:
+
+    int cameraX;
+    int cameraY;
+    bool hasProjects;
+    bool shouldExit;
+
+    void init();
+    void render();
+    void cleanup();
+
+    MainMenu(){
+        init();
+    }
+};

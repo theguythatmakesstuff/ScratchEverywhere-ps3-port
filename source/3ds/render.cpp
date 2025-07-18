@@ -1,6 +1,9 @@
 #include "render.hpp"
 #include "interpret.hpp"
 #include "image.hpp"
+#include "text.hpp"
+#include "spriteSheet.hpp"
+#include "../scratch/unzip.hpp"
 #include "../scratch/input.hpp"
 #include "../scratch/image.hpp"
 #include "../scratch/render.hpp"
@@ -16,6 +19,7 @@ C3D_RenderTarget* bottomScreen = nullptr;
 u32 clrWhite = C2D_Color32f(1,1,1,1);
 u32 clrBlack = C2D_Color32f(0,0,0,1);
 u32 clrGreen = C2D_Color32f(0,0,1,1);
+u32 clrScratchBlue = C2D_Color32(71, 107, 115,255);
 std::chrono::_V2::system_clock::time_point startTime = std::chrono::high_resolution_clock::now();
 std::chrono::_V2::system_clock::time_point endTime = std::chrono::high_resolution_clock::now();
 
@@ -247,7 +251,7 @@ void Render::renderSprites(){
 
 void LoadingScreen::renderLoadingScreen(){
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
-    C2D_TargetClear(topScreen,clrBlack);
+    C2D_TargetClear(topScreen,clrScratchBlue);
     C2D_SceneBegin(topScreen);
 
     // if(text != nullptr){
@@ -260,7 +264,6 @@ void LoadingScreen::renderLoadingScreen(){
         C2D_DrawRectSolid(square.x,square.y,1,square.size,square.size,C2D_Color32(255,255,255,75));
     }
 
-    //C2D_Flush();
     C3D_FrameEnd(0);
 }
 
@@ -278,10 +281,143 @@ void LoadingScreen::cleanup(){
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen,clrBlack);
     C2D_SceneBegin(topScreen);
+
+    C2D_TargetClear(bottomScreen,clrBlack);
+    C2D_SceneBegin(bottomScreen);
+
     C3D_FrameEnd(0);
+    gspWaitForVBlank();
 
 }
 
+static std::vector<TextObject*> projectTexts;
+static std::chrono::steady_clock::time_point logoStartTime = std::chrono::steady_clock::now();
+TextObject* selectedText = nullptr;
+TextObject* infoText = nullptr;
+TextObject* errorTextInfo = nullptr;
+int selectedTextIndex = 0;
+SpriteSheetObject* logo;
+
+void MainMenu::init(){
+
+    std::vector<std::string> projectFiles = Unzip::getProjectFiles(".");
+
+    int yPosition = 120;
+    for(std::string& file : projectFiles){
+        TextObject* text = new TextObject(file,145,yPosition);
+        text->setColor(C2D_Color32f(0,0,0,1));
+        text->y -= text->getSize()[1] / 2;
+        projectTexts.push_back(text);
+        yPosition += 50;
+    }
+
+    if(projectFiles.size() == 0){
+        errorTextInfo = new TextObject("No Scratch projects found!\n Go download a Scratch project and put it\n in the 3ds folder of your SD card!\nPress Start to exit.",BOTTOM_SCREEN_WIDTH/2,SCREEN_HEIGHT/2);
+        errorTextInfo->setScale(0.6);
+        hasProjects = false;
+    }
+    else{
+        selectedText = projectTexts.front();
+        hasProjects = true;
+    }
+
+    logo = new SpriteSheetObject("romfs:/gfx/menuElements.t3x",SCREEN_WIDTH/2,SCREEN_HEIGHT/2);
+    infoText = new TextObject("Runtime by NateXS",340,225);
+    infoText->setScale(0.5);
+
+}
+void MainMenu::render(){
+
+    if(hasProjects){
+
+        hidScanInput();
+        u32 kJustPressed = hidKeysDown();
+
+    if (kJustPressed & (KEY_DDOWN | KEY_CPAD_DOWN)) {
+        if (selectedTextIndex < (int)projectTexts.size() - 1) {
+            selectedTextIndex++;
+            selectedText = projectTexts[selectedTextIndex];
+        }
+    }
+    if (kJustPressed & (KEY_DUP | KEY_CPAD_UP)) {
+        if (selectedTextIndex > 0) {
+            selectedTextIndex--;
+            selectedText = projectTexts[selectedTextIndex];
+        }
+    }
+    cameraY = selectedText->y;
+
+    if (kJustPressed & KEY_A){
+        Unzip::filePath = selectedText->getText();
+    }
+}
+else{
+    hidScanInput();
+    u32 kJustPressed = hidKeysDown();
+    if (kJustPressed & (KEY_DDOWN | KEY_START)){
+        shouldExit = true;
+    }
+}
+
+
+    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C2D_TargetClear(topScreen,clrScratchBlue);
+    C2D_SceneBegin(topScreen);
+
+    auto now = std::chrono::steady_clock::now();
+    std::chrono::duration<float> elapsed = now - logoStartTime;
+
+    float timeSeconds = elapsed.count();
+    float bobbingOffset = std::sin(timeSeconds * 2.0f) * 5.0f; // speed * amplitude
+
+    logo->render(logo->x, (SCREEN_HEIGHT / 2) + bobbingOffset);
+    infoText->render(infoText->x,infoText->y);
+
+    C2D_TargetClear(bottomScreen,clrScratchBlue);
+    C2D_SceneBegin(bottomScreen);
+
+    for(TextObject* text : projectTexts){
+        if(text == nullptr || text->y > 300) continue;
+
+        if(selectedText == text)
+        text->setColor(C2D_Color32(237, 223, 214,255));
+        else
+        text->setColor(C2D_Color32(0,0,0,255));
+
+        text->render(text->x + cameraX,text->y - (cameraY - (SCREEN_HEIGHT / 2)));
+    }
+
+    if(errorTextInfo != nullptr){
+        errorTextInfo->render(errorTextInfo->x,errorTextInfo->y);
+    }
+
+    //C2D_Flush();
+    C3D_FrameEnd(0);
+    gspWaitForVBlank();
+
+}
+void MainMenu::cleanup(){
+    for(TextObject* text : projectTexts){
+        delete text;
+    }
+    projectTexts.clear();
+
+    delete logo;
+    delete infoText;
+    selectedText = nullptr;
+    if(errorTextInfo) delete errorTextInfo;
+
+    C2D_Flush();
+    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C2D_TargetClear(topScreen, clrScratchBlue);
+    C2D_SceneBegin(topScreen);
+
+    C2D_TargetClear(bottomScreen,clrScratchBlue);
+    C2D_SceneBegin(bottomScreen);
+
+    C3D_FrameEnd(0);
+    gspWaitForVBlank();
+}
 
 
 
