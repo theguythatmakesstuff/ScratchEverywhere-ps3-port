@@ -125,6 +125,10 @@ SDL_Image::SDL_Image(std::string filePath){
 
 }
 
+void Image::queueFreeImage(const std::string& costumeId){
+
+}
+
 SDL_Image::~SDL_Image(){
     SDL_DestroyTexture(spriteTexture);
 }

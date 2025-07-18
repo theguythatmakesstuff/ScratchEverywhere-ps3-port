@@ -34,7 +34,7 @@ void Render::Init(){
 	if(kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
 	osSetSpeedupEnable(true);
 
-   C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
+    C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
     topScreen = C2D_CreateScreenTarget(GFX_TOP,GFX_LEFT);
@@ -65,12 +65,12 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
                 currentSprite->spriteHeight = rgba.height / 2;
                 
                 if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
-                C2D_Image newImage = get_C2D_Image(&rgba);
+                C2D_Image newImage = get_C2D_Image(rgba);
                 imageC2Ds[costumeId].image = newImage;
 
                 if(currentSprite->lastCostumeId == "") return;
 
-                costumeId = currentSprite->lastCostumeId;
+                if(rgba.height > 254 || rgba.width > 254) costumeId = currentSprite->lastCostumeId;
 
                 //return; // hacky solution to fix crashing, causes flickering, TODO fix that 😁
                 }

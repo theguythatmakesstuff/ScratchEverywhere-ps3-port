@@ -27,7 +27,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
         for (size_t i = 0; i < sprite->costumes.size(); i++) {
             if (sprite->costumes[i].name == inputString) {
                 if((size_t)sprite->currentCostume != i){
-                    //freeImage(sprite->costumes[sprite->currentCostume].id);
+                   // Image::queueFreeImage(sprite->costumes[sprite->currentCostume].id);
                 }
                 sprite->currentCostume = i;
                 foundImage = true;
@@ -38,7 +38,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
             int costumeIndex = inputValue.asInt() - 1;
             if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
                 if(sprite->currentCostume != costumeIndex){
-                    //freeImage(sprite->costumes[sprite->currentCostume].id);
+                   // Image::queueFreeImage(sprite->costumes[sprite->currentCostume].id);
             }
             foundImage = true;
             sprite->currentCostume = costumeIndex;
@@ -53,7 +53,7 @@ BlockResult LooksBlocks::switchCostumeTo(Block& block, Sprite* sprite, Block** w
 }
 
 BlockResult LooksBlocks::nextCostume(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    //freeImage(sprite->costumes[sprite->currentCostume].id);
+    //Image::queueFreeImage(sprite->costumes[sprite->currentCostume].id);
     sprite->currentCostume++;
     if (sprite->currentCostume >= static_cast<int>(sprite->costumes.size())) {
         sprite->currentCostume = 0;
@@ -86,7 +86,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
         for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
             if (currentSprite->costumes[i].name == inputString) {
                 if((size_t)currentSprite->currentCostume != i){
-                    //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
+                   // Image::queueFreeImage(currentSprite->costumes[currentSprite->currentCostume].id);
                 }
                 currentSprite->currentCostume = i;
                 foundImage = true;
@@ -97,7 +97,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block& block, Sprite* sprite, Block** 
             int costumeIndex = inputValue.asInt() - 1;
             if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
                 if(currentSprite->currentCostume != costumeIndex){
-                    //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
+                    //Image::queueFreeImage(currentSprite->costumes[currentSprite->currentCostume].id);
                 }
                 foundImage = true;
                 currentSprite->currentCostume = costumeIndex;
@@ -117,7 +117,7 @@ BlockResult LooksBlocks::nextBackdrop(Block& block, Sprite* sprite, Block** wait
         if(!currentSprite->isStage){
             continue;
         }
-        //freeImage(currentSprite->costumes[currentSprite->currentCostume].id);
+        //Image::queueFreeImage(currentSprite->costumes[currentSprite->currentCostume].id);
         currentSprite->currentCostume++;
         if (currentSprite->currentCostume >= static_cast<int>(currentSprite->costumes.size())) {
             currentSprite->currentCostume = 0;

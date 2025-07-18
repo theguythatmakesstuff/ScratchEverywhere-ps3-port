@@ -36,6 +36,9 @@ int Unzip::openFile(std::ifstream *file){
                 return 0;
             }
         }
+        else{
+            filePath = "romfs:/"+std::string(filename);
+        }
     }
     return 1;
 }
