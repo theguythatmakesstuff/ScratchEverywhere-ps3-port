@@ -198,19 +198,35 @@ BlockResult LooksBlocks::goToFrontBack(Block& block, Sprite* sprite, Block** wai
 }
 
 BlockResult LooksBlocks::setSizeTo(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    Value value = Scratch::getInputValue(block,"SIZE",sprite);
+    Value value = Scratch::getInputValue(block, "SIZE", sprite);
     if (value.isNumeric()) {
-        sprite->size = value.asDouble();
+        const double inputSizePercent = value.asDouble();
+
+        const double minScale = std::min(1.0, std::max(5.0 / sprite->spriteWidth, 5.0 / sprite->spriteHeight));
+
+        const double maxScale = std::min((1.5 * Scratch::projectWidth) / sprite->spriteWidth, (1.5 * Scratch::projectHeight) / sprite->spriteHeight);
+
+        const double clampedScale = std::clamp(inputSizePercent / 100.0, minScale, maxScale);
+        sprite->size = clampedScale * 100.0;
     }
     return BlockResult::CONTINUE;
 }
+
 BlockResult LooksBlocks::changeSizeBy(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh) {
-    Value value = Scratch::getInputValue(block,"CHANGE",sprite);
+    Value value = Scratch::getInputValue(block, "CHANGE", sprite);
     if (value.isNumeric()) {
         sprite->size += value.asDouble();
+
+        double minScale = std::min(1.0, std::max(5.0 / sprite->spriteWidth, 5.0 / sprite->spriteHeight)) * 100.0;
+
+        double maxScale = std::min((1.5 * Scratch::projectWidth) / sprite->spriteWidth, (1.5 * Scratch::projectHeight) / sprite->spriteHeight) * 100.0;
+
+        sprite->size = std::clamp(static_cast<double>(sprite->size), minScale, maxScale);
     }
     return BlockResult::CONTINUE;
 }
+
+
 
 Value LooksBlocks::size(Block& block, Sprite* sprite) {
     return Value(sprite->size);
