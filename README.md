@@ -57,8 +57,8 @@ There are 2 methods to install the runtime.
 
 Download the .3dsx file in the Releases tab.
 
-Place the .3dsx file in the `3ds/` folder of your 3DS SD card, along with the Scratch project you want to run.
-- The Scratch project MUST be named `project.sb3` , all lowercase.
+Place the .3dsx file in the `3ds/` folder of your 3DS SD card, along with any Scratch projects you want to run.
+- For Beta 4 and below: The Scratch project MUST be named `project.sb3` , all lowercase.
 
 Then it should be as simple as opening the homebrew launcher on your 3DS and running the app.
 
