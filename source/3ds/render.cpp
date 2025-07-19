@@ -80,17 +80,18 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
     double scaleY = static_cast<double>(SCREEN_HEIGHT) / Scratch::projectHeight;
     double spriteSizeX = currentSprite->size * 0.01;
     double spriteSizeY = currentSprite->size * 0.01;
+    double spriteWidth = currentSprite->spriteWidth;
+    double spriteHeight = currentSprite->spriteHeight;
     double scale;
     double heightMultiplier = 0.5;
     int screenWidth = SCREEN_WIDTH;
-
+    if(bottom) screenWidth = BOTTOM_SCREEN_WIDTH;
     if(Render::renderMode == Render::BOTH_SCREENS){
         scaleY = static_cast<double>(SCREEN_HEIGHT) / (Scratch::projectHeight / 2.0);
         heightMultiplier = 1.0;
     }
-    if(bottom){
-        screenWidth = BOTTOM_SCREEN_WIDTH;
-    }
+    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
+
 
 
 if (!legacyDrawing) {
@@ -108,8 +109,10 @@ if (!legacyDrawing) {
         rotation = 0;
     }
 
+    // Center the sprite's pivot point
+   spriteWidth *= spriteSizeX;
+   double scaledRotationCenterX = currentSprite->rotationCenterX * abs(spriteSizeX);
 
-   scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
    float alpha = 1.0f - (currentSprite->ghostEffect / 100.0f);
    C2D_ImageTint tinty;
@@ -117,8 +120,8 @@ if (!legacyDrawing) {
 
     C2D_DrawImageAtRotated(
         imageC2Ds[costumeId].image,
-        (currentSprite->xPosition * scale) + (screenWidth / 2) + ((currentSprite->spriteWidth - currentSprite->rotationCenterX) / 2),
-        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((currentSprite->spriteHeight - currentSprite->rotationCenterY) / 2) ,
+        (currentSprite->xPosition * scale) + (screenWidth / 2) + (((spriteWidth - scaledRotationCenterX) / 2)),
+        (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((spriteHeight - currentSprite->rotationCenterY) / 2) ,
         1,
         rotation,
         &tinty,
@@ -126,7 +129,6 @@ if (!legacyDrawing) {
         (spriteSizeY) * scale / 2.0f 
     );
 } else {
-    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
     C2D_DrawRectSolid(
         (currentSprite->xPosition * scale) + (screenWidth / 2),
         (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
