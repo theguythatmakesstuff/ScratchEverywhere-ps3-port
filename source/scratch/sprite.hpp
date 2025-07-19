@@ -292,9 +292,6 @@ struct Block {
     Block* customBlockPtr = nullptr;
     std::vector<std::pair<Block*, Sprite*>> broadcastsRun;
 
-private:
-    Value getVariableValue(const std::string& variableId, Sprite* sprite) const;
-
 };
 
 struct CustomBlock{

@@ -4,7 +4,6 @@
 std::vector<Sprite*> sprites;
 std::vector<Sprite> spritePool;
 std::vector<std::string> broadcastQueue;
-//std::unordered_map<std::string,Conditional> conditionals;
 std::unordered_map<std::string, Block*> blockLookup;
 std::string answer;
 bool toExit = false;
@@ -16,32 +15,10 @@ int Scratch::projectWidth = 480;
 int Scratch::projectHeight = 360;
 int Scratch::FPS = 30;
 
-std::string generateRandomString(int length) {
-    std::string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=[];',./_+{}|:<>?~`";
-    std::string result;
-
-    static std::random_device rd;
-    static std::mt19937 generator(rd());
-    std::uniform_int_distribution<> distribution(0, chars.size() - 1);
-
-    for (int i = 0; i < length; i++) {
-        result += chars[distribution(generator)];
-    }
-
-    return result;
-
-
-}
-
-std::string removeQuotations(std::string value) {
-    value.erase(std::remove_if(value.begin(),value.end(),[](char c){return c == '"';}),value.end());
-    return value;
-}
-
 void initializeSpritePool(int poolSize) {
     for (int i = 0; i < poolSize; i++) {
         Sprite newSprite;
-        newSprite.id = generateRandomString(15);
+        newSprite.id = Math::generateRandomString(15);
         newSprite.isClone = true;
         newSprite.toDelete = true;
         newSprite.isDeleted = true;
@@ -57,7 +34,7 @@ Sprite* getAvailableSprite() {
             return &sprite;
         }
     }
-    return nullptr;  // No available sprites
+    return nullptr;
 }
 
 void cleanupSprites() {
@@ -110,7 +87,7 @@ void loadSprites(const nlohmann::json& json){
         Sprite* newSprite = new Sprite();
         if(target.contains("name")){
         newSprite->name = target["name"].get<std::string>();}
-        newSprite->id = generateRandomString(15);
+        newSprite->id = Math::generateRandomString(15);
         if(target.contains("isStage")){
         newSprite->isStage = target["isStage"].get<bool>();}
         if(target.contains("draggable")){
@@ -507,88 +484,7 @@ Block* getBlockParent(const Block* block){
 
 
 
-Value findCustomValue(std::string valueName, Sprite* sprite, Block block) {
-    for (auto& [custId, custBlock] : sprite->customBlocks) {
 
-        auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
-        
-        if (it != custBlock.argumentNames.end()) {
-            size_t index = std::distance(custBlock.argumentNames.begin(), it);
-
-            if (index < custBlock.argumentIds.size()) {
-                std::string argumentId = custBlock.argumentIds[index];
-
-                auto valueIt = custBlock.argumentValues.find(argumentId);
-                if (valueIt != custBlock.argumentValues.end()) {
-                   //std::cout << "FOUND that shit BAAANG: " << valueIt->second.asString() << std::endl;
-                    return valueIt->second;
-                } else {
-                   std::cout << "Argument ID found, but no value exists for it." << std::endl;
-                }
-            } else {
-              std::cout << "Index out of bounds for argumentIds!" << std::endl;
-            }
-        }
-    }
-    return Value();
-}
-
-
-
-
-
-
-void setVariableValue(const std::string& variableId, const Value& newValue, Sprite* sprite) {
-    // Set sprite variable
-    auto it = sprite->variables.find(variableId);
-    if (it != sprite->variables.end()) {
-        it->second.value = newValue;
-        return;
-    }
-    
-    // Set global variable
-    for (auto& currentSprite : sprites) {
-        if (currentSprite->isStage) {
-            auto globalIt = currentSprite->variables.find(variableId);
-            if (globalIt != currentSprite->variables.end()) {
-                globalIt->second.value = newValue;
-                return;
-            }
-        }
-    }
-}
-
-Value getVariableValue(std::string variableId, Sprite* sprite) {
-    // Check sprite variables
-    auto it = sprite->variables.find(variableId);
-    if (it != sprite->variables.end()) {
-        return it->second.value;  // Fast conversion
-    }
-    
-    // Check lists
-    auto listIt = sprite->lists.find(variableId);
-    if (listIt != sprite->lists.end()) {
-        std::string result;
-        for (const auto& item : listIt->second.items) {
-            result += item.asString() + " ";
-        }
-        if (!result.empty()) result.pop_back();
-        Value val(result);
-        return val;
-    }
-    
-    // Check global variables
-    for (const auto& currentSprite : sprites) {
-        if (currentSprite->isStage) {
-            auto globalIt = currentSprite->variables.find(variableId);
-            if (globalIt != currentSprite->variables.end()) {
-                return globalIt->second.value;
-            }
-        }
-    }
-    
-    return Value(0);
-}
 
 Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite* sprite){
         auto parsedFind = block.parsedInputs.find(inputName);
@@ -604,7 +500,7 @@ Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite*
                 return input.literalValue;
                 
             case ParsedInput::VARIABLE:
-                return getVariableValue(input.variableId, sprite);
+                return BlockExecutor::getVariableValue(input.variableId, sprite);
                 
             case ParsedInput::BLOCK:
                 return executor.getBlockValue(*findBlock(input.blockId), sprite);
@@ -615,19 +511,6 @@ Value Scratch::getInputValue(Block& block, const std::string& inputName, Sprite*
         }
         return Value(0);
     }
-
-
-
-
-std::vector<Sprite*> findSprite(std::string spriteName){
-    std::vector<Sprite*> sprts;
-    for(Sprite* currentSprite : sprites){
-        if(currentSprite->name == spriteName){
-            sprts.push_back(currentSprite);
-        }
-    }
-    return sprts;
-}
 
 
 
