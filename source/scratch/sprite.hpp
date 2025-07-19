@@ -26,7 +26,6 @@ struct ParsedInput{
     Value literalValue;
     std::string variableId;
     std::string blockId;
-    nlohmann::json originalJson;
 
     ParsedInput() : inputType(LITERAL), literalValue(Value(0)) {}
 

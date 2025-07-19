@@ -176,7 +176,6 @@ void loadSprites(const nlohmann::json& json){
 
                 for(const auto& [inputName,inputData] : data["inputs"].items()){
                     ParsedInput parsedInput;
-                    parsedInput.originalJson = inputData;
 
                     int type = inputData[0];
                     auto& inputValue = inputData[1];
@@ -184,9 +183,7 @@ void loadSprites(const nlohmann::json& json){
 
                     if(type == 1){
                         parsedInput.inputType = ParsedInput::LITERAL;
-                        //std::cout << "doing it! " << inputValue.dump() << std::endl;
                         parsedInput.literalValue = Value::fromJson(inputValue);
-                        //std::cout << "literal value = " << parsedInput.literalValue.asString();
 
                     } else if(type == 3){
                         if(inputValue.is_array()){
@@ -459,22 +456,33 @@ std::vector<Block*> getBlockChain(std::string blockId,std::string* outID){
         blockChain.push_back(currentBlock);
         if(outID)
         *outID += currentBlock->id;
-        if(!currentBlock->parsedInputs["SUBSTACK"].originalJson[1].is_null()){
+                // Check for SUBSTACK using parsedInputs
+        auto substackIt = currentBlock->parsedInputs.find("SUBSTACK");
+        if(substackIt != currentBlock->parsedInputs.end() && 
+           (substackIt->second.inputType == ParsedInput::BOOLEAN || substackIt->second.inputType == ParsedInput::BLOCK) &&
+           !substackIt->second.blockId.empty()){
+            
             std::vector<Block*> subBlockChain;
-            subBlockChain = getBlockChain(currentBlock->parsedInputs["SUBSTACK"].originalJson[1],outID);
+            subBlockChain = getBlockChain(substackIt->second.blockId, outID);
             for(auto& block : subBlockChain){
                 blockChain.push_back(block);
                 if(outID)
-                *outID += block->id;
+                    *outID += block->id;
             }
         }
-        if(!currentBlock->parsedInputs["SUBSTACK2"].originalJson[1].is_null()){
+        
+        // Check for SUBSTACK2 using parsedInputs  
+        auto substack2It = currentBlock->parsedInputs.find("SUBSTACK2");
+        if(substack2It != currentBlock->parsedInputs.end() && 
+           (substack2It->second.inputType == ParsedInput::BOOLEAN || substack2It->second.inputType == ParsedInput::BLOCK) &&
+           !substack2It->second.blockId.empty()){
+            
             std::vector<Block*> subBlockChain;
-            subBlockChain = getBlockChain(currentBlock->parsedInputs["SUBSTACK2"].originalJson[1],outID);
+            subBlockChain = getBlockChain(substack2It->second.blockId, outID);
             for(auto& block : subBlockChain){
                 blockChain.push_back(block);
                 if(outID)
-                *outID += block->id;
+                    *outID += block->id;
             }
         }
         currentBlock = findBlock(currentBlock->next);
