@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#define STBI_NO_GIF
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "../scratch/unzip.hpp"
@@ -12,6 +13,7 @@ using u8 = uint8_t;
 std::unordered_map<std::string, ImageData> imageC2Ds;
 std::vector<Image::ImageRGBA> Image::imageRGBAS;
 static std::vector<std::string> toDelete;
+#define MAX_IMAGE_VRAM 24000000
 
 struct MemoryStats{
   size_t totalRamUsage = 0;
@@ -98,8 +100,8 @@ for (int i = 0; i < file_count; i++) {
 
         Image::imageRGBAS.push_back(newRGBA);
         mz_free(png_data);
-    }
-}
+      }
+  }
 }
 
 void Image::loadImageFromFile(std::string filePath){
@@ -151,7 +153,7 @@ void Image::loadImageFromFile(std::string filePath){
  * Code here originally from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/
  * then edited to fit my code
  */
-C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
+void get_C2D_Image(Image::ImageRGBA rgba) {
     //std::cout << "Creating C2D_Image from RGBA " << rgba.name << std::endl;
 
     u32 px_count = rgba.width * rgba.height;
@@ -207,10 +209,13 @@ C2D_Image get_C2D_Image(Image::ImageRGBA rgba) {
         ((u32 *)tex->data)[dst_ptr_offset] = abgr_px;
       }
     }
+
+    C3D_FrameSync(); // wait for Async functions to finish
   
     std::cout << "Image Loaded! total VRAM: " << memStats.totalVRamUsage << std::endl;
 
-    return image;
+    imageC2Ds[rgba.name] = {image, 120};
+    return;
   }
 
 void Image::freeImage(const std::string& costumeId) {
@@ -223,11 +228,11 @@ void Image::freeImage(const std::string& costumeId) {
             memStats.c2dImageCount--;
 
             C3D_TexDelete(it->second.image.tex);
-            //free(it->second.image.tex);
+            free(it->second.image.tex);
         }
-        // if (it->second.image.subtex) {
-        //     free((Tex3DS_SubTexture*)it->second.image.subtex);
-        // }
+        if (it->second.image.subtex) {
+            free((Tex3DS_SubTexture*)it->second.image.subtex);
+        }
         imageC2Ds.erase(it);
         std::cout << "freed image!" << std::endl;
     }
@@ -239,7 +244,7 @@ void Image::queueFreeImage(const std::string& costumeId){
 
 void Image::FlushImages(){
     
-    if(memStats.totalVRamUsage > 24000000){
+    if(memStats.totalVRamUsage > MAX_IMAGE_VRAM){
       ImageData* imgToDelete = nullptr;
       std::string toDeleteStr;
       for(auto& [id, img] : imageC2Ds){
@@ -251,7 +256,8 @@ void Image::FlushImages(){
         }
     }
     toDelete.push_back(toDeleteStr);
-    } else{
+  }
+
     for(auto& [id, img] : imageC2Ds){
         if(img.freeTimer <= 0){
             toDelete.push_back(id);
@@ -259,7 +265,7 @@ void Image::FlushImages(){
             img.freeTimer -= 1;
         }
     }
-  }
+
     
     for(const std::string& id : toDelete){
         Image::freeImage(id);

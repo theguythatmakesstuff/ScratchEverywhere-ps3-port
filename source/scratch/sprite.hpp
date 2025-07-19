@@ -384,7 +384,7 @@ class Sprite {
         double yPosition;
         int rotationCenterX;
         int rotationCenterY;
-        int size;
+        double size;
         double rotation;
         int layer;
 

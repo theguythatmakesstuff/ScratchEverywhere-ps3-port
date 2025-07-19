@@ -53,43 +53,27 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
 
     bool legacyDrawing = true;
-    
     double screenOffset = (bottom && Render::renderMode != Render::BOTTOM_SCREEN_ONLY) ? -SCREEN_HEIGHT : 0;
 
-    
+    for(Image::ImageRGBA rgba : Image::imageRGBAS){
+        if(rgba.name == costumeId){
 
-        for(Image::ImageRGBA rgba : Image::imageRGBAS){
-            if(rgba.name == costumeId){
-                legacyDrawing = false;
-                currentSprite->spriteWidth = rgba.width / 2;
-                currentSprite->spriteHeight = rgba.height / 2;
-                
-                if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
-                C2D_Image newImage = get_C2D_Image(rgba);
-                imageC2Ds[costumeId].image = newImage;
-
+            legacyDrawing = false;
+            currentSprite->spriteWidth = rgba.width / 2;
+            currentSprite->spriteHeight = rgba.height / 2;
+            
+            if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
+                get_C2D_Image(rgba);
                 if(currentSprite->lastCostumeId == "") return;
-
-                if(rgba.height > 254 || rgba.width > 254) costumeId = currentSprite->lastCostumeId;
-
-                //return; // hacky solution to fix crashing, causes flickering, TODO fix that 😁
-                }
-                imageC2Ds[costumeId].freeTimer = 120;
-                break;
             }
-            else {
-                legacyDrawing = true;
-                currentSprite->spriteWidth = 64;
-                currentSprite->spriteHeight = 64;
-
-            }
-
+            break;
         }
-
-    
-        
-
-    
+        else {
+            legacyDrawing = true;
+            currentSprite->spriteWidth = 64;
+            currentSprite->spriteHeight = 64;
+        }
+    }
 
     //double maxLayer = getMaxSpriteLayer();
     double scaleX = static_cast<double>(SCREEN_WIDTH) / Scratch::projectWidth;
@@ -110,6 +94,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
 
 if (!legacyDrawing) {
+    imageC2Ds[costumeId].freeTimer = 120;
     double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
 
     // check for rotation style
@@ -177,7 +162,7 @@ if (!legacyDrawing) {
 
 void Render::renderSprites(){
 
-    
+    Image::FlushImages();
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
@@ -244,7 +229,6 @@ void Render::renderSprites(){
     C2D_Flush();
     C3D_FrameEnd(0);
     gspWaitForVBlank();
-    Image::FlushImages();
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
     //int FPS = 1000.0 / std::round(duration.count());
