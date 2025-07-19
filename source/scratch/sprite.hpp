@@ -138,6 +138,7 @@ struct Block {
         SENSING_ASK_AND_WAIT,
         SENSING_ANSWER,
         SENSING_USERNAME,
+        SENSING_SET_DRAG_MODE,
         OPERATOR_EQUALS,
         OPERATOR_GT,
         OPERATOR_LT,
@@ -255,6 +256,7 @@ struct Block {
         if(opCodeString == "sensing_askandwait") return SENSING_ASK_AND_WAIT;
         if(opCodeString == "sensing_answer") return SENSING_ANSWER;
         if(opCodeString == "sensing_username") return SENSING_USERNAME;
+        if(opCodeString == "sensing_setdragmode") return SENSING_SET_DRAG_MODE;
         if(opCodeString == "operator_equals")return OPERATOR_EQUALS;
         if(opCodeString == "operator_gt")return OPERATOR_GT;
         if(opCodeString == "operator_lt")return OPERATOR_LT;

@@ -10,7 +10,7 @@ using u32 = uint32_t;
 using u8 = uint8_t;
 
 std::unordered_map<std::string, ImageData> imageC2Ds;
-std::vector<Image::ImageRGBA> Image::imageRBGAs;
+std::vector<Image::ImageRGBA> Image::imageRGBAS;
 static std::vector<std::string> toDelete;
 
 struct MemoryStats{
@@ -96,7 +96,7 @@ for (int i = 0; i < file_count; i++) {
         memStats.totalRamUsage += imageSize;
         memStats.imageCount++;
 
-        Image::imageRBGAs.push_back(newRGBA);
+        Image::imageRGBAS.push_back(newRGBA);
         mz_free(png_data);
     }
 }
@@ -104,10 +104,10 @@ for (int i = 0; i < file_count; i++) {
 
 void Image::loadImageFromFile(std::string filePath){
   
-  auto it = std::find_if(imageRBGAs.begin(), imageRBGAs.end(), [&](const ImageRGBA& img) {
+  auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const ImageRGBA& img) {
     return img.name == filePath;
   });
-  if (it != imageRBGAs.end()) return;
+  if (it != imageRGBAS.end()) return;
     
   int width,height,channels;
   FILE* file = fopen(("romfs:/project/"+filePath + ".png").c_str(), "rb");
@@ -139,7 +139,7 @@ void Image::loadImageFromFile(std::string filePath){
     memStats.totalRamUsage += imageSize;
     memStats.imageCount++;
 
-    imageRBGAs.push_back(newRGBA);
+    imageRGBAS.push_back(newRGBA);
 
 }
 

@@ -58,7 +58,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
     
 
-        for(Image::ImageRGBA rgba : Image::imageRBGAs){
+        for(Image::ImageRGBA rgba : Image::imageRGBAS){
             if(rgba.name == costumeId){
                 legacyDrawing = false;
                 currentSprite->spriteWidth = rgba.width / 2;
@@ -438,7 +438,7 @@ void Render::deInit(){
             free((Tex3DS_SubTexture*)data.image.subtex);
         }
     }
-    Image::imageRBGAs.clear();
+    Image::imageRGBAS.clear();
 
     romfsExit();
 	gfxExit();

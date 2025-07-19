@@ -118,6 +118,7 @@ void BlockExecutor::registerHandlers(){
     // sensing
     handlers[Block::SENSING_RESETTIMER] = SensingBlocks::resetTimer;
     handlers[Block::SENSING_ASK_AND_WAIT] = SensingBlocks::askAndWait;
+    handlers[Block::SENSING_SET_DRAG_MODE] = SensingBlocks::setDragMode;
     valueHandlers[Block::SENSING_TIMER] = SensingBlocks::sensingTimer;
     valueHandlers[Block::SENSING_OF] = SensingBlocks::of;
     valueHandlers[Block::SENSING_MOUSEX] = SensingBlocks::mouseX;

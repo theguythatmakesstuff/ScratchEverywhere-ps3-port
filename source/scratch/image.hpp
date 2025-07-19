@@ -18,7 +18,7 @@ public:
     static void queueFreeImage(const std::string& costumeId);
     static void FlushImages();
 
-    static std::vector<ImageRGBA> imageRBGAs;
+    static std::vector<ImageRGBA> imageRGBAS;
 
 
 };

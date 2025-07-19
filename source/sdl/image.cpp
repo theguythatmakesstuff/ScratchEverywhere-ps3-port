@@ -3,7 +3,7 @@
 #include "render.hpp"
 #include <iostream>
 
-std::vector<Image::ImageRGBA> Image::imageRBGAs;
+std::vector<Image::ImageRGBA> Image::imageRGBAS;
 std::unordered_map<std::string,SDL_Image*> images;
 
 void Image::loadImages(mz_zip_archive *zip){
