@@ -25,6 +25,7 @@ public:
     static std::vector<Block*> runAllBlocksByOpcode(Block::opCode opcodeToFind);
     static void runRepeatBlocks();
     static void runRepeatsWithoutRefresh(Sprite* sprite,std::string blockChainID);
+    static void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh);
     static std::vector<std::pair<Block*, Sprite*>> runBroadcasts();
     Value getBlockValue(Block& block,Sprite*sprite);
     Value runConditionalBlock(std::string blockId, Sprite* sprite);

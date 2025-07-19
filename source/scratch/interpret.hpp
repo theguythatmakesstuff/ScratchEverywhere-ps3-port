@@ -54,7 +54,6 @@ Sprite* getAvailableSprite();
 void initializeSpritePool(int poolSize);
 Value findCustomValue(std::string valueName,Sprite*sprite,Block block);
 std::string removeQuotations(std::string value);
-void runCustomBlock(Sprite* sprite,Block& block, Block* callerBlock,bool* withoutScreenRefresh);
 Block* findBlock(std::string blockId);
 std::vector<Sprite*> findSprite(std::string spriteName);
 

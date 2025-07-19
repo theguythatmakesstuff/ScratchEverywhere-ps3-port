@@ -16,7 +16,7 @@ BlockResult ProcedureBlocks::call(Block& block, Sprite* sprite, Block** waitingB
         block.customBlockExecuted = false;
         
         // Run the custom block for the first time
-        runCustomBlock(sprite, block, &block,withoutScreenRefresh);
+        BlockExecutor::runCustomBlock(sprite, block, &block,withoutScreenRefresh);
         block.customBlockExecuted = true;
         
         BlockExecutor::addToRepeatQueue(sprite, &block);
