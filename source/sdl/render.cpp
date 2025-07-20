@@ -55,8 +55,8 @@ void Render::renderSprites(){
 
 
             image->setScale((currentSprite->size * 0.01) * scale / 2.0f);
-            currentSprite->spriteWidth = image->renderRect.w;
-            currentSprite->spriteHeight = image->renderRect.h;
+            currentSprite->spriteWidth = image->textureRect.w / 2;
+            currentSprite->spriteHeight = image->textureRect.h / 2;
             image->renderRect.x = currentSprite->xPosition;
             image->renderRect.y = currentSprite->yPosition;
             image->setRotation(Math::degreesToRadians(currentSprite->rotation - 90.0f));

@@ -249,7 +249,7 @@ BlockResult LooksBlocks::setEffectTo(Block& block, Sprite* sprite, Block** waiti
         sprite->ghostEffect = std::clamp(amount.asInt(),0,100);
     }
     else {
-       std::cerr << "what effect did you even put??" << std::endl;
+       std::cout << "what effect did you even put??" << std::endl;
     }
     
 return BlockResult::CONTINUE;
@@ -278,7 +278,7 @@ BlockResult LooksBlocks::changeEffectBy(Block& block, Sprite* sprite, Block** wa
         sprite->ghostEffect = std::clamp(sprite->ghostEffect,0,100);
     }
     else {
-       std::cerr << "what effect did you even put??" << std::endl;
+       std::cout << "what effect did you even put??" << std::endl;
     }
 return BlockResult::CONTINUE;
 }
