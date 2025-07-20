@@ -2,11 +2,13 @@
 #include <SDL2/SDL.h>
 #include <algorithm>
 #include "render.hpp"
+#include "../scratch/blockExecutor.hpp"
 
 Input::Mouse Input::mousePointer;
 
 
 std::vector<std::string> Input::inputButtons;
+static int keyHeldFrames = 0;
 
 void Input::getInput(){
 inputButtons.clear();
@@ -29,11 +31,17 @@ bool anyKeyPressed = false;
 
 
                 inputButtons.push_back(keyName);
+                keyHeldFrames += 1;
                 anyKeyPressed = true;
             }
         }
     }
-    if(anyKeyPressed) inputButtons.push_back("any");
+    if(anyKeyPressed){
+        inputButtons.push_back("any");
+        if (keyHeldFrames == 1 || keyHeldFrames > 13)
+        BlockExecutor::runAllBlocksByOpcode(Block::EVENT_WHEN_KEY_PRESSED);
+    }
+    else keyHeldFrames = 0;
 
     SDL_GetMouseState(&mousePointer.x,&mousePointer.y);
     mousePointer.x -= windowWidth / 2;

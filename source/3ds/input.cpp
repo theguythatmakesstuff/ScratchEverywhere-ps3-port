@@ -9,7 +9,7 @@
 
 std::vector<std::string> Input::inputButtons;
 Input::Mouse Input::mousePointer;
-int keyHeldFrames = 0;
+static int keyHeldFrames = 0;
 
 void Input::getInput(){
     inputButtons.clear();
@@ -117,7 +117,7 @@ void Input::getInput(){
             else
             mousePointer.y = (-touch.py + (SCREEN_HEIGHT)) -SCREEN_HEIGHT / 2;
         }
-        if (keyHeldFrames == 1 || keyHeldFrames > 30)
+        if (keyHeldFrames == 1 || keyHeldFrames > 13)
         BlockExecutor::runAllBlocksByOpcode(Block::EVENT_WHEN_KEY_PRESSED);
     }
     else{
