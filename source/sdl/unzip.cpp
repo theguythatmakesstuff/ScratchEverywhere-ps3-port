@@ -16,7 +16,7 @@ int Unzip::openFile(std::ifstream *file){
     file->open(unzippedPath, std::ios::binary | std::ios::ate);
     projectType = UNZIPPED;
     if(!(*file)){
-        std::cerr<<"No unzipped project, trying embedded."<<std::endl;
+        std::cout<<"No unzipped project, trying embedded."<<std::endl;
 
         // try embedded zipped sb3
         file->open(std::string(filename), std::ios::binary | std::ios::ate); // loads file from romfs
