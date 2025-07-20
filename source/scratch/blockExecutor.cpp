@@ -157,8 +157,6 @@ void BlockExecutor::runBlock(Block &block, Sprite *sprite, Block *waitingBlock, 
 
         if (result == BlockResult::RETURN) {
             return;
-        } else if (result == BlockResult::BREAK) {
-            break;
         }
 
         // Move to next block

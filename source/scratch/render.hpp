@@ -8,8 +8,15 @@ class Render {
 
     static void deInit();
 
+    /**
+     * Renders every sprite to the screen.
+     */
     static void renderSprites();
 
+    /**
+     * Returns whether or not the app should be running.
+     * If `false`, the app should close.
+     */
     static bool appShouldRun();
 
     enum RenderModes {
