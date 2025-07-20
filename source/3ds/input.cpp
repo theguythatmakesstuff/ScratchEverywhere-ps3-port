@@ -124,6 +124,10 @@ void Input::getInput() {
     }
 }
 
+/**
+ * Grabs the 3DS's Nickname.
+ * @return String of the 3DS's nickname
+ */
 std::string Input::getUsername() {
     const u16 *block = (const u16 *)malloc(0x1C);
 

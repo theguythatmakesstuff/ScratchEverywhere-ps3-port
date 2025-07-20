@@ -50,6 +50,9 @@ const u32 rgba_to_abgr(u32 px) {
     return (a << 24) | (b << 16) | (g << 8) | r;
 }
 
+/**
+ * Takes every Image from the Scratch's sb3 file and converts them to RGBA data
+ */
 void Image::loadImages(mz_zip_archive *zip) {
     // Loop through all files in the ZIP
     std::cout << "Loading images..." << std::endl;
@@ -104,6 +107,9 @@ void Image::loadImages(mz_zip_archive *zip) {
     }
 }
 
+/**
+ * Turns a single image from an unzipped Scratch project into RGBA data
+ */
 void Image::loadImageFromFile(std::string filePath) {
 
     auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const ImageRGBA &img) {
@@ -147,6 +153,10 @@ void Image::loadImageFromFile(std::string filePath) {
     imageRGBAS.push_back(newRGBA);
 }
 
+/**
+ * Queues RGBA image data to be loaded into a Citro2D Image. Image will wait to load if VRAM is too high.
+ * @param rgba
+ */
 bool queueC2DImage(Image::ImageRGBA &rgba) {
     bool inQueue = false;
     for (Image::ImageRGBA *queueRgba : imageLoadQueue) {
@@ -169,8 +179,8 @@ bool queueC2DImage(Image::ImageRGBA &rgba) {
     return false;
 }
 
-/** Read an RGBA image from `path` with dimensions `image_width`x`image_height`
- * and return a `C2D_Image` object.
+/**
+ * Reads an `Image::ImageRGBA` image, and adds a `C2D_Image` object to `imageC2Ds`.
  * Assumes image data is stored left->right, top->bottom.
  * Dimensions must be within 64x64 and 1024x1024.
  * Code here originally from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/
@@ -239,6 +249,9 @@ void get_C2D_Image(Image::ImageRGBA rgba) {
     return;
 }
 
+/**
+ * Frees a `C2D_Image` from memory using `costumeId` string to find it.
+ */
 void Image::freeImage(const std::string &costumeId) {
     auto it = imageC2Ds.find(costumeId);
     if (it != imageC2Ds.end()) {
@@ -259,10 +272,19 @@ void Image::freeImage(const std::string &costumeId) {
     }
 }
 
+/**
+ * Queues a `C2D_Image` to be freed using `costumeId` to find it.
+ * The image will be freed once `FlushImages()` is called.
+ */
 void Image::queueFreeImage(const std::string &costumeId) {
     toDelete.push_back(costumeId);
 }
 
+/**
+ * Checks every `C2D_Image` in memory to see if they can be freed.
+ * A `C2D_Image` will get freed if there's either too many images in memory,
+ * or if a `C2D_Image` goes unused for 120 frames.
+ */
 void Image::FlushImages() {
 
     // free unused images if vram usage is high

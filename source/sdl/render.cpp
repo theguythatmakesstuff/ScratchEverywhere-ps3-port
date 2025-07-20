@@ -113,7 +113,10 @@ bool Render::appShouldRun() {
     return true;
 }
 
-// i dont think we need these tbh
+// TODO create functionality for these in the SDL version.
+// Would probably need to share more code between the two
+// versions first (eg; text renderer for SDL version)
+
 void LoadingScreen::init() {
 }
 void LoadingScreen::renderLoadingScreen() {

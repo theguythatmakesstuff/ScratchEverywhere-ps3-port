@@ -33,15 +33,25 @@ class TextObject : public Object {
 
     /**
      * Set the color of the text.
+     * @param color
      */
     void setColor(int clr);
-
+    /**
+     * Change the content of the text.
+     * @param txt
+     */
     void setText(std::string txt);
-
+    /**
+     * @return String of the currently displayed text.
+     */
     std::string getText();
 
     void setScale(float scl);
-
+    /**
+     * Render the Text to the screen.
+     * @param xPos
+     * @param yPos
+     */
     void render(int xPos, int yPos);
 
     /**
@@ -50,8 +60,11 @@ class TextObject : public Object {
     std::vector<float> getSize();
 
     /**
-     * A basic Text Object. (code taken from another one of my projects)
-     * @param text,positionX,positionY
+     * A basic Text Object.
+     * @param text String of text to be displayed.
+     * @param positionX
+     * @param positionY
+     * @param fontPath Path of a .bcfnt file. If unspecified, it uses the default 3DS font.
      */
     TextObject(std::string txt, double posX, double posY, std::string fontPath = "");
 

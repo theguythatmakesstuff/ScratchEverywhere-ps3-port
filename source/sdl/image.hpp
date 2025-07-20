@@ -14,12 +14,29 @@ class SDL_Image {
     int width;
     int height;
     float rotation = 0.0f;
-
     int freeTimer = 120;
+
+    /**
+     * Scales an image by a scale factor.
+     * @param scaleAmount
+     */
     void setScale(float amount);
+    /**
+     * Sets Image rotation (in radians)
+     * @param rotationAmount In radians
+     */
     void setRotation(float amount);
+
+    /**
+     * A Simple Image object using SDL.
+     */
     SDL_Image();
+    /**
+     * A Simple Image object using SDL.
+     * @param filePath
+     */
     SDL_Image(std::string filePath);
+
     ~SDL_Image();
 };
 

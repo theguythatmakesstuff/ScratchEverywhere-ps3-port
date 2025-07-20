@@ -5,8 +5,11 @@
 class Render {
   public:
     static void Init();
+
     static void deInit();
+
     static void renderSprites();
+
     static bool appShouldRun();
 
     enum RenderModes {

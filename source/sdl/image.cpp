@@ -6,6 +6,10 @@
 std::vector<Image::ImageRGBA> Image::imageRGBAS;
 std::unordered_map<std::string, SDL_Image *> images;
 
+/**
+ * Takes every image in a Scratch sb3 file and turns it into an 'SDL_Image' object.
+ * @param zip
+ */
 void Image::loadImages(mz_zip_archive *zip) {
     std::cout << "Loading images..." << std::endl;
     int file_count = (int)mz_zip_reader_get_num_files(zip);
@@ -66,10 +70,19 @@ void Image::loadImages(mz_zip_archive *zip) {
         }
     }
 }
+
+/**
+ * Loads a single `SDL_Image` from an unzipped filepath .
+ * @param filePath
+ */
 void Image::loadImageFromFile(std::string filePath) {
     SDL_Image *image = new SDL_Image(filePath);
     images[filePath] = image;
 }
+/**
+ * Frees an `SDL_Image` from memory using a `costumeId` to find it.
+ * @param costumeId
+ */
 void Image::freeImage(const std::string &costumeId) {
     auto image = images.find(costumeId);
     if (image != images.end()) {
@@ -77,6 +90,10 @@ void Image::freeImage(const std::string &costumeId) {
     }
 }
 
+/**
+ * Checks every `SDL_Image` in memory to see if they can be freed.
+ * An `SDL_Image` will get freed if it goes unused for 120 frames.
+ */
 void Image::FlushImages() {
     std::vector<std::string> toDelete;
 
@@ -122,6 +139,9 @@ SDL_Image::SDL_Image(std::string filePath) {
     textureRect.y = 0;
 }
 
+/**
+ * currently does nothing in the SDL version 😁😁
+ */
 void Image::queueFreeImage(const std::string &costumeId) {
 }
 
