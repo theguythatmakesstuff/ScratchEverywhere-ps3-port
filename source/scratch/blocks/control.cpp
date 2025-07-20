@@ -71,7 +71,7 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
         spriteToClone->isStage = false;
         spriteToClone->toDelete = false;
         spriteToClone->id = Math::generateRandomString(15);
-        std::cout << "Created clone of " << sprite->name << std::endl;
+        std::cout << "Cloned " << sprite->name << std::endl;
         // add clone to sprite list
         sprites.push_back(spriteToClone);
         Sprite* addedSprite = sprites.back();
@@ -92,6 +92,7 @@ BlockResult ControlBlocks::createCloneOf(Block& block, Sprite* sprite, Block** w
 BlockResult ControlBlocks::deleteThisClone(Block& block, Sprite* sprite, Block** waitingBlock, bool* withoutScreenRefresh){
     if(sprite->isClone)
     sprite->toDelete = true;
+    std::cout << "Delete " << sprite->name << "'s clone." << std::endl;
     return BlockResult::CONTINUE;
 }
 
@@ -230,7 +231,7 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     
     if (condition) {
         block.repeatTimes = -1;
-        
+
         auto it = sprite->blockChains.find(block.blockChainID);
         if (it != sprite->blockChains.end()) {
             auto& blocksToRepeat = it->second.blocksToRepeat;
