@@ -347,18 +347,49 @@ void loadSprites(const nlohmann::json &json) {
             std::size_t json_start = comment.text.find('{');
             if (json_start == std::string::npos) continue;
 
-            std::string json_str = comment.text.substr(json_start);
-            std::size_t json_end = json_str.find("}");
-            if (json_end != std::string::npos) {
-                json_str = json_str.substr(0, json_end + 1);
-            } else continue;
+            // Use brace counting to find the true end of the JSON
+            int braceCount = 0;
+            std::size_t json_end = json_start;
+            bool in_string = false;
+
+            for (; json_end < comment.text.size(); ++json_end) {
+                char c = comment.text[json_end];
+
+                if (c == '"' && (json_end == 0 || comment.text[json_end - 1] != '\\')) {
+                    in_string = !in_string;
+                }
+
+                if (!in_string) {
+                    if (c == '{') braceCount++;
+                    else if (c == '}') braceCount--;
+
+                    if (braceCount == 0) {
+                        json_end++; // Include final '}'
+                        break;
+                    }
+                }
+            }
+
+            if (braceCount != 0) {
+                std::cout << "Unbalanced braces in JSON comment.\n";
+                continue;
+            }
+
+            std::string json_str = comment.text.substr(json_start, json_end - json_start);
+
+            // Replace inifity with null, since the json cant handle infinity
+            std::string cleaned_json = json_str;
+            std::size_t inf_pos;
+            while ((inf_pos = cleaned_json.find("Infinity")) != std::string::npos) {
+                cleaned_json.replace(inf_pos, 8, "1e9"); // or replace with "null", depending on your logic
+            }
 
             try {
-                config = nlohmann::json::parse(json_str);
+                config = nlohmann::json::parse(cleaned_json);
                 // std::cout << "Parsed JSON:\n" << config.dump(4) << "\n";
                 break;
             } catch (nlohmann::json::parse_error &e) {
-                // std::cerr << "Failed to parse JSON: " << e.what() << "\n";
+                std::cout << "Failed to parse JSON: " << e.what() << "\n";
                 continue;
             }
         }
