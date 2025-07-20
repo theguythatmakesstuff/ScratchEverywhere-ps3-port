@@ -54,7 +54,7 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
 
     bool legacyDrawing = true;
     double screenOffset = (bottom && Render::renderMode != Render::BOTTOM_SCREEN_ONLY) ? -SCREEN_HEIGHT : 0;
-
+    bool imageLoaded = false;
     for(Image::ImageRGBA rgba : Image::imageRGBAS){
         if(rgba.name == costumeId){
 
@@ -63,16 +63,26 @@ void renderImage(C2D_Image *image, Sprite* currentSprite, std::string costumeId,
             currentSprite->spriteHeight = rgba.height / 2;
             
             if(imageC2Ds.find(costumeId) == imageC2Ds.end() || image->tex == nullptr || image->subtex == nullptr){
-                get_C2D_Image(rgba);
-                if(currentSprite->lastCostumeId == "") return;
+
+                auto rgbaFind = std::find_if(Image::imageRGBAS.begin(), Image::imageRGBAS.end(),
+                [&](const Image::ImageRGBA& rgba) { return rgba.name == costumeId; });
+
+                if (rgbaFind != Image::imageRGBAS.end()) {
+                    imageLoaded = queueC2DImage(*rgbaFind);
+                } else {
+                    imageLoaded = false;
+                }
+
             }
+            else imageLoaded = true;
+
             break;
         }
-        else {
-            legacyDrawing = true;
-            currentSprite->spriteWidth = 64;
-            currentSprite->spriteHeight = 64;
-        }
+    }
+    if(!imageLoaded){
+        legacyDrawing = true;
+        currentSprite->spriteWidth = 64;
+        currentSprite->spriteHeight = 64;
     }
 
     //double maxLayer = getMaxSpriteLayer();
@@ -164,7 +174,6 @@ if (!legacyDrawing) {
 
 void Render::renderSprites(){
 
-    Image::FlushImages();
     C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen,clrWhite);
     C2D_TargetClear(bottomScreen,clrWhite);
@@ -230,6 +239,7 @@ void Render::renderSprites(){
 
     C2D_Flush();
     C3D_FrameEnd(0);
+    Image::FlushImages();
     gspWaitForVBlank();
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
