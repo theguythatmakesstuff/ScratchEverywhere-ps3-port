@@ -220,7 +220,6 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     if(block.repeatTimes == -1){
         block.repeatTimes = -2;
         BlockExecutor::addToRepeatQueue(sprite, &block);
-        std::cout << "added to repeat queue!" << std::endl;
     }
 
     Value conditionValue = Scratch::getInputValue(block,"CONDITION",sprite);
@@ -231,7 +230,15 @@ BlockResult ControlBlocks::repeatUntil(Block& block, Sprite* sprite, Block** wai
     
     if (condition) {
         block.repeatTimes = -1;
-        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        
+        auto it = sprite->blockChains.find(block.blockChainID);
+        if (it != sprite->blockChains.end()) {
+            auto& blocksToRepeat = it->second.blocksToRepeat;
+            if (!blocksToRepeat.empty()) {
+                blocksToRepeat.pop_back();
+            }
+        }
+
         return BlockResult::CONTINUE;
     }
     
