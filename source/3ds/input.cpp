@@ -17,7 +17,6 @@ void Input::getInput() {
     mousePointer.isMoving = false;
     hidScanInput();
     u32 kDown = hidKeysHeld();
-    // u32 kJustPressed = hidKeysDown();
 
     touchPosition touch;
 
