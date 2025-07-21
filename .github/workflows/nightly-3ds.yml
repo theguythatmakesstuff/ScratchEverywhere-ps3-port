@@ -21,12 +21,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Import devkitPro GPG key
-        run: |
-          curl -fsSL https://apt.devkitpro.org/devkitpro-keyring.gpg | sudo tee /etc/apt/trusted.gpg.d/devkitpro.gpg > /dev/null
       - name: Install DevkitPro
         run: |
-          echo "deb [arch=amd64] https://apt.devkitpro.org stable main" | sudo tee /etc/apt/sources.list.d/devkitpro.list
+          wget https://apt.devkitpro.org/devkitpro-pub.gpg
+          echo "deb [signed-by=$(pwd)/devkitpro-pub.gpg] https://apt.devkitpro.org stable main" > /etc/apt/sources.list.d/devkitpro.list
           sudo apt update -y
           sudo apt install -y devkitpro-pacman
           echo "DEVKITPRO=/opt/devkitpro" >> $GITHUB_ENV
