@@ -25,8 +25,7 @@ BlockResult DataBlocks::addToList(Block &block, Sprite *sprite, Block **waitingB
     std::string listId = block.fields.at("LIST")[1];
     for (Sprite *currentSprite : sprites) {
         if (currentSprite->lists.find(listId) != currentSprite->lists.end()) {
-            // std::cout << "Adding to list " << listId << std::endl;
-            sprite->lists[listId].items.push_back(val);
+            currentSprite->lists[listId].items.push_back(val);
             break;
         }
     }

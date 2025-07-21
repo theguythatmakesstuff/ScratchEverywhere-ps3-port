@@ -22,7 +22,9 @@ class Value {
 
   public:
     // constructors
-    Value() : type(ValueType::INTEGER), intValue(0) {}
+    Value() : type(ValueType::STRING) {
+        stringValue = new std::string("");
+    }
 
     explicit Value(int val) : type(ValueType::INTEGER), intValue(val) {}
 
