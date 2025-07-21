@@ -148,6 +148,29 @@ Value SensingBlocks::keyPressed(Block &block, Sprite *sprite) {
     return Value(false);
 }
 
+bool isSeparated(const std::vector<std::pair<double, double>> &poly1,
+                 const std::vector<std::pair<double, double>> &poly2,
+                 double axisX, double axisY) {
+    double min1 = 1e9, max1 = -1e9;
+    double min2 = 1e9, max2 = -1e9;
+
+    // Project poly1 onto axis
+    for (const auto &point : poly1) {
+        double projection = point.first * axisX + point.second * axisY;
+        min1 = std::min(min1, projection);
+        max1 = std::max(max1, projection);
+    }
+
+    // Project poly2 onto axis
+    for (const auto &point : poly2) {
+        double projection = point.first * axisX + point.second * axisY;
+        min2 = std::min(min2, projection);
+        max2 = std::max(max2, projection);
+    }
+
+    return max1 < min2 || max2 < min1;
+}
+
 Value SensingBlocks::touchingObject(Block &block, Sprite *sprite) {
     auto inputFind = block.parsedInputs.find("TOUCHINGOBJECTMENU");
     Block *inputBlock = findBlock(inputFind->second.literalValue.asString());
@@ -162,14 +185,49 @@ Value SensingBlocks::touchingObject(Block &block, Sprite *sprite) {
     std::vector<std::pair<double, double>> currentSpritePoints = getCollisionPoints(sprite);
 
     if (objectName == "_mouse_") {
-        // Check if the mouse pointer's position is within the bounds of the current sprite
-        if (Input::mousePointer.x >= sprite->xPosition - sprite->spriteWidth / 2 &&
-            Input::mousePointer.x <= sprite->xPosition + sprite->spriteWidth / 2 &&
-            Input::mousePointer.y >= sprite->yPosition - sprite->spriteHeight / 2 &&
-            Input::mousePointer.y <= sprite->yPosition + sprite->spriteHeight / 2) {
-            return Value(true);
+        // Define a small square centered on the mouse pointer
+        double halfWidth = 0.5;
+        double halfHeight = 0.5;
+
+        std::vector<std::pair<double, double>> mousePoints = {
+            {Input::mousePointer.x - halfWidth, Input::mousePointer.y - halfHeight}, // Top-left
+            {Input::mousePointer.x + halfWidth, Input::mousePointer.y - halfHeight}, // Top-right
+            {Input::mousePointer.x + halfWidth, Input::mousePointer.y + halfHeight}, // Bottom-right
+            {Input::mousePointer.x - halfWidth, Input::mousePointer.y + halfHeight}  // Bottom-left
+        };
+
+        bool collision = true;
+
+        for (int i = 0; i < 4; i++) {
+            auto edge1 = std::make_pair(
+                currentSpritePoints[(i + 1) % 4].first - currentSpritePoints[i].first,
+                currentSpritePoints[(i + 1) % 4].second - currentSpritePoints[i].second);
+            auto edge2 = std::make_pair(
+                mousePoints[(i + 1) % 4].first - mousePoints[i].first,
+                mousePoints[(i + 1) % 4].second - mousePoints[i].second);
+
+            double axis1X = -edge1.second, axis1Y = edge1.first;
+            double axis2X = -edge2.second, axis2Y = edge2.first;
+
+            double len1 = sqrt(axis1X * axis1X + axis1Y * axis1Y);
+            double len2 = sqrt(axis2X * axis2X + axis2Y * axis2Y);
+            if (len1 > 0) {
+                axis1X /= len1;
+                axis1Y /= len1;
+            }
+            if (len2 > 0) {
+                axis2X /= len2;
+                axis2Y /= len2;
+            }
+
+            if (isSeparated(currentSpritePoints, mousePoints, axis1X, axis1Y) ||
+                isSeparated(currentSpritePoints, mousePoints, axis2X, axis2Y)) {
+                collision = false;
+                break;
+            }
         }
-        return Value(false);
+
+        return Value(collision);
     }
 
     if (objectName == "_edge_") {
@@ -186,34 +244,46 @@ Value SensingBlocks::touchingObject(Block &block, Sprite *sprite) {
 
     for (Sprite *targetSprite : sprites) {
         if (targetSprite->name == objectName && targetSprite->visible) {
-
-            // get scale into account
-            double targetScaledWidth = (targetSprite->spriteWidth * targetSprite->size * 0.01);
-            double targetScaledHeight = (targetSprite->spriteHeight * targetSprite->size * 0.01);
-            double currentScaledWidth = (sprite->spriteWidth * sprite->size * 0.01);
-            double currentScaledHeight = (sprite->spriteHeight * sprite->size * 0.01);
-
-            // Get collision points of the target sprite
             std::vector<std::pair<double, double>> targetSpritePoints = getCollisionPoints(targetSprite);
 
-            // Check if any point of the current sprite is inside the target sprite's bounds
-            for (const auto &point : currentSpritePoints) {
-                if (point.first >= targetSprite->xPosition - targetScaledWidth / 2 &&
-                    point.first <= targetSprite->xPosition + targetScaledWidth / 2 &&
-                    point.second >= targetSprite->yPosition - targetScaledHeight / 2 &&
-                    point.second <= targetSprite->yPosition + targetScaledHeight / 2) {
-                    return Value(true);
+            bool collision = true;
+
+            // Check all axes from both rectangles
+            for (int i = 0; i < 4; i++) {
+                // Get edge vectors for both sprites
+                auto edge1 = std::make_pair(
+                    currentSpritePoints[(i + 1) % 4].first - currentSpritePoints[i].first,
+                    currentSpritePoints[(i + 1) % 4].second - currentSpritePoints[i].second);
+                auto edge2 = std::make_pair(
+                    targetSpritePoints[(i + 1) % 4].first - targetSpritePoints[i].first,
+                    targetSpritePoints[(i + 1) % 4].second - targetSpritePoints[i].second);
+
+                // Get perpendicular axes
+                double axis1X = -edge1.second, axis1Y = edge1.first;
+                double axis2X = -edge2.second, axis2Y = edge2.first;
+
+                // Normalize axes
+                double len1 = sqrt(axis1X * axis1X + axis1Y * axis1Y);
+                double len2 = sqrt(axis2X * axis2X + axis2Y * axis2Y);
+                if (len1 > 0) {
+                    axis1X /= len1;
+                    axis1Y /= len1;
+                }
+                if (len2 > 0) {
+                    axis2X /= len2;
+                    axis2Y /= len2;
+                }
+
+                // Check separation
+                if (isSeparated(currentSpritePoints, targetSpritePoints, axis1X, axis1Y) ||
+                    isSeparated(currentSpritePoints, targetSpritePoints, axis2X, axis2Y)) {
+                    collision = false;
+                    break;
                 }
             }
 
-            // Check if any point of the target sprite is inside the current sprite's bounds
-            for (const auto &point : targetSpritePoints) {
-                if (point.first >= sprite->xPosition - currentScaledWidth / 2 &&
-                    point.first <= sprite->xPosition + currentScaledWidth / 2 &&
-                    point.second >= sprite->yPosition - currentScaledHeight / 2 &&
-                    point.second <= sprite->yPosition + currentScaledHeight / 2) {
-                    return Value(true);
-                }
+            if (collision) {
+                return Value(true);
             }
         }
     }

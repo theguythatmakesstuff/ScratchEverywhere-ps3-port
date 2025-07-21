@@ -139,22 +139,22 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
     }
 
     // Draw collision points
-    // auto collisionPoints = getCollisionPoints(currentSprite);
-    // for (const auto &point : collisionPoints) {
-    //     double screenOffset = bottom ? -SCREEN_HEIGHT : 0;      // Adjust for bottom screen
-    //     double scale = bottom ? 1.0 : std::min(scaleX, scaleY); // Skip scaling if bottom is true
+    auto collisionPoints = getCollisionPoints(currentSprite);
+    for (const auto &point : collisionPoints) {
+        double screenOffset = bottom ? -SCREEN_HEIGHT : 0;      // Adjust for bottom screen
+        double scale = bottom ? 1.0 : std::min(scaleX, scaleY); // Skip scaling if bottom is true
 
-    //     C2D_DrawRectSolid(
-    //         (point.first * scale) + (screenWidth / 2),
-    //         (point.second * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
-    //         1,         // Layer depth
-    //         2 * scale, // Width of the rectangle
-    //         2 * scale, // Height of the rectangle
-    //         clrBlack);
-    // }
+        C2D_DrawRectSolid(
+            (point.first * scale) + (screenWidth / 2),
+            (point.second * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset,
+            1,         // Layer depth
+            2 * scale, // Width of the rectangle
+            2 * scale, // Height of the rectangle
+            clrBlack);
+    }
     // Draw mouse pointer
     if (Input::mousePointer.isMoving)
-        C2D_DrawRectSolid(Input::mousePointer.x + (screenWidth / 2), (Input::mousePointer.y * -1) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
+        C2D_DrawRectSolid((Input::mousePointer.x * scale) + (screenWidth / 2), ((Input::mousePointer.y * -1) * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset, 1, 5, 5, clrGreen);
 
     currentSprite->lastCostumeId = costumeId;
 }
