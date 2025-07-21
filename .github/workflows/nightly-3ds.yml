@@ -1,12 +1,7 @@
+name: 3DS Nightly Build
+
 on:
   push:
-    paths:
-      - Makefile_3ds
-      - source/scratch/**
-      - source/3ds/**
-      - gfx/**
-      - include/**
-  pull_request:
     paths:
       - Makefile_3ds
       - source/scratch/**
@@ -18,20 +13,11 @@ on:
 jobs:
   nightly:
     runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install DevkitPro
-        run: |
-          wget https://apt.devkitpro.org/devkitpro-pub.gpg
-          echo "deb [signed-by=$(pwd)/devkitpro-pub.gpg] https://apt.devkitpro.org stable main" > /etc/apt/sources.list.d/devkitpro.list
-          sudo apt update -y
-          sudo apt install -y devkitpro-pacman
-          echo "DEVKITPRO=/opt/devkitpro" >> $GITHUB_ENV
-          echo "DEVKITARM=/opt/devkitpro/devkitARM" >> $GITHUB_ENV
-          echo "$DEVKITPRO/tools/bin" >> $GITHUB_PATH
-      - name: Install Dependencies
-        run: sudo dkp-pacman -Sy --noconfirm 3ds-dev
       - name: Build
         run: make
       - name: Upload Artifact
