@@ -22,7 +22,6 @@ BlockResult LooksBlocks::switchCostumeTo(Block &block, Sprite *sprite, Block **w
     }
 
     if (Math::isNumber(inputString) && inputFind != block.parsedInputs.end() && (inputFind->second.inputType == ParsedInput::BLOCK || inputFind->second.inputType == ParsedInput::VARIABLE)) {
-        std::cout << "errm" << std::endl;
         int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
             if (sprite->currentCostume != costumeIndex) {

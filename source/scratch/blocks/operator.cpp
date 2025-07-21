@@ -39,17 +39,23 @@ Value OperatorBlocks::divide(Block &block, Sprite *sprite) {
 Value OperatorBlocks::random(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "FROM", sprite);
     Value value2 = Scratch::getInputValue(block, "TO", sprite);
+
     if (value1.isNumeric() && value2.isNumeric()) {
         if (value1.isInteger() && value2.isInteger()) {
-            int from = value1.asInt();
-            int to = value2.asInt();
+            int a = value1.asInt();
+            int b = value2.asInt();
+            int from = std::min(a, b);
+            int to = std::max(a, b);
             return Value(rand() % (to - from + 1) + from);
         } else {
-            double from = value1.asDouble();
-            double to = value2.asDouble();
+            double a = value1.asDouble();
+            double b = value2.asDouble();
+            double from = std::min(a, b);
+            double to = std::max(a, b);
             return Value(from + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (to - from))));
         }
     }
+
     return Value(0);
 }
 
