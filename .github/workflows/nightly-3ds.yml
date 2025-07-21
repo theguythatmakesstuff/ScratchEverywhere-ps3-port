@@ -8,13 +8,6 @@ on:
       - source/3ds/**
       - gfx/**
       - include/**
-  pull_request:
-    paths:
-      - Makefile_3ds
-      - source/scratch/**
-      - source/3ds/**
-      - gfx/**
-      - include/**
   workflow_dispatch:
 
 jobs:
@@ -25,8 +18,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install Dependencies
-        run: sudo dkp-pacman -Sy --noconfirm 3ds-dev
       - name: Build
         run: make
       - name: Upload Artifact
