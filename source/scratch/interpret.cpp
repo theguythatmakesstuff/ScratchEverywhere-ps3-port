@@ -346,6 +346,9 @@ void loadSprites(const nlohmann::json &json) {
     for (Sprite *currentSprite : sprites) {
         if (!currentSprite->isStage) continue;
         for (auto &[id, comment] : currentSprite->comments) {
+            // make sure its the turbowarp comment
+            std::size_t settingsFind = comment.text.find("Configuration for https");
+            if (settingsFind == std::string::npos) continue;
             std::size_t json_start = comment.text.find('{');
             if (json_start == std::string::npos) continue;
 
@@ -388,7 +391,8 @@ void loadSprites(const nlohmann::json &json) {
 
             try {
                 config = nlohmann::json::parse(cleaned_json);
-                // std::cout << "Parsed JSON:\n" << config.dump(4) << "\n";
+                std::cout << "Parsed JSON:\n"
+                          << config.dump(4) << "\n";
                 break;
             } catch (nlohmann::json::parse_error &e) {
                 std::cout << "Failed to parse JSON: " << e.what() << "\n";
@@ -404,20 +408,23 @@ void loadSprites(const nlohmann::json &json) {
     try {
         framerate = config["framerate"].get<int>();
         Scratch::FPS = framerate;
+        std::cout << "FPS = " << Scratch::FPS << std::endl;
     } catch (...) {
-        // std::cerr << "no framerate property." << std::endl;
+        std::cout << "no framerate property." << std::endl;
     }
     try {
         wdth = config["width"].get<int>();
         Scratch::projectWidth = wdth;
+        std::cout << "game width = " << Scratch::projectWidth << std::endl;
     } catch (...) {
-        // std::cerr << "no width property." << std::endl;
+        std::cout << "no width property." << std::endl;
     }
     try {
         hght = config["height"].get<int>();
         Scratch::projectHeight = hght;
+        std::cout << "game height = " << Scratch::projectHeight << std::endl;
     } catch (...) {
-        // std::cerr << "no height property." << std::endl;
+        std::cout << "no height property." << std::endl;
     }
 
     if (wdth == 400 && hght == 480)
