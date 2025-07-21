@@ -295,6 +295,10 @@ void MainMenu::init() {
         TextObject *text = new TextObject(file, 145, yPosition);
         text->setColor(C2D_Color32f(0, 0, 0, 1));
         text->y -= text->getSize()[1] / 2;
+        if (text->getSize()[0] > BOTTOM_SCREEN_WIDTH) {
+            float scale = (float)BOTTOM_SCREEN_WIDTH / (text->getSize()[0] * 1.15);
+            text->setScale(scale);
+        }
         projectTexts.push_back(text);
         yPosition += 50;
     }
