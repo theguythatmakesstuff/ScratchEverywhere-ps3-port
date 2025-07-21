@@ -7,6 +7,10 @@ A W.I.P. runtime made in C++ aimed to bring any Scratch 3 project over to the Ni
 ![Controls](https://raw.githubusercontent.com/NateXS/Scratch-3DS/refs/heads/main/scratch%203ds%20controls.png)
 To use the mouse you must enter mouse mode by holding L. Use the D-pad to move the mouse, and press R to click.
 
+### Other Plaforms
+
+All controllers on all other platforms use the same control scheme.
+
 ## Limitations
 As this is in a very W.I.P state, you will encounter many bugs, crashes, and things that will just not work. 
 
@@ -58,17 +62,20 @@ Then it should be as simple as opening the homebrew launcher on your 3DS and run
 
 
 ### Building
-In order to embed a Scratch project in the 3dsx executable, you'll need to compile the source code.
 
-In order to build, you will need to have Devkitpro's SDKs installed with the DevkitARM toolchain and libctru.
-- Devkitpro's install instructions are available at: https://devkitpro.org/wiki/Getting_Started
+In order to embed a Scratch project in the Scratch 3DS executable, you'll need to compile the source code.
+
+No matter the platfrom, you will need to have Devkitpro's SDKs installed. For the 3DS you will need the DevkitARM toolchain and libctru, and for the Wii U you will need the DevkitPPC toolchain, WUT, and all SDL2 libraries for the Wii U.
+
+- Devkitpro's install instructions are available at : https://devkitpro.org/wiki/Getting_Started
 
 Download the source code from the releases tab and unzip it.
 
 Make a `romfs` folder inside the unzipped source code and put the Scratch project inside of that.
 - The Scratch project MUST be named `project.sb3`, all lowercase.
 - For faster load times/less limitations, you can also unzip the sb3 project file and put the contents into a new folder called `project`.
-- If you would like to change the name of the app, go inside the `Makefile` and edit `APP_TITLE`, `APP_DESCRIPTION` and `APP_AUTHOR` to whatever you please.
+
+If you would like to change the name of the app or any other information you can edit one of the Makefiles. For the 3DS you need to edit `Makefile_3ds` and change `APP_TITLE`, `APP_DESCRIPTION` and `APP_AUTHOR` to whatever you please. For the Wii U you need to edit `Makefile_wiiu` and change `APP_NAME`, `APP_SHORT_DESCRIPTION`, `APP_LONG_DESCRIPTION` and `APP_AUTHOR` to whatever you please.
 
 Then it should be as simple as running `make` in the source code folder.
 

@@ -1,6 +1,14 @@
 #include "../scratch/render.hpp"
 #include "interpret.hpp"
 #include "render.hpp"
+
+#ifdef __WIIU__
+#include <coreinit/debug.h>
+#include <nn/act.h>
+#include <romfs-wiiu.h>
+#include <whb/sdcard.h>
+#endif
+
 int windowWidth = 480;
 int windowHeight = 360;
 SDL_Window *window = nullptr;
@@ -8,17 +16,44 @@ SDL_Renderer *renderer = nullptr;
 
 Render::RenderModes Render::renderMode = Render::TOP_SCREEN_ONLY;
 
-void Render::Init() {
+// TODO: properly export these to input.cpp
+SDL_GameController *controller;
+bool touchActive = false;
+SDL_Point touchPosition;
+
+bool Render::Init() {
+#ifdef __WIIU__
+    if (romfsInit()) {
+        OSFatal("Failed to init romfs.");
+        return false;
+    }
+    if (!WHBMountSdCard()) {
+        OSFatal("Failed to mount sd card.");
+        return false;
+    }
+    nn::act::Initialize();
+#endif
+
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
     window = SDL_CreateWindow("Scratch Runtime", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    if (SDL_NumJoysticks() > 0) controller = SDL_GameControllerOpen(0);
+
+    return true;
 }
 void Render::deInit() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
     SDL_Quit();
+
+#ifdef __WIIU__
+    romfsExit();
+    WHBUnmountSdCard();
+    nn::act::Finalize();
+#endif
 }
 void Render::renderSprites() {
     SDL_GetWindowSizeInPixels(window, &windowWidth, &windowHeight);
@@ -108,8 +143,25 @@ void Render::renderSprites() {
 bool Render::appShouldRun() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+        switch (event.type) {
+        case SDL_QUIT:
             return false;
+            break;
+        case SDL_CONTROLLERDEVICEADDED:
+            controller = SDL_GameControllerOpen(0);
+            break;
+        case SDL_FINGERDOWN:
+            touchActive = true;
+            touchPosition = {event.tfinger.x * windowWidth,
+                             event.tfinger.y * windowHeight};
+            break;
+        case SDL_FINGERMOTION:
+            touchPosition = {event.tfinger.x * windowWidth,
+                             event.tfinger.y * windowHeight};
+            break;
+        case SDL_FINGERUP:
+            touchActive = false;
+            break;
         }
     }
     return true;
