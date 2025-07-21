@@ -65,13 +65,16 @@ std::vector<std::pair<double, double>> getCollisionPoints(Sprite *currentSprite)
     }
 
     double rotationRadians = (rotation - 90) * M_PI / 180.0;
+    double rotationCenterX = (currentSprite->rotationCenterX - currentSprite->spriteWidth) * 0.75;
+    double rotationCenterY = (currentSprite->rotationCenterY - currentSprite->spriteHeight) * 0.75;
+    std::cout << "sprite: " << currentSprite->name << " rot: " << rotationCenterX << " " << rotationCenterY << std::endl;
 
     // Define the four corners relative to the sprite's center
     std::vector<std::pair<double, double>> corners = {
-        {-halfWidth, -halfHeight}, // Top-left
-        {halfWidth, -halfHeight},  // Top-right
-        {halfWidth, halfHeight},   // Bottom-right
-        {-halfWidth, halfHeight}   // Bottom-left
+        {-halfWidth - rotationCenterX, -halfHeight + rotationCenterY}, // Top-left
+        {halfWidth - rotationCenterX, -halfHeight + rotationCenterY},  // Top-right
+        {halfWidth - rotationCenterX, halfHeight + rotationCenterY},   // Bottom-right
+        {-halfWidth - rotationCenterX, halfHeight + rotationCenterY}   // Bottom-left
     };
 
     // Rotate and translate each corner
