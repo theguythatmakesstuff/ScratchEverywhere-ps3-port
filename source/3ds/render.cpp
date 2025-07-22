@@ -223,7 +223,8 @@ void Render::renderSprites() {
             }
         }
     }
-    drawBlackBars(SCREEN_WIDTH, SCREEN_HEIGHT);
+    if (Render::renderMode != Render::BOTH_SCREENS)
+        drawBlackBars(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     if (Render::renderMode == Render::BOTH_SCREENS || Render::renderMode == Render::BOTTOM_SCREEN_ONLY) {
         C2D_SceneBegin(bottomScreen);
@@ -250,7 +251,8 @@ void Render::renderSprites() {
                 costumeIndex++;
             }
         }
-        drawBlackBars(BOTTOM_SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (Render::renderMode != Render::BOTH_SCREENS)
+            drawBlackBars(BOTTOM_SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     C2D_Flush();
