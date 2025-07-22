@@ -202,6 +202,13 @@ BlockResult LooksBlocks::goToFrontBack(Block &block, Sprite *sprite, Block **wai
 
 BlockResult LooksBlocks::setSizeTo(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
     Value value = Scratch::getInputValue(block, "SIZE", sprite);
+
+    // likely hasn't been rendered on screen yet
+    if (sprite->spriteWidth < 1 || sprite->spriteHeight < 1) {
+        sprite->size = value.asDouble();
+        return BlockResult::CONTINUE;
+    }
+
     if (value.isNumeric()) {
         const double inputSizePercent = value.asDouble();
 
@@ -217,6 +224,13 @@ BlockResult LooksBlocks::setSizeTo(Block &block, Sprite *sprite, Block **waiting
 
 BlockResult LooksBlocks::changeSizeBy(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
     Value value = Scratch::getInputValue(block, "CHANGE", sprite);
+
+    // likely hasn't been rendered on screen yet
+    if (sprite->spriteWidth < 1 || sprite->spriteHeight < 1) {
+        sprite->size += value.asDouble();
+        return BlockResult::CONTINUE;
+    }
+
     if (value.isNumeric()) {
         sprite->size += value.asDouble();
 
