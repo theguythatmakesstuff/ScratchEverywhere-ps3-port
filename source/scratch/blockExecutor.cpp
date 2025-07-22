@@ -340,7 +340,7 @@ Value BlockExecutor::getBlockValue(Block &block, Sprite *sprite) {
         return iterator->second(block, sprite);
     }
 
-    return Value(0);
+    return Value();
 }
 
 void BlockExecutor::setVariableValue(const std::string &variableId, const Value &newValue, Sprite *sprite) {
@@ -392,7 +392,7 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
         }
     }
 
-    return Value(0);
+    return Value();
 }
 
 Value BlockExecutor::getCustomBlockValue(std::string valueName, Sprite *sprite, Block block) {

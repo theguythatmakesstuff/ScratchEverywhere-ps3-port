@@ -3,36 +3,27 @@
 Value OperatorBlocks::add(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "NUM1", sprite);
     Value value2 = Scratch::getInputValue(block, "NUM2", sprite);
-    if (value1.isNumeric() && value2.isNumeric()) {
-        return value1 + value2;
-    }
+    return value1 + value2;
     return Value(0);
 }
 
 Value OperatorBlocks::subtract(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "NUM1", sprite);
     Value value2 = Scratch::getInputValue(block, "NUM2", sprite);
-    if (value1.isNumeric() && value2.isNumeric()) {
-        return value1 - value2;
-    }
-    return Value(0);
+    return value1 - value2;
 }
 
 Value OperatorBlocks::multiply(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "NUM1", sprite);
     Value value2 = Scratch::getInputValue(block, "NUM2", sprite);
-    if (value1.isNumeric() && value2.isNumeric()) {
-        return value1 * value2;
-    }
+    return value1 * value2;
     return Value(0);
 }
 
 Value OperatorBlocks::divide(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "NUM1", sprite);
     Value value2 = Scratch::getInputValue(block, "NUM2", sprite);
-    if (value1.isNumeric() && value2.isNumeric()) {
-        return value1 / value2;
-    }
+    return value1 / value2;
     return Value(0);
 }
 

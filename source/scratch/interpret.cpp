@@ -533,7 +533,7 @@ Value Scratch::getInputValue(Block &block, const std::string &inputName, Sprite 
     auto parsedFind = block.parsedInputs.find(inputName);
 
     if (parsedFind == block.parsedInputs.end()) {
-        return Value(0);
+        return Value();
     }
 
     const ParsedInput &input = parsedFind->second;
@@ -551,5 +551,5 @@ Value Scratch::getInputValue(Block &block, const std::string &inputName, Sprite 
     case ParsedInput::BOOLEAN:
         return executor.getBlockValue(*findBlock(input.blockId), sprite);
     }
-    return Value(0);
+    return Value();
 }
