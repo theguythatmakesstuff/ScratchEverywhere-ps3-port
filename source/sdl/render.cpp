@@ -55,9 +55,40 @@ void Render::deInit() {
     nn::act::Finalize();
 #endif
 }
+
+void drawBlackBars(int screenWidth, int screenHeight) {
+    float screenAspect = static_cast<float>(screenWidth) / screenHeight;
+    float projectAspect = static_cast<float>(Scratch::projectWidth) / Scratch::projectHeight;
+
+    if (screenAspect > projectAspect) {
+        // Vertical bars,,,
+        float scale = static_cast<float>(screenHeight) / Scratch::projectHeight;
+        float scaledProjectWidth = Scratch::projectWidth * scale;
+        float barWidth = (screenWidth - scaledProjectWidth) / 2.0f;
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_Rect leftBar = {0, 0, static_cast<int>(barWidth), screenHeight};
+        SDL_Rect rightBar = {static_cast<int>(screenWidth - barWidth), 0, static_cast<int>(barWidth), screenHeight};
+
+        SDL_RenderFillRect(renderer, &leftBar);
+        SDL_RenderFillRect(renderer, &rightBar);
+    } else if (screenAspect < projectAspect) {
+        // Horizontal bars,,,
+        float scale = static_cast<float>(screenWidth) / Scratch::projectWidth;
+        float scaledProjectHeight = Scratch::projectHeight * scale;
+        float barHeight = (screenHeight - scaledProjectHeight) / 2.0f;
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_Rect topBar = {0, 0, screenWidth, static_cast<int>(barHeight)};
+        SDL_Rect bottomBar = {0, static_cast<int>(screenHeight - barHeight), screenWidth, static_cast<int>(barHeight)};
+
+        SDL_RenderFillRect(renderer, &topBar);
+        SDL_RenderFillRect(renderer, &bottomBar);
+    }
+}
+
 void Render::renderSprites() {
     SDL_GetWindowSizeInPixels(window, &windowWidth, &windowHeight);
-    // SDL_SetWindowSize(window,Scratch::projectWidth,Scratch::projectHeight);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
@@ -142,6 +173,8 @@ void Render::renderSprites() {
         //     SDL_RenderFillRect(renderer, &debugPointRect);
         // }
     }
+
+    drawBlackBars(windowWidth, windowHeight);
 
     SDL_RenderPresent(renderer);
 }

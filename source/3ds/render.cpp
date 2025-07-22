@@ -45,6 +45,30 @@ bool Render::appShouldRun() {
     return aptMainLoop();
 }
 
+void drawBlackBars(int screenWidth, int screenHeight) {
+    float screenAspect = static_cast<float>(screenWidth) / screenHeight;
+    float projectAspect = static_cast<float>(Scratch::projectWidth) / Scratch::projectHeight;
+
+    if (screenAspect > projectAspect) {
+        // Screen is wider than project,, vertical bars
+        float scale = static_cast<float>(screenHeight) / Scratch::projectHeight;
+        float scaledProjectWidth = Scratch::projectWidth * scale;
+        float barWidth = (screenWidth - scaledProjectWidth) / 2.0f;
+
+        C2D_DrawRectSolid(0, 0, 0.5f, barWidth, screenHeight, clrBlack);                      // Left bar
+        C2D_DrawRectSolid(screenWidth - barWidth, 0, 0.5f, barWidth, screenHeight, clrBlack); // Right bar
+
+    } else if (screenAspect < projectAspect) {
+        // Screen is taller than project,, horizontal bars
+        float scale = static_cast<float>(screenWidth) / Scratch::projectWidth;
+        float scaledProjectHeight = Scratch::projectHeight * scale;
+        float barHeight = (screenHeight - scaledProjectHeight) / 2.0f;
+
+        C2D_DrawRectSolid(0, 0, 0.5f, screenWidth, barHeight, clrBlack);                        // Top bar
+        C2D_DrawRectSolid(0, screenHeight - barHeight, 0.5f, screenWidth, barHeight, clrBlack); // Bottom bar
+    }
+}
+
 void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId, bool bottom = false) {
 
     if (!currentSprite || currentSprite == nullptr) return;
@@ -199,6 +223,7 @@ void Render::renderSprites() {
             }
         }
     }
+    drawBlackBars(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     if (Render::renderMode == Render::BOTH_SCREENS || Render::renderMode == Render::BOTTOM_SCREEN_ONLY) {
         C2D_SceneBegin(bottomScreen);
@@ -225,6 +250,7 @@ void Render::renderSprites() {
                 costumeIndex++;
             }
         }
+        drawBlackBars(BOTTOM_SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     C2D_Flush();
