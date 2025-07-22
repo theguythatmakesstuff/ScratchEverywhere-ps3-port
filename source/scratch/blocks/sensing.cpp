@@ -138,10 +138,10 @@ Value SensingBlocks::sensingAnswer(Block &block, Sprite *sprite) {
 }
 
 Value SensingBlocks::keyPressed(Block &block, Sprite *sprite) {
-    Value inputValue = Scratch::getInputValue(block, "KEY_OPTION", sprite);
-
+    auto inputFind = block.parsedInputs.find("KEY_OPTION");
+    Block *inputBlock = findBlock(inputFind->second.literalValue.asString());
     for (std::string button : Input::inputButtons) {
-        if (inputValue.asString() == button) {
+        if (inputBlock->fields["KEY_OPTION"][0] == button) {
             return Value(true);
         }
     }
