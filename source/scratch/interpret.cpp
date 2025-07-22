@@ -14,6 +14,7 @@ BlockExecutor executor;
 int Scratch::projectWidth = 480;
 int Scratch::projectHeight = 360;
 int Scratch::FPS = 30;
+bool Scratch::fencing = true;
 
 void initializeSpritePool(int poolSize) {
     for (int i = 0; i < poolSize; i++) {
@@ -87,6 +88,10 @@ std::vector<std::pair<double, double>> getCollisionPoints(Sprite *currentSprite)
     }
 
     return collisionPoints;
+}
+
+void Scratch::fenceSpriteWithinBounds(Sprite *sprite) {
+    // todo do this later
 }
 
 void loadSprites(const nlohmann::json &json) {
@@ -404,6 +409,7 @@ void loadSprites(const nlohmann::json &json) {
     int wdth = 0;
     int hght = 0;
     int framerate = 0;
+    bool fncng = true;
 
     try {
         framerate = config["framerate"].get<int>();
@@ -425,6 +431,13 @@ void loadSprites(const nlohmann::json &json) {
         std::cout << "game height = " << Scratch::projectHeight << std::endl;
     } catch (...) {
         std::cout << "no height property." << std::endl;
+    }
+    try {
+        fncng = config["fencing"].get<bool>();
+        Scratch::fencing = fncng;
+        std::cout << "Fencing is " << Scratch::fencing << std::endl;
+    } catch (...) {
+        std::cout << "no fencing property." << std::endl;
     }
 
     if (wdth == 400 && hght == 480)
