@@ -116,7 +116,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
         // Center the sprite's pivot point
         double rotationCenterX = ((((currentSprite->rotationCenterX - currentSprite->spriteWidth)) / 2) * scale);
         double rotationCenterY = ((((currentSprite->rotationCenterY - currentSprite->spriteHeight)) / 2) * scale);
-        if (flipX) rotationCenterX -= currentSprite->spriteWidth - (currentSprite->rotationCenterX / 2);
+        if (flipX) rotationCenterX += currentSprite->spriteWidth - (currentSprite->rotationCenterX / 2);
 
         float alpha = 1.0f - (currentSprite->ghostEffect / 100.0f);
         C2D_ImageTint tinty;
@@ -124,7 +124,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 
         C2D_DrawImageAtRotated(
             imageC2Ds[costumeId].image,
-            (currentSprite->xPosition * scale) + (screenWidth / 2) + rotationCenterX,
+            (currentSprite->xPosition * scale) + (screenWidth / 2) - rotationCenterX,
             (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset - rotationCenterY,
             1,
             rotation,
