@@ -86,8 +86,6 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
     double scaleY = static_cast<double>(SCREEN_HEIGHT) / Scratch::projectHeight;
     double spriteSizeX = currentSprite->size * 0.01;
     double spriteSizeY = currentSprite->size * 0.01;
-    double spriteWidth = currentSprite->spriteWidth;
-    double spriteHeight = currentSprite->spriteHeight;
     double scale;
     double heightMultiplier = 0.5;
     int screenWidth = SCREEN_WIDTH;
@@ -101,11 +99,13 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
     if (!legacyDrawing) {
         imageC2Ds[costumeId].freeTimer = 120;
         double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
+        bool flipX = false;
 
         // check for rotation style
         if (currentSprite->rotationStyle == currentSprite->LEFT_RIGHT) {
             if (rotation < 0) {
                 spriteSizeX *= -1;
+                flipX = true;
             }
             rotation = 0;
         }
@@ -114,8 +114,9 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
         }
 
         // Center the sprite's pivot point
-        spriteWidth *= spriteSizeX;
-        double scaledRotationCenterX = currentSprite->rotationCenterX * abs(spriteSizeX);
+        double rotationCenterX = ((((currentSprite->rotationCenterX - currentSprite->spriteWidth)) / 2) * scale);
+        double rotationCenterY = ((((currentSprite->rotationCenterY - currentSprite->spriteHeight)) / 2) * scale);
+        if (flipX) rotationCenterX -= currentSprite->spriteWidth - (currentSprite->rotationCenterX / 2);
 
         float alpha = 1.0f - (currentSprite->ghostEffect / 100.0f);
         C2D_ImageTint tinty;
@@ -123,8 +124,8 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 
         C2D_DrawImageAtRotated(
             imageC2Ds[costumeId].image,
-            (currentSprite->xPosition * scale) + (screenWidth / 2) + (((spriteWidth - scaledRotationCenterX) / 2)),
-            (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset + ((spriteHeight - currentSprite->rotationCenterY) / 2),
+            (currentSprite->xPosition * scale) + (screenWidth / 2) + rotationCenterX,
+            (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset - rotationCenterY,
             1,
             rotation,
             &tinty,

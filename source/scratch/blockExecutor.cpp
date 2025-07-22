@@ -176,7 +176,6 @@ std::vector<Block *> BlockExecutor::runBlock(Block &block, Sprite *sprite, Block
                 std::string nextBlockId = sprite->blocks[currentBlock->waitingIfBlock].next;
                 currentBlock = &sprite->blocks[nextBlockId];
                 currentBlock->waitingIfBlock = "";
-                std::cout << "passing ifBlock on." << std::endl;
                 continue;
             }
 

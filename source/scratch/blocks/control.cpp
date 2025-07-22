@@ -2,7 +2,6 @@
 
 BlockResult ControlBlocks::If(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
     Value conditionValue = Scratch::getInputValue(block, "CONDITION", sprite);
-    std::cout << "if block!" << std::endl;
     bool condition = false;
     if (conditionValue.isNumeric()) {
         condition = conditionValue.asDouble() != 0.0;
@@ -19,7 +18,6 @@ BlockResult ControlBlocks::If(Block &block, Sprite *sprite, Block **waitingBlock
                 for (auto &ranBlock : executor.runBlock(*subBlock, sprite)) {
                     block.substackBlocksRan.push_back(ranBlock->id);
                     if (ranBlock->isRepeating) {
-                        std::cout << "REPEAITINGITINT" << std::endl;
                         isRepeating = true;
                     }
                 }
@@ -35,7 +33,6 @@ BlockResult ControlBlocks::If(Block &block, Sprite *sprite, Block **waitingBlock
         }
     }
     block.substackBlocksRan.clear();
-    std::cout << "continuing." << std::endl;
     return BlockResult::CONTINUE;
 }
 
