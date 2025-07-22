@@ -146,7 +146,7 @@ BlockResult MotionBlocks::glideSecsToXY(Block &block, Sprite *sprite, Block **wa
         sprite->yPosition = block.glideEndY;
 
         block.repeatTimes = -1;
-        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        BlockExecutor::removeFromRepeatQueue(sprite, &block);
         return BlockResult::CONTINUE;
     }
 
@@ -214,7 +214,7 @@ BlockResult MotionBlocks::glideTo(Block &block, Sprite *sprite, Block **waitingB
         sprite->yPosition = block.glideEndY;
 
         block.repeatTimes = -1;
-        sprite->blockChains[block.blockChainID].blocksToRepeat.pop_back();
+        BlockExecutor::removeFromRepeatQueue(sprite, &block);
         return BlockResult::CONTINUE;
     }
 
