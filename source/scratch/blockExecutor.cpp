@@ -396,7 +396,15 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
 }
 
 Value BlockExecutor::getCustomBlockValue(std::string valueName, Sprite *sprite, Block block) {
+
+    // get the parent prototype block
+    Block* definitionBlock = getBlockParent(&block);
+    Block* prototypeBlock = findBlock(Scratch::getInputValue(*definitionBlock,"custom_block",sprite).asString());
+
     for (auto &[custId, custBlock] : sprite->customBlocks) {
+
+        // variable must be in the same custom block
+        if(custBlock.blockId != prototypeBlock->id) continue;
 
         auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
 
@@ -408,7 +416,6 @@ Value BlockExecutor::getCustomBlockValue(std::string valueName, Sprite *sprite, 
 
                 auto valueIt = custBlock.argumentValues.find(argumentId);
                 if (valueIt != custBlock.argumentValues.end()) {
-                    // std::cout << "FOUND that shit BAAANG: " << valueIt->second.asString() << std::endl;
                     return valueIt->second;
                 } else {
                     std::cout << "Argument ID found, but no value exists for it." << std::endl;
