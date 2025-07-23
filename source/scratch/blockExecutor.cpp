@@ -59,6 +59,14 @@ void BlockExecutor::registerHandlers() {
     valueHandlers[Block::LOOKS_BACKDROPNUMBERNAME] = LooksBlocks::backdropNumberName;
 
     // sound
+    handlers[Block::SOUND_PLAY] = SoundBlocks::playSound;
+    handlers[Block::SOUND_PLAY_UNTIL_DONE] = SoundBlocks::playSoundUntilDone;
+    handlers[Block::SOUND_STOP_ALL_SOUNDS] = SoundBlocks::stopAllSounds;
+    handlers[Block::SOUND_CHANGE_EFFECT_BY] = SoundBlocks::changeEffectBy;
+    handlers[Block::SOUND_SET_EFFECT_TO] = SoundBlocks::setEffectTo;
+    handlers[Block::SOUND_CLEAR_EFFECTS] = SoundBlocks::clearSoundEffects;
+    handlers[Block::SOUND_CHANGE_VOLUME_BY] = SoundBlocks::changeVolumeBy;
+    handlers[Block::SOUND_SET_VOLUME_TO] = SoundBlocks::setVolumeTo;
     valueHandlers[Block::SOUND_VOLUME] = SoundBlocks::volume;
 
     // events
@@ -398,13 +406,13 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
 Value BlockExecutor::getCustomBlockValue(std::string valueName, Sprite *sprite, Block block) {
 
     // get the parent prototype block
-    Block* definitionBlock = getBlockParent(&block);
-    Block* prototypeBlock = findBlock(Scratch::getInputValue(*definitionBlock,"custom_block",sprite).asString());
+    Block *definitionBlock = getBlockParent(&block);
+    Block *prototypeBlock = findBlock(Scratch::getInputValue(*definitionBlock, "custom_block", sprite).asString());
 
     for (auto &[custId, custBlock] : sprite->customBlocks) {
 
         // variable must be in the same custom block
-        if(custBlock.blockId != prototypeBlock->id) continue;
+        if (custBlock.blockId != prototypeBlock->id) continue;
 
         auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
 
@@ -442,6 +450,7 @@ void BlockExecutor::removeFromRepeatQueue(Sprite *sprite, Block *block) {
         auto &blocksToRepeat = it->second.blocksToRepeat;
         if (!blocksToRepeat.empty()) {
             block->isRepeating = false;
+            block->repeatTimes = -1;
             blocksToRepeat.pop_back();
         }
     }
