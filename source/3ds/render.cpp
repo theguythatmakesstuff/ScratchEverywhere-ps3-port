@@ -146,6 +146,11 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
         C2D_ImageTint tinty;
         C2D_AlphaImageTint(&tinty, alpha);
 
+        auto imageFind = imageC2Ds.find(costumeId);
+        if (imageFind == imageC2Ds.end() || imageC2Ds[costumeId].image.tex == nullptr ||
+            imageC2Ds[costumeId].image.subtex == nullptr)
+            return;
+
         C2D_DrawImageAtRotated(
             imageC2Ds[costumeId].image,
             (currentSprite->xPosition * scale) + (screenWidth / 2) - rotationCenterX,
@@ -189,7 +194,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 
 void Render::renderSprites() {
 
-    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrWhite);
     C2D_TargetClear(bottomScreen, clrWhite);
 
