@@ -273,7 +273,7 @@ void Render::renderSprites() {
 }
 
 void LoadingScreen::renderLoadingScreen() {
-    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrScratchBlue);
     C2D_SceneBegin(topScreen);
 
@@ -301,7 +301,7 @@ void LoadingScreen::cleanup() {
     squares.clear();
 
     C2D_Flush();
-    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrBlack);
     C2D_SceneBegin(topScreen);
 
@@ -382,7 +382,7 @@ void MainMenu::render() {
         }
     }
 
-    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrScratchBlue);
     C2D_SceneBegin(topScreen);
 
@@ -429,7 +429,7 @@ void MainMenu::cleanup() {
     if (errorTextInfo) delete errorTextInfo;
 
     C2D_Flush();
-    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrScratchBlue);
     C2D_SceneBegin(topScreen);
 
