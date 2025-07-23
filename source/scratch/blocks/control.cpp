@@ -165,7 +165,7 @@ BlockResult ControlBlocks::startAsClone(Block &block, Sprite *sprite, Block **wa
 BlockResult ControlBlocks::wait(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
 
     if (block.repeatTimes == -1) {
-        block.repeatTimes = -5;
+        block.repeatTimes = -2;
 
         Value duration = Scratch::getInputValue(block, "DURATION", sprite);
         if (duration.isNumeric()) {
@@ -183,7 +183,7 @@ BlockResult ControlBlocks::wait(Block &block, Sprite *sprite, Block **waitingBlo
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - block.waitStartTime).count();
     block.repeatTimes -= 1;
 
-    if (elapsedTime >= block.waitDuration && block.repeatTimes <= 0) {
+    if (elapsedTime >= block.waitDuration && block.repeatTimes <= -4) {
         block.repeatTimes = -1;
         BlockExecutor::removeFromRepeatQueue(sprite, &block);
         return BlockResult::CONTINUE;
