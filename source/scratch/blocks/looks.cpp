@@ -17,7 +17,9 @@ BlockResult LooksBlocks::switchCostumeTo(Block &block, Sprite *sprite, Block **w
     if (inputFind != block.parsedInputs.end() && inputFind->second.inputType == ParsedInput::LITERAL) {
         Block *inputBlock = findBlock(inputValue.asString());
         if (inputBlock != nullptr) {
+            if(!inputBlock->fields["COSTUME"][0].is_null())
             inputString = inputBlock->fields["COSTUME"][0].get<std::string>();
+            else return BlockResult::CONTINUE;
         }
     }
 
@@ -33,7 +35,6 @@ BlockResult LooksBlocks::switchCostumeTo(Block &block, Sprite *sprite, Block **w
         }
     }
     if (Math::isNumber(inputString) && inputFind != block.parsedInputs.end() && (inputFind->second.inputType == ParsedInput::BLOCK || inputFind->second.inputType == ParsedInput::VARIABLE) && !imageFound) {
-        std::cout << "errm" << std::endl;
         int costumeIndex = inputValue.asInt() - 1;
         if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < sprite->costumes.size()) {
             if (sprite->currentCostume != costumeIndex) {
@@ -71,7 +72,9 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, Block **
     if (inputFind != block.parsedInputs.end() && inputFind->second.inputType == ParsedInput::LITERAL) {
         Block *inputBlock = findBlock(inputString);
         if (inputBlock != nullptr) {
+            if(!inputBlock->fields["BACKDROP"][0].is_null())
             inputString = inputBlock->fields["BACKDROP"][0].get<std::string>();
+            else return BlockResult::CONTINUE;
         }
     }
 
@@ -98,7 +101,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, Block **
                 if (currentSprite->currentCostume != costumeIndex) {
                     // Image::queueFreeImage(currentSprite->costumes[currentSprite->currentCostume].id);
                 }
-                foundImage = true;
+                imageFound = true;
                 currentSprite->currentCostume = costumeIndex;
             }
         }

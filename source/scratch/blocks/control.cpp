@@ -176,7 +176,7 @@ BlockResult ControlBlocks::wait(Block &block, Sprite *sprite, Block **waitingBlo
 
         block.waitStartTime = std::chrono::high_resolution_clock::now();
 
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block *>(&block));
+        BlockExecutor::addToRepeatQueue(sprite,&block);
     }
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -196,7 +196,7 @@ BlockResult ControlBlocks::waitUntil(Block &block, Sprite *sprite, Block **waiti
 
     if (block.repeatTimes == -1) {
         block.repeatTimes = -4;
-        BlockExecutor::addToRepeatQueue(sprite, const_cast<Block *>(&block));
+        BlockExecutor::addToRepeatQueue(sprite,&block);
     }
 
     Value conditionValue = Scratch::getInputValue(block, "CONDITION", sprite);
