@@ -121,7 +121,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
     scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
     if (!legacyDrawing) {
-        imageC2Ds[costumeId].freeTimer = 120;
+        imageC2Ds[costumeId].freeTimer = 240;
         double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
         bool flipX = false;
 
