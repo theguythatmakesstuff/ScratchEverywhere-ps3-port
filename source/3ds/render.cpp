@@ -127,7 +127,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 
         // check for rotation style
         if (currentSprite->rotationStyle == currentSprite->LEFT_RIGHT) {
-            if (rotation < 0) {
+            if (std::cos(rotation) < 0) {
                 spriteSizeX *= -1;
                 flipX = true;
             }
@@ -140,7 +140,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
         // Center the sprite's pivot point
         double rotationCenterX = ((((currentSprite->rotationCenterX - currentSprite->spriteWidth)) / 2) * scale);
         double rotationCenterY = ((((currentSprite->rotationCenterY - currentSprite->spriteHeight)) / 2) * scale);
-        if (flipX) rotationCenterX += currentSprite->spriteWidth - (currentSprite->rotationCenterX / 2);
+        if (flipX) rotationCenterX -= currentSprite->spriteWidth;
 
         float alpha = 1.0f - (currentSprite->ghostEffect / 100.0f);
         C2D_ImageTint tinty;
@@ -151,10 +151,13 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
             imageC2Ds[costumeId].image.subtex == nullptr)
             return;
 
+        const offsetX = rotationCenterX * spriteSizeX;
+        const offsetY = rotationCenterY * spriteSizeY;
+
         C2D_DrawImageAtRotated(
             imageC2Ds[costumeId].image,
-            (currentSprite->xPosition * scale) + (screenWidth / 2) - rotationCenterX,
-            (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset - rotationCenterY,
+            (currentSprite->xPosition * scale) + (screenWidth / 2) - offsetX * std::cos(rotation) + offsetY * std::sin(rotation),
+            (currentSprite->yPosition * -1 * scale) + (SCREEN_HEIGHT * heightMultiplier) + screenOffset - offsetX * std::sin(rotation) - offsetY * std::cos(rotation),
             1,
             rotation,
             &tinty,
