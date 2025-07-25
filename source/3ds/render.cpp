@@ -1,4 +1,5 @@
 #include "render.hpp"
+#include "../scratch/audio.hpp"
 #include "../scratch/image.hpp"
 #include "../scratch/input.hpp"
 #include "../scratch/render.hpp"
@@ -37,6 +38,17 @@ bool Render::Init() {
     bottomScreen = C2D_CreateScreenTarget(GFX_BOTTOM, GFX_LEFT);
 
     romfsInit();
+    // waiting for beta 12 to enable,,
+    // SDL_Init(SDL_INIT_AUDIO);
+    // // Initialize SDL_mixer
+    // if (Mix_OpenAudio(22050, AUDIO_S16, 1, 512) < 0) { // Mono, smaller buffer
+    //     std::cout << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    //     // return false;
+    // }
+    // int flags = MIX_INIT_MP3 | MIX_INIT_OGG;
+    // if (Mix_Init(flags) != flags) {
+    //     std::cout << "SDL_mixer could not initialize MP3/OGG support! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    // }
 
     return true;
 }
@@ -457,7 +469,8 @@ void Render::deInit() {
         }
     }
     Image::imageRGBAS.clear();
-
+    SoundPlayer::cleanupAudio();
+    // SDL_Quit();
     romfsExit();
     gfxExit();
 }

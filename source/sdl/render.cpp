@@ -1,4 +1,5 @@
 #include "../scratch/render.hpp"
+#include "../scratch/audio.hpp"
 #include "interpret.hpp"
 #include "render.hpp"
 
@@ -55,6 +56,7 @@ bool Render::Init() {
 void Render::deInit() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    SoundPlayer::cleanupAudio();
     IMG_Quit();
     SDL_Quit();
 
