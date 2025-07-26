@@ -151,7 +151,6 @@ void Render::renderSprites() {
 
             const double offsetX = rotationCenterX * (currentSprite->size * 0.01);
             const double offsetY = rotationCenterY * (currentSprite->size * 0.01);
-            std::cout << rotation << std::endl;
 
             image->renderRect.x = ((currentSprite->xPosition * scale) + (windowWidth / 2) - (image->renderRect.w / 2)) - offsetX * std::cos(rotation) + offsetY * std::sin(renderRotation);
             image->renderRect.y = ((currentSprite->yPosition * -scale) + (windowHeight / 2) - (image->renderRect.h / 2)) - offsetX * std::sin(rotation) - offsetY * std::cos(renderRotation);
