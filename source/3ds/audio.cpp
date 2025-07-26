@@ -6,7 +6,7 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
     return false;
 }
 
-bool SoundPlayer::loadSoundFromFile(Sprite *sprite, const std::string &fileName) {
+bool SoundPlayer::loadSoundFromFile(const std::string &fileName) {
     return false;
 }
 

@@ -118,9 +118,9 @@ void Image::loadImageFromFile(std::string filePath) {
     if (it != imageRGBAS.end()) return;
 
     int width, height, channels;
-    FILE *file = fopen(("romfs:/project/" + filePath + ".png").c_str(), "rb");
+    FILE *file = fopen(("romfs:/project/" + filePath).c_str(), "rb");
     if (!file) {
-        file = fopen(("romfs:/project/" + filePath + ".jpg").c_str(), "rb");
+        file = fopen(("romfs:/project/" + filePath).c_str(), "rb");
         if (!file) {
             std::cerr << "Invalid image file name " << filePath << std::endl;
             return;
@@ -241,11 +241,10 @@ void get_C2D_Image(Image::ImageRGBA rgba) {
         }
     }
 
-    C3D_FrameSync(); // wait for Async functions to finish
-
     std::cout << "Image Loaded! total VRAM: " << memStats.totalVRamUsage << std::endl;
 
     imageC2Ds[rgba.name] = {image, 120};
+    C3D_FrameSync(); // wait for Async functions to finish
     return;
 }
 

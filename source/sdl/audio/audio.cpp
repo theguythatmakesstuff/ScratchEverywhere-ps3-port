@@ -19,7 +19,11 @@ SDL_Audio::~SDL_Audio() {
 
 int SB3SoundLoaderThread(void *data) {
     SDL_Audio::SoundLoadParams *params = static_cast<SDL_Audio::SoundLoadParams *>(data);
-    bool success = params->player->loadSoundFromSB3(params->sprite, params->zip, params->soundId);
+    bool success = false;
+    if (projectType != UNZIPPED)
+        success = params->player->loadSoundFromSB3(params->sprite, params->zip, params->soundId);
+    else
+        success = params->player->loadSoundFromFile("project/" + params->soundId);
 
     delete params;
 
@@ -122,7 +126,7 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
     return false;
 }
 
-bool SoundPlayer::loadSoundFromFile(Sprite *sprite, const std::string &fileName) {
+bool SoundPlayer::loadSoundFromFile(const std::string &fileName) {
     std::cout << "Loading audio from file: " << fileName << std::endl;
 
     // Check if file has supported extension

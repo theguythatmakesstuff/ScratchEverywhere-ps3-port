@@ -12,7 +12,7 @@ class SoundPlayer {
 
     static bool loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId);
     static void startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId);
-    static bool loadSoundFromFile(Sprite *sprite, const std::string &fileName);
+    static bool loadSoundFromFile(const std::string &fileName);
     static int playSound(const std::string &soundId);
     static void stopSound(const std::string &soundId);
     static void checkAudio();
