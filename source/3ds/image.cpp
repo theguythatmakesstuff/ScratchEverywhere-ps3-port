@@ -111,20 +111,21 @@ void Image::loadImages(mz_zip_archive *zip) {
  * Turns a single image from an unzipped Scratch project into RGBA data
  */
 void Image::loadImageFromFile(std::string filePath) {
+    std::string filename = filePath.substr(filePath.find_last_of('/') + 1);
+    std::string path2 = filename.substr(0, filename.find_last_of('.'));
 
     auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const ImageRGBA &img) {
-        return img.name == filePath;
+        return img.name == path2;
     });
     if (it != imageRGBAS.end()) return;
+
+    std::cout << filePath << std::endl;
 
     int width, height, channels;
     FILE *file = fopen(("romfs:/project/" + filePath).c_str(), "rb");
     if (!file) {
-        file = fopen(("romfs:/project/" + filePath).c_str(), "rb");
-        if (!file) {
-            std::cerr << "Invalid image file name " << filePath << std::endl;
-            return;
-        }
+        std::cerr << "Invalid image file name " << filePath << std::endl;
+        return;
     }
 
     unsigned char *rgba_data = stbi_load_from_file(file, &width, &height, &channels, 4);
@@ -137,7 +138,7 @@ void Image::loadImageFromFile(std::string filePath) {
 
     // std::cout << "Adding PNG: " << zipFileName << std::endl;
     ImageRGBA newRGBA;
-    newRGBA.name = filePath;
+    newRGBA.name = path2;
     newRGBA.width = width;
     newRGBA.height = height;
     newRGBA.textureWidth = clamp(next_pow2(newRGBA.width), 64, 1024);
@@ -150,6 +151,7 @@ void Image::loadImageFromFile(std::string filePath) {
     memStats.totalRamUsage += imageSize;
     memStats.imageCount++;
 
+    std::cout << "successfuly laoded image from file!" << std::endl;
     imageRGBAS.push_back(newRGBA);
 }
 

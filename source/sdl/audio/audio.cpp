@@ -5,6 +5,7 @@
 #include <iostream>
 
 std::unordered_map<std::string, SDL_Audio *> SDL_Sounds;
+std::string currentStreamedSound = "";
 
 SDL_Audio::SDL_Audio() : audioChunk(nullptr) {}
 
@@ -12,6 +13,10 @@ SDL_Audio::~SDL_Audio() {
     if (audioChunk) {
         Mix_FreeChunk(audioChunk);
         audioChunk = nullptr;
+    }
+    if (music) {
+        Mix_FreeMusic(music);
+        music = nullptr;
     }
 }
 
@@ -46,7 +51,7 @@ void SoundPlayer::startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip,
     }
 }
 
-bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId) {
+bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId, const bool &streamed) {
     if (!zip) {
         std::cout << "Error: Zip archive is null" << std::endl;
         return false;
@@ -92,25 +97,59 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
                 return false;
             }
 
-            SDL_RWops *rw = SDL_RWFromMem(file_data, (int)file_size);
-            if (!rw) {
-                std::cout << "Failed to create RWops for: " << zipFileName << std::endl;
-                mz_free(file_data);
-                return false;
-            }
-            std::cout << "Converting sound into SDL sound..." << std::endl;
-            Mix_Chunk *chunk = Mix_LoadWAV_RW(rw, 1);
-            mz_free(file_data);
+            Mix_Music *music = nullptr;
+            Mix_Chunk *chunk = nullptr;
 
-            if (!chunk) {
-                std::cout << "Failed to load audio from memory: " << zipFileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
-                return false;
+            if (!streamed) {
+                SDL_RWops *rw = SDL_RWFromMem(file_data, (int)file_size);
+                if (!rw) {
+                    std::cout << "Failed to create RWops for: " << zipFileName << std::endl;
+                    mz_free(file_data);
+                    return false;
+                }
+                std::cout << "Converting sound into SDL sound..." << std::endl;
+                chunk = Mix_LoadWAV_RW(rw, 1);
+                mz_free(file_data);
+
+                if (!chunk) {
+                    std::cout << "Failed to load audio from memory: " << zipFileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    return false;
+                }
+            } else {
+                // need to write to a temp file beacause this is zip file
+                std::string tempFile = "temp_" + soundId;
+                FILE *fp = fopen(tempFile.c_str(), "wb");
+                if (!fp) {
+                    std::cout << "Failed to create temp file for streaming" << std::endl;
+                    mz_free(file_data);
+                    return false;
+                }
+
+                fwrite(file_data, 1, file_size, fp);
+                fclose(fp);
+                mz_free(file_data);
+
+                std::cout << "Converting sound into SDL streamed music..." << std::endl;
+                music = Mix_LoadMUS(tempFile.c_str());
+
+                // Clean up temp file
+                remove(tempFile.c_str());
+
+                if (!music) {
+                    std::cout << "Failed to load music from memory: " << zipFileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    return false;
+                }
             }
 
             std::cout << "Creating SDL sound object..." << std::endl;
             // Create SDL_Audio object
             SDL_Audio *audio = new SDL_Audio();
-            audio->audioChunk = chunk;
+            if (!streamed)
+                audio->audioChunk = chunk;
+            else {
+                audio->music = music;
+                audio->isStreaming = true;
+            }
             audio->audioId = soundId;
 
             SDL_Sounds[soundId] = audio;
@@ -126,7 +165,7 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
     return false;
 }
 
-bool SoundPlayer::loadSoundFromFile(const std::string &fileName) {
+bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &streamed) {
     std::cout << "Loading audio from file: " << fileName << std::endl;
 
     // Check if file has supported extension
@@ -146,15 +185,31 @@ bool SoundPlayer::loadSoundFromFile(const std::string &fileName) {
         return false;
     }
 
-    Mix_Chunk *chunk = Mix_LoadWAV(fileName.c_str());
-    if (!chunk) {
-        std::cout << "Failed to load audio file: " << fileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
-        return false;
+    Mix_Chunk *chunk = nullptr;
+    Mix_Music *music = nullptr;
+
+    if (!streamed) {
+        chunk = Mix_LoadWAV(fileName.c_str());
+        if (!chunk) {
+            std::cout << "Failed to load audio file: " << fileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+            return false;
+        }
+    } else {
+        music = Mix_LoadMUS(fileName.c_str());
+        if (!music) {
+            std::cout << "Failed to load streamed audio file: " << fileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+            return false;
+        }
     }
 
     // Create SDL_Audio object
     SDL_Audio *audio = new SDL_Audio();
-    audio->audioChunk = chunk;
+    if (!streamed)
+        audio->audioChunk = chunk;
+    else {
+        audio->music = music;
+        audio->isStreaming = true;
+    }
     audio->audioId = fileName;
 
     SDL_Sounds[fileName] = audio;
@@ -168,12 +223,29 @@ bool SoundPlayer::loadSoundFromFile(const std::string &fileName) {
 int SoundPlayer::playSound(const std::string &soundId) {
     auto it = SDL_Sounds.find(soundId);
     if (it != SDL_Sounds.end()) {
-        it->second->isPlaying = true;
-        int channel = Mix_PlayChannel(-1, it->second->audioChunk, 0);
-        if (channel != -1) {
-            SDL_Sounds[soundId]->channelId = channel;
+
+        if (!currentStreamedSound.empty() && it->second->isStreaming) {
+            stopStreamedSound();
         }
-        return channel;
+
+        it->second->isPlaying = true;
+
+        if (!it->second->isStreaming) {
+            int channel = Mix_PlayChannel(-1, it->second->audioChunk, 0);
+            if (channel != -1) {
+                SDL_Sounds[soundId]->channelId = channel;
+            }
+            return channel;
+        } else {
+            currentStreamedSound = soundId;
+            int result = Mix_PlayMusic(it->second->music, 0);
+            if (result == -1) {
+                std::cout << "Failed to play streamed sound: " << Mix_GetError() << std::endl;
+                it->second->isPlaying = false;
+                currentStreamedSound = "";
+            }
+            return result;
+        }
     }
     std::cout << "Sound not found: " << soundId << std::endl;
     return -1;
@@ -186,6 +258,17 @@ void SoundPlayer::stopSound(const std::string &soundId) {
         Mix_HaltChannel(channel);
     } else {
         std::cout << "No active channel found for sound: " << soundId << std::endl;
+    }
+}
+
+void SoundPlayer::stopStreamedSound() {
+    Mix_HaltMusic();
+    if (!currentStreamedSound.empty()) {
+        auto it = SDL_Sounds.find(currentStreamedSound);
+        if (it != SDL_Sounds.end()) {
+            it->second->isPlaying = false;
+        }
+        currentStreamedSound = "";
     }
 }
 
@@ -214,8 +297,12 @@ bool SoundPlayer::isSoundLoaded(const std::string &soundId) {
 }
 
 void SoundPlayer::cleanupAudio() {
+    Mix_HaltMusic();
+    Mix_HaltChannel(-1);
     for (auto &pair : SDL_Sounds) {
         delete pair.second;
     }
     SDL_Sounds.clear();
+    Mix_CloseAudio();
+    Mix_Quit();
 }

@@ -8,6 +8,8 @@
 #include "interpret.hpp"
 #include "spriteSheet.hpp"
 #include "text.hpp"
+// #include <SDL2/SDL.h>
+// #include <SDL2/SDL_mixer.h>
 
 #define SCREEN_WIDTH 400
 #define BOTTOM_SCREEN_WIDTH 320
@@ -41,9 +43,9 @@ bool Render::Init() {
     // waiting for beta 12 to enable,,
     // SDL_Init(SDL_INIT_AUDIO);
     // // Initialize SDL_mixer
-    // if (Mix_OpenAudio(22050, AUDIO_S16, 1, 512) < 0) { // Mono, smaller buffer
+    // if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
     //     std::cout << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
-    //     // return false;
+    //     // not returning false since emulators by default will error here
     // }
     // int flags = MIX_INIT_MP3 | MIX_INIT_OGG;
     // if (Mix_Init(flags) != flags) {
@@ -456,6 +458,7 @@ void MainMenu::cleanup() {
 }
 
 void Render::deInit() {
+
     C2D_Fini();
     C3D_Fini();
     for (auto &[id, data] : imageC2Ds) {
