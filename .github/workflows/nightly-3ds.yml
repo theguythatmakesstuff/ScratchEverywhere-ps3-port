@@ -22,7 +22,6 @@ jobs:
 
       - name: Install Dependencies and Build SDL2
         run: |
-          dkp-pacman -Syu --noconfirm
           dkp-pacman -S --noconfirm 3ds-dev 3ds-portlibs ninja
 
           git clone --recursive --branch release-2.32.x https://github.com/libsdl-org/SDL.git
