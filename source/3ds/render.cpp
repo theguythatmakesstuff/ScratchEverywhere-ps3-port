@@ -278,7 +278,7 @@ void Render::renderSprites() {
     C2D_Flush();
     C3D_FrameEnd(0);
     Image::FlushImages();
-    gspWaitForVBlank();
+    // gspWaitForVBlank();
     endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> duration = endTime - startTime;
     // int FPS = 1000.0 / std::round(duration.count());
