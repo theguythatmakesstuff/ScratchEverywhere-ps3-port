@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <iostream>
 
-bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId) {
+bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId, const bool &streamed) {
     return false;
 }
 
-bool SoundPlayer::loadSoundFromFile(const std::string &fileName) {
+bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &streamed) {
     return false;
 }
 
