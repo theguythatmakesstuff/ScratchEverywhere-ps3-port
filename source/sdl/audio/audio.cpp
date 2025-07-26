@@ -14,9 +14,9 @@ SDL_Audio::~SDL_Audio() {
         Mix_FreeChunk(audioChunk);
         audioChunk = nullptr;
     }
-    if (music) {
-        Mix_FreeMusic(music);
-        music = nullptr;
+    if (music != nullptr) {
+        // Mix_FreeMusic(music);
+        // music = nullptr;
     }
 }
 
