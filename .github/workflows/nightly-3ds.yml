@@ -20,9 +20,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Ninja
+        run: apt-get update && apt-get install -y ninja-build
+
       - name: Install Dependencies and Build SDL2
         run: |
-          dkp-pacman -S --noconfirm 3ds-dev 3ds-portlibs ninja
+          dkp-pacman -S --noconfirm 3ds-dev 3ds-portlibs
 
           git clone --recursive --branch release-2.32.x https://github.com/libsdl-org/SDL.git
           cd SDL
