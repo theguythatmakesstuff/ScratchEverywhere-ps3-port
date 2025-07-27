@@ -333,7 +333,7 @@ void MainMenu::init() {
 
     int yPosition = 120;
     for (std::string &file : projectFiles) {
-        TextObject *text = createTextObject(file, 145, yPosition);
+        TextObject *text = createTextObject(file, 0, yPosition);
         text->setColor(C2D_Color32f(0, 0, 0, 1));
         text->y -= text->getSize()[1] / 2;
         if (text->getSize()[0] > BOTTOM_SCREEN_WIDTH) {
@@ -377,6 +377,7 @@ void MainMenu::render() {
                 selectedText = projectTexts[selectedTextIndex];
             }
         }
+        cameraX = BOTTOM_SCREEN_WIDTH / 2;
         cameraY = selectedText->y;
 
         if (kJustPressed & KEY_A) {
