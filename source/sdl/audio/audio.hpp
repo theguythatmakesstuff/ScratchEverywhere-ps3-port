@@ -21,6 +21,7 @@ class SDL_Audio {
         Sprite *sprite;
         mz_zip_archive *zip;
         std::string soundId;
+        bool streamed;
     };
 };
 

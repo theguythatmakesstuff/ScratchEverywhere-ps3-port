@@ -26,20 +26,20 @@ SDL_Audio::~SDL_Audio() {
 
 // code down here kinda messy,,, TODO fix that
 
-int SB3SoundLoaderThread(void *data) {
+int soundLoaderThread(void *data) {
     SDL_Audio::SoundLoadParams *params = static_cast<SDL_Audio::SoundLoadParams *>(data);
     bool success = false;
     if (projectType != UNZIPPED)
-        success = params->player->loadSoundFromSB3(params->sprite, params->zip, params->soundId);
+        success = params->player->loadSoundFromSB3(params->sprite, params->zip, params->soundId, params->streamed);
     else
-        success = params->player->loadSoundFromFile("project/" + params->soundId);
+        success = params->player->loadSoundFromFile("project/" + params->soundId, params->streamed);
 
     delete params;
 
     return success ? 0 : 1;
 }
 
-void SoundPlayer::startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId) {
+void SoundPlayer::startSoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId) {
     SDL_Audio *audio = MemoryTracker::allocate<SDL_Audio>();
     new (audio) SDL_Audio();
     SDL_Sounds[soundId] = audio;
@@ -47,9 +47,10 @@ void SoundPlayer::startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip,
     SDL_Audio::SoundLoadParams *params = new SDL_Audio::SoundLoadParams{
         .sprite = sprite,
         .zip = zip,
-        .soundId = soundId};
+        .soundId = soundId,
+        .streamed = sprite->isStage}; // stage sprites get streamed audio
 
-    SDL_Thread *thread = SDL_CreateThread(SB3SoundLoaderThread, "SoundLoader", params);
+    SDL_Thread *thread = SDL_CreateThread(soundLoaderThread, "SoundLoader", params);
 
     if (!thread) {
         Log::logWarning("Failed to create SDL thread: " + std::string(SDL_GetError()));

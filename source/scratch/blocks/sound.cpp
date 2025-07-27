@@ -28,7 +28,7 @@ BlockResult SoundBlocks::playSoundUntilDone(Block &block, Sprite *sprite, Block 
         if (soundFind != sprite->sounds.end()) {
             const Sound *sound = &soundFind->second;
             if (!SoundPlayer::isSoundLoaded(sprite->sounds[inputString].fullName))
-                SoundPlayer::startSB3SoundLoaderThread(sprite, &Unzip::zipArchive, sound->fullName);
+                SoundPlayer::startSoundLoaderThread(sprite, &Unzip::zipArchive, sound->fullName);
             else
                 SoundPlayer::playSound(sprite->sounds[inputString].fullName);
         }
@@ -67,7 +67,7 @@ BlockResult SoundBlocks::playSound(Block &block, Sprite *sprite, Block **waiting
     if (soundFind != sprite->sounds.end()) {
         const Sound *sound = &soundFind->second;
         if (!SoundPlayer::isSoundLoaded(sprite->sounds[inputString].fullName))
-            SoundPlayer::startSB3SoundLoaderThread(sprite, &Unzip::zipArchive, sound->fullName);
+            SoundPlayer::startSoundLoaderThread(sprite, &Unzip::zipArchive, sound->fullName);
         else
             SoundPlayer::playSound(sprite->sounds[inputString].fullName);
     }
