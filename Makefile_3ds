@@ -21,7 +21,7 @@ include $(DEVKITARM)/3ds_rules
 
 #---------------------------------------------------------------------------------
 APP_TITLE 	:=	Scratch 3DS
-APP_DESCRIPTION := Play Scratch Games on the 3DS! [Beta 12]
+APP_DESCRIPTION := Play Scratch Games on the 3DS! [Beta 13 Dev]
 APP_AUTHOR 	:= NateXS
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
@@ -38,7 +38,7 @@ GFXBUILD	:=	$(ROMFS)/gfx
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft 
 
-CFLAGS	:=	-g -Wall -O2 -mword-relocations \
+CFLAGS	:=	-g -Wall -O3 -mword-relocations \
 			-ffunction-sections \
 			$(ARCH)
 

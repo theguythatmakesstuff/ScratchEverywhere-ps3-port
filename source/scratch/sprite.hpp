@@ -378,7 +378,7 @@ class Sprite {
     bool isDeleted = false;
     int currentCostume;
     std::string lastCostumeId = "";
-    int volume;
+    float volume;
     double xPosition;
     double yPosition;
     int rotationCenterX;

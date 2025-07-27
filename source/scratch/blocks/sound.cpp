@@ -99,10 +99,20 @@ BlockResult SoundBlocks::clearSoundEffects(Block &block, Sprite *sprite, bool *w
 }
 
 BlockResult SoundBlocks::changeVolumeBy(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
+    Value inputValue = Scratch::getInputValue(block, "VOLUME", sprite);
+    for (auto &[id, sound] : sprite->sounds) {
+        SoundPlayer::setSoundVolume(sound.fullName, sprite->volume + inputValue.asDouble());
+        sprite->volume = SoundPlayer::getSoundVolume(sound.fullName);
+    }
     return BlockResult::CONTINUE;
 }
 
 BlockResult SoundBlocks::setVolumeTo(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
+    Value inputValue = Scratch::getInputValue(block, "VOLUME", sprite);
+    for (auto &[id, sound] : sprite->sounds) {
+        SoundPlayer::setSoundVolume(sound.fullName, inputValue.asDouble());
+        sprite->volume = SoundPlayer::getSoundVolume(sound.fullName);
+    }
     return BlockResult::CONTINUE;
 }
 

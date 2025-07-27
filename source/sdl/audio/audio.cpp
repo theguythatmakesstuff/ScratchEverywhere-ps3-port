@@ -32,7 +32,7 @@ int soundLoaderThread(void *data) {
     if (projectType != UNZIPPED)
         success = params->player->loadSoundFromSB3(params->sprite, params->zip, params->soundId, params->streamed);
     else
-        success = params->player->loadSoundFromFile("project/" + params->soundId, params->streamed);
+        success = params->player->loadSoundFromFile(params->sprite, "project/" + params->soundId, params->streamed);
 
     delete params;
 
@@ -180,6 +180,7 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
             Log::log("memory usage: " + std::to_string(MemoryTracker::getCurrentUsage() / 1024) + " KB");
             SDL_Sounds[soundId]->isLoaded = true;
             playSound(soundId);
+            setSoundVolume(soundId, sprite->volume);
             return true;
         }
     }
@@ -188,7 +189,7 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
     return false;
 }
 
-bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &streamed) {
+bool SoundPlayer::loadSoundFromFile(Sprite *sprite, const std::string &fileName, const bool &streamed) {
     Log::log("Loading audio from file: " + fileName);
 
     // Check if file has supported extension
@@ -256,6 +257,7 @@ bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &str
     Log::log("Successfully loaded audio: " + fileName);
     SDL_Sounds[fileName]->isLoaded = true;
     playSound(fileName);
+    setSoundVolume(fileName, sprite->volume);
     return true;
 }
 
@@ -288,6 +290,48 @@ int SoundPlayer::playSound(const std::string &soundId) {
     }
     Log::logWarning("Sound not found: " + soundId);
     return -1;
+}
+
+void SoundPlayer::setSoundVolume(const std::string &soundId, float volume) {
+    auto soundFind = SDL_Sounds.find(soundId);
+    if (soundFind != SDL_Sounds.end()) {
+
+        float clampedVolume = std::clamp(volume, 0.0f, 100.0f);
+        int sdlVolume = (int)((clampedVolume / 100.0f) * 128.0f);
+
+        int channel = soundFind->second->channelId;
+        if (soundFind->second->isStreaming) {
+            Mix_VolumeMusic(sdlVolume);
+        } else {
+            Mix_Volume(channel, sdlVolume);
+        }
+    }
+}
+
+float SoundPlayer::getSoundVolume(const std::string &soundId) {
+    auto soundFind = SDL_Sounds.find(soundId);
+    if (soundFind != SDL_Sounds.end()) {
+        int sdlVolume = 0;
+
+        if (soundFind->second->isStreaming) {
+            sdlVolume = Mix_VolumeMusic(-1);
+        } else {
+            int channel = soundFind->second->channelId;
+            if (channel != -1) {
+                sdlVolume = Mix_Volume(channel, -1);
+            } else {
+                // no channel assigned
+                if (soundFind->second->audioChunk) {
+                    sdlVolume = Mix_VolumeChunk(soundFind->second->audioChunk, -1);
+                }
+            }
+        }
+        // convert from SDL's 0-128 range back to 0-100 range
+        return (sdlVolume / 128.0f) * 100.0f;
+    }
+
+    // return -1 to indicate sound not found
+    return -1.0f;
 }
 
 void SoundPlayer::stopSound(const std::string &soundId) {
