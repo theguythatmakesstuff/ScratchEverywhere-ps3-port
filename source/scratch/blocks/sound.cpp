@@ -2,7 +2,7 @@
 #include "../audio.hpp"
 #include "../unzip.hpp"
 
-BlockResult SoundBlocks::playSoundUntilDone(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::playSoundUntilDone(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
 
     Value inputValue = Scratch::getInputValue(block, "SOUND_MENU", sprite);
     std::string inputString = inputValue.asString();
@@ -14,6 +14,10 @@ BlockResult SoundBlocks::playSoundUntilDone(Block &block, Sprite *sprite, Block 
         if (inputBlock != nullptr) {
             inputString = inputBlock->fields["SOUND_MENU"][0].get<std::string>();
         }
+    }
+
+    if (block.repeatTimes != -1 && !fromRepeat) {
+        block.repeatTimes = -1;
     }
 
     if (block.repeatTimes == -1) {
@@ -44,7 +48,7 @@ BlockResult SoundBlocks::playSoundUntilDone(Block &block, Sprite *sprite, Block 
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::playSound(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::playSound(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
 
     Value inputValue = Scratch::getInputValue(block, "SOUND_MENU", sprite);
     std::string inputString = inputValue.asString();
@@ -75,30 +79,30 @@ BlockResult SoundBlocks::playSound(Block &block, Sprite *sprite, Block **waiting
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::stopAllSounds(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::stopAllSounds(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     for (auto &[id, sound] : sprite->sounds) {
         SoundPlayer::stopSound(sound.fullName);
     }
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::changeEffectBy(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::changeEffectBy(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::setEffectTo(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::setEffectTo(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::clearSoundEffects(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::clearSoundEffects(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::changeVolumeBy(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::changeVolumeBy(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     return BlockResult::CONTINUE;
 }
 
-BlockResult SoundBlocks::setVolumeTo(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
+BlockResult SoundBlocks::setVolumeTo(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     return BlockResult::CONTINUE;
 }
 
