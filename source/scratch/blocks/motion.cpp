@@ -306,8 +306,9 @@ BlockResult MotionBlocks::ifOnEdgeBounce(Block &block, Sprite *sprite, bool *wit
     double halfWidth = Scratch::projectWidth / 2.0;
     double halfHeight = Scratch::projectHeight / 2.0;
 
-    double spriteHalfWidth = sprite->spriteWidth / 2.0;
-    double spriteHalfHeight = sprite->spriteHeight / 2.0;
+    double scale = sprite->size / 100.0;
+    double spriteHalfWidth = (sprite->spriteWidth * scale) / 2.0;
+    double spriteHalfHeight = (sprite->spriteHeight * scale) / 2.0;
 
     // Compute bounds of the sprite
     double left = sprite->xPosition - spriteHalfWidth;
