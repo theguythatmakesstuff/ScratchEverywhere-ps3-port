@@ -253,7 +253,13 @@ void MainMenu::init() {
     }
 
     if (projectFiles.size() == 0) {
-        errorTextInfo = createTextObject("No Scratch projects found!\n Go download a Scratch project and put it\n in the 3ds folder of your SD card!\nPress Start to exit.",
+        std::string errorText;
+#ifdef __WIIU__
+        errorText = "No Scratch projects found!\n Go download a Scratch project and put it\n in sdcard:/wiiu/scratch-wiiu!\nPress Start to exit.";
+#else
+        errorText = "No Scratch projects found!\n Go download a Scratch project and put it\n in the same folder as this executable!\nPress Start to exit.";
+#endif
+        errorTextInfo = createTextObject(errorText,
                                          windowWidth / 2, windowWidth / 2);
         errorTextInfo->setRenderer(renderer);
         errorTextInfo->setScale(0.6);
