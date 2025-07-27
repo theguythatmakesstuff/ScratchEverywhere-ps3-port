@@ -166,8 +166,7 @@ bool queueC2DImage(Image::ImageRGBA &rgba) {
     if (!inQueue) {
         // no queue!!!
         if (memStats.totalVRamUsage + rgba.textureMemSize < MAX_IMAGE_VRAM) {
-            get_C2D_Image(rgba);
-            return true;
+            return get_C2D_Image(rgba);
         }
         // add to queue D:
         else {
@@ -185,7 +184,7 @@ bool queueC2DImage(Image::ImageRGBA &rgba) {
  * Code here originally from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/
  * then edited to fit my code
  */
-void get_C2D_Image(Image::ImageRGBA rgba) {
+bool get_C2D_Image(Image::ImageRGBA rgba) {
 
     u32 px_count = rgba.width * rgba.height;
     u32 *rgba_raw = reinterpret_cast<u32 *>(rgba.data);
@@ -219,10 +218,23 @@ void get_C2D_Image(Image::ImageRGBA rgba) {
     subtex->right = (float)rgba.width / (float)tex->width;
     subtex->bottom = 1.0 - ((float)rgba.height / (float)tex->height);
 
-    C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8);
+    if (!C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8)) {
+        Log::logWarning("Texture initializing failed!");
+        MemoryTracker::deallocate(tex);
+        MemoryTracker::deallocate(subtex);
+        return false;
+    }
     C3D_TexSetFilter(tex, GPU_NEAREST, GPU_NEAREST);
 
-    memset(tex->data, 0, px_count * 4);
+    if (!tex->data) {
+        Log::logWarning("Texture data is null!");
+        C3D_TexDelete(tex);
+        MemoryTracker::deallocate(tex);
+        MemoryTracker::deallocate(subtex);
+        return false;
+    }
+
+    memset(tex->data, 0, textureSize);
     for (u32 i = 0; i < (u32)rgba.width; i++) {
         for (u32 j = 0; j < (u32)rgba.height; j++) {
             u32 src_idx = (j * rgba.width) + i;
@@ -241,7 +253,7 @@ void get_C2D_Image(Image::ImageRGBA rgba) {
 
     imageC2Ds[rgba.name] = {image, 120};
     C3D_FrameSync(); // wait for Async functions to finish
-    return;
+    return true;
 }
 
 /**
