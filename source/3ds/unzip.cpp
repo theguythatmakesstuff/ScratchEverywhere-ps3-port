@@ -28,10 +28,11 @@ int Unzip::openFile(std::ifstream *file) {
         if (!(*file)) {
             Log::log("No embedded Scratch project, trying SD card");
 
+            // load main menu if not already
             if (filePath == "") return -1;
 
-            // then try SD card location
-            file->open(filePath, std::ios::binary | std::ios::ate); // loads file from location of executable
+            // if main menu was loaded, load the selected file from main menu
+            file->open(filePath, std::ios::binary | std::ios::ate);
             projectType = UNEMBEDDED;
             if (!(*file)) {
                 Log::logError("Couldnt find file. jinkies.");

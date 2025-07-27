@@ -31,18 +31,24 @@ int Unzip::openFile(std::ifstream *file) {
 #ifdef __WIIU__
         file->open("romfs:/" + filename, std::ios::binary | std::ios::ate);
 #else
-        file->open(filename, std::ios::binary | std::ios::ate);
+        file->open(filePath, std::ios::binary | std::ios::ate);
 #endif
         projectType = EMBEDDED;
 #ifdef __WIIU__
         if (!(*file)) {
             std::ostringstream path;
-            path << WHBGetSdCardMountPath() << "/wiiu/scratch-wiiu/" << filename;
+            path << WHBGetSdCardMountPath() << "/wiiu/scratch-wiiu/" << filePath;
             file->open(path.str(), std::ios::binary | std::ios::ate);
 #endif
             if (!(*file)) {
-                Log::logError("Couldn't find file. jinkies.");
-                return 0;
+                // if main menu hasn't been loaded yet, load it
+                if (filePath == "") {
+                    Log::log("Activating main menu...");
+                    return -1;
+                } else {
+                    Log::logError("Couldn't find file. jinkies.");
+                    return 0;
+                }
             }
 #ifdef __WIIU__
         }

@@ -34,7 +34,7 @@ WUHB_DRC_SPLASH	:=	gfx/wiiu/drc-splash.png
 
 # Flags
 
-CFLAGS	:=	-g -Wall -O2 -Wno-format-truncation -ffunction-sections -ffast-math $(MACHDEP)
+CFLAGS	:=	-g -Wall -O2 -Wno-format-truncation -ffunction-sections -ffast-math $(MACHDEP) -DSDL_BUILD
 
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) $(foreach dir,$(LIBDIRS),-I$(dir)/include) -I$(CURDIR)/$(BUILD)
 
@@ -42,7 +42,7 @@ CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__
 CFLAGS	+=	`$(PKGCONF_WIIU) --cflags SDL2_image SDL2_ttf SDL2_mixer sdl2`
 CFLAGS	+=	-I$(DEVKITPRO)/wut/include
 
-CXXFLAGS	:=	$(CFLAGS) -std=c++17 -Wall -fexceptions
+CXXFLAGS	:=	$(CFLAGS) -std=c++17 -Wall -fexceptions -DSDL_BUILD
 
 ASFLAGS	:=	-g $(MACHDEP)
 LDFLAGS	:=	-g $(MACHDEP) $(RPXSPECS) -Wl,-Map,$(notdir $*.map)
