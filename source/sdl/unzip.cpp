@@ -12,10 +12,10 @@ mz_zip_archive Unzip::zipArchive;
 std::vector<char> Unzip::zipBuffer;
 
 int Unzip::openFile(std::ifstream *file) {
-    std::cout << "Unzipping Scratch Project..." << std::endl;
+    Log::log("Unzipping Scratch project...");
 
     // load Scratch project into memory
-    std::cout << "Loading SB3 into memory..." << std::endl;
+    Log::log("Loading SB3 into memory...");
     std::string filename = "project.sb3";
     std::string unzippedPath = "project/project.json";
 
@@ -26,7 +26,7 @@ int Unzip::openFile(std::ifstream *file) {
 #endif
     projectType = UNZIPPED;
     if (!(*file)) {
-        std::cout << "No unzipped project, trying embedded." << std::endl;
+        Log::logWarning("No unzipped project, trying embedded.");
 
 #ifdef __WIIU__
         file->open("romfs:/" + filename, std::ios::binary | std::ios::ate);
@@ -41,7 +41,7 @@ int Unzip::openFile(std::ifstream *file) {
             file->open(path.str(), std::ios::binary | std::ios::ate);
 #endif
             if (!(*file)) {
-                std::cerr << "Couldnt find file. jinkies." << std::endl;
+                Log::logError("Couldn't find file. jinkies.");
                 return 0;
             }
 #ifdef __WIIU__

@@ -95,7 +95,6 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, Block **
             }
         }
         if (Math::isNumber(inputString) && inputFind != block.parsedInputs.end() && (inputFind->second.inputType == ParsedInput::BLOCK || inputFind->second.inputType == ParsedInput::VARIABLE) && !imageFound) {
-            std::cout << "backdrop numeric fallback" << std::endl;
             int costumeIndex = inputValue.asInt() - 1;
             if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
                 if (currentSprite->currentCostume != costumeIndex) {
@@ -264,7 +263,6 @@ BlockResult LooksBlocks::setEffectTo(Block &block, Sprite *sprite, Block **waiti
     } else if (effect == "GHOST") {
         sprite->ghostEffect = std::clamp(amount.asDouble(), 0.0, 100.0);
     } else {
-        std::cout << "what effect did you even put??" << std::endl;
     }
 
     return BlockResult::CONTINUE;
@@ -291,7 +289,6 @@ BlockResult LooksBlocks::changeEffectBy(Block &block, Sprite *sprite, Block **wa
         sprite->ghostEffect += amount.asDouble();
         sprite->ghostEffect = std::clamp(sprite->ghostEffect, 0.0f, 100.0f);
     } else {
-        std::cout << "what effect did you even put??" << std::endl;
     }
     return BlockResult::CONTINUE;
 }
@@ -318,7 +315,6 @@ Value LooksBlocks::backdrops(Block &block, Sprite *sprite) {
 Value LooksBlocks::costumeNumberName(Block &block, Sprite *sprite) {
     std::string value = block.fields.at("NUMBER_NAME")[0];
     if (value == "name") {
-        std::cout << sprite->costumes[sprite->currentCostume].name << std::endl;
         return Value(sprite->costumes[sprite->currentCostume].name);
     } else if (value == "number") {
         return Value(sprite->currentCostume + 1);

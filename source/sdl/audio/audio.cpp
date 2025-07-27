@@ -1,4 +1,5 @@
 #include "../scratch/audio.hpp"
+#include "../scratch/os.hpp"
 #include "audio.hpp"
 #include <SDL2/SDL_mixer.h>
 #include <algorithm>
@@ -10,6 +11,9 @@ std::string currentStreamedSound = "";
 SDL_Audio::SDL_Audio() : audioChunk(nullptr) {}
 
 SDL_Audio::~SDL_Audio() {
+    if (memorySize > 0) {
+        MemoryTracker::deallocate(nullptr, memorySize);
+    }
     if (audioChunk) {
         Mix_FreeChunk(audioChunk);
         audioChunk = nullptr;
@@ -36,7 +40,10 @@ int SB3SoundLoaderThread(void *data) {
 }
 
 void SoundPlayer::startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId) {
-    SDL_Sounds[soundId] = new SDL_Audio();
+    SDL_Audio *audio = MemoryTracker::allocate<SDL_Audio>();
+    new (audio) SDL_Audio();
+    SDL_Sounds[soundId] = audio;
+
     SDL_Audio::SoundLoadParams *params = new SDL_Audio::SoundLoadParams{
         .sprite = sprite,
         .zip = zip,
@@ -45,7 +52,7 @@ void SoundPlayer::startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip,
     SDL_Thread *thread = SDL_CreateThread(SB3SoundLoaderThread, "SoundLoader", params);
 
     if (!thread) {
-        std::cerr << "Failed to create SDL thread: " << SDL_GetError() << std::endl;
+        Log::logWarning("Failed to create SDL thread: " + std::string(SDL_GetError()));
     } else {
         SDL_DetachThread(thread);
     }
@@ -53,15 +60,15 @@ void SoundPlayer::startSB3SoundLoaderThread(Sprite *sprite, mz_zip_archive *zip,
 
 bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId, const bool &streamed) {
     if (!zip) {
-        std::cout << "Error: Zip archive is null" << std::endl;
+        Log::logWarning("Error: Zip archive is null");
         return false;
     }
 
-    std::cout << "Loading sound: '" << soundId << "'" << std::endl;
+    Log::log("Loading sound: '" + soundId + "'");
 
     int file_count = (int)mz_zip_reader_get_num_files(zip);
     if (file_count <= 0) {
-        std::cout << "Error: No files found in zip archive" << std::endl;
+        Log::logWarning("Error: No files found in zip archive");
         return false;
     }
 
@@ -90,10 +97,10 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
             }
 
             size_t file_size;
-            std::cout << "Extracting sound from sb3..." << std::endl;
+            Log::log("Extracting sound from sb3...");
             void *file_data = mz_zip_reader_extract_to_heap(zip, i, &file_size, 0);
             if (!file_data || file_size == 0) {
-                std::cout << "Failed to extract: " << zipFileName << std::endl;
+                Log::logWarning("Failed to extract: " + zipFileName);
                 return false;
             }
 
@@ -103,16 +110,16 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
             if (!streamed) {
                 SDL_RWops *rw = SDL_RWFromMem(file_data, (int)file_size);
                 if (!rw) {
-                    std::cout << "Failed to create RWops for: " << zipFileName << std::endl;
+                    Log::logWarning("Failed to create RWops for: " + zipFileName);
                     mz_free(file_data);
                     return false;
                 }
-                std::cout << "Converting sound into SDL sound..." << std::endl;
+                Log::log("Converting sound into SDL sound...");
                 chunk = Mix_LoadWAV_RW(rw, 1);
                 mz_free(file_data);
 
                 if (!chunk) {
-                    std::cout << "Failed to load audio from memory: " << zipFileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    Log::logWarning("Failed to load audio from memory: " + zipFileName + " - SDL_mixer Error: " + Mix_GetError());
                     return false;
                 }
             } else {
@@ -120,7 +127,7 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
                 std::string tempFile = "temp_" + soundId;
                 FILE *fp = fopen(tempFile.c_str(), "wb");
                 if (!fp) {
-                    std::cout << "Failed to create temp file for streaming" << std::endl;
+                    Log::logWarning("Failed to create temp file for streaming");
                     mz_free(file_data);
                     return false;
                 }
@@ -129,44 +136,59 @@ bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const st
                 fclose(fp);
                 mz_free(file_data);
 
-                std::cout << "Converting sound into SDL streamed music..." << std::endl;
+                Log::log("Converting sound into SDL streamed music...");
                 music = Mix_LoadMUS(tempFile.c_str());
 
                 // Clean up temp file
                 remove(tempFile.c_str());
 
                 if (!music) {
-                    std::cout << "Failed to load music from memory: " << zipFileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    Log::logWarning("Failed to load music from memory: " + zipFileName + " - SDL_mixer Error: " + Mix_GetError());
                     return false;
                 }
             }
 
-            std::cout << "Creating SDL sound object..." << std::endl;
+            Log::log("Creating SDL sound object...");
+
             // Create SDL_Audio object
-            SDL_Audio *audio = new SDL_Audio();
-            if (!streamed)
+            SDL_Audio *audio;
+            auto it = SDL_Sounds.find(soundId);
+            if (it != SDL_Sounds.end()) {
+                audio = it->second;
+            } else {
+                audio = MemoryTracker::allocate<SDL_Audio>();
+                new (audio) SDL_Audio();
+                SDL_Sounds[soundId] = audio;
+            }
+
+            if (!streamed) {
                 audio->audioChunk = chunk;
-            else {
+                audio->memorySize = file_size * 2; // Rough estimate..
+                MemoryTracker::allocate(audio->memorySize);
+            } else {
                 audio->music = music;
                 audio->isStreaming = true;
+                audio->memorySize = 64 * 1024; // streaming buffer is ~64kb
+                MemoryTracker::allocate(audio->memorySize);
             }
             audio->audioId = soundId;
 
             SDL_Sounds[soundId] = audio;
 
-            std::cout << "Successfully loaded audio: " << soundId << std::endl;
+            Log::log("Successfully loaded audio: " + soundId);
+            Log::log("memory usage: " + std::to_string(MemoryTracker::getCurrentUsage() / 1024) + " KB");
             SDL_Sounds[soundId]->isLoaded = true;
             playSound(soundId);
             return true;
         }
     }
 
-    std::cout << "Audio not found: " << soundId << std::endl;
+    Log::logWarning("Audio not found: " + soundId);
     return false;
 }
 
 bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &streamed) {
-    std::cout << "Loading audio from file: " << fileName << std::endl;
+    Log::log("Loading audio from file: " + fileName);
 
     // Check if file has supported extension
     std::string lowerFileName = fileName;
@@ -181,29 +203,44 @@ bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &str
     }
 
     if (!isSupported) {
-        std::cout << "Unsupported audio format: " << fileName << std::endl;
+        Log::logWarning("Unsupported audio format: " + fileName);
         return false;
     }
 
     Mix_Chunk *chunk = nullptr;
     Mix_Music *music = nullptr;
+    size_t audioMemorySize = 0;
 
     if (!streamed) {
         chunk = Mix_LoadWAV(fileName.c_str());
         if (!chunk) {
-            std::cout << "Failed to load audio file: " << fileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+            Log::logWarning("Failed to load audio file: " + fileName + " - SDL_mixer Error: " + Mix_GetError());
             return false;
         }
+        // estimate memory based on file size
+        FILE *file = fopen(fileName.c_str(), "rb");
+        if (file) {
+            fseek(file, 0, SEEK_END);
+            long file_size = ftell(file);
+            fclose(file);
+            audioMemorySize = file_size * 2; // rough estimate
+        } else {
+            audioMemorySize = 1024 * 1024; // 1MB defualt
+        }
+        MemoryTracker::allocate(audioMemorySize);
     } else {
         music = Mix_LoadMUS(fileName.c_str());
         if (!music) {
-            std::cout << "Failed to load streamed audio file: " << fileName << " - SDL_mixer Error: " << Mix_GetError() << std::endl;
+            Log::logWarning("Failed to load streamed audio file: " + fileName + " - SDL_mixer Error: " + Mix_GetError());
             return false;
         }
+        audioMemorySize = 64 * 1024; // estimate
+        MemoryTracker::allocate(audioMemorySize);
     }
 
     // Create SDL_Audio object
-    SDL_Audio *audio = new SDL_Audio();
+    SDL_Audio *audio = MemoryTracker::allocate<SDL_Audio>();
+    new (audio) SDL_Audio();
     if (!streamed)
         audio->audioChunk = chunk;
     else {
@@ -211,10 +248,11 @@ bool SoundPlayer::loadSoundFromFile(const std::string &fileName, const bool &str
         audio->isStreaming = true;
     }
     audio->audioId = fileName;
+    audio->memorySize = audioMemorySize;
 
     SDL_Sounds[fileName] = audio;
 
-    std::cout << "Successfully loaded audio: " << fileName << std::endl;
+    Log::log("Successfully loaded audio: " + fileName);
     SDL_Sounds[fileName]->isLoaded = true;
     playSound(fileName);
     return true;
@@ -240,14 +278,14 @@ int SoundPlayer::playSound(const std::string &soundId) {
             currentStreamedSound = soundId;
             int result = Mix_PlayMusic(it->second->music, 0);
             if (result == -1) {
-                std::cout << "Failed to play streamed sound: " << Mix_GetError() << std::endl;
+                Log::logWarning("Failed to play streamed sound: " + std::string(Mix_GetError()));
                 it->second->isPlaying = false;
                 currentStreamedSound = "";
             }
             return result;
         }
     }
-    std::cout << "Sound not found: " << soundId << std::endl;
+    Log::logWarning("Sound not found: " + soundId);
     return -1;
 }
 
@@ -257,7 +295,7 @@ void SoundPlayer::stopSound(const std::string &soundId) {
         int channel = soundFind->second->channelId;
         Mix_HaltChannel(channel);
     } else {
-        std::cout << "No active channel found for sound: " << soundId << std::endl;
+        Log::logWarning("No active channel found for sound: " + soundId);
     }
 }
 
@@ -296,11 +334,25 @@ bool SoundPlayer::isSoundLoaded(const std::string &soundId) {
     return soundFind != SDL_Sounds.end();
 }
 
+void SoundPlayer::freeAudio(const std::string &soundId) {
+    auto it = SDL_Sounds.find(soundId);
+    if (it != SDL_Sounds.end()) {
+        SDL_Audio *audio = it->second;
+        audio->~SDL_Audio();
+        MemoryTracker::deallocate<SDL_Audio>(audio);
+
+        SDL_Sounds.erase(it);
+    }
+}
+
 void SoundPlayer::cleanupAudio() {
     Mix_HaltMusic();
     Mix_HaltChannel(-1);
+
+    // Track memory cleanup
     for (auto &pair : SDL_Sounds) {
-        delete pair.second;
+        pair.second->~SDL_Audio();
+        MemoryTracker::deallocate<SDL_Audio>(pair.second);
     }
     SDL_Sounds.clear();
     Mix_CloseAudio();

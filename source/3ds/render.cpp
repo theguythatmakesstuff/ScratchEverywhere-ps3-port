@@ -2,6 +2,7 @@
 #include "../scratch/audio.hpp"
 #include "../scratch/image.hpp"
 #include "../scratch/input.hpp"
+#include "../scratch/os.hpp"
 #include "../scratch/render.hpp"
 #include "../scratch/unzip.hpp"
 #include "image.hpp"
@@ -44,12 +45,12 @@ bool Render::Init() {
     SDL_Init(SDL_INIT_AUDIO);
     // Initialize SDL_mixer
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        std::cout << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        Log::logWarning(std::string("SDL_mixer could not initialize! Error: ") + Mix_GetError());
         // not returning false since emulators by default will error here
     }
     int flags = MIX_INIT_MP3 | MIX_INIT_OGG;
     if (Mix_Init(flags) != flags) {
-        std::cout << "SDL_mixer could not initialize MP3/OGG support! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        Log::logWarning(std::string("SDL_mixer could not initialize MP3/OGG support! SDL_mixer Error: ") + Mix_GetError());
     }
 
     return true;

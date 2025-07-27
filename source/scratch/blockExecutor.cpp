@@ -426,10 +426,10 @@ Value BlockExecutor::getCustomBlockValue(std::string valueName, Sprite *sprite, 
                 if (valueIt != custBlock.argumentValues.end()) {
                     return valueIt->second;
                 } else {
-                    std::cout << "Argument ID found, but no value exists for it." << std::endl;
+                    Log::logWarning("Argument ID found, but no value exists for it.");
                 }
             } else {
-                std::cout << "Index out of bounds for argumentIds!" << std::endl;
+                Log::logWarning("Index out of bounds for argumentIds!");
             }
         }
     }

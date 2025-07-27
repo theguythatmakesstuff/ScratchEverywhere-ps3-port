@@ -100,7 +100,7 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, Block **w
         spriteToClone->isStage = false;
         spriteToClone->toDelete = false;
         spriteToClone->id = Math::generateRandomString(15);
-        std::cout << "Cloned " << sprite->name << std::endl;
+        Log::log("Cloned " + sprite->name);
         // add clone to sprite list
         sprites.push_back(spriteToClone);
         Sprite *addedSprite = sprites.back();
@@ -121,7 +121,7 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, Block **w
 BlockResult ControlBlocks::deleteThisClone(Block &block, Sprite *sprite, Block **waitingBlock, bool *withoutScreenRefresh) {
     if (sprite->isClone)
         sprite->toDelete = true;
-    std::cout << "Delete " << sprite->name << "'s clone." << std::endl;
+    Log::log("Deleted " + sprite->name + "'s clone.");
     return BlockResult::CONTINUE;
 }
 
