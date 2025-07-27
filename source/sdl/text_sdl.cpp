@@ -1,4 +1,4 @@
-#include "text.hpp"
+#include "text_sdl.hpp"
 TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::string fontPath)
     : TextObject(txt, posX, posY, fontPath) {
 
