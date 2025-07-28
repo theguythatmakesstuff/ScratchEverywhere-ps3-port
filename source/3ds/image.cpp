@@ -277,6 +277,9 @@ void Image::freeImage(const std::string &costumeId) {
         }
         imageC2Ds.erase(it);
     }
+    if (projectType == UNZIPPED) {
+        freeRGBA(costumeId);
+    }
 }
 
 void freeRGBA(const std::string &imageName) {
