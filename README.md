@@ -69,14 +69,28 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - Loudness
 
 ## Roadmap / to-do list
+
+### Runtime
+
 - Bug fixing and Scratch Parity
-- Stereoscopic 3D support for 3DS
 - Get all blocks working
 - Pen support
-- Cloud variables
-- Ability to remap controls
+- Cloud variables (https://github.com/NateXS/Scratch-3DS/pull/145)
+
+### 3DS
+
+- Stereoscopic 3D support
+
+### Wii U
+
 - Audio support
 - Turbowarp extensions
+- Dual screen support
+- Improved controller support (multiple controllers, Wii Remotes)
+
+### Other
+
+- Ability to remap controls
 
 ## Installation
 There are 2 methods to install the runtime.
