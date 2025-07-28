@@ -4,7 +4,11 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
 
     // Load font
     if (fontPath.empty()) {
+#ifdef __WIIU__
+        font = TTF_OpenFont("romfs:/gfx/Arialn.ttf", 24);
+#else
         font = TTF_OpenFont("gfx/Arialn.ttf", 24);
+#endif
         if (!font) {
             std::cerr << "Failed to load default font: " << TTF_GetError() << std::endl;
         }

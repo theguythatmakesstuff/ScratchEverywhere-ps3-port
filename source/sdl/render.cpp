@@ -236,7 +236,12 @@ void LoadingScreen::cleanup() {
 
 void MainMenu::init() {
 
-    std::vector<std::string> projectFiles = Unzip::getProjectFiles(".");
+    std::vector<std::string> projectFiles;
+#ifdef __WIIU__
+    projectFiles = Unzip::getProjectFiles(std::string(WHBGetSdCardMountPath()) + "/wiiu/scratch-wiiu/");
+#else
+    projectFiles = Unzip::getProjectFiles(".");
+#endif
 
     int yPosition = 120;
     for (std::string &file : projectFiles) {

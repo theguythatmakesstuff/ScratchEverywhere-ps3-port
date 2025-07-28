@@ -15,6 +15,9 @@ TARGET		:=	scratch-wiiu
 BUILD			:=	build/wiiu
 SOURCES		:=	source source/scratch source/scratch/blocks source/sdl source/sdl/audio include/miniz include/nlohmann
 INCLUDES	:=	include source/scratch source/scratch/blocks source/sdl source/sdl/audio include/nlohmann
+ROMFS	:=	romfs
+GRAPHICS	:=	gfx
+GFXBUILD	:=	$(ROMFS)/gfx
 
 # App Info
 
@@ -74,10 +77,6 @@ export SRCFILES	:=	$(CPPFILES) $(CFILES) $(SFILES)
 export OFILES		:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
-# RomFS
-
-ROMFS	:=	romfs
-
 include $(PORTLIBS_PATH)/wiiu/share/romfs-wiiu.mk
 
 CFLAGS		+=	$(ROMFS_CFLAGS)
@@ -87,10 +86,14 @@ OFILES		+=	$(ROMFS_TARGET)
 
 .PHONY: $(BUILD) clean all
 
-all: mkdir $(OUTPUT).rpx wuhb
+all: mkdir $(GFXBUILD) $(OUTPUT).rpx wuhb
 
 mkdir:
 	@mkdir -p $(BUILD)
+
+$(GFXBUILD):
+	@mkdir -p $@
+	@cp -r $(GRAPHICS)/* $@/
 
 wuhb:
 	@$(WUHB_TOOL) $(OUTPUT).rpx $(OUTPUT).wuhb --name="$(APP_NAME)" --author="$(APP_AUTHOR)" --icon="$(WUHB_ICON)" --tv-image="$(WUHB_TV_SPLASH)" --drc-image="$(WUHB_DRC_SPLASH)"
@@ -100,7 +103,7 @@ test:
 
 clean:
 	@echo Cleaning...
-	@rm -rf $(BUILD)
+	@rm -rf $(BUILD) $(GFXBUILD)
 
 package:
 	@echo Packaging...
