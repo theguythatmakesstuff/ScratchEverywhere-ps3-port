@@ -35,6 +35,8 @@ bool Render::Init() {
         return false;
     }
     nn::act::Initialize();
+    windowWidth = 854;
+    windowHeight = 480;
 #endif
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS);

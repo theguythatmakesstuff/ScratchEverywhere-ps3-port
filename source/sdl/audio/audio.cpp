@@ -405,7 +405,10 @@ bool SoundPlayer::isSoundPlaying(const std::string &soundId) {
         if (!soundFind->second->isLoaded) return true;
         if (!soundFind->second->isPlaying) return false;
         int channel = soundFind->second->channelId;
-        return Mix_Playing(channel) != 0;
+        if (!soundFind->second->isStreaming)
+            return Mix_Playing(channel) != 0;
+        else
+            return Mix_PlayingMusic() != 0;
     }
     return false;
 }
