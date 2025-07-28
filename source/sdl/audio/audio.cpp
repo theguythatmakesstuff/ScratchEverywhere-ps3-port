@@ -1,6 +1,10 @@
+
 #include "../scratch/audio.hpp"
 #include "../scratch/os.hpp"
 #include "audio.hpp"
+#ifdef __3DS__
+#include <3ds.h>
+#endif
 #include <SDL2/SDL_mixer.h>
 #include <algorithm>
 #include <iostream>
@@ -39,7 +43,24 @@ int soundLoaderThread(void *data) {
     return success ? 0 : 1;
 }
 
+void NDS_soundLoaderThread(void *data) {
+    SDL_Audio::SoundLoadParams *params = static_cast<SDL_Audio::SoundLoadParams *>(data);
+    if (projectType != UNZIPPED)
+        params->player->loadSoundFromSB3(params->sprite, params->zip, params->soundId, params->streamed);
+    else
+        params->player->loadSoundFromFile(params->sprite, "project/" + params->soundId, params->streamed);
+
+    delete params;
+
+    return;
+}
+
 void SoundPlayer::startSoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId) {
+
+    if (SDL_Sounds.find(soundId) != SDL_Sounds.end()) {
+        return;
+    }
+
     SDL_Audio *audio = MemoryTracker::allocate<SDL_Audio>();
     new (audio) SDL_Audio();
     SDL_Sounds[soundId] = audio;
@@ -50,6 +71,20 @@ void SoundPlayer::startSoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, co
         .soundId = soundId,
         .streamed = sprite->isStage}; // stage sprites get streamed audio
 
+// do 3DS threads so it can actually run in the background
+#ifdef __3DS__
+    s32 mainPrio = 0;
+    svcGetThreadPriority(&mainPrio, CUR_THREAD_HANDLE);
+
+    threadCreate(
+        NDS_soundLoaderThread,
+        params,
+        0x10000,
+        mainPrio + 1,
+        1,
+        true);
+#else
+
     SDL_Thread *thread = SDL_CreateThread(soundLoaderThread, "SoundLoader", params);
 
     if (!thread) {
@@ -57,6 +92,7 @@ void SoundPlayer::startSoundLoaderThread(Sprite *sprite, mz_zip_archive *zip, co
     } else {
         SDL_DetachThread(thread);
     }
+#endif
 }
 
 bool SoundPlayer::loadSoundFromSB3(Sprite *sprite, mz_zip_archive *zip, const std::string &soundId, const bool &streamed) {
@@ -376,7 +412,10 @@ bool SoundPlayer::isSoundPlaying(const std::string &soundId) {
 
 bool SoundPlayer::isSoundLoaded(const std::string &soundId) {
     auto soundFind = SDL_Sounds.find(soundId);
-    return soundFind != SDL_Sounds.end();
+    if (soundFind != SDL_Sounds.end()) {
+        return soundFind->second->isLoaded;
+    }
+    return false;
 }
 
 void SoundPlayer::freeAudio(const std::string &soundId) {

@@ -11,6 +11,7 @@ class SDL_Audio {
     bool isLoaded = false;
     bool isPlaying = false;
     bool isStreaming = false;
+    bool needsToBePlayed = true;
     size_t memorySize = 0;
 
     SDL_Audio();

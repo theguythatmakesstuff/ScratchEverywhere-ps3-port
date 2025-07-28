@@ -24,7 +24,8 @@ BlockResult SoundBlocks::playSoundUntilDone(Block &block, Sprite *sprite, bool *
         block.repeatTimes = -2;
 
         // stop playing the same sound if it's already playing
-        if (SoundPlayer::isSoundPlaying(sprite->sounds[inputString].fullName)) {
+        if (SoundPlayer::isSoundPlaying(sprite->sounds[inputString].fullName) &&
+            SoundPlayer::isSoundLoaded(sprite->sounds[inputString].fullName)) {
             SoundPlayer::stopSound(sprite->sounds[inputString].fullName);
         }
 
@@ -63,7 +64,8 @@ BlockResult SoundBlocks::playSound(Block &block, Sprite *sprite, bool *withoutSc
     }
 
     // stop playing the same sound if it's already playing
-    if (SoundPlayer::isSoundPlaying(sprite->sounds[inputString].fullName)) {
+    if (SoundPlayer::isSoundPlaying(sprite->sounds[inputString].fullName) &&
+        SoundPlayer::isSoundLoaded(sprite->sounds[inputString].fullName)) {
         SoundPlayer::stopSound(sprite->sounds[inputString].fullName);
     }
 
