@@ -86,7 +86,7 @@ void Image::loadImages(mz_zip_archive *zip) {
             if (!rgba_data) {
                 printf("Failed to decode PNG: %s\n", zipFileName.c_str());
                 mz_free(png_data);
-                continue;
+                return; // if failing here it's probably old 3DS running out of memory... so.... no point in trying anymore.. 🤒
             }
 
             Image::ImageRGBA newRGBA;
