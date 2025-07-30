@@ -85,8 +85,6 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 
 ### Wii U
 
-- Audio support
-- Turbowarp extensions
 - Dual screen support
 - Improved controller support (multiple controllers, Wii Remotes)
 
