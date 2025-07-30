@@ -111,6 +111,8 @@ void BlockExecutor::registerHandlers() {
     // data
     handlers[Block::DATA_SETVARIABLETO] = DataBlocks::setVariable;
     handlers[Block::DATA_CHANGEVARIABLEBY] = DataBlocks::changeVariable;
+    handlers[Block::DATA_SHOW_VARIABLE] = DataBlocks::showVariable;
+    handlers[Block::DATA_HIDE_VARIABLE] = DataBlocks::hideVariable;
     handlers[Block::DATA_ADD_TO_LIST] = DataBlocks::addToList;
     handlers[Block::DATA_DELETE_OF_LIST] = DataBlocks::deleteFromList;
     handlers[Block::DATA_DELETE_ALL_OF_LIST] = DataBlocks::deleteAllOfList;

@@ -108,6 +108,8 @@ struct Block {
         CONTROL_DELETE_THIS_CLONE,
         CONTROL_STOP,
         DATA_VARIABLE,
+        DATA_SHOW_VARIABLE,
+        DATA_HIDE_VARIABLE,
         DATA_SETVARIABLETO,
         DATA_CHANGEVARIABLEBY,
         OPERATOR_ADD,
@@ -232,6 +234,8 @@ struct Block {
         if (opCodeString == "control_start_as_clone") return CONTROL_START_AS_CLONE;
         if (opCodeString == "control_delete_this_clone") return CONTROL_DELETE_THIS_CLONE;
         if (opCodeString == "control_stop") return CONTROL_STOP;
+        if (opCodeString == "data_showvariable") return DATA_SHOW_VARIABLE;
+        if (opCodeString == "data_hidevariable") return DATA_HIDE_VARIABLE;
         if (opCodeString == "data_variable") return DATA_VARIABLE;
         if (opCodeString == "data_setvariableto") return DATA_SETVARIABLETO;
         if (opCodeString == "data_changevariableby") return DATA_CHANGEVARIABLEBY;
