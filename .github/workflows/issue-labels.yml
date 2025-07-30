@@ -11,43 +11,41 @@ jobs:
       issues: write
 
     steps:
-      - name: Extract Issue Type and Device Selection
+      - name: Parse Issue Type and Device Selection
         id: parse_issue
-        run: |
-          ISSUE_BODY="${{ github.event.issue.body }}"
-          LABELS_ON_ISSUE="${{ github.event.issue.labels.*.name }}"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { labels, body } = context.payload.issue;
 
-          ISSUE_TYPE=""
-          DEVICE_SELECTIONS=""
-          DEVICES_HEADING=""
+            let issueType = '';
+            if (labels.some(label => label.name === 'bug')) {
+              issueType = 'bug_report';
+            } else if (labels.some(label => label.name === 'Suggestion')) {
+              issueType = 'feature_request';
+            }
 
-          if [[ "$LABELS_ON_ISSUE" == *"bug"* ]]; then
-            ISSUE_TYPE="bug_report"
-            DEVICES_HEADING="### Device(s)"
-          elif [[ "$LABELS_ON_ISSUE" == *"Suggestion"* ]]; then
-            ISSUE_TYPE="feature_request"
-            DEVICES_HEADING="### Device"
-          fi
+            console.log(`Detected Issue Type: ${issueType}`);
 
-          echo "Detected Issue Type: $ISSUE_TYPE"
-          echo "Looking for heading: '$DEVICES_HEADING'"
+            let deviceSelections = '';
+            let devicesHeading = '';
 
-          if [ -n "$DEVICES_HEADING" ]; then
-            DEVICE_SELECTIONS=$(echo "$ISSUE_BODY" | awk -v RS="" -v heading="$DEVICES_HEADING" '
-              $0 ~ heading {
-                getline;
-                sub(/^[[:space:]]*/, "", $0);
-                sub(/[[:space:]]*$/, "", $0);
-                print;
-                exit;
-              }'
-            )
-          fi
+            if (issueType === 'bug_report') {
+              devicesHeading = '### Device(s)';
+            } else if (issueType === 'feature_request') {
+              devicesHeading = '### Device';
+            }
 
-          echo "Extracted Device Selections: '$DEVICE_SELECTIONS'"
+            if (devicesHeading) {
+              const regex = new RegExp(`${devicesHeading}\n\n(.*)`, 'm');
+              const match = body.match(regex);
+              if (match && match[1]) deviceSelections = match[1].split('\n')[0].trim();
+            }
 
-          echo "issue_type=$ISSUE_TYPE" >> $GITHUB_OUTPUT
-          echo "device_selections=$DEVICE_SELECTIONS" >> $GITHUB_OUTPUT
+            console.log(`Extracted Device Selections: '${deviceSelections}'`);
+
+            core.setOutput('issue_type', issueType);
+            core.setOutput('device_selections', deviceSelections);
 
       - name: Determine Labels to Add
         id: determine_labels
