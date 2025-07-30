@@ -332,7 +332,7 @@ void MainMenu::render() {
         if (selectedText == text)
             text->setColor(0xFFFFFFFF);
         else
-            text->setColor(0xFF000000);
+            text->setColor(0x000000FF);
 
         text->render(text->x + cameraX, text->y - (cameraY - (windowHeight / 2)));
     }
