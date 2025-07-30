@@ -246,7 +246,7 @@ void Render::renderVisibleVariables() {
                 monitorTexts[var.id]->setCenterAligned(true);
                 monitorTexts[var.id]->setScale(1.25f * (scale / 2.0f));
             }
-            monitorTexts[var.id]->render(var.x + barOffsetX, var.y + barOffsetY);
+            monitorTexts[var.id]->render(var.x * scale + barOffsetX, var.y * scale + barOffsetY);
         } else {
             if (monitorTexts.find(var.id) != monitorTexts.end()) {
                 monitorTexts.erase(var.id);
@@ -372,9 +372,6 @@ void MainMenu::render() {
 
     auto now = std::chrono::steady_clock::now();
     std::chrono::duration<float> elapsed = now - logoStartTime;
-
-    float timeSeconds = elapsed.count();
-    float bobbingOffset = std::sin(timeSeconds * 2.0f) * 5.0f;
 
     for (TextObject *text : projectTexts) {
         if (text == nullptr) continue;
