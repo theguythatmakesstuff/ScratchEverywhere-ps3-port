@@ -168,6 +168,8 @@ std::vector<Block *> BlockExecutor::runBlock(Block &block, Sprite *sprite, bool 
             return ranBlocks;
         }
 
+        runBroadcasts();
+
         // Move to next block
         if (!currentBlock->next.empty()) {
 
@@ -186,8 +188,6 @@ std::vector<Block *> BlockExecutor::runBlock(Block &block, Sprite *sprite, bool 
                 currentBlock->waitingIfBlock = "";
                 continue;
             }
-
-            runBroadcasts();
             break;
         }
     }

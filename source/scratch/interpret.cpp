@@ -335,37 +335,47 @@ void loadSprites(const nlohmann::json &json) {
     for (const auto &monitor : json["monitors"]) { // "monitor" is any variable shown on screen
         Monitor newMonitor;
 
-        if (!monitor["id"].is_null())
+        if (monitor.contains("id") && !monitor["id"].is_null())
             newMonitor.id = monitor.at("id").get<std::string>();
-        if (!monitor["mode"].is_null())
+
+        if (monitor.contains("mode") && !monitor["mode"].is_null())
             newMonitor.mode = monitor.at("mode").get<std::string>();
-        if (!monitor["opcode"].is_null())
+
+        if (monitor.contains("opcode") && !monitor["opcode"].is_null())
             newMonitor.opcode = Block::stringToOpcode(monitor.at("opcode").get<std::string>());
 
-        if (monitor["params"].is_object()) {
+        if (monitor.contains("params") && monitor["params"].is_object()) {
             for (const auto &param : monitor["params"].items()) {
                 std::string key = param.key();
                 std::string value = param.value().dump();
                 newMonitor.parameters[key] = value;
             }
         }
-        if (!monitor["spriteName"].is_null())
-            newMonitor.spriteName = monitor.at("spriteName").get<std::string>();
-        else newMonitor.spriteName = "";
-        if (!monitor["value"].is_null())
-            newMonitor.value = Value(monitor.at("mode").get<std::string>());
 
-        if (!monitor["x"].is_null())
+        if (monitor.contains("spriteName") && !monitor["spriteName"].is_null())
+            newMonitor.spriteName = monitor.at("spriteName").get<std::string>();
+        else
+            newMonitor.spriteName = "";
+
+        if (monitor.contains("value") && !monitor["value"].is_null())
+            newMonitor.value = Value(Math::removeQuotations(monitor.at("value").dump()));
+
+        if (monitor.contains("x") && !monitor["x"].is_null())
             newMonitor.x = monitor.at("x").get<int>();
-        if (!monitor["y"].is_null())
+
+        if (monitor.contains("y") && !monitor["y"].is_null())
             newMonitor.y = monitor.at("y").get<int>();
-        if (!monitor["visible"].is_null())
+
+        if (monitor.contains("visible") && !monitor["visible"].is_null())
             newMonitor.visible = monitor.at("visible").get<bool>();
-        if (!monitor["isDiscrete"].is_null())
+
+        if (monitor.contains("isDiscrete") && !monitor["isDiscrete"].is_null())
             newMonitor.isDiscrete = monitor.at("isDiscrete").get<bool>();
-        if (!monitor["sliderMin"].is_null())
+
+        if (monitor.contains("sliderMin") && !monitor["sliderMin"].is_null())
             newMonitor.sliderMin = monitor.at("sliderMin").get<double>();
-        if (!monitor["sliderMax"].is_null())
+
+        if (monitor.contains("sliderMax") && !monitor["sliderMax"].is_null())
             newMonitor.sliderMax = monitor.at("sliderMax").get<double>();
 
         Render::visibleVariables.push_back(newMonitor);
