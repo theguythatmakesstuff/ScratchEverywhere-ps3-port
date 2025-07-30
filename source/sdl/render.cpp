@@ -267,12 +267,14 @@ bool Render::appShouldRun() {
             break;
         case SDL_FINGERDOWN:
             touchActive = true;
-            touchPosition = {event.tfinger.x * windowWidth,
-                             event.tfinger.y * windowHeight};
+            touchPosition = {
+                static_cast<int>(event.tfinger.x * windowWidth),
+                static_cast<int>(event.tfinger.y * windowHeight)};
             break;
         case SDL_FINGERMOTION:
-            touchPosition = {event.tfinger.x * windowWidth,
-                             event.tfinger.y * windowHeight};
+            touchPosition = {
+                static_cast<int>(event.tfinger.x * windowWidth),
+                static_cast<int>(event.tfinger.y * windowHeight)};
             break;
         case SDL_FINGERUP:
             touchActive = false;
