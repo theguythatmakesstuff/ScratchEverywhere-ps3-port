@@ -373,6 +373,36 @@ void BlockExecutor::setVariableValue(const std::string &variableId, const Value 
     }
 }
 
+Value BlockExecutor::getMonitorValue(Monitor &var) {
+    Sprite *sprite = nullptr;
+    for (auto &spr : sprites) {
+        if (var.spriteName == "" && spr->isStage) {
+            sprite = spr;
+            break;
+        }
+        if (spr->name == var.spriteName && !spr->isClone) {
+            sprite = spr;
+            break;
+        }
+    }
+
+    std::string monitorName = "";
+    if (var.opcode == Block::DATA_VARIABLE) {
+        var.value = BlockExecutor::getVariableValue(var.id, sprite);
+        monitorName = Math::removeQuotations(var.parameters["VARIABLE"].get<std::string>());
+    }
+
+    std::string renderText;
+    if (var.mode != "large") {
+        if (var.spriteName != "")
+            renderText = var.spriteName + ": ";
+        if (monitorName != "")
+            renderText = renderText + monitorName + ": ";
+    }
+    renderText = renderText + var.value.asString();
+    return Value(renderText);
+}
+
 Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
     // Check sprite variables
     auto it = sprite->variables.find(variableId);

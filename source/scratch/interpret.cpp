@@ -332,6 +332,45 @@ void loadSprites(const nlohmann::json &json) {
         count++;
     }
 
+    for (const auto &monitor : json["monitors"]) { // "monitor" is any variable shown on screen
+        Monitor newMonitor;
+
+        if (!monitor["id"].is_null())
+            newMonitor.id = monitor.at("id").get<std::string>();
+        if (!monitor["mode"].is_null())
+            newMonitor.mode = monitor.at("mode").get<std::string>();
+        if (!monitor["opcode"].is_null())
+            newMonitor.opcode = Block::stringToOpcode(monitor.at("opcode").get<std::string>());
+
+        if (monitor["params"].is_object()) {
+            for (const auto &param : monitor["params"].items()) {
+                std::string key = param.key();
+                std::string value = param.value().dump();
+                newMonitor.parameters[key] = value;
+            }
+        }
+        if (!monitor["spriteName"].is_null())
+            newMonitor.spriteName = monitor.at("spriteName").get<std::string>();
+        else newMonitor.spriteName = "";
+        if (!monitor["value"].is_null())
+            newMonitor.value = Value(monitor.at("mode").get<std::string>());
+
+        if (!monitor["x"].is_null())
+            newMonitor.x = monitor.at("x").get<int>();
+        if (!monitor["y"].is_null())
+            newMonitor.y = monitor.at("y").get<int>();
+        if (!monitor["visible"].is_null())
+            newMonitor.visible = monitor.at("visible").get<bool>();
+        if (!monitor["isDiscrete"].is_null())
+            newMonitor.isDiscrete = monitor.at("isDiscrete").get<bool>();
+        if (!monitor["sliderMin"].is_null())
+            newMonitor.sliderMin = monitor.at("sliderMin").get<double>();
+        if (!monitor["sliderMax"].is_null())
+            newMonitor.sliderMax = monitor.at("sliderMax").get<double>();
+
+        Render::visibleVariables.push_back(newMonitor);
+    }
+
     // load block lookup table
     blockLookup.clear();
     for (Sprite *sprite : sprites) {
