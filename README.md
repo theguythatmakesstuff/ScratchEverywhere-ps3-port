@@ -60,7 +60,7 @@ As this is in a very W.I.P state, you will encounter many bugs, crashes, and thi
 - All* Costume Effects
 - - *`Ghost` Costume Effect is supported.
 - Cloud variables
-- Show/hide variable | Show/hide list
+- Show/hide list
 - When backdrop switches to
 - When this sprite clicked
 - When loudness > ___
