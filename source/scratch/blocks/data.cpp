@@ -228,31 +228,57 @@ Value DataBlocks::itemNumOfList(Block &block, Sprite *sprite) {
     std::string listName = block.fields.at("LIST")[1];
     Value itemToFind = Scratch::getInputValue(block, "ITEM", sprite);
 
-    for (Sprite *currentSprite : sprites) {
-        for (auto &[id, list] : currentSprite->lists) {
-            if (id == listName) {
-                int index = 1;
-                for (auto &item : list.items) {
-                    if (Math::removeQuotations(item.asString()) == itemToFind.asString()) {
-                        return Value(index);
-                    }
-                    index++;
-                }
+    Sprite *targetSprite = nullptr;
+
+    // First check if the current sprite has the list
+    if (sprite->lists.find(listName) != sprite->lists.end()) {
+        targetSprite = sprite;
+    } else {
+        // If not found in current sprite, check stage (global lists)
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
+                break;
             }
         }
     }
+
+    if (targetSprite) {
+        auto &list = targetSprite->lists[listName];
+        int index = 1;
+        for (auto &item : list.items) {
+            if (Math::removeQuotations(item.asString()) == itemToFind.asString()) {
+                return Value(index);
+            }
+            index++;
+        }
+    }
+
     return Value();
 }
 
 Value DataBlocks::lengthOfList(Block &block, Sprite *sprite) {
     std::string listName = block.fields.at("LIST")[1];
-    for (Sprite *currentSprite : sprites) {
-        for (auto &[id, list] : currentSprite->lists) {
-            if (id == listName) {
-                return Value(static_cast<int>(list.items.size()));
+
+    Sprite *targetSprite = nullptr;
+
+    // First check if the current sprite has the list
+    if (sprite->lists.find(listName) != sprite->lists.end()) {
+        targetSprite = sprite;
+    } else {
+        // If not found in current sprite, check stage (global lists)
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
+                break;
             }
         }
     }
+
+    if (targetSprite) {
+        return Value(static_cast<int>(targetSprite->lists[listName].items.size()));
+    }
+
     return Value();
 }
 
@@ -260,16 +286,29 @@ Value DataBlocks::listContainsItem(Block &block, Sprite *sprite) {
     std::string listName = block.fields.at("LIST")[1];
     Value itemToFind = Scratch::getInputValue(block, "ITEM", sprite);
 
-    for (Sprite *currentSprite : sprites) {
-        for (auto &[id, list] : currentSprite->lists) {
-            if (id == listName) {
-                for (const auto &item : list.items) {
-                    if (item == itemToFind) {
-                        return Value(true);
-                    }
-                }
+    Sprite *targetSprite = nullptr;
+
+    // First check if the current sprite has the list
+    if (sprite->lists.find(listName) != sprite->lists.end()) {
+        targetSprite = sprite;
+    } else {
+        // If not found in current sprite, check stage (global lists)
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
+                break;
             }
         }
     }
+
+    if (targetSprite) {
+        auto &list = targetSprite->lists[listName];
+        for (const auto &item : list.items) {
+            if (item == itemToFind) {
+                return Value(true);
+            }
+        }
+    }
+
     return Value(false);
 }
