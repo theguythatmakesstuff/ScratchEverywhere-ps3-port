@@ -118,6 +118,8 @@ Download the .zip file in the Releases tab or [nightly build](https://nightly.li
 Unzip the file in your `sdcard:/wiiu/apps/` folder.
 
 Place the scratch projects you want in `sdcard:/wiiu/scratch-wiiu/`
+> [!NOTE]
+> Scratch Wii U is also on the Homebrew App Store, so you can just download it there and keep it updated that way!
 
 Then it should be as simple as opening the app on your Wii U!
 
