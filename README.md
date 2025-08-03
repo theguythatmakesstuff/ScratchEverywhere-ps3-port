@@ -44,13 +44,14 @@ All controllers on all other platforms use the same control scheme.
 As this is in a very W.I.P state, you will encounter many bugs, crashes, and things that will just not work. 
 
 **List of known limitations:**
-- There is no vector/svg sprite rendering. Images will only render if converted to bitmap beforehand, otherwise the sprite will show as a black square
-- Images will only work if it's in .png or .jpg format
+- Images will only work if it's in .png, .jpg or .svg format
+- If any vector image contains text, the text will not show up
 - Extensions (eg: pen and music extensions) are not yet supported
 - Some blocks may lead to crashing/unintended behavior (please open an issue if you know a block that's causing problems)
 - [Wii U] The first controller connected will be the only one that will work
 - [3DS] Performace is poor when lots of blocks are running at once
 - [3DS] If you have a bunch of large images, some may not load
+- [3DS] Some vector images will appear bigger than they should
 - [3DS] Images cannot be over 1024x1024 in resolution
 - [3DS] Some images may appear 'fuzzy' looking or have noticable inconsistencies
 
