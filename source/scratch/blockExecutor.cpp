@@ -176,7 +176,7 @@ std::vector<Block *> BlockExecutor::runBlock(Block &block, Sprite *sprite, bool 
             return ranBlocks;
         }
 
-        runBroadcasts();
+        // runBroadcasts();
 
         // Move to next block
         if (!currentBlock->next.empty()) {
@@ -315,6 +315,7 @@ std::vector<std::pair<Block *, Sprite *>> BlockExecutor::runBroadcasts() {
     }
 
     std::string currentBroadcast = broadcastQueue.front();
+    Log::log("Running Broadcast " + currentBroadcast);
     broadcastQueue.erase(broadcastQueue.begin());
 
     for (auto *currentSprite : sprites) {

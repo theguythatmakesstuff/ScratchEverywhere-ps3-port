@@ -15,9 +15,6 @@
 #include <whb/sdcard.h>
 #endif
 
-// arm-none-eabi-addr2line -e Scratch.elf xxx
-// ^ for debug purposes
-
 #ifdef ENABLE_CLOUDVARS
 const uint64_t FNV_PRIME_64 = 1099511628211ULL;
 const uint64_t FNV_OFFSET_BASIS_64 = 14695981039346656037ULL;
@@ -159,12 +156,13 @@ int main(int argc, char **argv) {
 
             Input::getInput();
             BlockExecutor::runRepeatBlocks();
+            BlockExecutor::runBroadcasts();
             Render::renderSprites();
 
             frameEndTime = std::chrono::high_resolution_clock::now();
             auto frameDuration = frameEndTime - frameStartTime;
-            // std::cout << "\x1b[17;1HFrame time: " << frameDuration.count() << " ms" << std::endl;
-            // std::cout << "\x1b[18;1HSprites: " << sprites.size() << std::endl;
+            // Log::log("\x1b[17;1HFrame Time: " + std::to_string(frameDuration.count()) + " ms");
+            // Log::log("\x1b[18;1HSprites: " + std::to_string(sprites.size()));
         }
         if (toExit) {
             break;
