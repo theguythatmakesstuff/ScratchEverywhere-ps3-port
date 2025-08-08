@@ -44,7 +44,7 @@ void Input::getInput() {
 
     if (kDown) {
         keyHeldFrames += 1;
-        Input::buttonPress("any");
+        inputButtons.push_back("any");
         if (kDown & KEY_A) {
             Input::buttonPress("A");
         }
