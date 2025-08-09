@@ -14,7 +14,7 @@ body:
     id: devices
     attributes:
       label: "Device(s)"
-      description: What device(s) are you experiencing this on?. Please select at least one.
+      description: What device(s) are you requesting this feature for?. Please select at least one.
       multiple: true
       options:
         - New 3DS
@@ -24,7 +24,7 @@ body:
         - GameCube
         - PC
     validations:
-      required: true
+      required: false
   - type: textarea
     id: additional-context
     attributes:
