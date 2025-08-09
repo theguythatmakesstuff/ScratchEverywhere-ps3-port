@@ -10,11 +10,11 @@ void Log::log(std::string message, bool printToScreen) {
 }
 void Log::logWarning(std::string message, bool printToScreen) {
     if (printToScreen)
-        std::cout << "Warning: " << message << std::endl;
+        std::cout << "\x1b[1;33m" << "Warning: " << message << "\x1b[0m" << std::endl;
 }
 void Log::logError(std::string message, bool printToScreen) {
     if (printToScreen)
-        std::cerr << "Error: " << message << std::endl;
+        std::cerr << "\x1b[1;31m" << "Error: " << message << "\x1b[0m" << std::endl;
 }
 void Log::writeToFile(std::string message, std::string filePath) {
 }
