@@ -13,14 +13,17 @@ body:
   - type: dropdown
     id: devices
     attributes:
-      label: "Device"
-      description: What device is this feature request for? (e.g., Old 3DS, New 3DS, Wii U). Please select at least one.
-      multiple: false
+      label: "Device(s)"
+      description: What device(s) are you experiencing this on?. Please select at least one.
+      multiple: true
       options:
-        - 3DS
+        - New 3DS
+        - Old 3DS
         - Wii U
-        - Both
-    validations:
+		- Wii
+		- GameCube
+        - PC
+    validations:Issues or Feature Requests Related to the Wii version
       required: true
   - type: textarea
     id: additional-context
