@@ -8,6 +8,7 @@
 enum class ValueType {
     INTEGER,
     DOUBLE,
+    BOOLEAN,
     STRING
 };
 
@@ -30,6 +31,10 @@ class Value {
 
     explicit Value(double val) : type(ValueType::DOUBLE), doubleValue(val) {}
 
+    explicit Value(bool val) : type(ValueType::BOOLEAN) {
+        stringValue = new std::string(val ? "true" : "false");
+    }
+
     explicit Value(const std::string &val) : type(ValueType::STRING) {
         stringValue = new std::string(val);
     }
@@ -45,6 +50,8 @@ class Value {
         case ValueType::STRING:
             stringValue = new std::string(*other.stringValue);
             break;
+        case ValueType::BOOLEAN:
+            stringValue = new std::string(*other.stringValue);
         }
     }
     // Assignment operator
@@ -65,6 +72,9 @@ class Value {
             case ValueType::STRING:
                 stringValue = new std::string(*other.stringValue);
                 break;
+            case ValueType::BOOLEAN:
+                stringValue = new std::string(*other.stringValue);
+                break;
             }
         }
         return *this;
@@ -79,8 +89,9 @@ class Value {
     bool isInteger() const { return type == ValueType::INTEGER; }
     bool isDouble() const { return type == ValueType::DOUBLE; }
     bool isString() const { return type == ValueType::STRING; }
+    bool isBoolean() const { return type == ValueType::BOOLEAN; }
     bool isNumeric() const {
-        return type == ValueType::INTEGER || type == ValueType::DOUBLE ||
+        return type == ValueType::INTEGER || type == ValueType::DOUBLE || type == ValueType::BOOLEAN ||
                (type == ValueType::STRING && Math::isNumber(*stringValue));
     }
 
@@ -92,6 +103,8 @@ class Value {
             return doubleValue;
         case ValueType::STRING:
             return Math::isNumber(*stringValue) ? std::stod(*stringValue) : 0.0;
+        case ValueType::BOOLEAN:
+            return *stringValue == "true" ? 1.0 : 0.0;
         }
         return 0.0;
     }
@@ -107,6 +120,8 @@ class Value {
                 double d = std::stod(*stringValue);
                 return static_cast<int>(std::round(d));
             }
+        case ValueType::BOOLEAN:
+            return *stringValue == "true" ? 1 : 0;
         }
         return 0;
     }
@@ -123,6 +138,8 @@ class Value {
             return std::to_string(doubleValue);
         }
         case ValueType::STRING:
+            return *stringValue;
+        case ValueType::BOOLEAN:
             return *stringValue;
         }
         return "";
@@ -185,6 +202,8 @@ class Value {
             case ValueType::DOUBLE:
                 return doubleValue == other.doubleValue;
             case ValueType::STRING:
+                return *stringValue == *other.stringValue;
+            case ValueType::BOOLEAN:
                 return *stringValue == *other.stringValue;
             }
         }
