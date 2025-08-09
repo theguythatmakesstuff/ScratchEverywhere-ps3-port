@@ -59,78 +59,78 @@ const u32 rgba_to_abgr(u32 px) {
  * Takes every Image from the Scratch's sb3 file and converts them to RGBA data
  */
 void Image::loadImages(mz_zip_archive *zip) {
-    // Loop through all files in the ZIP
-    Log::log("Loading images...");
+    // // Loop through all files in the ZIP
+    // Log::log("Loading images...");
 
-    int file_count = (int)mz_zip_reader_get_num_files(zip);
+    // int file_count = (int)mz_zip_reader_get_num_files(zip);
 
-    for (int i = 0; i < file_count; i++) {
-        mz_zip_archive_file_stat file_stat;
-        if (!mz_zip_reader_file_stat(zip, i, &file_stat)) continue;
+    // for (int i = 0; i < file_count; i++) {
+    //     mz_zip_archive_file_stat file_stat;
+    //     if (!mz_zip_reader_file_stat(zip, i, &file_stat)) continue;
 
-        std::string zipFileName = file_stat.m_filename;
+    //     std::string zipFileName = file_stat.m_filename;
 
-        // Check if file is bitmap, or SVG
-        bool isBitmap = zipFileName.size() >= 4 &&
-                        (zipFileName.substr(zipFileName.size() - 4) == ".png" ||
-                         zipFileName.substr(zipFileName.size() - 4) == ".PNG" ||
-                         zipFileName.substr(zipFileName.size() - 4) == ".jpg" ||
-                         zipFileName.substr(zipFileName.size() - 4) == ".JPG");
-        bool isSVG = zipFileName.size() >= 4 &&
-                     (zipFileName.substr(zipFileName.size() - 4) == ".svg" ||
-                      zipFileName.substr(zipFileName.size() - 4) == ".SVG");
+    //     // Check if file is bitmap, or SVG
+    //     bool isBitmap = zipFileName.size() >= 4 &&
+    //                     (zipFileName.substr(zipFileName.size() - 4) == ".png" ||
+    //                      zipFileName.substr(zipFileName.size() - 4) == ".PNG" ||
+    //                      zipFileName.substr(zipFileName.size() - 4) == ".jpg" ||
+    //                      zipFileName.substr(zipFileName.size() - 4) == ".JPG");
+    //     bool isSVG = zipFileName.size() >= 4 &&
+    //                  (zipFileName.substr(zipFileName.size() - 4) == ".svg" ||
+    //                   zipFileName.substr(zipFileName.size() - 4) == ".SVG");
 
-        if (isBitmap || isSVG) {
-            size_t file_size;
-            void *file_data = mz_zip_reader_extract_to_heap(zip, i, &file_size, 0);
-            if (!file_data) {
-                printf("Failed to extract %s\n", zipFileName.c_str());
-                continue;
-            }
+    //     if (isBitmap || isSVG) {
+    //         size_t file_size;
+    //         void *file_data = mz_zip_reader_extract_to_heap(zip, i, &file_size, 0);
+    //         if (!file_data) {
+    //             printf("Failed to extract %s\n", zipFileName.c_str());
+    //             continue;
+    //         }
 
-            int width, height;
-            unsigned char *rgba_data = nullptr;
+    //         int width, height;
+    //         unsigned char *rgba_data = nullptr;
 
-            imageRGBA newRGBA;
+    //         imageRGBA newRGBA;
 
-            if (isSVG) {
-                newRGBA.isSVG = true;
-                rgba_data = SVGToRGBA(file_data, file_size, width, height);
-                if (!rgba_data) {
-                    printf("Failed to decode SVG: %s\n", zipFileName.c_str());
-                    mz_free(file_data);
-                    continue;
-                }
-            } else {
-                // bitmap files
-                int channels;
-                rgba_data = stbi_load_from_memory(
-                    (unsigned char *)file_data, file_size,
-                    &width, &height, &channels, 4);
+    //         if (isSVG) {
+    //             newRGBA.isSVG = true;
+    //             rgba_data = SVGToRGBA(file_data, file_size, width, height);
+    //             if (!rgba_data) {
+    //                 printf("Failed to decode SVG: %s\n", zipFileName.c_str());
+    //                 mz_free(file_data);
+    //                 continue;
+    //             }
+    //         } else {
+    //             // bitmap files
+    //             int channels;
+    //             rgba_data = stbi_load_from_memory(
+    //                 (unsigned char *)file_data, file_size,
+    //                 &width, &height, &channels, 4);
 
-                if (!rgba_data) {
-                    printf("Failed to decode image: %s\n", zipFileName.c_str());
-                    mz_free(file_data);
-                    return; // blablabla running out of memory blablabla
-                }
-            }
+    //             if (!rgba_data) {
+    //                 printf("Failed to decode image: %s\n", zipFileName.c_str());
+    //                 mz_free(file_data);
+    //                 return; // blablabla running out of memory blablabla
+    //             }
+    //         }
 
-            newRGBA.name = zipFileName.substr(0, zipFileName.find_last_of('.'));
-            newRGBA.fullName = zipFileName;
-            newRGBA.width = width;
-            newRGBA.height = height;
-            newRGBA.textureWidth = clamp(next_pow2(newRGBA.width), 64, 1024);
-            newRGBA.textureHeight = clamp(next_pow2(newRGBA.height), 64, 1024);
-            newRGBA.textureMemSize = newRGBA.textureWidth * newRGBA.textureHeight * 4;
-            newRGBA.data = rgba_data;
+    //         newRGBA.name = zipFileName.substr(0, zipFileName.find_last_of('.'));
+    //         newRGBA.fullName = zipFileName;
+    //         newRGBA.width = width;
+    //         newRGBA.height = height;
+    //         newRGBA.textureWidth = clamp(next_pow2(newRGBA.width), 64, 1024);
+    //         newRGBA.textureHeight = clamp(next_pow2(newRGBA.height), 64, 1024);
+    //         newRGBA.textureMemSize = newRGBA.textureWidth * newRGBA.textureHeight * 4;
+    //         newRGBA.data = rgba_data;
 
-            size_t imageSize = width * height * 4;
-            MemoryTracker::allocate(imageSize);
+    //         size_t imageSize = width * height * 4;
+    //         MemoryTracker::allocate(imageSize);
 
-            imageRGBAS.push_back(newRGBA);
-            mz_free(file_data);
-        }
-    }
+    //         imageRGBAS.push_back(newRGBA);
+    //         mz_free(file_data);
+    //     }
+    // }
 }
 
 /**
@@ -219,7 +219,105 @@ void Image::loadImageFromFile(std::string filePath) {
     imageRGBAS.push_back(newRGBA);
 }
 
+/**
+ * Loads a single image from a Scratch sb3 zip file by filename.
+ * @param zip Pointer to the zip archive
+ * @param costumeId The filename of the image to load (e.g., "sprite1.png")
+ */
 void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) {
+    std::string imageId = costumeId.substr(0, costumeId.find_last_of('.'));
+
+    // Check if image already exists
+    auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const imageRGBA &img) {
+        return img.name == imageId;
+    });
+    if (it != imageRGBAS.end()) return;
+
+    Log::log("Loading single image: " + costumeId);
+
+    // Find the file in the zip
+    int file_index = mz_zip_reader_locate_file(zip, costumeId.c_str(), nullptr, 0);
+    if (file_index < 0) {
+        Log::logWarning("Image file not found in zip: " + costumeId);
+        return;
+    }
+
+    // Get file stats
+    mz_zip_archive_file_stat file_stat;
+    if (!mz_zip_reader_file_stat(zip, file_index, &file_stat)) {
+        Log::logWarning("Failed to get file stats for: " + costumeId);
+        return;
+    }
+
+    // Check if file is bitmap or SVG
+    bool isBitmap = costumeId.size() >= 4 &&
+                    (costumeId.substr(costumeId.size() - 4) == ".png" ||
+                     costumeId.substr(costumeId.size() - 4) == ".PNG" ||
+                     costumeId.substr(costumeId.size() - 4) == ".jpg" ||
+                     costumeId.substr(costumeId.size() - 4) == ".JPG");
+    bool isSVG = costumeId.size() >= 4 &&
+                 (costumeId.substr(costumeId.size() - 4) == ".svg" ||
+                  costumeId.substr(costumeId.size() - 4) == ".SVG");
+
+    if (!isBitmap && !isSVG) {
+        Log::logWarning("File is not a supported image format: " + costumeId);
+        return;
+    }
+
+    // Extract file data
+    size_t file_size;
+    void *file_data = mz_zip_reader_extract_to_heap(zip, file_index, &file_size, 0);
+    if (!file_data) {
+        Log::logWarning("Failed to extract: " + costumeId);
+        return;
+    }
+
+    int width, height;
+    unsigned char *rgba_data = nullptr;
+
+    imageRGBA newRGBA;
+
+    if (isSVG) {
+        newRGBA.isSVG = true;
+        rgba_data = SVGToRGBA(file_data, file_size, width, height);
+        if (!rgba_data) {
+            Log::logWarning("Failed to decode SVG: " + costumeId);
+            mz_free(file_data);
+            return;
+        }
+    } else {
+        // Handle bitmap files (PNG, JPG)
+        int channels;
+        rgba_data = stbi_load_from_memory(
+            (unsigned char *)file_data, file_size,
+            &width, &height, &channels, 4);
+
+        if (!rgba_data) {
+            Log::logWarning("Failed to decode image: " + costumeId);
+            mz_free(file_data);
+            return;
+        }
+    }
+
+    // Set up the image data structure
+    newRGBA.name = imageId;
+    newRGBA.fullName = costumeId;
+    newRGBA.width = width;
+    newRGBA.height = height;
+    newRGBA.textureWidth = clamp(next_pow2(newRGBA.width), 64, 1024);
+    newRGBA.textureHeight = clamp(next_pow2(newRGBA.height), 64, 1024);
+    newRGBA.textureMemSize = newRGBA.textureWidth * newRGBA.textureHeight * 4;
+    newRGBA.data = rgba_data;
+
+    // Track memory usage
+    size_t imageSize = width * height * 4;
+    MemoryTracker::allocate(imageSize);
+
+    Log::log("Successfully loaded image: " + costumeId);
+    imageRGBAS.push_back(newRGBA);
+
+    // Clean up
+    mz_free(file_data);
 }
 
 /**
@@ -418,10 +516,9 @@ void Image::freeImage(const std::string &costumeId) {
             MemoryTracker::deallocate<Tex3DS_SubTexture>((Tex3DS_SubTexture *)it->second.image.subtex);
         }
         imageC2Ds.erase(it);
-    }
-    if (projectType == UNZIPPED) {
-        freeRGBA(costumeId);
-    }
+    } else toExit = true;
+
+    freeRGBA(costumeId);
 }
 
 void freeRGBA(const std::string &imageName) {
