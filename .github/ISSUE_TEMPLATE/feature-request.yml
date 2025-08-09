@@ -20,10 +20,10 @@ body:
         - New 3DS
         - Old 3DS
         - Wii U
-		- Wii
-		- GameCube
+        - Wii
+        - GameCube
         - PC
-    validations:Issues or Feature Requests Related to the Wii version
+    validations:
       required: true
   - type: textarea
     id: additional-context

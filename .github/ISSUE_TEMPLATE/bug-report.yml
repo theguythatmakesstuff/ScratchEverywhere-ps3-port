@@ -36,8 +36,8 @@ body:
         - New 3DS
         - Old 3DS
         - Wii U
-		- Wii
-		- GameCube
+        - Wii
+        - GameCube
         - PC
     validations:
       required: true
