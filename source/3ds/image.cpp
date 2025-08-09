@@ -16,8 +16,8 @@ using u32 = uint32_t;
 using u8 = uint8_t;
 
 std::unordered_map<std::string, ImageData> imageC2Ds;
-std::vector<Image::ImageRGBA> Image::imageRGBAS;
-static std::vector<Image::ImageRGBA *> imageLoadQueue;
+std::vector<imageRGBA> imageRGBAS;
+static std::vector<imageRGBA *> imageLoadQueue;
 static std::vector<std::string> toDelete;
 #define MAX_IMAGE_VRAM 30000000
 
@@ -91,7 +91,7 @@ void Image::loadImages(mz_zip_archive *zip) {
             int width, height;
             unsigned char *rgba_data = nullptr;
 
-            Image::ImageRGBA newRGBA;
+            imageRGBA newRGBA;
 
             if (isSVG) {
                 newRGBA.isSVG = true;
@@ -127,7 +127,7 @@ void Image::loadImages(mz_zip_archive *zip) {
             size_t imageSize = width * height * 4;
             MemoryTracker::allocate(imageSize);
 
-            Image::imageRGBAS.push_back(newRGBA);
+            imageRGBAS.push_back(newRGBA);
             mz_free(file_data);
         }
     }
@@ -140,7 +140,7 @@ void Image::loadImageFromFile(std::string filePath) {
     std::string filename = filePath.substr(filePath.find_last_of('/') + 1);
     std::string path2 = filename.substr(0, filename.find_last_of('.'));
 
-    auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const ImageRGBA &img) {
+    auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const imageRGBA &img) {
         return img.name == path2;
     });
     if (it != imageRGBAS.end()) return;
@@ -160,7 +160,7 @@ void Image::loadImageFromFile(std::string filePath) {
                  (filePath.substr(filePath.size() - 4) == ".svg" ||
                   filePath.substr(filePath.size() - 4) == ".SVG");
 
-    ImageRGBA newRGBA;
+    imageRGBA newRGBA;
 
     if (isSVG) {
         // Read entire SVG file into memory
@@ -298,9 +298,9 @@ unsigned char *SVGToRGBA(const void *svg_data, size_t svg_size, int &width, int 
  * Queues RGBA image data to be loaded into a Citro2D Image. Image will wait to load if VRAM is too high.
  * @param rgba
  */
-bool queueC2DImage(Image::ImageRGBA &rgba) {
+bool queueC2DImage(imageRGBA &rgba) {
     bool inQueue = false;
-    for (Image::ImageRGBA *queueRgba : imageLoadQueue) {
+    for (imageRGBA *queueRgba : imageLoadQueue) {
         if (rgba.name == queueRgba->name) {
             inQueue = true;
         }
@@ -320,13 +320,13 @@ bool queueC2DImage(Image::ImageRGBA &rgba) {
 }
 
 /**
- * Reads an `Image::ImageRGBA` image, and adds a `C2D_Image` object to `imageC2Ds`.
+ * Reads an `imageRGBA` image, and adds a `C2D_Image` object to `imageC2Ds`.
  * Assumes image data is stored left->right, top->bottom.
  * Dimensions must be within 64x64 and 1024x1024.
  * Code here originally from https://gbatemp.net/threads/citro2d-c2d_image-example.668574/
  * then edited to fit my code
  */
-bool get_C2D_Image(Image::ImageRGBA rgba) {
+bool get_C2D_Image(imageRGBA rgba) {
 
     // u32 px_count = rgba.width * rgba.height;
     u32 *rgba_raw = reinterpret_cast<u32 *>(rgba.data);
@@ -425,11 +425,11 @@ void Image::freeImage(const std::string &costumeId) {
 }
 
 void freeRGBA(const std::string &imageName) {
-    auto it = std::find_if(Image::imageRGBAS.begin(), Image::imageRGBAS.end(), [&](const Image::ImageRGBA &img) {
+    auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const imageRGBA &img) {
         return img.name == imageName;
     });
 
-    if (it != Image::imageRGBAS.end()) {
+    if (it != imageRGBAS.end()) {
         size_t dataSize = it->width * it->height * 4;
         if (it->data && dataSize > 0) {
             if (it->isSVG) free(it->data);
@@ -440,7 +440,7 @@ void freeRGBA(const std::string &imageName) {
 
             Log::log("Freed RGBA data for " + imageName);
         }
-        Image::imageRGBAS.erase(it);
+        imageRGBAS.erase(it);
     }
 }
 
@@ -488,7 +488,7 @@ void Image::FlushImages() {
     toDelete.clear();
 
     if (!imageLoadQueue.empty()) {
-        ImageRGBA *rgba = imageLoadQueue.front();
+        imageRGBA *rgba = imageLoadQueue.front();
         if (memStats.totalVRamUsage + rgba->textureMemSize < MAX_IMAGE_VRAM) {
             get_C2D_Image(*rgba);
             imageLoadQueue.erase(imageLoadQueue.begin());
