@@ -225,7 +225,7 @@ class Value {
             }
             return Value(strVal);
         } else if (jsonVal.is_boolean()) {
-            return Value(jsonVal.get<bool>() ? 1 : 0);
+            return Value(jsonVal.get<bool>() ? "true" : "false");
         } else if (jsonVal.is_array()) {
             if (jsonVal.size() > 1) {
                 return fromJson(jsonVal[1]);
