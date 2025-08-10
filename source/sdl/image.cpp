@@ -293,7 +293,7 @@ void Image::FlushImages() {
                     toDeleteStr = id;
                     continue;
                 }
-                if (img->freeTimer < imgToDelete->freeTimer && img->freeTimer != img->maxFreeTime) {
+                if (imgToDelete != nullptr && img->freeTimer < imgToDelete->freeTimer && img->freeTimer != img->maxFreeTime) {
                     imgToDelete = img;
                     toDeleteStr = id;
                 }
