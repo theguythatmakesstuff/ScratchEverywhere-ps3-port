@@ -96,6 +96,10 @@ void Render::deInit() {
 #endif
 }
 
+void *Render::getRenderer() {
+    return static_cast<void *>(renderer);
+}
+
 void drawBlackBars(int screenWidth, int screenHeight) {
     float screenAspect = static_cast<float>(screenWidth) / screenHeight;
     float projectAspect = static_cast<float>(Scratch::projectWidth) / Scratch::projectHeight;
@@ -256,7 +260,6 @@ void Render::renderVisibleVariables() {
             std::string renderText = BlockExecutor::getMonitorValue(var).asString();
             if (monitorTexts.find(var.id) == monitorTexts.end()) {
                 monitorTexts[var.id] = createTextObject(renderText, var.x, var.y);
-                monitorTexts[var.id]->setRenderer(renderer);
             } else {
                 monitorTexts[var.id]->setText(renderText);
             }
@@ -328,7 +331,6 @@ void MainMenu::init() {
     int yPosition = 120;
     for (std::string &file : projectFiles) {
         TextObject *text = createTextObject(file, 0, yPosition);
-        text->setRenderer(renderer);
         text->setColor(0xFF000000);
         text->y -= text->getSize()[1] / 2;
         if (text->getSize()[0] > windowWidth) {
@@ -348,7 +350,6 @@ void MainMenu::init() {
 #endif
         errorTextInfo = createTextObject(errorText,
                                          windowWidth / 2, windowWidth / 2);
-        errorTextInfo->setRenderer(renderer);
         errorTextInfo->setScale(0.6);
         hasProjects = false;
         shouldExit = false;

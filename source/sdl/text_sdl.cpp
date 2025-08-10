@@ -1,4 +1,5 @@
 #include "text_sdl.hpp"
+#include "../scratch/render.hpp"
 
 std::unordered_map<std::string, TTF_Font *> TextObjectSDL::fonts;
 
@@ -28,6 +29,7 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
 
     // Set initial text
     setText(txt);
+    setRenderer(static_cast<SDL_Renderer *>(Render::getRenderer()));
 }
 
 TextObjectSDL::~TextObjectSDL() {

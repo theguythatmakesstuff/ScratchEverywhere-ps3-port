@@ -85,6 +85,10 @@ bool Render::appShouldRun() {
     return aptMainLoop();
 }
 
+void *Render::getRenderer() {
+    return nullptr;
+}
+
 void drawBlackBars(int screenWidth, int screenHeight) {
     float screenAspect = static_cast<float>(screenWidth) / screenHeight;
     float projectAspect = static_cast<float>(Scratch::projectWidth) / Scratch::projectHeight;

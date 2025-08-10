@@ -20,6 +20,8 @@ class Render {
 
     static void deInit();
 
+    static void *getRenderer();
+
     /**
      * Renders every sprite to the screen.
      */
