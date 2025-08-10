@@ -26,6 +26,7 @@ void Image::render(double xPos, double yPos) {
         image->renderRect.x = xPos;
         image->renderRect.y = yPos;
 
+        image->freeTimer = image->maxFreeTime;
         SDL_RenderCopy(renderer, image->spriteTexture, &image->textureRect, &image->renderRect);
     }
 }
