@@ -66,10 +66,10 @@ bool Render::Init() {
 #endif
 
     romfsInit();
-    // waiting for beta 12 to enable,,
+    // waiting for beta 12 to enable,, <- its beta 17 why is this comment still here 😭
     SDL_Init(SDL_INIT_AUDIO);
     // Initialize SDL_mixer
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+    if (Mix_OpenAudio(48000, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         Log::logWarning(std::string("SDL_mixer could not initialize! Error: ") + Mix_GetError());
         // not returning false since emulators by default will error here
     }
