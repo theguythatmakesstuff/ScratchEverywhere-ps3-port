@@ -1,22 +1,29 @@
 #include "text_sdl.hpp"
+
+std::unordered_map<std::string, TTF_Font *> TextObjectSDL::fonts;
+
 TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::string fontPath)
     : TextObject(txt, posX, posY, fontPath) {
 
-    // Load font
+    // get font
     if (fontPath.empty()) {
+        fontPath = "gfx/Arialn.ttf";
+    }
 #if defined(__WIIU__) || defined(__OGC__)
-        font = TTF_OpenFont("romfs:/gfx/Arialn.ttf", 24);
-#else
-        font = TTF_OpenFont("gfx/Arialn.ttf", 24);
+    fontPath = "romfs:/" + fontPath;
 #endif
-        if (!font) {
-            std::cerr << "Failed to load default font: " << TTF_GetError() << std::endl;
-        }
-    } else {
-        font = TTF_OpenFont(fontPath.c_str(), 24);
-        if (!font) {
+
+    // open font if not loaded
+    if (fonts.find(fontPath) == fonts.end()) {
+        TTF_Font *loadedFont = TTF_OpenFont(fontPath.c_str(), 24);
+        if (!loadedFont) {
             std::cerr << "Failed to load font " << fontPath << ": " << TTF_GetError() << std::endl;
+        } else {
+            fonts[fontPath] = loadedFont;
         }
+        font = loadedFont;
+    } else {
+        font = fonts[fontPath];
     }
 
     // Set initial text
@@ -27,10 +34,6 @@ TextObjectSDL::~TextObjectSDL() {
     if (texture) {
         SDL_DestroyTexture(texture);
         texture = nullptr;
-    }
-    if (font) {
-        TTF_CloseFont(font);
-        font = nullptr;
     }
 }
 
