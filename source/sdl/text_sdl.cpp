@@ -34,6 +34,7 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
 
 TextObjectSDL::~TextObjectSDL() {
     if (texture) {
+        MemoryTracker::deallocateVRAM(memorySize);
         SDL_DestroyTexture(texture);
         texture = nullptr;
     }
@@ -64,7 +65,10 @@ void TextObjectSDL::updateTexture() {
     }
 
     // Create texture from surface
+    MemoryTracker::deallocateVRAM(memorySize);
     texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    memorySize = textSurface->w * textSurface->h * 4;
+    MemoryTracker::allocateVRAM(memorySize);
     if (!texture) {
         std::cerr << "Failed to create text texture: " << SDL_GetError() << std::endl;
     }
