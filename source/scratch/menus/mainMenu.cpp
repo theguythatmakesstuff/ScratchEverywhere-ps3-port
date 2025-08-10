@@ -3,6 +3,9 @@
 #include "../input.hpp"
 #include "../render.hpp"
 #include "../unzip.hpp"
+#ifdef __WIIU__
+#include <whb/sdcard.h>
+#endif
 
 Image *logo;
 
