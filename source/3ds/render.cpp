@@ -8,7 +8,6 @@
 #include "../scratch/unzip.hpp"
 #include "image.hpp"
 #include "interpret.hpp"
-#include "spriteSheet.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
@@ -416,7 +415,7 @@ void LoadingScreen::cleanup() {
 #endif
 }
 
-SpriteSheetObject *logo;
+Image *logo;
 
 void MainMenu::init() {
 
@@ -445,7 +444,7 @@ void MainMenu::init() {
         hasProjects = true;
     }
 
-    logo = new SpriteSheetObject("romfs:/gfx/menuElements.t3x", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    logo = new Image("gfx/logo.png");
     infoText = createTextObject("Runtime by NateXS", 340, 225);
     infoText->setScale(0.5);
 }
@@ -492,7 +491,7 @@ void MainMenu::render() {
     float timeSeconds = elapsed.count();
     float bobbingOffset = std::sin(timeSeconds * 2.0f) * 5.0f; // speed * amplitude
 
-    logo->render(logo->x, (SCREEN_HEIGHT / 2) + bobbingOffset);
+    logo->render(logo->getWidth() / 8, (SCREEN_HEIGHT * 0.4) + bobbingOffset);
     infoText->render(infoText->x, infoText->y);
 
     C2D_TargetClear(bottomScreen, clrScratchBlue);
