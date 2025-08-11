@@ -18,12 +18,15 @@ include $(DEVKITARM)/3ds_rules
 PKGCONF_3DS	:=	$(DEVKITPRO)/portlibs/3ds/bin/arm-none-eabi-pkg-config
 
 #---------------------------------------------------------------------------------
-
+#	Application Info
 #---------------------------------------------------------------------------------
 APP_TITLE 	:=	Scratch 3DS
 APP_DESCRIPTION := Play Scratch Games on the 3DS! [Beta 17 Dev]
 APP_AUTHOR 	:= NateXS
 TARGET		:=	Scratch
+#---------------------------------------------------------------------------------
+#	Build Info
+#---------------------------------------------------------------------------------
 BUILD		:=	build/3ds
 SOURCES		:=	source source/3ds source/scratch source/scratch/blocks source/scratch/menus include/miniz source/sdl/audio
 DATA		:=	data
@@ -36,6 +39,29 @@ GFXBUILD	:=	$(ROMFS)/gfx
 # Config Options
 ENABLE_CLOUDVARS	?=	0
 ENABLE_BUBBLES	  ?=	1
+ENABLE_AUDIO	?=	1
+
+# Check for SDL2 libraries
+ifeq ($(ENABLE_AUDIO),1)
+SDL2_AVAILABLE := $(shell $(PKGCONF_3DS) --exists sdl2 >/dev/null 2>&1; echo $$?)
+SDL2_MIXER_AVAILABLE := $(shell $(PKGCONF_3DS) --exists SDL2_mixer >/dev/null 2>&1; echo $$?)
+
+ifeq ($(SDL2_AVAILABLE),1)
+SDL2_AVAILABLE := $(shell test -f $(DEVKITPRO)/portlibs/3ds/lib/libSDL2.a; echo $$?)
+endif
+ifeq ($(SDL2_MIXER_AVAILABLE),1)
+SDL2_MIXER_AVAILABLE := $(shell test -f $(DEVKITPRO)/portlibs/3ds/lib/libSDL2_mixer.a; echo $$?)
+endif
+
+# Disable audio if SDL2 isnt found
+ifneq ($(SDL2_AVAILABLE),0)
+$(warning "[WARNING] SDL2 not found - Disabling audio...")
+override ENABLE_AUDIO := 0
+else ifneq ($(SDL2_MIXER_AVAILABLE),0)
+$(warning "[WARNING] SDL2_mixer not found - Disabling audio...") 
+override ENABLE_AUDIO := 0
+endif
+endif
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -51,7 +77,12 @@ CFLAGS	+=	$(INCLUDE) -D__3DS__ -fomit-frame-pointer
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:=  -lSDL2_mixer -lSDL2 -lcitro2d -lcitro3d -lctru -lm
+ifeq ($(ENABLE_AUDIO),1)
+LIBS	+=	-lSDL2_mixer -lSDL2
+CFLAGS	+=	-DENABLE_AUDIO
+endif
+
+LIBS	+=	-lcitro2d -lcitro3d -lctru -lm
 
 ifeq ($(ENABLE_BUBBLES),1)
 CFLAGS	+=	-DENABLE_BUBBLES
