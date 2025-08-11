@@ -454,7 +454,6 @@ void LoadingScreen::cleanup() {
 
 void Render::deInit() {
 #ifdef ENABLE_CLOUDVARS
-    free(SOC_buffer);
     socExit();
 #endif
 
