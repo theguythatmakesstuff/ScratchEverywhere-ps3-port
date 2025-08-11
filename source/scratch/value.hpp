@@ -226,7 +226,7 @@ class Value {
     }
 
     static Value fromJson(const nlohmann::json &jsonVal) {
-        if (jsonVal.is_null()) return Value(0);
+        if (jsonVal.is_null()) return Value();
 
         if (jsonVal.is_number_integer()) {
             return Value(jsonVal.get<int>());
@@ -244,7 +244,7 @@ class Value {
             }
             return Value(strVal);
         } else if (jsonVal.is_boolean()) {
-            return Value(jsonVal.get<bool>() ? "true" : "false");
+            return Value(Math::removeQuotations(jsonVal.dump()));
         } else if (jsonVal.is_array()) {
             if (jsonVal.size() > 1) {
                 return fromJson(jsonVal[1]);
