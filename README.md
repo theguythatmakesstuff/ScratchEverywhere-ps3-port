@@ -201,7 +201,7 @@ Make a `romfs` folder inside the unzipped source code and put the Scratch projec
 
 Then you need to compile the projects into proper Homebrew packages.
 - For the 3DS you simply need to run `make`. Then copy the `Scratch-3DS.3dsx` file like you normally would.
-- For the Wii U you need to run `make PLATFORM=wiiu all package` and then copy the `build/wiiu/scratch-wiiu` folder into the `sdcard:/wiiu/apps` folder on your sd card.
+- For the Wii U you need to run `make PLATFORM=wiiu` and then copy the `build/wiiu/scratch-wiiu` folder into the `sdcard:/wiiu/apps` folder on your sd card.
 - For the Wii you need to run `make PLATFORM=wii package`, then find the zipped file in `build/wii/scratch-wii.zip`. Unzip it and put the `apps` folder inside the root of your Wii SD card.
 - For the GameCube you need to run `make PLATFORM=gamecube`, then find the .dol file at `build/gamecube/scratch-gamecube.dol`.
 
