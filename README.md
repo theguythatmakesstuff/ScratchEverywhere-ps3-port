@@ -184,14 +184,14 @@ To compile for the Wii run `docker build -f docker/Dockerfile.wii --target expor
 
 #### Manual
 
-If you are compiling with cloud variables, you will need to have Devkitpro's SDKs, [Mist++](https://github.grady.link/mistpp), and a modified version of libcurl (instructions in mistpp-packages repo) installed.
+If you are compiling with cloud variables, you will need to have DevkitPro's SDKs, [Mist++](https://github.grady.link/mistpp), and a modified version of libcurl (instructions in mistpp-packages repo) installed.
 - For the 3DS you will need the DevkitARM toolchain and libctru.
 	- If you want to compile with audio support, you will also need a 3DS compiled version of SDL2 and SDL2_mixer. See the [Nightly Build commands](https://github.com/NateXS/Scratch-3DS/blob/main/.github/workflows/nightly-3ds.yml) for a reference on how to compile SDL2 3DS for yourself.
 - For the Wii U you will need the DevkitPPC toolchain, WUT, all SDL2-wiiu libraries, and [libromfs-wiiu.](https://github.com/yawut/libromfs-wiiu)
 - For the Wii you need the DevkitPPC toolchain, libogc, all SDL2-wii libraries, and [libromfs-ogc.](https://github.com/NateXS/libromfs-ogc)
 - For the GameCube you need the DevkitPPC toolchain, libogc, all SDL2-gamecube libraries, and [libromfs-ogc.](https://github.com/NateXS/libromfs-ogc)
 
-- Devkitpro's install instructions are available at : https://devkitpro.org/wiki/Getting_Started
+- DevkitPro's install instructions are available at : https://devkitpro.org/wiki/Getting_Started
 
 Download the source code from the releases tab and unzip it.
 
