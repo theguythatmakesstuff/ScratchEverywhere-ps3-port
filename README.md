@@ -55,7 +55,7 @@ A work in progress runtime made in C++ aimed to bring most Scratch 3 projects ov
 As this is in a very work in progress state, you will encounter many bugs, crashes, and things that will just not work. 
 
 **List of Known Limitations:**
-- Images will only work if it's in .png, .jpg or .svg format.
+- Images will only work if it's in `.png`, `.jpg`, or `.svg` format.
 - If any vector image contains text, the text will not show up.
 - Extensions (eg: pen and music extensions) are not yet supported.
 - Some blocks may lead to crashing/unintended behavior (please open an issue if you know a block that's causing problems.)
