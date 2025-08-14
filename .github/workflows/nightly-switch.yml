@@ -9,7 +9,7 @@ on:
       - gfx/*
       - include/**
       - .github/workflows/nightly-switch.yml
-      - Dockerfile.switch
+      - docker/Dockerfile.switch
     branches:
       - main
   workflow_dispatch:
