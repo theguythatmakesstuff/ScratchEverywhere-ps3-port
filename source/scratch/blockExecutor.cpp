@@ -280,12 +280,7 @@ void BlockExecutor::runCustomBlock(Sprite *sprite, Block &block, Block *callerBl
             // std::cout << "running custom block " << data.blockId << std::endl;
 
             // Get the parent of the prototype block (the definition containing all blocks)
-            auto parentId = sprite->blocks[data.blockId].parent;
-            if (sprite->blocks.find(parentId) == sprite->blocks.end()) {
-                return;
-            }
-
-            Block *customBlockDefinition = &sprite->blocks[parentId];
+            Block *customBlockDefinition = &sprite->blocks[sprite->blocks[data.blockId].parent];
 
             callerBlock->customBlockPtr = customBlockDefinition;
 
