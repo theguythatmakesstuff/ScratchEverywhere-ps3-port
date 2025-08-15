@@ -3,7 +3,7 @@ name: Wii U Nightly Build
 on:
   push:
     paths:
-      - Makefile_wiiu
+      - make/Makefile_wiiu
       - source/scratch/**
       - source/sdl/**
       - gfx/wiiu/**

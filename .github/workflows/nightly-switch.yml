@@ -3,7 +3,7 @@ name: Switch Nightly Build
 on:
   push:
     paths:
-      - Makefile_switch
+      - make/Makefile_switch
       - source/scratch/**
       - source/sdl/**
       - gfx/*

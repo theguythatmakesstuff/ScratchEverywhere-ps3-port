@@ -3,7 +3,7 @@ name: Wii Nightly Build
 on:
   push:
     paths:
-      - Makefile_wii
+      - make/Makefile_wii
       - source/scratch/**
       - source/sdl/**
       - gfx/wii/**

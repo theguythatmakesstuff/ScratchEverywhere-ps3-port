@@ -3,7 +3,7 @@ name: GameCube Nightly Build
 on:
   push:
     paths:
-      - Makefile_gamecube
+      - make/Makefile_gamecube
       - source/scratch/**
       - source/sdl/**
       - include/**

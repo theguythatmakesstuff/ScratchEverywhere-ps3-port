@@ -3,7 +3,7 @@ name: 3DS Nightly Build
 on:
   push:
     paths:
-      - Makefile_3ds
+      - make/Makefile_3ds
       - source/scratch/**
       - source/3ds/**
       - gfx/*
