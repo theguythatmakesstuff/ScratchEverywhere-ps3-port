@@ -215,4 +215,4 @@ Compilation flags are used to select which features will be enabled in the compi
 
 ## Disclaimer
 
-This project is not affiliated with Scratch or the Scratch team.
+This project is not affiliated with Scratch, the Scratch team, or Nintendo.
