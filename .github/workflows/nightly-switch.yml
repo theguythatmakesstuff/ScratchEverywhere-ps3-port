@@ -36,5 +36,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Scratch NX Nightly
+          name: Scratch Everywhere! Switch Nightly
           path: scratch-nx.nro
