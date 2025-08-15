@@ -62,6 +62,7 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 - Some blocks may lead to crashing/unintended behavior (please open an issue if you know a block that's causing problems.)
 - **[Wii and Switch]** Cloud Variables aren't currently supported but likely will be in the future.
 - **[Wii, Wii U, GameCube, Switch]** The first controller connected will be the only one that will work.
+- **[Wii]** If You're using a PAL Wii, you must use 50hz.
 - **[GameCube]** Cloud Variables will not be supported.
 - **[GameCube]** The GameCube has very little memory, so try to keep projects small.
 - **[3DS]** Performace is poor when lots of blocks are running at once.
