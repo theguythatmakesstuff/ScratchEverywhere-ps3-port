@@ -1,5 +1,5 @@
-# Scratch-3DS
-A work in progress runtime made in C++ aimed to bring most Scratch 3 projects over to the Nintendo 3DS, Wii U, Wii, GameCube, and Switch.
+# Scratch-Everywhere
+A work in progress runtime made in C++ aimed to bring most Scratch 3 projects over to the Nintendo 3DS, Wii U, Wii, GameCube, and Switch!
 
 ![Software running a simple Scratch Project](scratchcats3ds.gif)
 
@@ -49,7 +49,7 @@ A work in progress runtime made in C++ aimed to bring most Scratch 3 projects ov
 
 - The `Username` block returns the 3DS's nickname, and the Wii U's current Mii name.
 - The `Touching __?` block uses simpler box collision, which may lead to projects working incorrectly.
-- The `Stop 'All'` block brings you back to the Homebrew Menu.
+- The `Stop 'All'` block brings you back to the Project menu.
 
 ## Limitations
 
@@ -109,7 +109,6 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 
 ### Other
 
-- Ability to remap controls.
 - Download projects from the Scratch website.
 - Improve main menu user interface.
 
