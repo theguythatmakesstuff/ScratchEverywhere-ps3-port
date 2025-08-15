@@ -1,4 +1,4 @@
-# Scratch-Everywhere!
+# Scratch Everywhere!
 A work in progress runtime made in C++ aimed to bring most Scratch 3 projects over to the Nintendo 3DS, Wii U, Wii, GameCube, and Switch!
 
 ![Software running a simple Scratch Project](scratchcats3ds.gif)
@@ -93,7 +93,7 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 - Get all blocks working.
 - Pen support.
 - Support most TurboWarp extensions.
-- Custom blocks to detect when being ran by Scratch 3DS and Other Information like what Platform it's being run on.
+- Custom blocks to detect when being ran by Scratch Everywhere! and Other Information like what Platform it's being run on.
 
 ### 3DS
 
@@ -129,7 +129,7 @@ Download the `.3dsx `file in the Releases tab or [nightly build](https://nightly
 - Place the `.3dsx` file in the `3ds/` folder of your 3DS SD card, along with any Scratch projects you want to run.
 
 > [!NOTE]
-> Scratch 3DS is also on Universal Updater, so you can just download it there and keep it updated that way!
+> Scratch Everywhere! is also on Universal Updater, so you can just download it there and keep it updated that way!
 
 Then it should be as simple as opening the Homebrew Launcher on your 3DS and running the app!
 
@@ -184,7 +184,7 @@ If you would like to change the name of the app or any other information you can
 
 #### Docker
 
-The recommended way to compile Scratch 3DS is with Docker. To compile with Docker all you need installed is Docker and Buildx.
+The recommended way to compile Scratch Everywhere! is with Docker. To compile with Docker all you need installed is Docker and Buildx.
 
 To compile for the 3DS run `docker build -f docker/Dockerfile.3ds --target exporter -o . .`.
 
@@ -223,7 +223,7 @@ Then you need to compile the projects into proper Homebrew packages.
 
 #### Compilation Flags
 
-Compilation flags are used to select which features will be enabled in the compiled version of Scratch 3DS. To use a compilation flag simply add it to the end of the make command (e.g. `make ENABLE_BUBBLES=0`).
+Compilation flags are used to select which features will be enabled in the compiled version of Scratch Everywhere!. To use a compilation flag simply add it to the end of the make command (e.g. `make ENABLE_BUBBLES=0`).
 
 - [3DS] `ENABLE_BUBBLES` (default: `1`): If set to `1`, the loading screen is enabled, if set to `0` the screen is simply black during that time.
 - `ENABLE_AUDIO` (default: `1`): If set to `1`, Audio will be enabled. If set to `0`, it will be disabled.
