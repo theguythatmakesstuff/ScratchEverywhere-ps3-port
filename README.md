@@ -38,7 +38,8 @@ A work in progress runtime made in C++ aimed to bring most Scratch 3 projects ov
 	- Known Bug: On 3DS, if a sound has to load while other sounds are playing, all sounds will stop playing until the sound is loaded.
 - If you play any sound from the "Stage," the sound will play as a "Streamed Sound" and will not need to load.
 - Only one "Streamed Sound" can be playing at a time, so this is good for things like background music.
-- Sounds may fail to load on 3DS if the file size of the song is too high, or if there's too many sounds loaded at once.
+- [Wii,Gamecube] "Streamed Sound" is not supported. Any sounds in "Stage" will load and play like a normal sound.
+- [3DS,Wii,Gamecube] Sounds may fail to load if the length of the sound is too long, or if there's too many sounds loaded at once.
 
 ### Framerate
 
