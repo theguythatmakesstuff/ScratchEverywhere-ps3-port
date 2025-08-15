@@ -1,10 +1,10 @@
 # Scratch-3DS
 A work in progress runtime made in C++ aimed to bring most Scratch 3 projects over to the Nintendo 3DS, Wii U, Wii, GameCube, and Switch.
 
-![Software running a simple Scratch Project](https://raw.githubusercontent.com/NateXS/Scratch-3DS/refs/heads/main/scratchcats3ds.gif)
+![Software running a simple Scratch Project](scratchcats3ds.gif)
 
 ## Controls
-![Controls](https://raw.githubusercontent.com/NateXS/Scratch-3DS/refs/heads/main/scratch%203ds%20controls.png)
+![Controls](scratch%203ds%20controls.png)
 
 ### Mouse
 
