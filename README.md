@@ -93,7 +93,7 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 - Bug fixing and Scratch Parity.
 - Get all blocks working.
 - Pen support.
-- Support most TurboWarp extensions.
+- Support most TurboWarp extensions ([#210](https://github.com/NateXS/Scratch-Everywhere/pulls/210)).
 - Custom blocks to detect when being ran by Scratch Everywhere! and Other Information like what Platform it's being run on.
 
 ### 3DS
@@ -112,7 +112,6 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 ### Other
 
 - Download projects from the Scratch website.
-- Improve main menu user interface.
 
 ## Installation
 
