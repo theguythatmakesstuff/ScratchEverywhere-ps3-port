@@ -68,8 +68,6 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 - **[3DS]** Performace is poor when lots of blocks are running at once.
 - **[3DS]** If you have a bunch of large images, some may not load.
 - **[3DS]** Some vector images will appear bigger than they should.
-- **[3DS]** Images cannot be over 1024x1024 in resolution.
-- **[3DS]** Some images may appear 'fuzzy' looking or have noticable inconsistencies.
 
 
 ## Unimplimented blocks
@@ -158,6 +156,9 @@ Place the Scratch projects you want in `sdcard:/apps/scratch-wii/`
 Then it should be as simple as opening the app in the Homebrew Menu on your Wii!
 
 ### Get up and running for GameCube
+
+> [!NOTE]
+> There is currently a bug on the Gamecube version causing projects to not show up on the Main Menu. The Gamecube release has been temporarily removed from the Releases tab until the issue is fixed. For now, you need to compile from source to use the Gamecube version.
 
 Download the `scratch-gamecube.zip` file in the Releases tab or [nightly build](https://nightly.link/NateXS/Scratch-3DS/workflows/nightly-gamecube/main/Scratch%20GameCube%20Nightly.zip).
 
