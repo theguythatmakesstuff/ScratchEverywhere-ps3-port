@@ -707,12 +707,14 @@ void loadSprites(const nlohmann::json &json) {
     int sprIndex = 1;
     if (projectType == UNZIPPED) {
         for (auto &currentSprite : sprites) {
+            if (!currentSprite->visible || currentSprite->ghostEffect == 100) continue;
             Unzip::loadingState = "Loading image " + std::to_string(sprIndex) + " / " + std::to_string(sprites.size());
             Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].fullName);
             sprIndex++;
         }
     } else {
         for (auto &currentSprite : sprites) {
+            if (!currentSprite->visible || currentSprite->ghostEffect == 100) continue;
             Unzip::loadingState = "Loading image " + std::to_string(sprIndex) + " / " + std::to_string(sprites.size());
             Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite->costumes[currentSprite->currentCostume].fullName);
             sprIndex++;
