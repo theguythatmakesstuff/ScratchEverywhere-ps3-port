@@ -197,7 +197,6 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
     int width, height;
     unsigned char *rgba_data = nullptr;
 
-    // Check if it's an SVG file
     bool isSVG = filePath.size() >= 4 &&
                  (filePath.substr(filePath.size() - 4) == ".svg" ||
                   filePath.substr(filePath.size() - 4) == ".SVG");
@@ -205,7 +204,6 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
     imageRGBA newRGBA;
 
     if (isSVG) {
-        // Read entire SVG file into memory
         fseek(file, 0, SEEK_END);
         long file_size = ftell(file);
         fseek(file, 0, SEEK_SET);
@@ -225,6 +223,7 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
             free(svg_data);
             return false;
         }
+
         newRGBA.isSVG = true;
         rgba_data = SVGToRGBA(svg_data, file_size, width, height);
         free(svg_data);
@@ -234,7 +233,6 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
             return false;
         }
     } else {
-        // Handle regular image files (PNG, JPG)
         int channels;
         rgba_data = stbi_load_from_file(file, &width, &height, &channels, 4);
         fclose(file);
@@ -276,7 +274,7 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
     });
     if (it != imageRGBAS.end()) return;
 
-    Log::log("Loading single image: " + costumeId);
+    // Log::log("Loading single image: " + costumeId);
 
     // Find the file in the zip
     int file_index = mz_zip_reader_locate_file(zip, costumeId.c_str(), nullptr, 0);
@@ -357,7 +355,7 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
     size_t imageSize = width * height * 4;
     MemoryTracker::allocate(imageSize);
 
-    Log::log("Successfully loaded image: " + costumeId);
+    Log::log("Successfully loaded image!");
     imageRGBAS.push_back(newRGBA);
 
     // Clean up
@@ -514,7 +512,7 @@ bool get_C2D_Image(imageRGBA rgba) {
         }
     }
 
-    Log::log("C2D Image Successfully loaded!");
+    // Log::log("C2D Image Successfully loaded!");
 
     imageC2Ds[rgba.name] = {image, 120};
     C3D_FrameSync(); // wait for Async functions to finish
@@ -527,7 +525,7 @@ bool get_C2D_Image(imageRGBA rgba) {
 void Image::freeImage(const std::string &costumeId) {
     auto it = imageC2Ds.find(costumeId);
     if (it != imageC2Ds.end()) {
-        Log::log("freed image " + it->first);
+        Log::log("freed image!");
         if (it->second.image.tex) {
 
             size_t textureSize = it->second.image.tex->width * it->second.image.tex->height * 4;
@@ -550,7 +548,7 @@ void Image::freeImage(const std::string &costumeId) {
 
 void Image::cleanupImages() {
     for (auto &[id, data] : imageC2Ds) {
-        Log::log("freeing image " + id);
+        Log::log("freeing image...");
 
         // Free RGBA buffer
         freeRGBA(id);
@@ -582,13 +580,16 @@ void freeRGBA(const std::string &imageName) {
     });
 
     if (it != imageRGBAS.end()) {
-        size_t dataSize = it->width * it->height * 4;
-        if (it->data && dataSize > 0) {
-            if (it->isSVG) free(it->data);
-            else stbi_image_free(it->data);
-            MemoryTracker::deallocate(nullptr, dataSize);
+        if (it->data) {
+            size_t dataSize = it->width * it->height * 4;
 
-            Log::log("Freed RGBA data for " + imageName);
+            if (it->isSVG) {
+                MemoryTracker::deallocate(it->data, dataSize);
+            } else {
+                MemoryTracker::deallocate(it->data, dataSize);
+            }
+
+            // Log::log("Freed RGBA data for " + imageName);
         }
         imageRGBAS.erase(it);
     }
@@ -610,25 +611,46 @@ void Image::queueFreeImage(const std::string &costumeId) {
 void Image::FlushImages() {
 
     // free unused images if vram usage is high
-    if (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxVRAMUsage() * 0.8) {
-        ImageData *imgToDelete = nullptr;
-        std::string toDeleteStr;
-        for (auto &[id, img] : imageC2Ds) {
-            if (imgToDelete == nullptr) imgToDelete = &img;
+    if (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxRamUsage() * 0.5) {
+        size_t times = 0;
 
-            if (img.freeTimer < imgToDelete->freeTimer) {
-                imgToDelete = &img;
-                toDeleteStr = id;
+        // keep freeing until usage is low enough
+        while (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxRamUsage() * 0.2 && !imageC2Ds.empty()) {
+            ImageData *imgToDelete = nullptr;
+            std::string toDeleteStr = "";
+
+            for (auto &[id, img] : imageC2Ds) {
+                if (img.freeTimer == 240) continue;
+
+                if (imgToDelete == nullptr) {
+                    imgToDelete = &img;
+                    toDeleteStr = id;
+                    continue;
+                }
+
+                if (img.freeTimer < imgToDelete->freeTimer) {
+                    imgToDelete = &img;
+                    toDeleteStr = id;
+                }
             }
+
+            if (toDeleteStr != "") {
+                Image::freeImage(toDeleteStr);
+            } else {
+                break;
+            }
+
+            times++;
+            if (times > 15) break;
         }
-        toDelete.push_back(toDeleteStr);
-    }
-    // free images on a timer
-    for (auto &[id, img] : imageC2Ds) {
-        if (img.freeTimer <= 0) {
-            toDelete.push_back(id);
-        } else {
-            img.freeTimer -= 1;
+    } else {
+        // timer based freeing
+        for (auto &[id, img] : imageC2Ds) {
+            if (img.freeTimer <= 0) {
+                toDelete.push_back(id);
+            } else {
+                img.freeTimer -= 1;
+            }
         }
     }
 
