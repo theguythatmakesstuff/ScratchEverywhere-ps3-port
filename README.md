@@ -38,8 +38,8 @@ A work in progress runtime made in C++ aimed to bring most Scratch 3 projects ov
 	- Known Bug: On 3DS, if a sound has to load while other sounds are playing, all sounds will stop playing until the sound is loaded.
 - If you play any sound from the "Stage," the sound will play as a "Streamed Sound" and will not need to load.
 - Only one "Streamed Sound" can be playing at a time, so this is good for things like background music.
-- [Wii,Gamecube] "Streamed Sound" is not supported. Any sounds in "Stage" will load and play like a normal sound.
-- [3DS,Wii,Gamecube] Sounds may fail to load if the length of the sound is too long, or if there's too many sounds loaded at once.
+- [Wii,GameCube] "Streamed Sound" is not supported. Any sounds in "Stage" will load and play like a normal sound.
+- [3DS,Wii,GameCube] Sounds may fail to load if the length of the sound is too long, or if there's too many sounds loaded at once.
 
 ### Framerate
 
@@ -158,7 +158,7 @@ Then it should be as simple as opening the app in the Homebrew Menu on your Wii!
 ### Get up and running for GameCube
 
 > [!NOTE]
-> There is currently a bug on the Gamecube version causing projects to not show up on the Main Menu. The Gamecube release has been temporarily removed from the Releases tab until the issue is fixed. For now, you need to compile from source to use the Gamecube version.
+> There is currently a bug on the GameCube version causing projects to not show up on the Main Menu. The GameCube release has been temporarily removed from the Releases tab until the issue is fixed. For now, you need to compile from source to use the GameCube version.
 
 Download the `scratch-gamecube.zip` file in the Releases tab or [nightly build](https://nightly.link/NateXS/Scratch-3DS/workflows/nightly-gamecube/main/Scratch%20GameCube%20Nightly.zip).
 
