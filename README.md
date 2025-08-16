@@ -1,5 +1,6 @@
-# Scratch Everywhere!
-[Scratch Everywhere! logo](https://raw.githubusercontent.com/NateXS/Scratch-Everywhere/refs/heads/main/gfx/logo.png)
+<p align="center">
+  <img src="gfx/logo.png" alt="Scratch Everywhere! logo" />
+</p>
 
 A work in progress runtime made in C++ aimed to bring most Scratch 3 projects over to the Nintendo 3DS, Wii U, Wii, GameCube, and Switch!
 
