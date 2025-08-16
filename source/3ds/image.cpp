@@ -21,15 +21,6 @@ static std::vector<imageRGBA *> imageLoadQueue;
 static std::vector<std::string> toDelete;
 #define MAX_IMAGE_VRAM 30000000
 
-struct MemoryStats {
-    size_t totalRamUsage = 0;
-    size_t totalVRamUsage = 0;
-    size_t imageCount = 0;
-    size_t c2dImageCount = 0;
-};
-
-static MemoryStats memStats;
-
 const u32 next_pow2(u32 n) {
     n--;
     n |= n >> 1;
@@ -446,31 +437,6 @@ unsigned char *SVGToRGBA(const void *svg_data, size_t svg_size, int &width, int 
 }
 
 /**
- * Queues RGBA image data to be loaded into a Citro2D Image. Image will wait to load if VRAM is too high.
- * @param rgba
- */
-bool queueC2DImage(imageRGBA &rgba) {
-    bool inQueue = false;
-    for (imageRGBA *queueRgba : imageLoadQueue) {
-        if (rgba.name == queueRgba->name) {
-            inQueue = true;
-        }
-    }
-    if (!inQueue) {
-        // no queue!!!
-        if (memStats.totalVRamUsage + rgba.textureMemSize < MAX_IMAGE_VRAM) {
-            return get_C2D_Image(rgba);
-        }
-        // add to queue D:
-        else {
-            Log::logWarning("Memory too high! queueing image load!");
-            imageLoadQueue.push_back(&rgba);
-        }
-    }
-    return false;
-}
-
-/**
  * Reads an `imageRGBA` image, and adds a `C2D_Image` object to `imageC2Ds`.
  * Assumes image data is stored left->right, top->bottom.
  * Dimensions must be within 64x64 and 1024x1024.
@@ -496,7 +462,7 @@ bool get_C2D_Image(imageRGBA rgba) {
     tex->height = rgba.textureHeight;
 
     size_t textureSize = rgba.textureMemSize;
-    memStats.totalVRamUsage += textureSize;
+    MemoryTracker::allocateVRAM(textureSize);
 
     // Subtexture
     Tex3DS_SubTexture *subtex = new Tex3DS_SubTexture();
@@ -515,6 +481,8 @@ bool get_C2D_Image(imageRGBA rgba) {
 
     if (!C3D_TexInit(tex, tex->width, tex->height, GPU_RGBA8)) {
         Log::logWarning("Texture initializing failed!");
+        delete tex;
+        delete subtex;
         // MemoryTracker::deallocate(tex);
         // MemoryTracker::deallocate(subtex);
         return false;
@@ -525,6 +493,7 @@ bool get_C2D_Image(imageRGBA rgba) {
         Log::logWarning("Texture data is null!");
         C3D_TexDelete(tex);
         delete tex;
+        delete subtex;
         // MemoryTracker::deallocate(tex);
         // MemoryTracker::deallocate(subtex);
         return false;
@@ -562,8 +531,7 @@ void Image::freeImage(const std::string &costumeId) {
         if (it->second.image.tex) {
 
             size_t textureSize = it->second.image.tex->width * it->second.image.tex->height * 4;
-            memStats.totalVRamUsage -= textureSize;
-            memStats.c2dImageCount--;
+            MemoryTracker::deallocateVRAM(textureSize);
 
             C3D_TexDelete(it->second.image.tex);
             delete it->second.image.tex;
@@ -590,8 +558,7 @@ void Image::cleanupImages() {
         // Free VRAM texture
         if (data.image.tex) {
             size_t textureSize = data.image.tex->width * data.image.tex->height * 4;
-            memStats.totalVRamUsage -= textureSize;
-            memStats.c2dImageCount--;
+            MemoryTracker::deallocateVRAM(textureSize);
             C3D_TexDelete(data.image.tex);
             delete data.image.tex;
             data.image.tex = nullptr;
@@ -620,8 +587,6 @@ void freeRGBA(const std::string &imageName) {
             if (it->isSVG) free(it->data);
             else stbi_image_free(it->data);
             MemoryTracker::deallocate(nullptr, dataSize);
-            memStats.totalRamUsage -= dataSize;
-            memStats.imageCount--;
 
             Log::log("Freed RGBA data for " + imageName);
         }
@@ -645,7 +610,7 @@ void Image::queueFreeImage(const std::string &costumeId) {
 void Image::FlushImages() {
 
     // free unused images if vram usage is high
-    if (memStats.totalVRamUsage > MAX_IMAGE_VRAM * 0.8) {
+    if (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxVRAMUsage() * 0.8) {
         ImageData *imgToDelete = nullptr;
         std::string toDeleteStr;
         for (auto &[id, img] : imageC2Ds) {
@@ -671,12 +636,4 @@ void Image::FlushImages() {
         Image::freeImage(id);
     }
     toDelete.clear();
-
-    if (!imageLoadQueue.empty()) {
-        imageRGBA *rgba = imageLoadQueue.front();
-        if (memStats.totalVRamUsage + rgba->textureMemSize < MAX_IMAGE_VRAM) {
-            get_C2D_Image(*rgba);
-            imageLoadQueue.erase(imageLoadQueue.begin());
-        }
-    }
 }

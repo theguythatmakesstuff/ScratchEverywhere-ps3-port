@@ -29,7 +29,6 @@ struct imageRGBA {
 extern std::vector<imageRGBA> imageRGBAS;
 
 bool get_C2D_Image(imageRGBA rgba);
-bool queueC2DImage(imageRGBA &rgba);
 void freeRGBA(const std::string &imageName);
 unsigned char *SVGToRGBA(const void *svg_data, size_t svg_size, int &width, int &height);
 

@@ -188,7 +188,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
                                              [&](const imageRGBA &rgba) { return rgba.name == costumeId; });
 
                 if (rgbaFind != imageRGBAS.end()) {
-                    imageLoaded = queueC2DImage(*rgbaFind);
+                    imageLoaded = get_C2D_Image(*rgbaFind);
                 } else {
                     imageLoaded = false;
                 }
