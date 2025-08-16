@@ -2,6 +2,7 @@
 #include "../scratch/os.hpp"
 #include "image.hpp"
 #include "render.hpp"
+#include <algorithm>
 #include <iostream>
 
 std::unordered_map<std::string, SDL_Image *> images;
@@ -199,11 +200,15 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
     }
 
     // Check if file is bitmap or SVG
-    bool isBitmap = costumeId.size() >= 4 &&
-                    (costumeId.substr(costumeId.size() - 4) == ".png" ||
-                     costumeId.substr(costumeId.size() - 4) == ".PNG" ||
-                     costumeId.substr(costumeId.size() - 4) == ".jpg" ||
-                     costumeId.substr(costumeId.size() - 4) == ".JPG");
+    bool isBitmap = costumeId.size() > 4 && ([](std::string ext) {
+                        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                        return ext == ".bmp" || ext == ".gif" || ext == ".jpg" || ext == ".jpeg" ||
+                               ext == ".lbm" || ext == ".iff" || ext == ".pcx" || ext == ".png" ||
+                               ext == ".pnm" || ext == ".ppm" || ext == ".pgm" || ext == ".pbm" ||
+                               ext == ".qoi" || ext == ".tga" || ext == ".tiff" || ext == ".xcf" ||
+                               ext == ".xpm" || ext == ".xv" || ext == ".ico" || ext == ".cur" ||
+                               ext == ".ani" || ext == ".webp" || ext == ".avif" || ext == ".jxl";
+                    }(costumeId.substr(costumeId.find_last_of('.'))));
     bool isSVG = costumeId.size() >= 4 &&
                  (costumeId.substr(costumeId.size() - 4) == ".svg" ||
                   costumeId.substr(costumeId.size() - 4) == ".SVG");

@@ -302,11 +302,12 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
     }
 
     // Check if file is bitmap or SVG
-    bool isBitmap = costumeId.size() >= 4 &&
-                    (costumeId.substr(costumeId.size() - 4) == ".png" ||
-                     costumeId.substr(costumeId.size() - 4) == ".PNG" ||
-                     costumeId.substr(costumeId.size() - 4) == ".jpg" ||
-                     costumeId.substr(costumeId.size() - 4) == ".JPG");
+    bool isBitmap = costumeId.size() > 4 && ([](std::string ext) {
+                        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                        return ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".tga" ||
+                               ext == ".bmp" || ext == ".psd" || ext == ".gif" || ext == ".hdr" ||
+                               ext == ".pic" || ext == ".ppm" || ext == ".pgm";
+                    }(costumeId.substr(costumeId.find_last_of('.'))));
     bool isSVG = costumeId.size() >= 4 &&
                  (costumeId.substr(costumeId.size() - 4) == ".svg" ||
                   costumeId.substr(costumeId.size() - 4) == ".SVG");
