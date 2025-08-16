@@ -1,7 +1,10 @@
 # Scratch Everywhere!
+[Scratch Everywhere! logo](https://raw.githubusercontent.com/NateXS/Scratch-Everywhere/refs/heads/main/gfx/logo.png)
+
 A work in progress runtime made in C++ aimed to bring most Scratch 3 projects over to the Nintendo 3DS, Wii U, Wii, GameCube, and Switch!
 
-![Software running a simple Scratch Project](scratchcats3ds.gif)
+![Runtime running a Scratch project on Wii U, Wii, and 3DS](scratchcats3ds.gif)
+<small>(Game showed is [Hopper Heros](https://scratch.mit.edu/projects/1184969400/) by pepper-prepper)</small>
 
 ## Controls
 ![Controls](scratch%203ds%20controls.png)
@@ -56,7 +59,6 @@ A work in progress runtime made in C++ aimed to bring most Scratch 3 projects ov
 As this is in a very work in progress state, you will encounter many bugs, crashes, and things that will just not work. 
 
 **List of Known Limitations:**
-- Images will only work if it's in `.png`, `.jpg`, or `.svg` format.
 - If any vector image contains text, the text will not show up.
 - Extensions (eg: pen and music extensions) are not yet supported.
 - Some blocks may lead to crashing/unintended behavior (please open an issue if you know a block that's causing problems.)
@@ -154,6 +156,9 @@ Unzip the file and put the `apps` folder inside of the root of your SD card.
 Place the Scratch projects you want in `sdcard:/apps/scratch-wii/`
 
 Then it should be as simple as opening the app in the Homebrew Menu on your Wii!
+
+> [!NOTE]
+> Scratch Wii is also on the Open Shop Channel, so you can just download it there and keep it updated that way!
 
 ### Get up and running for GameCube
 
