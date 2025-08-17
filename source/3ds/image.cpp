@@ -178,6 +178,7 @@ void Image::loadImages(mz_zip_archive *zip) {
 bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
     std::string filename = filePath.substr(filePath.find_last_of('/') + 1);
     std::string path2 = filename.substr(0, filename.find_last_of('.'));
+    if (getImageFromT3x("romfs:/gfx/" + path2 + ".t3x")) return true;
 
     auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const imageRGBA &img) {
         return img.name == path2;
@@ -325,6 +326,7 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
         if (!rgba_data) {
             Log::logWarning("Failed to decode SVG: " + costumeId);
             mz_free(file_data);
+            Image::cleanupImages();
             return;
         }
     } else {
@@ -337,6 +339,7 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
         if (!rgba_data) {
             Log::logWarning("Failed to decode image: " + costumeId);
             mz_free(file_data);
+            Image::cleanupImages();
             return;
         }
     }
@@ -434,6 +437,42 @@ unsigned char *SVGToRGBA(const void *svg_data, size_t svg_size, int &width, int 
     return rgba_data;
 }
 
+bool getImageFromT3x(const std::string &filePath) {
+    std::string filename = filePath.substr(filePath.find_last_of('/') + 1);
+    std::string path2 = filename.substr(0, filename.find_last_of('.'));
+
+    C2D_SpriteSheet sheet = C2D_SpriteSheetLoad(filePath.c_str());
+    if (!sheet) {
+        Log::logWarning("Could not load sprite from t3x!");
+        return false;
+    }
+
+    // get first image from spritesheet since that's all we're using
+    C2D_Image image = C2D_SpriteSheetGetImage(sheet, 0);
+
+    imageRGBA newRGBA;
+    newRGBA.width = image.subtex->width;
+    newRGBA.height = image.subtex->height;
+    newRGBA.fullName = filePath;
+    newRGBA.name = path2;
+    newRGBA.isSVG = false;
+    newRGBA.textureWidth = clamp(next_pow2(newRGBA.width), 64, 1024);
+    newRGBA.textureHeight = clamp(next_pow2(newRGBA.height), 64, 1024);
+    newRGBA.textureMemSize = newRGBA.textureWidth * newRGBA.textureHeight * 4;
+    newRGBA.data = nullptr;
+
+    // Track memory usage
+    size_t imageSize = newRGBA.width * newRGBA.height * 4;
+    MemoryTracker::allocateVRAM(imageSize);
+
+    Log::log("Successfully loaded image from t3x!");
+    imageRGBAS.push_back(newRGBA);
+
+    imageC2Ds[newRGBA.name] = {image, 240, sheet};
+
+    return true;
+}
+
 /**
  * Reads an `imageRGBA` image, and adds a `C2D_Image` object to `imageC2Ds`.
  * Assumes image data is stored left->right, top->bottom.
@@ -460,7 +499,6 @@ bool get_C2D_Image(imageRGBA rgba) {
     tex->height = rgba.textureHeight;
 
     size_t textureSize = rgba.textureMemSize;
-    MemoryTracker::allocateVRAM(textureSize);
 
     // Subtexture
     Tex3DS_SubTexture *subtex = new Tex3DS_SubTexture();
@@ -483,6 +521,7 @@ bool get_C2D_Image(imageRGBA rgba) {
         delete subtex;
         // MemoryTracker::deallocate(tex);
         // MemoryTracker::deallocate(subtex);
+        Image::cleanupImages();
         return false;
     }
     C3D_TexSetFilter(tex, GPU_LINEAR, GPU_LINEAR);
@@ -494,6 +533,7 @@ bool get_C2D_Image(imageRGBA rgba) {
         delete subtex;
         // MemoryTracker::deallocate(tex);
         // MemoryTracker::deallocate(subtex);
+        Image::cleanupImages();
         return false;
     }
 
@@ -514,7 +554,9 @@ bool get_C2D_Image(imageRGBA rgba) {
 
     // Log::log("C2D Image Successfully loaded!");
 
-    imageC2Ds[rgba.name] = {image, 120};
+    MemoryTracker::allocateVRAM(rgba.textureMemSize);
+
+    imageC2Ds[rgba.name] = {image, 240};
     C3D_FrameSync(); // wait for Async functions to finish
     return true;
 }
@@ -526,20 +568,30 @@ void Image::freeImage(const std::string &costumeId) {
     auto it = imageC2Ds.find(costumeId);
     if (it != imageC2Ds.end()) {
         Log::log("freed image!");
+
+        if (it->second.sheet) {
+            if (it->second.image.tex) {
+                size_t textureSize = it->second.image.subtex->width * it->second.image.subtex->height * 4;
+                MemoryTracker::deallocateVRAM(textureSize);
+            }
+
+            C2D_SpriteSheetFree(it->second.sheet);
+
+            Log::log("Freed sprite sheet for: " + costumeId);
+            goto afterFreeing;
+        }
+
         if (it->second.image.tex) {
-
-            size_t textureSize = it->second.image.tex->width * it->second.image.tex->height * 4;
-            MemoryTracker::deallocateVRAM(textureSize);
-
             C3D_TexDelete(it->second.image.tex);
             delete it->second.image.tex;
             it->second.image.tex = nullptr;
-            // MemoryTracker::deallocate<C3D_Tex>(it->second.image.tex);
         }
         if (it->second.image.subtex) {
             delete it->second.image.subtex;
-            // MemoryTracker::deallocate<Tex3DS_SubTexture>((Tex3DS_SubTexture *)it->second.image.subtex);
         }
+
+    afterFreeing:
+
         imageC2Ds.erase(it);
     } else return;
 
@@ -547,31 +599,24 @@ void Image::freeImage(const std::string &costumeId) {
 }
 
 void Image::cleanupImages() {
-    for (auto &[id, data] : imageC2Ds) {
-        Log::log("freeing image...");
 
-        // Free RGBA buffer
-        freeRGBA(id);
+    std::vector<std::string> keysToDelete;
+    keysToDelete.reserve(imageC2Ds.size());
 
-        // Free VRAM texture
-        if (data.image.tex) {
-            size_t textureSize = data.image.tex->width * data.image.tex->height * 4;
-            MemoryTracker::deallocateVRAM(textureSize);
-            C3D_TexDelete(data.image.tex);
-            delete data.image.tex;
-            data.image.tex = nullptr;
-        }
+    for (const auto &[id, data] : imageC2Ds) {
+        keysToDelete.push_back(id);
+    }
 
-        // Free subtexture object
-        if (data.image.subtex) {
-            delete data.image.subtex;
-        }
+    for (const std::string &id : keysToDelete) {
+        freeImage(id);
     }
 
     // Clear maps & queues to prevent dangling references
     imageC2Ds.clear();
     imageLoadQueue.clear();
     toDelete.clear();
+
+    Log::log("Image cleanup completed.");
 }
 
 void freeRGBA(const std::string &imageName) {
@@ -580,7 +625,7 @@ void freeRGBA(const std::string &imageName) {
     });
 
     if (it != imageRGBAS.end()) {
-        if (it->data) {
+        if (it->data != nullptr && it->data) {
             size_t dataSize = it->width * it->height * 4;
 
             if (it->isSVG) {
@@ -588,6 +633,7 @@ void freeRGBA(const std::string &imageName) {
             } else {
                 MemoryTracker::deallocate(it->data, dataSize);
             }
+            MemoryTracker::deallocateVRAM(it->textureMemSize);
 
             // Log::log("Freed RGBA data for " + imageName);
         }
@@ -611,11 +657,11 @@ void Image::queueFreeImage(const std::string &costumeId) {
 void Image::FlushImages() {
 
     // free unused images if vram usage is high
-    if (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxRamUsage() * 0.5) {
+    if (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxVRAMUsage() * 0.8) {
         size_t times = 0;
 
         // keep freeing until usage is low enough
-        while (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxRamUsage() * 0.2 && !imageC2Ds.empty()) {
+        while (MemoryTracker::getVRAMUsage() + MemoryTracker::getCurrentUsage() > MemoryTracker::getMaxVRAMUsage() * 0.5 && !imageC2Ds.empty()) {
             ImageData *imgToDelete = nullptr;
             std::string toDeleteStr = "";
 

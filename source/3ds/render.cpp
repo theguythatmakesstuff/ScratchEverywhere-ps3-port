@@ -430,10 +430,10 @@ void Render::deInit() {
     socExit();
 #endif
 
-    C2D_Fini();
-    C3D_Fini();
     Image::cleanupImages();
     SoundPlayer::deinit();
+    C2D_Fini();
+    C3D_Fini();
 #ifdef ENABLE_AUDIO
     SDL_Quit();
 #endif
