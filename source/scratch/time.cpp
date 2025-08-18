@@ -1,4 +1,6 @@
 // code mostly taken from devkitpro's time example, with edits needed for Scratch.
+#include <cstddef>
+#include <ctime>
 #include <time.hpp>
 
 /* const std::string months[12] = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};

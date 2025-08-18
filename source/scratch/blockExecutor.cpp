@@ -8,6 +8,17 @@
 #include "blocks/procedure.hpp"
 #include "blocks/sensing.hpp"
 #include "blocks/sound.hpp"
+#include "interpret.hpp"
+#include "math.hpp"
+#include "os.hpp"
+#include "sprite.hpp"
+#include <algorithm>
+#include <chrono>
+#include <cstddef>
+#include <iterator>
+#include <ratio>
+#include <utility>
+#include <vector>
 
 #ifdef ENABLE_CLOUDVARS
 #include <mist/mist.hpp>

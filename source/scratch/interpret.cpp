@@ -1,9 +1,22 @@
 #include "interpret.hpp"
 #include "audio.hpp"
+#include "image.hpp"
 #include "input.hpp"
+#include "json_fwd.hpp"
+#include "math.hpp"
+#include "miniz/miniz.h"
 #include "os.hpp"
 #include "render.hpp"
+#include "sprite.hpp"
 #include "unzip.hpp"
+#include <cmath>
+#include <cstddef>
+#include <cstring>
+#include <math.h>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #if defined(__WIIU__) && defined(ENABLE_CLOUDVARS)
 #include <whb/sdcard.h>
