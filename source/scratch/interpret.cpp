@@ -288,7 +288,6 @@ void Scratch::fenceSpriteWithinBounds(Sprite *sprite) {
 void loadSprites(const nlohmann::json &json) {
     Log::log("beginning to load sprites...");
     sprites.reserve(400);
-    int count = 0;
     for (const auto &target : json["targets"]) { // "target" is sprite in Scratch speak, so for every sprite in sprites
 
         Sprite *newSprite = MemoryTracker::allocate<Sprite>();
@@ -528,7 +527,6 @@ void loadSprites(const nlohmann::json &json) {
         }
 
         sprites.push_back(newSprite);
-        count++;
     }
 
     for (const auto &monitor : json["monitors"]) { // "monitor" is any variable shown on screen
@@ -661,21 +659,21 @@ void loadSprites(const nlohmann::json &json) {
     try {
         framerate = config["framerate"].get<int>();
         Scratch::FPS = framerate;
-        Log::log("FPS = " + Scratch::FPS);
+        Log::log("FPS = " + std::to_string(Scratch::FPS));
     } catch (...) {
         Log::logWarning("no framerate property.");
     }
     try {
         wdth = config["width"].get<int>();
         Scratch::projectWidth = wdth;
-        Log::log("game width = " + Scratch::projectWidth);
+        Log::log("game width = " + std::to_string(Scratch::projectWidth));
     } catch (...) {
         Log::logWarning("no width property.");
     }
     try {
         hght = config["height"].get<int>();
         Scratch::projectHeight = hght;
-        Log::log("game height = " + Scratch::projectHeight);
+        Log::log("game height = " + std::to_string(Scratch::projectHeight));
     } catch (...) {
         Log::logWarning("no height property.");
     }
