@@ -2,7 +2,7 @@
 #include "audio.hpp"
 #include "image.hpp"
 #include "input.hpp"
-#include "json_fwd.hpp"
+#include "json.hpp"
 #include "math.hpp"
 #include "miniz/miniz.h"
 #include "os.hpp"
