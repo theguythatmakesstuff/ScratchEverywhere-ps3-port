@@ -32,9 +32,9 @@ CFLAGS  +=  `$(PKGCONF) --cflags SDL2_image SDL2_ttf SDL2_mixer sdl2`
 
 ifeq ($(ENABLE_AUDIO),1)
 CFLAGS	+=	-DENABLE_AUDIO
-LIBS	:=	`$(PKGCONF_WIIU) --libs SDL2_image SDL2_ttf SDL2_mixer sdl2`
+LIBS	:=	`$(PKGCONF) --libs SDL2_image SDL2_ttf SDL2_mixer sdl2`
 else
-LIBS	:=	`$(PKGCONF_WIIU) --libs SDL2_image SDL2_ttf sdl2`
+LIBS	:=	`$(PKGCONF) --libs SDL2_image SDL2_ttf sdl2`
 endif
 
 CXXFLAGS	:= $(CFLAGS) -std=c++17 -Wall -fexceptions
