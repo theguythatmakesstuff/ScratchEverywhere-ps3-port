@@ -36,7 +36,7 @@ Value ProcedureBlocks::booleanArgument(Block &block, Sprite *sprite) {
     if (name == "is New 3DS?") {
         bool out = false;
         APT_CheckNew3DS(&out);
-        return Value(out;)
+        return Value(out);
     }
 #endif
 
