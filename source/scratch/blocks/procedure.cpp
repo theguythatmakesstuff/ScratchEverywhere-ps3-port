@@ -4,6 +4,24 @@
 #include "value.hpp"
 
 Value ProcedureBlocks::stringNumber(Block &block, Sprite *sprite) {
+    if (block.fields.at("VALUE")[0].get<std::string>() == "Scratch Everywhere! platform") {
+#if defined(__3DS__)
+        return Value(std::string("3DS"));
+#elif defined(__WIIU__)
+        return Value(std::string("Wii U"));
+#elif defined(__PC__)
+        return Value(std::string("PC"));
+#elif defined(GAMECUBE)
+        return Value(std::string("GameCube"));
+#elif defined(WII)
+        return Value(std::string("Wii"));
+#elif defined(__SWITCH__)
+        return Value(std::string("Switch"));
+#else
+        return Value(std::string("Unknown"));
+#endif
+    }
+
     return BlockExecutor::getCustomBlockValue(block.fields.at("VALUE")[0], sprite, block);
 }
 
