@@ -172,19 +172,13 @@ Value OperatorBlocks::equals(Block &block, Sprite *sprite) {
 Value OperatorBlocks::greaterThan(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "OPERAND1", sprite);
     Value value2 = Scratch::getInputValue(block, "OPERAND2", sprite);
-    if (value1.isNumeric() && value2.isNumeric()) {
-        return Value(value1 > value2);
-    }
-    return Value(false);
+    return Value(value1 > value2);
 }
 
 Value OperatorBlocks::lessThan(Block &block, Sprite *sprite) {
     Value value1 = Scratch::getInputValue(block, "OPERAND1", sprite);
     Value value2 = Scratch::getInputValue(block, "OPERAND2", sprite);
-    if (value1.isNumeric() && value2.isNumeric()) {
-        return Value(value1 < value2);
-    }
-    return Value(false);
+    return Value(value1 < value2);
 }
 
 Value OperatorBlocks::and_(Block &block, Sprite *sprite) {
