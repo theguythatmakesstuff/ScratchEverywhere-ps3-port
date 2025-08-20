@@ -184,10 +184,8 @@ BlockResult DataBlocks::insertAtList(Block &block, Sprite *sprite, bool *without
 
     if (index.asString() == "random") {
         auto &items = targetSprite->lists[listId].items;
-        if (!items.empty()) {
-            int idx = rand() % items.size();
-            items.insert(items.begin() + idx, val);
-        }
+        int idx = rand() % (items.size() + 1);
+        items.insert(items.begin() + idx, val);
     }
 
     return BlockResult::CONTINUE;
