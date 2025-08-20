@@ -94,15 +94,21 @@ BlockResult DataBlocks::deleteFromList(Block &block, Sprite *sprite, bool *witho
         }
     }
 
-    if (targetSprite && val.isNumeric()) {
+    if (!targetSprite) return BlockResult::CONTINUE;
+
+    auto &items = targetSprite->lists[listId].items;
+
+    if (val.isNumeric()) {
         int index = val.asInt() - 1; // Convert to 0-based index
-        auto &items = targetSprite->lists[listId].items;
 
         // Check if the index is within bounds
         if (index >= 0 && index < static_cast<int>(items.size())) {
             items.erase(items.begin() + index); // Remove the item at the index
         }
+
+        return BlockResult::CONTINUE;
     }
+    if (val.asString() == "last" && !items.empty()) items.pop_back();
 
     return BlockResult::CONTINUE;
 }
@@ -152,7 +158,9 @@ BlockResult DataBlocks::insertAtList(Block &block, Sprite *sprite, bool *without
         }
     }
 
-    if (targetSprite && index.isNumeric()) {
+    if (!targetSprite) return BlockResult::CONTINUE;
+
+    if (index.isNumeric()) {
         int idx = index.asInt() - 1; // Convert to 0-based index
         auto &items = targetSprite->lists[listId].items;
 
@@ -160,7 +168,10 @@ BlockResult DataBlocks::insertAtList(Block &block, Sprite *sprite, bool *without
         if (idx >= 0 && idx <= static_cast<int>(items.size())) {
             items.insert(items.begin() + idx, val); // Insert the item at the index
         }
+
+        return BlockResult::CONTINUE;
     }
+    if (index.asString() == "last") targetSprite->lists[listId].items.push_back(val);
 
     return BlockResult::CONTINUE;
 }
@@ -184,17 +195,20 @@ BlockResult DataBlocks::replaceItemOfList(Block &block, Sprite *sprite, bool *wi
     }
 
     // If we found the target sprite with the list, attempt the replacement
-    if (targetSprite) {
-        auto &items = targetSprite->lists[listId].items;
+    if (!targetSprite) return BlockResult::CONTINUE;
 
-        if (index.isNumeric()) {
-            int idx = index.asInt() - 1;
+    auto &items = targetSprite->lists[listId].items;
 
-            if (idx >= 0 && idx < static_cast<int>(items.size())) {
-                items[idx] = val;
-            }
+    if (index.isNumeric()) {
+        int idx = index.asInt() - 1;
+
+        if (idx >= 0 && idx < static_cast<int>(items.size())) {
+            items[idx] = val;
         }
+
+        return BlockResult::CONTINUE;
     }
+    if (index.asString() == "last" && !items.empty()) items.back() = val;
 
     return BlockResult::CONTINUE;
 }
@@ -219,11 +233,14 @@ Value DataBlocks::itemOfList(Block &block, Sprite *sprite) {
         }
     }
 
-    if (targetSprite) {
-        auto &list = targetSprite->lists[listName];
-        if (index >= 0 && index < static_cast<int>(list.items.size())) {
-            return Value(Math::removeQuotations(list.items[index].asString()));
-        }
+    if (!targetSprite) return Value();
+
+    auto &items = targetSprite->lists[listName].items;
+
+    if (indexStr.asString() == "last") return Value(Math::removeQuotations(items.back().asString()));
+
+    if (index >= 0 && index < static_cast<int>(items.size())) {
+        return Value(Math::removeQuotations(items[index].asString()));
     }
 
     return Value();
