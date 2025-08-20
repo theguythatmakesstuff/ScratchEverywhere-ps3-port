@@ -114,6 +114,11 @@ BlockResult DataBlocks::deleteFromList(Block &block, Sprite *sprite, bool *witho
     }
     if (val.asString() == "all") items.clear();
 
+    if (val.asString() == "random" && !items.empty()) {
+        int idx = rand() % items.size();
+        items.erase(items.begin() + idx);
+    }
+
     return BlockResult::CONTINUE;
 }
 
@@ -177,6 +182,14 @@ BlockResult DataBlocks::insertAtList(Block &block, Sprite *sprite, bool *without
     }
     if (index.asString() == "last") targetSprite->lists[listId].items.push_back(val);
 
+    if (index.asString() == "random") {
+        auto &items = targetSprite->lists[listId].items;
+        if (!items.empty()) {
+            int idx = rand() % items.size();
+            items.insert(items.begin() + idx, val);
+        }
+    }
+
     return BlockResult::CONTINUE;
 }
 
@@ -214,6 +227,12 @@ BlockResult DataBlocks::replaceItemOfList(Block &block, Sprite *sprite, bool *wi
     }
     if (index.asString() == "last" && !items.empty()) items.back() = val;
 
+    if (index.asString() == "random" && !items.empty()) {
+        int idx = rand() % items.size();
+        items[idx] = val;
+        return BlockResult::CONTINUE;
+    }
+
     return BlockResult::CONTINUE;
 }
 
@@ -242,6 +261,11 @@ Value DataBlocks::itemOfList(Block &block, Sprite *sprite) {
     auto &items = targetSprite->lists[listName].items;
 
     if (indexStr.asString() == "last") return Value(Math::removeQuotations(items.back().asString()));
+
+    if (indexStr.asString() == "random" && !items.empty()) {
+        int idx = rand() % items.size();
+        return Value(Math::removeQuotations(items[idx].asString()));
+    }
 
     if (index >= 0 && index < static_cast<int>(items.size())) {
         return Value(Math::removeQuotations(items[index].asString()));
