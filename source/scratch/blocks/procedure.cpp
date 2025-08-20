@@ -8,6 +8,8 @@ Value ProcedureBlocks::stringNumber(Block &block, Sprite *sprite) {
 }
 
 Value ProcedureBlocks::booleanArgument(Block &block, Sprite *sprite) {
+    if (block.fields.at("VALUE")[0].get<std::string>() == "is Scratch Everywhere!?") return Value(true);
+
     Value value = BlockExecutor::getCustomBlockValue(block.fields.at("VALUE")[0], sprite, block);
     return Value(value.asInt() == 1);
 }
