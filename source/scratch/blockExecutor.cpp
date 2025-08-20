@@ -103,6 +103,7 @@ void BlockExecutor::registerHandlers() {
     handlers[Block::CONTROL_WAIT_UNTIL] = ControlBlocks::waitUntil;
     handlers[Block::CONTROL_REPEAT] = ControlBlocks::repeat;
     handlers[Block::CONTROL_REPEAT_UNTIL] = ControlBlocks::repeatUntil;
+    handlers[Block::CONTROL_WHILE] = ControlBlocks::While;
     handlers[Block::CONTROL_FOREVER] = ControlBlocks::forever;
 
     // operators
