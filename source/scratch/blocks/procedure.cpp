@@ -3,6 +3,10 @@
 #include "sprite.hpp"
 #include "value.hpp"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 Value ProcedureBlocks::stringNumber(Block &block, Sprite *sprite) {
     if (block.fields.at("VALUE")[0].get<std::string>() == "Scratch Everywhere! platform") {
 #if defined(__3DS__)
@@ -26,7 +30,15 @@ Value ProcedureBlocks::stringNumber(Block &block, Sprite *sprite) {
 }
 
 Value ProcedureBlocks::booleanArgument(Block &block, Sprite *sprite) {
-    if (block.fields.at("VALUE")[0].get<std::string>() == "is Scratch Everywhere!?") return Value(true);
+    const std::string name = block.fields.at("VALUE")[0].get<std::string>();
+    if (name == "is Scratch Everywhere!?") return Value(true);
+#ifdef __3DS__
+    if (name == "is New 3DS?") {
+        bool out = false;
+        APT_CheckNew3DS(&out);
+        return Value(out;)
+    }
+#endif
 
     Value value = BlockExecutor::getCustomBlockValue(block.fields.at("VALUE")[0], sprite, block);
     return Value(value.asInt() == 1);
