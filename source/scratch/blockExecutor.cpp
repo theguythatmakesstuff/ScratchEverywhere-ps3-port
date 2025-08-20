@@ -487,7 +487,7 @@ Value BlockExecutor::getCustomBlockValue(std::string valueName, Sprite *sprite, 
     for (auto &[custId, custBlock] : sprite->customBlocks) {
 
         // variable must be in the same custom block
-        if (custBlock.blockId != prototypeBlock->id) continue;
+        if (prototypeBlock != nullptr && custBlock.blockId != prototypeBlock->id) continue;
 
         auto it = std::find(custBlock.argumentNames.begin(), custBlock.argumentNames.end(), valueName);
 
