@@ -108,7 +108,11 @@ BlockResult DataBlocks::deleteFromList(Block &block, Sprite *sprite, bool *witho
 
         return BlockResult::CONTINUE;
     }
-    if (val.asString() == "last" && !items.empty()) items.pop_back();
+    if (val.asString() == "last" && !items.empty()) {
+        items.pop_back();
+        return BlockResult::CONTINUE;
+    }
+    if (val.asString() == "all") items.clear();
 
     return BlockResult::CONTINUE;
 }
