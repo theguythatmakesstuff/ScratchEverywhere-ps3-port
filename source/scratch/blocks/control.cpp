@@ -124,8 +124,8 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, bool *wit
         spriteToClone->isStage = false;
         spriteToClone->toDelete = false;
         spriteToClone->id = Math::generateRandomString(15);
-        Log::log("Cloned " + sprite->name);
-        // add clone to sprite list
+        // Log::log("Cloned " + sprite->name);
+        //  add clone to sprite list
         sprites.push_back(spriteToClone);
         Sprite *addedSprite = sprites.back();
         // Run "when I start as a clone" scripts for the clone
@@ -145,7 +145,7 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, bool *wit
 BlockResult ControlBlocks::deleteThisClone(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     if (sprite->isClone) {
         sprite->toDelete = true;
-        Log::log("Deleted " + sprite->name + "'s clone.");
+        // Log::log("Deleted " + sprite->name + "'s clone.");
         return BlockResult::CONTINUE;
     }
     return BlockResult::CONTINUE;

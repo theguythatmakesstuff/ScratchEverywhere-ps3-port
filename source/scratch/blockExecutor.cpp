@@ -331,7 +331,7 @@ std::vector<std::pair<Block *, Sprite *>> BlockExecutor::runBroadcasts() {
     }
 
     std::string currentBroadcast = broadcastQueue.front();
-    Log::log("Running Broadcast " + currentBroadcast);
+    // Log::log("Running Broadcast " + currentBroadcast);
     broadcastQueue.erase(broadcastQueue.begin());
 
     for (auto *currentSprite : sprites) {
