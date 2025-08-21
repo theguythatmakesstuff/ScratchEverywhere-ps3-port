@@ -9,26 +9,11 @@
 #endif
 
 /**
- * Switch: Opens the software keyboard.
- * Other: Uses SDL2 text input.
+ * Uses SDL2 text input.
  */
 std::string Keyboard::openKeyboard(const char *hintText) {
-#ifdef __SWITCH__
-    SwkbdConfig kbd;
-
-    Result rc = swkbdCreate(&kbd, 0);
-    if (R_SUCCEEDED(rc)) {
-        swkbdConfigMakePresetDefault(&kbd);
-        swkbdConfigSetOkButtonText(&kbd, "Answer");
-        swkbdConfigSetGuideText(&kbd, hintText);
-
-        char outstr[60] = {0};
-        rc = swkbdShow(&kbd, outstr, sizeof(outstr));
-        swkbdClose(&kbd);
-        if (R_SUCCEEDED(rc)) return std::string(outstr);
-    }
-#elif defined(__WIIU__) || defined(__OGC__)
-// SDL version didn't work on these platforms....
+#if defined(__WIIU__) || defined(__OGC__)
+// doesn't work on these platforms....
 #else
     TextObject *text = createTextObject(std::string(hintText), 0, 0);
     text->setCenterAligned(true);
