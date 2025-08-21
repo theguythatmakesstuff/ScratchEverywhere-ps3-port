@@ -178,12 +178,12 @@ void Image::loadImages(mz_zip_archive *zip) {
 bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
     std::string filename = filePath.substr(filePath.find_last_of('/') + 1);
     std::string path2 = filename.substr(0, filename.find_last_of('.'));
-    if (getImageFromT3x("romfs:/gfx/" + path2 + ".t3x")) return true;
 
     auto it = std::find_if(imageRGBAS.begin(), imageRGBAS.end(), [&](const imageRGBA &img) {
         return img.name == path2;
     });
     if (it != imageRGBAS.end()) return true;
+    if (getImageFromT3x("romfs:/gfx/" + path2 + ".t3x")) return true;
 
     std::string fullPath;
     if (fromScratchProject) fullPath = "romfs:/project/" + filePath;
