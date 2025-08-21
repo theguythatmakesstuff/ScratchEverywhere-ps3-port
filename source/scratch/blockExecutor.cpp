@@ -460,6 +460,22 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
         }
     }
 
+    // Check global lists
+    for (const auto &currentSprite : sprites) {
+        if (currentSprite->isStage) {
+            auto globalIt = currentSprite->lists.find(variableId);
+            if (globalIt != currentSprite->lists.end()) {
+                std::string result;
+                for (const auto &item : globalIt->second.items) {
+                    result += item.asString() + " ";
+                }
+                if (!result.empty()) result.pop_back();
+                Value val(result);
+                return val;
+            }
+        }
+    }
+
     return Value();
 }
 
