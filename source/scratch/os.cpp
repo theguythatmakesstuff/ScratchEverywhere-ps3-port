@@ -85,7 +85,7 @@ std::string OS::getScratchFolderLocation() {
 #elif defined(WII)
     return "/apps/scratch-wii/";
 #elif defined(GAMECUBE)
-    return "/"
+    return "/";
 #else
     return "scratch-everywhere/";
 #endif
