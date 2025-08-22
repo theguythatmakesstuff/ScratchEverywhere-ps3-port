@@ -82,8 +82,10 @@ std::string OS::getScratchFolderLocation() {
     return std::string(WHBGetSdCardMountPath()) + "/wiiu/scratch-wiiu/";
 #elif defined(__SWITCH__)
     return "/switch/scratch-nx/";
-#elif defined(__OGC__)
-    return "/";
+#elif defined(WII)
+    return "/apps/scratch-wii/";
+#elif defined(GAMECUBE)
+    return "/"
 #else
     return "scratch-everywhere/";
 #endif
