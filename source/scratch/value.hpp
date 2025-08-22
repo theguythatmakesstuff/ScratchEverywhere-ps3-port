@@ -108,7 +108,7 @@ class Value {
             if (*stringValue == "-Infinity") return -std::numeric_limits<double>::max();
             return Math::isNumber(*stringValue) ? ((*stringValue)[0] == '0' ? ((*stringValue)[1] == 'x' ? std::stoi((*stringValue).substr(2, (*stringValue).size() - 2), 0, 16) : (*stringValue)[1] == 'b' ? std::stoi((*stringValue).substr(2, (*stringValue).size() - 2), 0, 2)
                                                                                                                                                                               : (*stringValue)[1] == 'o'   ? std::stoi((*stringValue).substr(2, (*stringValue).size() - 2), 0, 8)
-                                                                                                                                                                                                           : 0.0)
+                                                                                                                                                                                                           : std::stod(*stringValue))
                                                                             : std::stod(*stringValue))
                                                 : 0.0; // clang-format really cooked here...
         case ValueType::BOOLEAN:
@@ -140,7 +140,7 @@ class Value {
                         d = std::stoi((*stringValue).substr(2, (*stringValue).size() - 2), 0, 8);
                         break;
                     default:
-                        d = 0.0;
+                        d = std::stod(*stringValue);
                         break;
                     }
                 } else d = std::stod(*stringValue);
@@ -278,7 +278,7 @@ class Value {
                             numVal = std::stoi(strVal.substr(2, strVal.size() - 2), 0, 8);
                             break;
                         default:
-                            numVal = 0.0;
+                            numVal = std::stod(strVal);
                             break;
                         }
                     } else numVal = std::stod(strVal);
