@@ -91,6 +91,7 @@ void BlockExecutor::registerHandlers() {
     handlers["event_broadcast"] = EventBlocks::broadcast;
     handlers["event_broadcastandwait"] = EventBlocks::broadcastAndWait;
     handlers["event_whenkeypressed"] = EventBlocks::whenKeyPressed;
+    handlers["event_whenbackdropswitchesto"] = EventBlocks::whenBackdropSwitchesTo;
 
     // control
     handlers["control_if"] = ControlBlocks::If;
