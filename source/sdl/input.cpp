@@ -245,6 +245,18 @@ void Input::getInput() {
     if (buttons & (SDL_BUTTON(SDL_BUTTON_LEFT) | SDL_BUTTON(SDL_BUTTON_RIGHT))) {
         mousePointer.isPressed = true;
     }
+
+    if (mousePointer.isPressed) {
+        mousePointer.heldFrames++;
+        for (auto &sprite : sprites) {
+            if (!sprite->shouldDoSpriteClick) continue;
+            if (mousePointer.heldFrames < 2 && isColliding("mouse", sprite)) {
+                BlockExecutor::runAllBlocksByOpcode("event_whenthisspriteclicked");
+            }
+        }
+    } else {
+        mousePointer.heldFrames = 0;
+    }
 }
 
 std::string Input::getUsername() {
