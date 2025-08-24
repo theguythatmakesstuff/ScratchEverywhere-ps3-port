@@ -92,3 +92,32 @@ std::string OS::getScratchFolderLocation() {
     return "scratch-everywhere/";
 #endif
 }
+
+std::string OS::getPlatform() {
+#if defined(__3DS__)
+    return "3DS";
+#elif defined(__WIIU__)
+    return "Wii U";
+#elif defined(__PC__)
+    return "PC";
+#elif defined(GAMECUBE)
+    return "GameCube";
+#elif defined(WII)
+    return "Wii";
+#elif defined(__SWITCH__)
+    return "Switch";
+#elif defined(VITA)
+    return "Vita";
+#else
+    return "Unknown";
+#endif
+}
+
+bool OS::isNew3DS() {
+#ifdef __3DS__
+    bool out = false;
+    APT_CheckNew3DS(&out);
+    return out;
+#endif
+    return false;
+}
