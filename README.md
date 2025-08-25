@@ -22,6 +22,10 @@ A work-in-progress runtime made in C++ aimed to bring most Scratch 3 projects ov
 
 **Other Controllers:**  Enter Mouse Mode by holding L. Use the D-pad to move the mouse, and press R to click.
 
+## Discord Server
+
+Join https://discord.gg/Y2gf5vZHpJ if you need any help with Scratch Everywhere! or just want to hangout.
+
 ## Unique Features
 
 ### 3DS Screen modes
