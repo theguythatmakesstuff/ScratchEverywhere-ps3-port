@@ -323,8 +323,6 @@ void Render::renderSprites() {
             currentSprite->spriteHeight = image->textureRect.h / 2;
             if (image->isSVG) {
                 image->setScale(image->scale * 2);
-                currentSprite->spriteWidth *= 2;
-                currentSprite->spriteHeight *= 2;
             }
             const double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
             double renderRotation = rotation;
