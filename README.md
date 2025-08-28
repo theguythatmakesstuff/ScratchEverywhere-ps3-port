@@ -158,7 +158,7 @@ Download the `scratch-wii.zip` file in the Releases tab or [nightly build](https
 
 Unzip the file and put the `apps` folder inside of the root of your SD card.
 
-Place the Scratch projects you want in `sdcard:/apps/scratch-wii/`
+Place the Scratch projects you want in `sdcard:/apps/scratch-wii/`.
 
 Then it should be as simple as opening the app in the Homebrew Menu on your Wii!
 
@@ -180,7 +180,7 @@ Then it should be as simple as opening the app on your GameCube!
 
 Download the `scratch-nx.nro` file in the Releases tab or [nightly build](https://nightly.link/NateXS/Scratch-Everywhere/workflows/nightly-switch/main/Scratch%20Everywhere!%20Switch%20Nightly.zip).
 
-Put your Scratch projects in the same place you put your `.nro` file.
+Place the Scratch projects you want in `sdcard:/switch/scratch-nx/`.
 
 Then it should be as simple as opening the app on your Nintendo Switch!
 
