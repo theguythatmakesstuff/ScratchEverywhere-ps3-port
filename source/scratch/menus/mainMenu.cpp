@@ -86,6 +86,9 @@ void MainMenu::init() {
     splashText = createTextObject(Unzip::getSplashText(), 0, 0, "gfx/menu/Ubuntu-Bold");
     splashText->setCenterAligned(true);
     splashText->setColor(Math::color(243, 154, 37, 255));
+    if (splashText->getSize()[0] > logo->image->getWidth() * 0.95) {
+        splashText->scale = (float)logo->image->getWidth() / (splashText->getSize()[0] * 1.15);
+    }
 
     loadButton = new ButtonObject("", "gfx/menu/play.png", 200, 180, "gfx/menu/Ubuntu-Bold");
     loadButton->isSelected = true;
@@ -109,6 +112,8 @@ void MainMenu::render() {
     // move and render logo
     const float elapsed = logoStartTime.getTimeMs();
     float bobbingOffset = std::sin(elapsed * 0.0025f) * 5.0f;
+    float splashZoom = std::sin(elapsed * 0.0085f) * 0.01f;
+    splashText->scale += splashZoom;
     logo->y = 75 + bobbingOffset;
     logo->render();
     versionNumber->render(Render::getWidth() * 0.01, Render::getHeight() * 0.935);
