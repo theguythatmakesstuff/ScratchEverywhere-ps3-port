@@ -75,7 +75,7 @@ void MainMenu::init() {
 
     Input::applyControls();
 
-    logo = new MenuImage("gfx/logo.png");
+    logo = new MenuImage("gfx/menu/logo.png");
     logo->x = 200;
 
     logoStartTime.start();

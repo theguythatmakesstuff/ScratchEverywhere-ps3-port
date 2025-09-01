@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="gfx/logo.png" alt="Scratch Everywhere! logo" />
+  <img src="gfx/menu/logo.png" alt="Scratch Everywhere! logo" />
 </p>
 
 A work-in-progress runtime made in C++ aimed to bring most Scratch 3 projects over to 6-8th-generation console and handheld platforms (and more)!
