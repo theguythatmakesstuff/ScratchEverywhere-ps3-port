@@ -19,8 +19,8 @@ Runtime by NateXS!
 Wii port by NateXS!
 Gamecube port by NateXS!
 By NateXS and Grady Link!
-Wii U port by GradyLink!
-Switch port by GradyLink!
+Wii U port by Grady Link!
+Switch port by Grady Link!
 PS Vita port by Dogo6647!
 C++!
 It works! (most of the time...)
