@@ -23,7 +23,7 @@ PKGCONF_3DS	:=	$(DEVKITPRO)/portlibs/3ds/bin/arm-none-eabi-pkg-config
 APP_TITLE 	:=	Scratch Everywhere!
 APP_DESCRIPTION := Play Scratch Games on the 3DS! [Beta 20]
 APP_AUTHOR 	:= NateXS
-TARGET		:=	Scratch
+TARGET		:=	scratch-3ds
 
 # CIA / banner assets (for makerom & bannertool)
 BANNER_PNG 	:= $(TOPDIR)/gfx/banner.png
