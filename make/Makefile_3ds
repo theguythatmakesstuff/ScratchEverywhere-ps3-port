@@ -50,6 +50,7 @@ GFXBUILD	:=	$(ROMFS)/gfx
 ENABLE_CLOUDVARS	?=	0
 ENABLE_BUBBLES	  ?=	1
 ENABLE_AUDIO	?=	1
+RAM_AMOUNT		?= 72
 
 # Check for SDL2 libraries
 ifeq ($(ENABLE_AUDIO),1)
@@ -334,6 +335,8 @@ icon.smdh: $(ICON_PNG)
 	@echo "built ... $@"
 
 $(OUTPUT).cia: $(OUTPUT).elf banner.bnr icon.smdh $(RSF_FILE)
+	@echo "Setting RAM to $(RAM_AMOUNT) MB..."
+	@sed -i '/# Process Settings/,/# New3DS Exclusive Process Settings/ s/SystemMode.*: .*/SystemMode                    : $(RAM_AMOUNT)MB # 64MB(Default)\/96MB\/80MB\/72MB\/32MB/' $(RSF_FILE)
 	@$(MAKEROM) -f cia -o $@ -elf $(OUTPUT).elf -rsf $(RSF_FILE) -banner banner.bnr -icon icon.smdh -target t -exefslogo
 	@echo "built ... $@"
 
