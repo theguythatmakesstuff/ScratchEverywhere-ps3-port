@@ -10,7 +10,7 @@ TextObject3DS::TextObject3DS(std::string txt, double posX, double posY, std::str
     y = posY;
     textClass.textBuffer = C2D_TextBufNew(200);
 
-    if (fontPath == "" || fontPath.substr(fontPath.find_last_of('.') + 1) != "bcfnt") {
+    if (fontPath == "") {
         fontName = "SYSTEM";
     } else {
         fontName = "romfs:/" + fontPath + ".bcfnt";
