@@ -133,7 +133,7 @@ struct Monitor {
     std::string id;
     std::string mode;
     std::string opcode;
-    std::unordered_map<std::string, nlohmann::json> parameters;
+    std::unordered_map<std::string, std::string> parameters;
     std::string spriteName;
     Value value;
     int x;
