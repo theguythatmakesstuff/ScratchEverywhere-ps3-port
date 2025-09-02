@@ -335,7 +335,7 @@ std::vector<std::pair<Block *, Sprite *>> BlockExecutor::runBroadcast(std::strin
     for (auto *currentSprite : sprites) {
         for (auto &[id, block] : currentSprite->blocks) {
             if (block.opcode == "event_whenbroadcastreceived" &&
-                block.fields.at("BROADCAST_OPTION")[0] == broadcastToRun) {
+                Scratch::getFieldValue(block, "BROADCAST_OPTION") == broadcastToRun) {
                 blocksToRun.push_back({&block, currentSprite});
             }
         }

@@ -18,6 +18,13 @@ struct Variable {
     Value value;
 };
 
+struct ParsedField {
+    std::string value;
+    std::string id;
+
+    ParsedField() : value("") {}
+};
+
 struct ParsedInput {
     enum InputType {
         LITERAL,
@@ -43,7 +50,7 @@ struct Block {
     std::string parent;
     std::string blockChainID;
     std::map<std::string, ParsedInput> parsedInputs;
-    std::unordered_map<std::string, nlohmann::json> fields;
+    std::map<std::string, ParsedField> parsedFields;
     std::unordered_map<std::string, nlohmann::json> mutation;
     bool shadow;
     bool topLevel;

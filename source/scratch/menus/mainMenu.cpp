@@ -492,14 +492,15 @@ void ControlsMenu::init() {
                 // if no variable block is in the input
                 if (inputFind->second.inputType == ParsedInput::LITERAL) {
                     Block *inputBlock = findBlock(inputFind->second.literalValue.asString());
-                    if (!inputBlock->fields.at("KEY_OPTION")[0].is_null())
-                        buttonCheck = inputBlock->fields.at("KEY_OPTION")[0];
+                    if (Scratch::getFieldValue(*inputBlock, "KEY_OPTION") != "")
+                        buttonCheck = Scratch::getFieldValue(*inputBlock, "KEY_OPTION");
                 } else {
                     buttonCheck = Scratch::getInputValue(block, "KEY_OPTION", sprite).asString();
                 }
 
             } else if (block.opcode == "event_whenkeypressed") {
-                buttonCheck = block.fields.at("KEY_OPTION")[0];
+                buttonCheck = Scratch::getFieldValue(block, "KEY_OPTION");
+                ;
             } else continue;
             if (buttonCheck != "" && std::find(controls.begin(), controls.end(), buttonCheck) == controls.end()) {
                 Log::log("Found new control: " + buttonCheck);
