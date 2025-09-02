@@ -234,7 +234,6 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
     scale = bottom ? 1.0 : std::min(scaleX, scaleY);
 
     if (!legacyDrawing) {
-        imageC2Ds[costumeId].freeTimer = 240;
         double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
         bool flipX = false;
 
@@ -271,6 +270,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
             &tinty,
             (spriteSizeX)*scale / 2.0f,
             (spriteSizeY)*scale / 2.0f);
+        imageC2Ds[costumeId].freeTimer = imageC2Ds[costumeId].maxFreeTimer;
     } else {
         C2D_DrawRectSolid(
             (currentSprite->xPosition * scale) + (screenWidth / 2),
