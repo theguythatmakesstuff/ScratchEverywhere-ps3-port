@@ -148,8 +148,8 @@ Value SensingBlocks::keyPressed(Block &block, Sprite *sprite) {
     // if no variable block is in the input
     if (inputFind->second.inputType == ParsedInput::LITERAL) {
         Block *inputBlock = findBlock(inputFind->second.literalValue.asString());
-        if (!inputBlock->fields["KEY_OPTION"][0].is_null())
-            buttonCheck = inputBlock->fields["KEY_OPTION"][0];
+        if (!inputBlock->fields.at("KEY_OPTION")[0].is_null())
+            buttonCheck = inputBlock->fields.at("KEY_OPTION")[0];
     } else {
         buttonCheck = Scratch::getInputValue(block, "KEY_OPTION", sprite).asString();
     }
@@ -168,7 +168,7 @@ Value SensingBlocks::touchingObject(Block &block, Sprite *sprite) {
     Block *inputBlock = findBlock(inputFind->second.literalValue.asString());
     std::string objectName;
     try {
-        objectName = inputBlock->fields["TOUCHINGOBJECTMENU"][0];
+        objectName = inputBlock->fields.at("TOUCHINGOBJECTMENU")[0];
     } catch (...) {
         return Value(false);
     }

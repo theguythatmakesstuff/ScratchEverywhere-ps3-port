@@ -492,8 +492,8 @@ void ControlsMenu::init() {
                 // if no variable block is in the input
                 if (inputFind->second.inputType == ParsedInput::LITERAL) {
                     Block *inputBlock = findBlock(inputFind->second.literalValue.asString());
-                    if (!inputBlock->fields["KEY_OPTION"][0].is_null())
-                        buttonCheck = inputBlock->fields["KEY_OPTION"][0];
+                    if (!inputBlock->fields.at("KEY_OPTION")[0].is_null())
+                        buttonCheck = inputBlock->fields.at("KEY_OPTION")[0];
                 } else {
                     buttonCheck = Scratch::getInputValue(block, "KEY_OPTION", sprite).asString();
                 }

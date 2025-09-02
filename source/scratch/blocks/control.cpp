@@ -108,11 +108,11 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, bool *wit
 
     Sprite *spriteToClone = getAvailableSprite();
     if (!spriteToClone) return BlockResult::CONTINUE;
-    if (cloneOptions->fields["CLONE_OPTION"][0] == "_myself_") {
+    if (cloneOptions->fields.at("CLONE_OPTION")[0] == "_myself_") {
         *spriteToClone = *sprite;
     } else {
         for (Sprite *currentSprite : sprites) {
-            if (currentSprite->name == Math::removeQuotations(cloneOptions->fields["CLONE_OPTION"][0]) && !currentSprite->isClone) {
+            if (currentSprite->name == Math::removeQuotations(cloneOptions->fields.at("CLONE_OPTION")[0]) && !currentSprite->isClone) {
                 *spriteToClone = *currentSprite;
             }
         }

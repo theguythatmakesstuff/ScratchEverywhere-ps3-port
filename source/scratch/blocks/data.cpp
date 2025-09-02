@@ -27,7 +27,7 @@ BlockResult DataBlocks::changeVariable(Block &block, Sprite *sprite, bool *witho
 }
 
 BlockResult DataBlocks::showVariable(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
-    std::string varId = block.fields["VARIABLE"][1].get<std::string>();
+    std::string varId = block.fields.at("VARIABLE")[1].get<std::string>();
     for (Monitor &var : Render::visibleVariables) {
         if (var.id == varId) {
             var.visible = true;
@@ -39,7 +39,7 @@ BlockResult DataBlocks::showVariable(Block &block, Sprite *sprite, bool *without
 }
 
 BlockResult DataBlocks::hideVariable(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
-    std::string varId = block.fields["VARIABLE"][1].get<std::string>();
+    std::string varId = block.fields.at("VARIABLE")[1].get<std::string>();
     for (Monitor &var : Render::visibleVariables) {
         if (var.id == varId) {
             var.visible = false;
@@ -49,9 +49,8 @@ BlockResult DataBlocks::hideVariable(Block &block, Sprite *sprite, bool *without
     return BlockResult::CONTINUE;
 }
 
-
 BlockResult DataBlocks::showList(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
-    std::string varId = block.fields["LIST"][1].get<std::string>();
+    std::string varId = block.fields.at("LIST")[1].get<std::string>();
     for (Monitor &var : Render::visibleVariables) {
         if (var.id == varId) {
             var.visible = true;
@@ -63,7 +62,7 @@ BlockResult DataBlocks::showList(Block &block, Sprite *sprite, bool *withoutScre
 }
 
 BlockResult DataBlocks::hideList(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
-    std::string varId = block.fields["LIST"][1].get<std::string>();
+    std::string varId = block.fields.at("LIST")[1].get<std::string>();
     for (Monitor &var : Render::visibleVariables) {
         if (var.id == varId) {
             var.visible = false;

@@ -31,8 +31,8 @@ BlockResult LooksBlocks::switchCostumeTo(Block &block, Sprite *sprite, bool *wit
     if (inputFind != block.parsedInputs.end() && inputFind->second.inputType == ParsedInput::LITERAL) {
         Block *inputBlock = findBlock(inputValue.asString());
         if (inputBlock != nullptr) {
-            if (!inputBlock->fields["COSTUME"][0].is_null())
-                inputString = inputBlock->fields["COSTUME"][0].get<std::string>();
+            if (!inputBlock->fields.at("COSTUME")[0].is_null())
+                inputString = inputBlock->fields.at("COSTUME")[0].get<std::string>();
             else return BlockResult::CONTINUE;
         }
     }
@@ -83,8 +83,8 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, bool *wi
     if (inputFind != block.parsedInputs.end() && inputFind->second.inputType == ParsedInput::LITERAL) {
         Block *inputBlock = findBlock(inputString);
         if (inputBlock != nullptr) {
-            if (!inputBlock->fields["BACKDROP"][0].is_null())
-                inputString = inputBlock->fields["BACKDROP"][0].get<std::string>();
+            if (!inputBlock->fields.at("BACKDROP")[0].is_null())
+                inputString = inputBlock->fields.at("BACKDROP")[0].get<std::string>();
             else return BlockResult::CONTINUE;
         }
     }
@@ -121,7 +121,7 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, bool *wi
         for (auto &[id, spriteBlock] : currentSprite->blocks) {
             if (spriteBlock.opcode != "event_whenbackdropswitchesto") continue;
             try {
-                if (spriteBlock.fields["BACKDROP"][0] == sprite->costumes[sprite->currentCostume].name) {
+                if (spriteBlock.fields.at("BACKDROP")[0] == sprite->costumes[sprite->currentCostume].name) {
                     executor.runBlock(spriteBlock, currentSprite, withoutScreenRefresh, fromRepeat);
                 }
             } catch (...) {
@@ -153,7 +153,7 @@ BlockResult LooksBlocks::nextBackdrop(Block &block, Sprite *sprite, bool *withou
         for (auto &[id, spriteBlock] : currentSprite->blocks) {
             if (spriteBlock.opcode != "event_whenbackdropswitchesto") continue;
             try {
-                if (spriteBlock.fields["BACKDROP"][0] == sprite->costumes[sprite->currentCostume].name) {
+                if (spriteBlock.fields.at("BACKDROP")[0] == sprite->costumes[sprite->currentCostume].name) {
                     executor.runBlock(spriteBlock, currentSprite, withoutScreenRefresh, fromRepeat);
                 }
             } catch (...) {

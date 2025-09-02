@@ -29,7 +29,7 @@ BlockResult MotionBlocks::moveSteps(Block &block, Sprite *sprite, bool *withoutS
 BlockResult MotionBlocks::goTo(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
     auto inputValue = block.parsedInputs.find("TO");
     Block *inputBlock = findBlock(inputValue->second.literalValue.asString());
-    std::string objectName = inputBlock->fields["TO"][0];
+    std::string objectName = inputBlock->fields.at("TO")[0];
 
     if (objectName == "_random_") {
         sprite->xPosition = rand() % Scratch::projectWidth - Scratch::projectWidth / 2;
@@ -206,7 +206,7 @@ BlockResult MotionBlocks::glideTo(Block &block, Sprite *sprite, bool *withoutScr
         inputBlock = findBlock(itVal->second.literalValue.asString());
         if (!inputBlock) return BlockResult::CONTINUE;
 
-        std::string inputValue = inputBlock->fields["TO"][0];
+        std::string inputValue = inputBlock->fields.at("TO")[0];
         std::string positionXStr;
         std::string positionYStr;
 
@@ -262,7 +262,7 @@ BlockResult MotionBlocks::pointToward(Block &block, Sprite *sprite, bool *withou
         return BlockResult::CONTINUE;
     }
 
-    std::string objectName = inputBlock->fields["TOWARDS"][0];
+    std::string objectName = inputBlock->fields.at("TOWARDS")[0];
     double targetX = 0;
     double targetY = 0;
 
