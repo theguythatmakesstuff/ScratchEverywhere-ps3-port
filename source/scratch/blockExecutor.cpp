@@ -287,7 +287,7 @@ void BlockExecutor::runRepeatsWithoutRefresh(Sprite *sprite, std::string blockCh
 
 void BlockExecutor::runCustomBlock(Sprite *sprite, Block &block, Block *callerBlock, bool *withoutScreenRefresh) {
     for (auto &[id, data] : sprite->customBlocks) {
-        if (id == block.mutation.at("proccode").get<std::string>()) {
+        if (id == block.customBlockId) {
             // Set up argument values
             for (std::string arg : data.argumentIds) {
                 if (block.parsedInputs.find(arg) != block.parsedInputs.end()) {
@@ -323,9 +323,9 @@ void BlockExecutor::runCustomBlock(Sprite *sprite, Block &block, Block *callerBl
         }
     }
 
-    if (block.mutation.at("proccode").get<std::string>() == "\u200B\u200Blog\u200B\u200B %s") Log::log("[PROJECT] " + Scratch::getInputValue(block, "arg0", sprite).asString());
-    if (block.mutation.at("proccode").get<std::string>() == "\u200B\u200Bwarn\u200B\u200B %s") Log::logWarning("[PROJECT] " + Scratch::getInputValue(block, "arg0", sprite).asString());
-    if (block.mutation.at("proccode").get<std::string>() == "\u200B\u200Berror\u200B\u200B %s") Log::logError("[PROJECT] " + Scratch::getInputValue(block, "arg0", sprite).asString());
+    if (block.customBlockId == "\u200B\u200Blog\u200B\u200B %s") Log::log("[PROJECT] " + Scratch::getInputValue(block, "arg0", sprite).asString());
+    if (block.customBlockId == "\u200B\u200Bwarn\u200B\u200B %s") Log::logWarning("[PROJECT] " + Scratch::getInputValue(block, "arg0", sprite).asString());
+    if (block.customBlockId == "\u200B\u200Berror\u200B\u200B %s") Log::logError("[PROJECT] " + Scratch::getInputValue(block, "arg0", sprite).asString());
 }
 
 std::vector<std::pair<Block *, Sprite *>> BlockExecutor::runBroadcast(std::string broadcastToRun) {

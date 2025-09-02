@@ -44,6 +44,7 @@ struct ParsedInput {
 struct Block {
 
     std::string id;
+    std::string customBlockId;
     std::string opcode;
     std::string next;
     Block *nextBlock;
@@ -51,7 +52,6 @@ struct Block {
     std::string blockChainID;
     std::map<std::string, ParsedInput> parsedInputs;
     std::map<std::string, ParsedField> parsedFields;
-    std::unordered_map<std::string, nlohmann::json> mutation;
     bool shadow;
     bool topLevel;
     std::string topLevelParentBlock;

@@ -582,7 +582,11 @@ void loadSprites(const nlohmann::json &json) {
                 newBlock.shadow = data["shadow"].get<bool>();
             }
             if (data.contains("mutation")) {
-                newBlock.mutation = data["mutation"];
+                if (data["mutation"].contains("proccode")) {
+                    newBlock.customBlockId = data["mutation"]["proccode"].get<std::string>();
+                } else {
+                    newBlock.customBlockId = "";
+                }
             }
             newSprite->blocks[newBlock.id] = newBlock; // add block
 
