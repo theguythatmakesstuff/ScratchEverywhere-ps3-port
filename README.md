@@ -94,7 +94,7 @@ As this is in a very work in progress state, you will encounter many bugs, crash
 
 - All say and think blocks
 - Most costume effects;
-	- Only the `Ghost` costume effect is supported
+	- Only the `Ghost` and `Brightness` costume effects are supported
 - `Pitch` and `Pan left-right` sound effects
 - When loudness > ___
 - All color touching blocks
