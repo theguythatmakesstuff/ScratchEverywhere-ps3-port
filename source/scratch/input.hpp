@@ -97,7 +97,13 @@ class Input {
                 // click a sprite
                 if (sprite->shouldDoSpriteClick) {
                     if (mousePointer.heldFrames < 2 && isColliding("mouse", sprite)) {
-                        BlockExecutor::runAllBlocksByOpcode("event_whenthisspriteclicked");
+
+                        // run all "when this sprite clicked" blocks in the sprite
+                        for (auto &[id, data] : sprite->blocks) {
+                            if (data.opcode == "event_whenthisspriteclicked") {
+                                executor.runBlock(data, sprite);
+                            }
+                        }
                     }
                 }
                 // start dragging a sprite
