@@ -672,8 +672,6 @@ void Image::queueFreeImage(const std::string &costumeId) {
 void Image::FlushImages() {
     std::vector<std::string> keysToDelete;
 
-    int decrement = 1 + (imageC2Ds.size() - 1);
-
     // timer based freeing
     for (auto &[id, data] : imageC2Ds) {
         if (data.freeTimer <= 0) {

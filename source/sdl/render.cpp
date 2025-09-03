@@ -321,7 +321,6 @@ void Render::renderSprites() {
             SDL_Image *image = imgFind->second;
             image->freeTimer = image->maxFreeTime;
             SDL_RendererFlip flip = SDL_FLIP_NONE;
-
             image->setScale((currentSprite->size * 0.01) * scale / 2.0f);
             currentSprite->spriteWidth = image->textureRect.w / 2;
             currentSprite->spriteHeight = image->textureRect.h / 2;
@@ -330,7 +329,6 @@ void Render::renderSprites() {
             }
             const double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
             double renderRotation = rotation;
-
             if (currentSprite->rotationStyle == currentSprite->LEFT_RIGHT) {
                 if (std::cos(rotation) < 0) {
                     flip = SDL_FLIP_HORIZONTAL;
@@ -340,23 +338,53 @@ void Render::renderSprites() {
             if (currentSprite->rotationStyle == currentSprite->NONE) {
                 renderRotation = 0;
             }
-
             double rotationCenterX = ((((currentSprite->rotationCenterX - currentSprite->spriteWidth)) / 2) * scale);
             double rotationCenterY = ((((currentSprite->rotationCenterY - currentSprite->spriteHeight)) / 2) * scale);
-
             const double offsetX = rotationCenterX * (currentSprite->size * 0.01);
             const double offsetY = rotationCenterY * (currentSprite->size * 0.01);
-
             image->renderRect.x = ((currentSprite->xPosition * scale) + (windowWidth / 2) - (image->renderRect.w / 2)) - offsetX * std::cos(rotation) + offsetY * std::sin(renderRotation);
             image->renderRect.y = ((currentSprite->yPosition * -scale) + (windowHeight / 2) - (image->renderRect.h / 2)) - offsetX * std::sin(rotation) - offsetY * std::cos(renderRotation);
             SDL_Point center = {image->renderRect.w / 2, image->renderRect.h / 2};
 
-            // ghost effect
+            // set ghost effect
             float ghost = std::clamp(currentSprite->ghostEffect, 0.0f, 100.0f);
             Uint8 alpha = static_cast<Uint8>(255 * (1.0f - ghost / 100.0f));
             SDL_SetTextureAlphaMod(image->spriteTexture, alpha);
 
-            SDL_RenderCopyEx(renderer, image->spriteTexture, &image->textureRect, &image->renderRect, Math::radiansToDegrees(renderRotation), &center, flip);
+            // set brightness effect
+            if (currentSprite->brightnessEffect != 0) {
+                float brightness = currentSprite->brightnessEffect * 0.01f;
+
+                // TODO: find a better way to do this because i hate this
+                if (brightness > 0.0f) {
+                    // render the normal image first
+                    SDL_RenderCopyEx(renderer, image->spriteTexture, &image->textureRect, &image->renderRect,
+                                     Math::radiansToDegrees(renderRotation), &center, flip);
+
+                    // render another, blended image on top
+                    SDL_SetTextureBlendMode(image->spriteTexture, SDL_BLENDMODE_ADD);
+                    SDL_SetTextureAlphaMod(image->spriteTexture, (Uint8)(brightness * 255 * (alpha / 255.0f)));
+                    SDL_RenderCopyEx(renderer, image->spriteTexture, &image->textureRect, &image->renderRect,
+                                     Math::radiansToDegrees(renderRotation), &center, flip);
+
+                    // reset for next frame
+                    SDL_SetTextureBlendMode(image->spriteTexture, SDL_BLENDMODE_BLEND);
+                } else {
+                    // darkening is quite shrimple really
+                    Uint8 col = static_cast<Uint8>(255 * (1.0f + brightness));
+                    SDL_SetTextureColorMod(image->spriteTexture, col, col, col);
+
+                    SDL_RenderCopyEx(renderer, image->spriteTexture, &image->textureRect, &image->renderRect,
+                                     Math::radiansToDegrees(renderRotation), &center, flip);
+                    // reset for next frame
+                    SDL_SetTextureColorMod(image->spriteTexture, 255, 255, 255);
+                }
+            } else {
+                // if no brightness just render normal image
+                SDL_SetTextureColorMod(image->spriteTexture, 255, 255, 255);
+                SDL_RenderCopyEx(renderer, image->spriteTexture, &image->textureRect, &image->renderRect,
+                                 Math::radiansToDegrees(renderRotation), &center, flip);
+            }
         } else {
             currentSprite->spriteWidth = 64;
             currentSprite->spriteHeight = 64;
