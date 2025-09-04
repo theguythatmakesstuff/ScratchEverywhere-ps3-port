@@ -58,6 +58,7 @@ bool Render::hasFrameBegan;
 std::vector<Monitor> Render::visibleVariables;
 std::chrono::_V2::system_clock::time_point Render::startTime = std::chrono::high_resolution_clock::now();
 std::chrono::_V2::system_clock::time_point Render::endTime = std::chrono::high_resolution_clock::now();
+bool Render::debugMode = false;
 
 // TODO: properly export these to input.cpp
 SDL_GameController *controller;
@@ -162,6 +163,7 @@ postAccount:
 
     if (SDL_NumJoysticks() > 0) controller = SDL_GameControllerOpen(0);
 
+    debugMode = true;
     return true;
 }
 void Render::deInit() {

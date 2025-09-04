@@ -33,6 +33,8 @@ u32 clrGreen = C2D_Color32f(0, 0, 1, 1);
 u32 clrScratchBlue = C2D_Color32(71, 107, 115, 255);
 std::chrono::_V2::system_clock::time_point Render::startTime = std::chrono::high_resolution_clock::now();
 std::chrono::_V2::system_clock::time_point Render::endTime = std::chrono::high_resolution_clock::now();
+bool Render::debugMode = false;
+static bool isConsoleInit = false;
 
 Render::RenderModes Render::renderMode = Render::TOP_SCREEN_ONLY;
 bool Render::hasFrameBegan;
@@ -47,7 +49,11 @@ bool Render::Init() {
     gfxInitDefault();
     hidScanInput();
     u32 kDown = hidKeysHeld();
-    if (kDown & KEY_SELECT) consoleInit(GFX_BOTTOM, NULL);
+    if (kDown & KEY_SELECT) {
+        consoleInit(GFX_BOTTOM, NULL);
+        debugMode = true;
+        isConsoleInit = true;
+    }
     osSetSpeedupEnable(true);
 
     C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
@@ -128,10 +134,14 @@ void Render::beginFrame(int screen, int colorR, int colorG, int colorB) {
         currentScreen = 0;
         C2D_TargetClear(topScreen, C2D_Color32(colorR, colorG, colorB, 255));
         C2D_SceneBegin(topScreen);
-    } else {
+    } else if (!isConsoleInit) {
         currentScreen = 1;
         C2D_TargetClear(bottomScreen, C2D_Color32(colorR, colorG, colorB, 255));
         C2D_SceneBegin(bottomScreen);
+    } else {
+        // render bottom screen content on top screen if logging is on the bottom screen
+        currentScreen = 0;
+        C2D_SceneBegin(topScreen);
     }
 }
 
@@ -314,6 +324,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 }
 
 void Render::renderSprites() {
+    if (isConsoleInit) renderMode = RenderModes::TOP_SCREEN_ONLY;
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrWhite);
     C2D_TargetClear(topScreenRightEye, clrWhite);

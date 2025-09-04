@@ -1,10 +1,11 @@
 #include "os.hpp"
+#include "render.hpp"
 #include <chrono>
 #include <cstddef>
+#include <fstream>
 #include <iostream>
 #include <ostream>
 #include <string>
-#include <fstream>
 #ifdef __OGC__
 #include <gccore.h>
 #endif
@@ -33,14 +34,16 @@ void Log::logError(std::string message, bool printToScreen) {
     writeToFile("Error: " + message);
 }
 void Log::writeToFile(std::string message) {
-    std::string filePath = OS::getScratchFolderLocation() + "log.txt";
-    std::ofstream logFile;
-    logFile.open(filePath, std::ios::app);
-    if (logFile.is_open()) {
-        logFile << message << std::endl;
-        logFile.close();
-    } else {
-        std::cerr << "Could not open log file: " << filePath << std::endl;
+    if (Render::debugMode) {
+        std::string filePath = OS::getScratchFolderLocation() + "log.txt";
+        std::ofstream logFile;
+        logFile.open(filePath, std::ios::app);
+        if (logFile.is_open()) {
+            logFile << message << std::endl;
+            logFile.close();
+        } else {
+            std::cerr << "Could not open log file: " << filePath << std::endl;
+        }
     }
 }
 
