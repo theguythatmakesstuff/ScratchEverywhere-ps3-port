@@ -11,6 +11,7 @@ struct ImageData {
     size_t freeTimer = 120;
     C2D_SpriteSheet sheet;
     size_t maxFreeTimer = 120;
+    size_t imageUsageCount = 0;
 };
 
 struct imageRGBA {

@@ -123,7 +123,7 @@ void Render::beginFrame(int screen, int colorR, int colorG, int colorB) {
         C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
         C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
         hasFrameBegan = true;
-    }
+    } else Render::renderMode = Render::BOTH_SCREENS;
     if (screen == 0) {
         currentScreen = 0;
         C2D_TargetClear(topScreen, C2D_Color32(colorR, colorG, colorB, 255));

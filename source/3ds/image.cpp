@@ -68,7 +68,11 @@ Image::Image(std::string filePath) {
 }
 
 Image::~Image() {
-    freeImage(imageId);
+    if (imageC2Ds.find(imageId) != imageC2Ds.end()) {
+        imageC2Ds[imageId].imageUsageCount--;
+        if (imageC2Ds[imageId].imageUsageCount <= 0)
+            freeImage(imageId);
+    }
 }
 
 void Image::render(double xPos, double yPos, bool centered) {
@@ -557,6 +561,7 @@ bool get_C2D_Image(imageRGBA rgba) {
     MemoryTracker::allocateVRAM(rgba.textureMemSize);
 
     imageC2Ds[rgba.name] = {image};
+    imageC2Ds[rgba.name].imageUsageCount++;
     C3D_FrameSync(); // wait for Async functions to finish
     return true;
 }

@@ -24,7 +24,7 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
     if (fontPath.empty()) {
         fontPath = "gfx/menu/Arialn";
     }
-#if defined(__WIIU__) || defined(__OGC__)
+#if defined(__WIIU__) || defined(__OGC__) || defined(__SWITCH__)
     fontPath = "romfs:/" + fontPath;
 #endif
 
