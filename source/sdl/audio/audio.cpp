@@ -260,10 +260,7 @@ bool SoundPlayer::loadSoundFromFile(Sprite *sprite, std::string fileName, const 
     std::string lowerFileName = fileName;
     std::transform(lowerFileName.begin(), lowerFileName.end(), lowerFileName.begin(), ::tolower);
 
-#if defined(__WIIU__) || defined(__OGC__)
-    std::string romfsExt = "romfs:/";
-    fileName = romfsExt + fileName;
-#endif
+    fileName = OS::getRomFSLocation() + fileName;
 
     bool isSupported = false;
     if (lowerFileName.size() >= 4) {

@@ -159,9 +159,7 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
 
     std::string finalPath;
 
-#if defined(__WIIU__) || defined(__OGC__) || defined(__SWITCH__)
-    finalPath = "romfs:/";
-#endif
+    finalPath = OS::getRomFSLocation();
     if (fromScratchProject)
         finalPath = finalPath + "project/";
 
