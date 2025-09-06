@@ -74,6 +74,7 @@ MainMenu::~MainMenu() {
 void MainMenu::init() {
 
     Input::applyControls();
+    Render::renderMode = Render::BOTH_SCREENS;
 
     logo = new MenuImage("gfx/menu/logo.png");
     logo->x = 200;
@@ -579,6 +580,7 @@ void ControlsMenu::init() {
     }
 
     Input::applyControls();
+    Render::renderMode = Render::BOTH_SCREENS;
     isInitialized = true;
 }
 
