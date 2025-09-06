@@ -273,12 +273,10 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
         if (currentSprite->brightnessEffect != 0.0f || currentSprite->ghostEffect != 0.0f) {
             float brightnessEffect = currentSprite->brightnessEffect * 0.01f;
             float alpha = 255.0f * (1.0f - currentSprite->ghostEffect / 100.0f);
-            int col = 255;
-            if (brightnessEffect < 0) col = 0;
-            C2D_SetImageTint(&tinty, C2D_BotLeft, C2D_Color32(col, col, col, alpha), brightnessEffect);
-            C2D_SetImageTint(&tinty, C2D_TopLeft, C2D_Color32(col, col, col, alpha), brightnessEffect);
-            C2D_SetImageTint(&tinty, C2D_BotRight, C2D_Color32(col, col, col, alpha), brightnessEffect);
-            C2D_SetImageTint(&tinty, C2D_TopRight, C2D_Color32(col, col, col, alpha), brightnessEffect);
+            if (brightnessEffect > 0)
+                C2D_PlainImageTint(&tinty, C2D_Color32(255, 255, 255, alpha), brightnessEffect);
+            else
+                C2D_PlainImageTint(&tinty, C2D_Color32(0, 0, 0, alpha), brightnessEffect);
         } else C2D_AlphaImageTint(&tinty, 1.0f);
 
         C2D_DrawImageAtRotated(
