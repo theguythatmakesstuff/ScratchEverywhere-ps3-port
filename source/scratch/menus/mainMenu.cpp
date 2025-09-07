@@ -17,12 +17,12 @@ Menu *MenuManager::previousMenu = nullptr;
 int MenuManager::isProjectLoaded = 0;
 
 void MenuManager::changeMenu(Menu *menu) {
-    // if (currentMenu != nullptr)
-    //     currentMenu->cleanup();
+    if (currentMenu != nullptr)
+        currentMenu->cleanup();
 
     if (previousMenu != nullptr && previousMenu != menu) {
-        // delete previousMenu;
-        // previousMenu = nullptr;
+        delete previousMenu;
+        previousMenu = nullptr;
     }
 
     if (menu != nullptr) {

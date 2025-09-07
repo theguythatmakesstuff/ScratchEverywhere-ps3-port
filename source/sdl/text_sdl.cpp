@@ -16,6 +16,7 @@
 #include <vector>
 
 std::unordered_map<std::string, TTF_Font *> TextObjectSDL::fonts;
+std::unordered_map<std::string, size_t> TextObjectSDL::fontUsageCount;
 
 TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::string fontPath)
     : TextObject(txt, posX, posY, fontPath) {
@@ -32,13 +33,16 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
     if (fonts.find(fontPath) == fonts.end()) {
         TTF_Font *loadedFont = TTF_OpenFont(fontPath.c_str(), 30);
         if (!loadedFont) {
-            std::cerr << "Failed to load font " << fontPath << ": " << TTF_GetError() << std::endl;
+            Log::logError("Failed to load font " + fontPath + ": " + TTF_GetError());
         } else {
             fonts[fontPath] = loadedFont;
+            fontUsageCount[fontPath]++;
+            pathFont = fontPath;
         }
         font = loadedFont;
     } else {
         font = fonts[fontPath];
+        fontUsageCount[fontPath]++;
     }
 
     // Set initial text
@@ -51,6 +55,14 @@ TextObjectSDL::~TextObjectSDL() {
         MemoryTracker::deallocateVRAM(memorySize);
         SDL_DestroyTexture(texture);
         texture = nullptr;
+    }
+    if (font) {
+        fontUsageCount[pathFont]--;
+        if (fontUsageCount[pathFont] <= 0) {
+            TTF_CloseFont(fonts[pathFont]);
+            fonts.erase(pathFont);
+            fontUsageCount.erase(pathFont);
+        }
     }
 }
 
