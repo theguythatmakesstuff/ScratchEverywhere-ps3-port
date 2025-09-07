@@ -25,7 +25,7 @@ extern BlockExecutor executor;
 
 extern ProjectType projectType;
 
-extern std::vector<Sprite> sprites;
+extern std::vector<Sprite *> sprites;
 extern std::vector<Sprite> spritePool;
 extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string, Block *> blockLookup;
@@ -38,8 +38,8 @@ class Scratch {
     static void cleanupScratchProject();
 
     static Value getInputValue(Block &block, const std::string &inputName, Sprite *sprite);
-    static std::string getFieldValue(const Block &block, const std::string &fieldName);
-    static std::string getFieldId(const Block &block, const std::string &fieldName);
+    static std::string getFieldValue(Block &block, const std::string &fieldName);
+    static std::string getFieldId(Block &block, const std::string &fieldName);
 
     static void fenceSpriteWithinBounds(Sprite *sprite);
 

@@ -85,9 +85,9 @@ BlockResult DataBlocks::addToList(Block &block, Sprite *sprite, bool *withoutScr
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listId) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listId) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -111,9 +111,9 @@ BlockResult DataBlocks::deleteFromList(Block &block, Sprite *sprite, bool *witho
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listId) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listId) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -157,9 +157,9 @@ BlockResult DataBlocks::deleteAllOfList(Block &block, Sprite *sprite, bool *with
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listId) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listId) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -184,9 +184,9 @@ BlockResult DataBlocks::insertAtList(Block &block, Sprite *sprite, bool *without
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listId) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listId) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -226,9 +226,9 @@ BlockResult DataBlocks::replaceItemOfList(Block &block, Sprite *sprite, bool *wi
     if (sprite->lists.find(listId) != sprite->lists.end()) {
         targetSprite = sprite;
     } else {
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listId) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listId) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -271,9 +271,9 @@ Value DataBlocks::itemOfList(Block &block, Sprite *sprite) {
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listName) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -308,9 +308,9 @@ Value DataBlocks::itemNumOfList(Block &block, Sprite *sprite) {
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listName) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -340,9 +340,9 @@ Value DataBlocks::lengthOfList(Block &block, Sprite *sprite) {
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listName) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }
@@ -366,9 +366,9 @@ Value DataBlocks::listContainsItem(Block &block, Sprite *sprite) {
         targetSprite = sprite;
     } else {
         // If not found in current sprite, check stage (global lists)
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage && currentSprite.lists.find(listName) != currentSprite.lists.end()) {
-                targetSprite = &currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage && currentSprite->lists.find(listName) != currentSprite->lists.end()) {
+                targetSprite = currentSprite;
                 break;
             }
         }

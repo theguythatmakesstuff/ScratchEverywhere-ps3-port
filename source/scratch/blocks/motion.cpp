@@ -43,10 +43,10 @@ BlockResult MotionBlocks::goTo(Block &block, Sprite *sprite, bool *withoutScreen
         return BlockResult::CONTINUE;
     }
 
-    for (Sprite &currentSprite : sprites) {
-        if (currentSprite.name == objectName) {
-            sprite->xPosition = currentSprite.xPosition;
-            sprite->yPosition = currentSprite.yPosition;
+    for (Sprite *currentSprite : sprites) {
+        if (currentSprite->name == objectName) {
+            sprite->xPosition = currentSprite->xPosition;
+            sprite->yPosition = currentSprite->yPosition;
             break;
         }
     }
@@ -218,9 +218,9 @@ BlockResult MotionBlocks::glideTo(Block &block, Sprite *sprite, bool *withoutScr
             positionYStr = std::to_string(Input::mousePointer.y);
         } else {
             for (auto &currentSprite : sprites) {
-                if (currentSprite.name == inputValue) {
-                    positionXStr = std::to_string(currentSprite.xPosition);
-                    positionYStr = std::to_string(currentSprite.yPosition);
+                if (currentSprite->name == inputValue) {
+                    positionXStr = std::to_string(currentSprite->xPosition);
+                    positionYStr = std::to_string(currentSprite->yPosition);
                     break;
                 }
             }
@@ -271,10 +271,10 @@ BlockResult MotionBlocks::pointToward(Block &block, Sprite *sprite, bool *withou
         targetX = Input::mousePointer.x;
         targetY = Input::mousePointer.y;
     } else {
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.name == objectName) {
-                targetX = currentSprite.xPosition;
-                targetY = currentSprite.yPosition;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->name == objectName) {
+                targetX = currentSprite->xPosition;
+                targetY = currentSprite->yPosition;
                 break;
             }
         }

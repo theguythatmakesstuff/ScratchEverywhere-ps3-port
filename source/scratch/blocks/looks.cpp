@@ -89,40 +89,40 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, bool *wi
         }
     }
 
-    for (Sprite &currentSprite : sprites) {
-        if (!currentSprite.isStage) {
+    for (Sprite *currentSprite : sprites) {
+        if (!currentSprite->isStage) {
             continue;
         }
 
         bool imageFound = false;
-        for (size_t i = 0; i < currentSprite.costumes.size(); i++) {
-            if (currentSprite.costumes[i].name == inputString) {
-                currentSprite.currentCostume = i;
+        for (size_t i = 0; i < currentSprite->costumes.size(); i++) {
+            if (currentSprite->costumes[i].name == inputString) {
+                currentSprite->currentCostume = i;
                 imageFound = true;
                 break;
             }
         }
         if (Math::isNumber(inputString) && inputFind != block.parsedInputs->end() && (inputFind->second.inputType == ParsedInput::BLOCK || inputFind->second.inputType == ParsedInput::VARIABLE) && !imageFound) {
             int costumeIndex = inputValue.asInt() - 1;
-            if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite.costumes.size()) {
+            if (costumeIndex >= 0 && static_cast<size_t>(costumeIndex) < currentSprite->costumes.size()) {
                 imageFound = true;
-                currentSprite.currentCostume = costumeIndex;
+                currentSprite->currentCostume = costumeIndex;
             }
         }
 
         if (projectType == UNZIPPED) {
-            Image::loadImageFromFile(currentSprite.costumes[currentSprite.currentCostume].fullName);
+            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].fullName);
         } else {
-            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite.costumes[currentSprite.currentCostume].fullName);
+            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite->costumes[currentSprite->currentCostume].fullName);
         }
     }
 
     for (auto &currentSprite : sprites) {
-        for (auto &[id, spriteBlock] : currentSprite.blocks) {
+        for (auto &[id, spriteBlock] : currentSprite->blocks) {
             if (spriteBlock.opcode != "event_whenbackdropswitchesto") continue;
             try {
                 if (Scratch::getFieldValue(spriteBlock, "BACKDROP") == sprite->costumes[sprite->currentCostume].name) {
-                    executor.runBlock(spriteBlock, &currentSprite, withoutScreenRefresh, fromRepeat);
+                    executor.runBlock(spriteBlock, currentSprite, withoutScreenRefresh, fromRepeat);
                 }
             } catch (...) {
                 continue;
@@ -134,27 +134,27 @@ BlockResult LooksBlocks::switchBackdropTo(Block &block, Sprite *sprite, bool *wi
 }
 
 BlockResult LooksBlocks::nextBackdrop(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
-    for (Sprite &currentSprite : sprites) {
-        if (!currentSprite.isStage) {
+    for (Sprite *currentSprite : sprites) {
+        if (!currentSprite->isStage) {
             continue;
         }
-        currentSprite.currentCostume++;
-        if (currentSprite.currentCostume >= static_cast<int>(currentSprite.costumes.size())) {
-            currentSprite.currentCostume = 0;
+        currentSprite->currentCostume++;
+        if (currentSprite->currentCostume >= static_cast<int>(currentSprite->costumes.size())) {
+            currentSprite->currentCostume = 0;
         }
         if (projectType == UNZIPPED) {
-            Image::loadImageFromFile(currentSprite.costumes[currentSprite.currentCostume].fullName);
+            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].fullName);
         } else {
-            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite.costumes[currentSprite.currentCostume].fullName);
+            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite->costumes[currentSprite->currentCostume].fullName);
         }
     }
 
     for (auto &currentSprite : sprites) {
-        for (auto &[id, spriteBlock] : currentSprite.blocks) {
+        for (auto &[id, spriteBlock] : currentSprite->blocks) {
             if (spriteBlock.opcode != "event_whenbackdropswitchesto") continue;
             try {
                 if (Scratch::getFieldValue(spriteBlock, "BACKDROP") == sprite->costumes[sprite->currentCostume].name) {
-                    executor.runBlock(spriteBlock, &currentSprite, withoutScreenRefresh, fromRepeat);
+                    executor.runBlock(spriteBlock, currentSprite, withoutScreenRefresh, fromRepeat);
                 }
             } catch (...) {
                 continue;
@@ -177,10 +177,10 @@ BlockResult LooksBlocks::goForwardBackwardLayers(Block &block, Sprite *sprite, b
     if (forwardBackward == "forward") {
         int targetLayer = sprite->layer + shift;
 
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage || &currentSprite == sprite) continue;
-            if (currentSprite.layer >= targetLayer) {
-                currentSprite.layer++;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage || currentSprite == sprite) continue;
+            if (currentSprite->layer >= targetLayer) {
+                currentSprite->layer++;
             }
         }
 
@@ -189,11 +189,11 @@ BlockResult LooksBlocks::goForwardBackwardLayers(Block &block, Sprite *sprite, b
     } else if (forwardBackward == "backward") {
         int targetLayer = sprite->layer - shift;
 
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage || &currentSprite == sprite) continue;
-            if (currentSprite.layer <= targetLayer) {
-                currentSprite.layer--;
-                if (currentSprite.layer < 0) currentSprite.layer = 0;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage || currentSprite == sprite) continue;
+            if (currentSprite->layer <= targetLayer) {
+                currentSprite->layer--;
+                if (currentSprite->layer < 0) currentSprite->layer = 0;
             }
         }
 
@@ -209,9 +209,9 @@ BlockResult LooksBlocks::goToFrontBack(Block &block, Sprite *sprite, bool *witho
     if (value == "front") {
 
         double maxLayer = 0.0;
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.layer > maxLayer) {
-                maxLayer = currentSprite.layer;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->layer > maxLayer) {
+                maxLayer = currentSprite->layer;
             }
         }
 
@@ -219,10 +219,10 @@ BlockResult LooksBlocks::goToFrontBack(Block &block, Sprite *sprite, bool *witho
 
     } else if (value == "back") {
         double minLayer = std::numeric_limits<double>::max();
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage) continue;
-            if (currentSprite.layer < minLayer) {
-                minLayer = currentSprite.layer;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage) continue;
+            if (currentSprite->layer < minLayer) {
+                minLayer = currentSprite->layer;
             }
         }
 
@@ -364,15 +364,15 @@ Value LooksBlocks::backdropNumberName(Block &block, Sprite *sprite) {
     std::string value = Scratch::getFieldValue(block, "NUMBER_NAME");
     ;
     if (value == "name") {
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage) {
-                return Value(currentSprite.costumes[currentSprite.currentCostume].name);
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage) {
+                return Value(currentSprite->costumes[currentSprite->currentCostume].name);
             }
         }
     } else if (value == "number") {
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.isStage) {
-                return Value(currentSprite.currentCostume + 1);
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->isStage) {
+                return Value(currentSprite->currentCostume + 1);
             }
         }
     }

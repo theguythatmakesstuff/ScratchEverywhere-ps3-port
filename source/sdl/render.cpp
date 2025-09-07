@@ -298,10 +298,7 @@ void Render::renderSprites() {
     scale = std::min(scaleX, scaleY);
 
     // Sort sprites by layer with stage always being first
-    std::vector<Sprite *> spritesByLayer;
-    for (auto &sprite : sprites) {
-        spritesByLayer.push_back(&sprite);
-    }
+    std::vector<Sprite *> spritesByLayer = sprites;
     std::sort(spritesByLayer.begin(), spritesByLayer.end(),
               [](const Sprite *a, const Sprite *b) {
                   // Stage sprite always comes first

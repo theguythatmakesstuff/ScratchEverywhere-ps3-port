@@ -242,14 +242,14 @@ void BlockExecutor::runRepeatBlocks() {
 
     // repeat ONLY the block most recently added to the repeat chain,,,
     for (auto &sprite : sprites) {
-        for (auto &[id, blockChain] : sprite.blockChains) {
+        for (auto &[id, blockChain] : sprite->blockChains) {
             auto &repeatList = blockChain.blocksToRepeat;
             if (!repeatList.empty()) {
                 std::string toRepeat = repeatList.back();
                 if (!toRepeat.empty()) {
-                    Block *toRun = &sprite.blocks[toRepeat];
+                    Block *toRun = &sprite->blocks[toRepeat];
                     if (toRun != nullptr) {
-                        executor.runBlock(*toRun, &sprite, &withoutRefresh, true);
+                        executor.runBlock(*toRun, sprite, &withoutRefresh, true);
                     }
                 }
             }
@@ -258,19 +258,19 @@ void BlockExecutor::runRepeatBlocks() {
     // delete sprites ready for deletion
 
     for (auto &toDelete : sprites) {
-        if (!toDelete.toDelete) continue;
-        for (auto &[id, block] : toDelete.blocks) {
-            for (std::string repeatID : toDelete.blockChains[block.blockChainID].blocksToRepeat) {
+        if (!toDelete->toDelete) continue;
+        for (auto &[id, block] : toDelete->blocks) {
+            for (std::string repeatID : toDelete->blockChains[block.blockChainID].blocksToRepeat) {
                 Block *repeatBlock = findBlock(repeatID);
                 if (repeatBlock) {
                     repeatBlock->repeatTimes = -1;
                 }
             }
         }
-        toDelete.isDeleted = true;
+        toDelete->isDeleted = true;
     }
     // std::cout << "\x1b[19;1HBlocks Running: " << blocksRun << std::endl;
-    sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite &s) { return s.toDelete; }), sprites.end());
+    sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite *s) { return s->toDelete; }), sprites.end());
 }
 
 void BlockExecutor::runRepeatsWithoutRefresh(Sprite *sprite, std::string blockChainID) {
@@ -332,11 +332,11 @@ std::vector<std::pair<Block *, Sprite *>> BlockExecutor::runBroadcast(std::strin
     std::vector<std::pair<Block *, Sprite *>> blocksToRun;
 
     // find all matching "when I receive" blocks
-    for (Sprite &currentSprite : sprites) {
-        for (auto &[id, block] : currentSprite.blocks) {
+    for (auto *currentSprite : sprites) {
+        for (auto &[id, block] : currentSprite->blocks) {
             if (block.opcode == "event_whenbroadcastreceived" &&
                 Scratch::getFieldValue(block, "BROADCAST_OPTION") == broadcastToRun) {
-                blocksToRun.push_back({&block, &currentSprite});
+                blocksToRun.push_back({&block, currentSprite});
             }
         }
     }
@@ -373,12 +373,12 @@ std::vector<std::pair<Block *, Sprite *>> BlockExecutor::runBroadcasts() {
 std::vector<Block *> BlockExecutor::runAllBlocksByOpcode(std::string opcodeToFind) {
     // std::cout << "Running all " << opcodeToFind << " blocks." << "\n";
     std::vector<Block *> blocksRun;
-    for (Sprite &currentSprite : sprites) {
-        for (auto &[id, data] : currentSprite.blocks) {
+    for (Sprite *currentSprite : sprites) {
+        for (auto &[id, data] : currentSprite->blocks) {
             if (data.opcode == opcodeToFind) {
                 // runBlock(data,currentSprite);
                 blocksRun.push_back(&data);
-                executor.runBlock(data, &currentSprite);
+                executor.runBlock(data, currentSprite);
             }
         }
     }
@@ -404,9 +404,9 @@ void BlockExecutor::setVariableValue(const std::string &variableId, const Value 
 
     // Set global variable
     for (auto &currentSprite : sprites) {
-        if (currentSprite.isStage) {
-            auto globalIt = currentSprite.variables.find(variableId);
-            if (globalIt != currentSprite.variables.end()) {
+        if (currentSprite->isStage) {
+            auto globalIt = currentSprite->variables.find(variableId);
+            if (globalIt != currentSprite->variables.end()) {
                 globalIt->second.value = newValue;
 #ifdef ENABLE_CLOUDVARS
                 if (globalIt->second.cloud) cloudConnection->set(globalIt->second.name, globalIt->second.value.asString());
@@ -420,12 +420,12 @@ void BlockExecutor::setVariableValue(const std::string &variableId, const Value 
 Value BlockExecutor::getMonitorValue(Monitor &var) {
     Sprite *sprite = nullptr;
     for (auto &spr : sprites) {
-        if (var.spriteName == "" && spr.isStage) {
-            sprite = &spr;
+        if (var.spriteName == "" && spr->isStage) {
+            sprite = spr;
             break;
         }
-        if (spr.name == var.spriteName && !spr.isClone) {
-            sprite = &spr;
+        if (spr->name == var.spriteName && !spr->isClone) {
+            sprite = spr;
             break;
         }
     }
@@ -457,9 +457,9 @@ Value BlockExecutor::getMonitorValue(Monitor &var) {
 
         // Check global lists
         for (const auto &currentSprite : sprites) {
-            if (currentSprite.isStage) {
-                auto globalIt = currentSprite.lists.find(var.id);
-                if (globalIt != currentSprite.lists.end()) {
+            if (currentSprite->isStage) {
+                auto globalIt = currentSprite->lists.find(var.id);
+                if (globalIt != currentSprite->lists.end()) {
                     std::string result;
                     std::string seperator = "";
                     for (const auto &item : globalIt->second.items) {
@@ -518,9 +518,9 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
 
     // Check global variables
     for (const auto &currentSprite : sprites) {
-        if (currentSprite.isStage) {
-            auto globalIt = currentSprite.variables.find(variableId);
-            if (globalIt != currentSprite.variables.end()) {
+        if (currentSprite->isStage) {
+            auto globalIt = currentSprite->variables.find(variableId);
+            if (globalIt != currentSprite->variables.end()) {
                 return globalIt->second.value;
             }
         }
@@ -528,9 +528,9 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
 
     // Check global lists
     for (const auto &currentSprite : sprites) {
-        if (currentSprite.isStage) {
-            auto globalIt = currentSprite.lists.find(variableId);
-            if (globalIt != currentSprite.lists.end()) {
+        if (currentSprite->isStage) {
+            auto globalIt = currentSprite->lists.find(variableId);
+            if (globalIt != currentSprite->lists.end()) {
                 std::string result;
                 std::string seperator = "";
                 for (const auto &item : globalIt->second.items) {
@@ -555,8 +555,8 @@ Value BlockExecutor::getVariableValue(std::string variableId, Sprite *sprite) {
 #ifdef ENABLE_CLOUDVARS
 void BlockExecutor::handleCloudVariableChange(const std::string &name, const std::string &value) {
     for (const auto &currentSprite : sprites) {
-        if (currentSprite.isStage) {
-            for (auto it = currentSprite.variables.begin(); it != currentSprite.variables.end(); ++it) {
+        if (currentSprite->isStage) {
+            for (auto it = currentSprite->variables.begin(); it != currentSprite->variables.end(); ++it) {
                 if (it->second.name == name) {
                     it->second.value = Value(value);
                     return;

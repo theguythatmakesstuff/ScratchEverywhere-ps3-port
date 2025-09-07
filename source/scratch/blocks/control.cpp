@@ -106,34 +106,35 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, bool *wit
     auto it = block.parsedInputs->find("CLONE_OPTION");
     cloneOptions = &sprite->blocks[it->second.literalValue.asString()];
 
-    Sprite spriteToClone;
+    Sprite *spriteToClone = getAvailableSprite();
+    if (!spriteToClone) return BlockResult::CONTINUE;
     if (Scratch::getFieldValue(*cloneOptions, "CLONE_OPTION") == "_myself_") {
-        spriteToClone = *sprite;
+        *spriteToClone = *sprite;
     } else {
-        for (Sprite &currentSprite : sprites) {
-            if (currentSprite.name == Math::removeQuotations(Scratch::getFieldValue(*cloneOptions, "CLONE_OPTION")) && !currentSprite.isClone) {
-                spriteToClone = currentSprite;
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite->name == Math::removeQuotations(Scratch::getFieldValue(*cloneOptions, "CLONE_OPTION")) && !currentSprite->isClone) {
+                *spriteToClone = *currentSprite;
             }
         }
     }
-    spriteToClone.blockChains.clear();
+    spriteToClone->blockChains.clear();
 
-    if (!spriteToClone.name.empty()) {
-        spriteToClone.isClone = true;
-        spriteToClone.isStage = false;
-        spriteToClone.toDelete = false;
-        spriteToClone.id = Math::generateRandomString(15);
+    if (spriteToClone != nullptr && !spriteToClone->name.empty()) {
+        spriteToClone->isClone = true;
+        spriteToClone->isStage = false;
+        spriteToClone->toDelete = false;
+        spriteToClone->id = Math::generateRandomString(15);
         // Log::log("Cloned " + sprite->name);
         //  add clone to sprite list
         sprites.push_back(spriteToClone);
-        Sprite *addedSprite = &sprites.back();
+        Sprite *addedSprite = sprites.back();
         // Run "when I start as a clone" scripts for the clone
-        for (Sprite &currentSprite : sprites) {
-            if (&currentSprite == addedSprite) {
-                for (auto &[id, block] : currentSprite.blocks) {
+        for (Sprite *currentSprite : sprites) {
+            if (currentSprite == addedSprite) {
+                for (auto &[id, block] : currentSprite->blocks) {
                     if (block.opcode == "control_start_as_clone") {
                         // std::cout << "Running clone block " << block.id << std::endl;
-                        executor.runBlock(block, &currentSprite);
+                        executor.runBlock(block, currentSprite);
                     }
                 }
             }
