@@ -207,6 +207,9 @@ Then it should be as simple as opening the app on your Nintendo Switch!
 
 ### Get up and running for Vita
 
+> [!NOTE]
+> Scratch Everywhere! for PS Vita is also on [VitaDB](https://www.rinnegatamante.eu/vitadb/#/info/1320), so you can just download it there and keep it updated that way!
+
 Download the `scratch-vita.vpk` file from the releases tab or [nightly build](https://nightly.link/ScratchEverywhere/ScratchEverywhere/workflows/nightly-vita/main/Scratch%20Everywhere!%20Vita%20Nightly.zip), transfer it over to the Vita's storage, and install it using VitaShell on your Vita.
 
 Put your Scratch Projects in `ux0:data/scratch-vita/` (you will need to create the folder yourself).
