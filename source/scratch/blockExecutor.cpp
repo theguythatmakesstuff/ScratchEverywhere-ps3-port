@@ -268,6 +268,8 @@ void BlockExecutor::runRepeatBlocks() {
             }
         }
         toDelete->isDeleted = true;
+        Scratch::clones--;
+        delete toDelete;
     }
     // std::cout << "\x1b[19;1HBlocks Running: " << blocksRun << std::endl;
     sprites.erase(std::remove_if(sprites.begin(), sprites.end(), [](Sprite *s) { return s->toDelete; }), sprites.end());
