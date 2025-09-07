@@ -194,6 +194,10 @@ class Sprite {
 
     ~Sprite() {
         variables.clear();
+        for (auto &[id, block] : blocks) {
+            block.nextBlock = nullptr;
+            block.customBlockPtr = nullptr;
+        }
         blocks.clear();
         lists.clear();
         sounds.clear();

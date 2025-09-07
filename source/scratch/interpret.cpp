@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
+#include <malloc.h>
 #include <math.h>
 #include <string>
 #include <unordered_map>
@@ -938,6 +939,7 @@ void loadSprites(const nlohmann::json &json) {
     Unzip::loadingState = "Running Flag block";
 
     Input::applyControls(OS::getScratchFolderLocation() + Unzip::filePath + ".json");
+    malloc_trim(0);
     Log::log("Loaded " + std::to_string(sprites.size()) + " sprites.");
 }
 
