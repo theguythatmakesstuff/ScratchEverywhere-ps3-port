@@ -187,6 +187,7 @@ void Scratch::cleanupScratchProject() {
     Scratch::miscellaneousLimits = true;
     Render::renderMode = Render::TOP_SCREEN_ONLY;
     Unzip::filePath = "";
+    malloc_trim(0);
     Log::log("Cleaned up Scratch project.");
 }
 
