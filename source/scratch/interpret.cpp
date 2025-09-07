@@ -38,7 +38,7 @@ extern bool cloudProject;
 std::unique_ptr<MistConnection> cloudConnection = nullptr;
 #endif
 
-std::vector<Sprite *> sprites;
+std::vector<Sprite> sprites;
 std::vector<Sprite> spritePool;
 std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string, Block *> blockLookup;
@@ -212,15 +212,6 @@ Sprite *getAvailableSprite() {
 }
 
 void cleanupSprites() {
-    for (Sprite *sprite : sprites) {
-        if (sprite) {
-            if (sprite->isClone) {
-                sprite->isDeleted = true;
-            } else {
-                delete sprite;
-            }
-        }
-    }
     sprites.clear();
     spritePool.clear();
 }
@@ -352,9 +343,9 @@ bool isColliding(std::string collisionType, Sprite *currentSprite, Sprite *targe
     } else if (collisionType == "sprite") {
         // Use targetSprite if provided, otherwise search by name
         if (targetSprite == nullptr && !targetName.empty()) {
-            for (Sprite *sprite : sprites) {
-                if (sprite->name == targetName && sprite->visible) {
-                    targetSprite = sprite;
+            for (Sprite &sprite : sprites) {
+                if (sprite.name == targetName && sprite.visible) {
+                    targetSprite = &sprite;
                     break;
                 }
             }
@@ -451,52 +442,54 @@ void loadSprites(const nlohmann::json &json) {
     for (const auto &target : json["targets"]) { // "target" is sprite in Scratch speak, so for every sprite in sprites
 
         // Sprite *newSprite = MemoryTracker::allocate<Sprite>();
-        Sprite *newSprite = new Sprite();
+        // Sprite *newSprite = new Sprite();
+        sprites.emplace_back();
+        Sprite &newSprite = sprites.back();
         // new (newSprite) Sprite();
         if (target.contains("name")) {
-            newSprite->name = target["name"].get<std::string>();
+            newSprite.name = target["name"].get<std::string>();
         }
-        newSprite->id = Math::generateRandomString(15);
+        newSprite.id = Math::generateRandomString(15);
         if (target.contains("isStage")) {
-            newSprite->isStage = target["isStage"].get<bool>();
+            newSprite.isStage = target["isStage"].get<bool>();
         }
         if (target.contains("draggable")) {
-            newSprite->draggable = target["draggable"].get<bool>();
+            newSprite.draggable = target["draggable"].get<bool>();
         }
         if (target.contains("visible")) {
-            newSprite->visible = target["visible"].get<bool>();
-        } else newSprite->visible = true;
+            newSprite.visible = target["visible"].get<bool>();
+        } else newSprite.visible = true;
         if (target.contains("currentCostume")) {
-            newSprite->currentCostume = target["currentCostume"].get<int>();
+            newSprite.currentCostume = target["currentCostume"].get<int>();
         }
         if (target.contains("volume")) {
-            newSprite->volume = target["volume"].get<int>();
+            newSprite.volume = target["volume"].get<int>();
         }
         if (target.contains("x")) {
-            newSprite->xPosition = target["x"].get<int>();
+            newSprite.xPosition = target["x"].get<int>();
         }
         if (target.contains("y")) {
-            newSprite->yPosition = target["y"].get<int>();
+            newSprite.yPosition = target["y"].get<int>();
         }
         if (target.contains("size")) {
-            newSprite->size = target["size"].get<int>();
-        } else newSprite->size = 100;
+            newSprite.size = target["size"].get<int>();
+        } else newSprite.size = 100;
         if (target.contains("direction")) {
-            newSprite->rotation = target["direction"].get<int>();
-        } else newSprite->rotation = 90;
+            newSprite.rotation = target["direction"].get<int>();
+        } else newSprite.rotation = 90;
         if (target.contains("layerOrder")) {
-            newSprite->layer = target["layerOrder"].get<int>();
-        } else newSprite->layer = 0;
+            newSprite.layer = target["layerOrder"].get<int>();
+        } else newSprite.layer = 0;
         if (target.contains("rotationStyle")) {
             if (target["rotationStyle"].get<std::string>() == "all around")
-                newSprite->rotationStyle = newSprite->ALL_AROUND;
+                newSprite.rotationStyle = newSprite.ALL_AROUND;
             else if (target["rotationStyle"].get<std::string>() == "left-right")
-                newSprite->rotationStyle = newSprite->LEFT_RIGHT;
+                newSprite.rotationStyle = newSprite.LEFT_RIGHT;
             else
-                newSprite->rotationStyle = newSprite->NONE;
+                newSprite.rotationStyle = newSprite.NONE;
         }
-        newSprite->toDelete = false;
-        newSprite->isClone = false;
+        newSprite.toDelete = false;
+        newSprite.isClone = false;
         // std::cout<<"name = "<< newSprite.name << std::endl;
 
         // set variables
@@ -510,7 +503,7 @@ void loadSprites(const nlohmann::json &json) {
             newVariable.cloud = data.size() == 3;
             cloudProject = cloudProject || newVariable.cloud;
 #endif
-            newSprite->variables[newVariable.id] = newVariable; // add variable to sprite
+            newSprite.variables[newVariable.id] = newVariable; // add variable to sprite
         }
 
         // set Blocks
@@ -521,7 +514,7 @@ void loadSprites(const nlohmann::json &json) {
             if (data.contains("opcode")) {
                 newBlock.opcode = data["opcode"].get<std::string>();
 
-                if (newBlock.opcode == "event_whenthisspriteclicked") newSprite->shouldDoSpriteClick = true;
+                if (newBlock.opcode == "event_whenthisspriteclicked") newSprite.shouldDoSpriteClick = true;
             }
             if (data.contains("next") && !data["next"].is_null()) {
                 newBlock.next = data["next"].get<std::string>();
@@ -587,7 +580,7 @@ void loadSprites(const nlohmann::json &json) {
                     newBlock.customBlockId = "";
                 }
             }
-            newSprite->blocks[newBlock.id] = newBlock; // add block
+            newSprite.blocks[newBlock.id] = newBlock; // add block
 
             // add custom function blocks
             if (newBlock.opcode == "procedures_prototype") {
@@ -625,7 +618,7 @@ void loadSprites(const nlohmann::json &json) {
                         newCustomBlock.runWithoutScreenRefresh = true;
                     } else newCustomBlock.runWithoutScreenRefresh = false;
 
-                    newSprite->customBlocks[newCustomBlock.name] = newCustomBlock; // add custom block
+                    newSprite.customBlocks[newCustomBlock.name] = newCustomBlock; // add custom block
                 } else {
                     Log::logError("Unknown Custom block data: " + data.dump()); // TODO handle these
                 }
@@ -640,7 +633,7 @@ void loadSprites(const nlohmann::json &json) {
             for (const auto &listItem : data[1]) {
                 newList.items.push_back(Value::fromJson(listItem));
             }
-            newSprite->lists[newList.id] = newList; // add list
+            newSprite.lists[newList.id] = newList; // add list
         }
 
         // set Sounds
@@ -652,7 +645,7 @@ void loadSprites(const nlohmann::json &json) {
             newSound.dataFormat = data["dataFormat"];
             newSound.sampleRate = data["rate"];
             newSound.sampleCount = data["sampleCount"];
-            newSprite->sounds[newSound.name] = newSound;
+            newSprite.sounds[newSound.name] = newSound;
         }
 
         // set Costumes
@@ -677,7 +670,7 @@ void loadSprites(const nlohmann::json &json) {
             if (data.contains("rotationCenterY")) {
                 newCostume.rotationCenterY = data["rotationCenterY"];
             }
-            newSprite->costumes.push_back(newCostume);
+            newSprite.costumes.push_back(newCostume);
         }
 
         // set comments
@@ -693,7 +686,7 @@ void loadSprites(const nlohmann::json &json) {
             newComment.x = data["x"];
             newComment.y = data["y"];
             newComment.text = data["text"];
-            newSprite->comments[newComment.id] = newComment;
+            newSprite.comments[newComment.id] = newComment;
         }
 
         // set Broadcasts
@@ -701,11 +694,9 @@ void loadSprites(const nlohmann::json &json) {
             Broadcast newBroadcast;
             newBroadcast.id = id;
             newBroadcast.name = data;
-            newSprite->broadcasts[newBroadcast.id] = newBroadcast;
+            newSprite.broadcasts[newBroadcast.id] = newBroadcast;
             // std::cout<<"broadcast name = "<< newBroadcast.name << std::endl;
         }
-
-        sprites.push_back(newSprite);
     }
 
     for (const auto &monitor : json["monitors"]) { // "monitor" is any variable shown on screen
@@ -759,14 +750,14 @@ void loadSprites(const nlohmann::json &json) {
 
     // load block lookup table
     blockLookup.clear();
-    for (Sprite *sprite : sprites) {
-        for (auto &[id, block] : sprite->blocks) {
+    for (Sprite &sprite : sprites) {
+        for (auto &[id, block] : sprite.blocks) {
             blockLookup[id] = &block;
         }
     }
     // setup top level blocks
-    for (Sprite *currentSprite : sprites) {
-        for (auto &[id, block] : currentSprite->blocks) {
+    for (Sprite &currentSprite : sprites) {
+        for (auto &[id, block] : currentSprite.blocks) {
             if (block.topLevel) continue;                           // skip top level blocks
             block.topLevelParentBlock = getBlockParent(&block)->id; // get parent block id
             // std::cout<<"block id = "<< block.topLevelParentBlock << std::endl;
@@ -775,9 +766,9 @@ void loadSprites(const nlohmann::json &json) {
 
     // try to find the advanced project settings comment
     nlohmann::json config;
-    for (Sprite *currentSprite : sprites) {
-        if (!currentSprite->isStage) continue;
-        for (auto &[id, comment] : currentSprite->comments) {
+    for (Sprite &currentSprite : sprites) {
+        if (!currentSprite.isStage) continue;
+        for (auto &[id, comment] : currentSprite.comments) {
             // make sure its the turbowarp comment
             std::size_t settingsFind = comment.text.find("Configuration for https");
             if (settingsFind == std::string::npos) continue;
@@ -890,16 +881,16 @@ void loadSprites(const nlohmann::json &json) {
     int sprIndex = 1;
     if (projectType == UNZIPPED) {
         for (auto &currentSprite : sprites) {
-            if (!currentSprite->visible || currentSprite->ghostEffect == 100) continue;
+            if (!currentSprite.visible || currentSprite.ghostEffect == 100) continue;
             Unzip::loadingState = "Loading image " + std::to_string(sprIndex) + " / " + std::to_string(sprites.size());
-            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].fullName);
+            Image::loadImageFromFile(currentSprite.costumes[currentSprite.currentCostume].fullName);
             sprIndex++;
         }
     } else {
         for (auto &currentSprite : sprites) {
-            if (!currentSprite->visible || currentSprite->ghostEffect == 100) continue;
+            if (!currentSprite.visible || currentSprite.ghostEffect == 100) continue;
             Unzip::loadingState = "Loading image " + std::to_string(sprIndex) + " / " + std::to_string(sprites.size());
-            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite->costumes[currentSprite->currentCostume].fullName);
+            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite.costumes[currentSprite.currentCostume].fullName);
             sprIndex++;
         }
     }
@@ -926,19 +917,19 @@ void loadSprites(const nlohmann::json &json) {
     }
 
     // get block chains for every block
-    for (Sprite *currentSprite : sprites) {
-        for (auto &[id, block] : currentSprite->blocks) {
+    for (Sprite &currentSprite : sprites) {
+        for (auto &[id, block] : currentSprite.blocks) {
             if (!block.topLevel) continue;
             std::string outID;
             BlockChain chain;
             chain.blockChain = getBlockChain(block.id, &outID);
-            currentSprite->blockChains[outID] = chain;
+            currentSprite.blockChains[outID] = chain;
             // std::cout << "ok = " << outID << std::endl;
             block.blockChainID = outID;
 
             for (auto &chainBlock : chain.blockChain) {
-                if (currentSprite->blocks.find(chainBlock->id) != currentSprite->blocks.end()) {
-                    currentSprite->blocks[chainBlock->id].blockChainID = outID;
+                if (currentSprite.blocks.find(chainBlock->id) != currentSprite.blocks.end()) {
+                    currentSprite.blocks[chainBlock->id].blockChainID = outID;
                 }
             }
         }
@@ -1039,7 +1030,7 @@ Value Scratch::getInputValue(Block &block, const std::string &inputName, Sprite 
     return Value();
 }
 
-std::string Scratch::getFieldValue(Block &block, const std::string &fieldName) {
+std::string Scratch::getFieldValue(const Block &block, const std::string &fieldName) {
     auto fieldFind = block.parsedFields->find(fieldName);
     if (fieldFind == block.parsedFields->end()) {
         return "";
@@ -1047,7 +1038,7 @@ std::string Scratch::getFieldValue(Block &block, const std::string &fieldName) {
     return fieldFind->second.value;
 }
 
-std::string Scratch::getFieldId(Block &block, const std::string &fieldName) {
+std::string Scratch::getFieldId(const Block &block, const std::string &fieldName) {
     auto fieldFind = block.parsedFields->find(fieldName);
     if (fieldFind == block.parsedFields->end()) {
         return "";

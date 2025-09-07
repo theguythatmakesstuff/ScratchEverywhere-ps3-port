@@ -492,7 +492,7 @@ void ControlsMenu::init() {
     std::vector<std::string> controls;
 
     for (auto &sprite : sprites) {
-        for (auto &[id, block] : sprite->blocks) {
+        for (auto &[id, block] : sprite.blocks) {
             std::string buttonCheck;
             if (block.opcode == "sensing_keypressed") {
 
@@ -505,7 +505,7 @@ void ControlsMenu::init() {
                     if (Scratch::getFieldValue(*inputBlock, "KEY_OPTION") != "")
                         buttonCheck = Scratch::getFieldValue(*inputBlock, "KEY_OPTION");
                 } else {
-                    buttonCheck = Scratch::getInputValue(block, "KEY_OPTION", sprite).asString();
+                    buttonCheck = Scratch::getInputValue(block, "KEY_OPTION", &sprite).asString();
                 }
 
             } else if (block.opcode == "event_whenkeypressed") {

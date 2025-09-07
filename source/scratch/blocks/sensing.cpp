@@ -52,9 +52,9 @@ Value SensingBlocks::of(Block &block, Sprite *sprite) {
     object = Scratch::getFieldValue(*objectBlock, "OBJECT");
 
     Sprite *spriteObject = nullptr;
-    for (Sprite *currentSprite : sprites) {
-        if (currentSprite->name == object && !currentSprite->isClone) {
-            spriteObject = currentSprite;
+    for (Sprite &currentSprite : sprites) {
+        if (currentSprite.name == object && !currentSprite.isClone) {
+            spriteObject = &currentSprite;
             break;
         }
     }
@@ -105,10 +105,10 @@ Value SensingBlocks::distanceTo(Block &block, Sprite *sprite) {
                           pow(Input::mousePointer.y - sprite->yPosition, 2)));
     }
 
-    for (Sprite *currentSprite : sprites) {
-        if (currentSprite->name == object && !currentSprite->isClone) {
-            double distance = sqrt(pow(currentSprite->xPosition - sprite->xPosition, 2) +
-                                   pow(currentSprite->yPosition - sprite->yPosition, 2));
+    for (Sprite &currentSprite : sprites) {
+        if (currentSprite.name == object && !currentSprite.isClone) {
+            double distance = sqrt(pow(currentSprite.xPosition - sprite->xPosition, 2) +
+                                   pow(currentSprite.yPosition - sprite->yPosition, 2));
             return Value(distance);
         }
     }
@@ -181,9 +181,9 @@ Value SensingBlocks::touchingObject(Block &block, Sprite *sprite) {
         return Value(isColliding("edge", sprite));
     } else {
         for (size_t i = 0; i < sprites.size(); i++) {
-            Sprite *currentSprite = sprites[i];
-            if (currentSprite->name == objectName &&
-                isColliding("sprite", sprite, currentSprite, objectName)) {
+            Sprite &currentSprite = sprites[i];
+            if (currentSprite.name == objectName &&
+                isColliding("sprite", sprite, &currentSprite, objectName)) {
                 return Value(true);
             }
         }
