@@ -217,8 +217,7 @@ void cleanupSprites() {
             if (sprite->isClone) {
                 sprite->isDeleted = true;
             } else {
-                sprite->~Sprite();
-                MemoryTracker::deallocate<Sprite>(sprite);
+                delete sprite;
             }
         }
     }
@@ -451,9 +450,9 @@ void loadSprites(const nlohmann::json &json) {
     sprites.reserve(400);
     for (const auto &target : json["targets"]) { // "target" is sprite in Scratch speak, so for every sprite in sprites
 
-        Sprite *newSprite = MemoryTracker::allocate<Sprite>();
-        // Sprite *newSprite = new Sprite();
-        new (newSprite) Sprite();
+        // Sprite *newSprite = MemoryTracker::allocate<Sprite>();
+        Sprite *newSprite = new Sprite();
+        // new (newSprite) Sprite();
         if (target.contains("name")) {
             newSprite->name = target["name"].get<std::string>();
         }
