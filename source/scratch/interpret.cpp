@@ -162,6 +162,7 @@ void Scratch::cleanupScratchProject() {
         delete text;
     }
     Render::monitorTexts.clear();
+    TextObject::cleanupText();
 
     Render::visibleVariables.clear();
 

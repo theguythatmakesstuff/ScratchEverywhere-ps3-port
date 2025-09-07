@@ -28,4 +28,5 @@ class TextObjectSDL : public TextObject {
     void render(int xPos, int yPos) override;
     std::vector<float> getSize() override;
     void setRenderer(void *r) override;
+    static void cleanupText();
 };

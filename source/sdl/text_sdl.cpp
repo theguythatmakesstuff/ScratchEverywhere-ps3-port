@@ -26,7 +26,6 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
         fontPath = "gfx/menu/Arialn";
     }
     fontPath = OS::getRomFSLocation() + fontPath;
-
     fontPath = fontPath + ".ttf";
 
     // open font if not loaded
@@ -36,12 +35,13 @@ TextObjectSDL::TextObjectSDL(std::string txt, double posX, double posY, std::str
             Log::logError("Failed to load font " + fontPath + ": " + TTF_GetError());
         } else {
             fonts[fontPath] = loadedFont;
-            fontUsageCount[fontPath]++;
+            fontUsageCount[fontPath] = 1;
             pathFont = fontPath;
+            font = loadedFont;
         }
-        font = loadedFont;
     } else {
         font = fonts[fontPath];
+        pathFont = fontPath;
         fontUsageCount[fontPath]++;
     }
 
@@ -56,7 +56,8 @@ TextObjectSDL::~TextObjectSDL() {
         SDL_DestroyTexture(texture);
         texture = nullptr;
     }
-    if (font) {
+
+    if (font && !pathFont.empty()) {
         fontUsageCount[pathFont]--;
         if (fontUsageCount[pathFont] <= 0) {
             TTF_CloseFont(fonts[pathFont]);
@@ -147,4 +148,18 @@ std::vector<float> TextObjectSDL::getSize() {
 void TextObjectSDL::setRenderer(void *r) {
     renderer = static_cast<SDL_Renderer *>(r);
     updateTexture();
+}
+
+void TextObjectSDL::cleanupText() {
+    for (auto &[fontPath, font] : fonts) {
+        if (font) {
+            TTF_CloseFont(font);
+        }
+    }
+
+    // Clear the maps
+    fonts.clear();
+    fontUsageCount.clear();
+
+    Log::log("Cleaned up all text.");
 }
