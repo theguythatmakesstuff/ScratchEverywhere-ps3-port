@@ -148,6 +148,7 @@ bool Scratch::startScratchProject() {
             }
         }
     }
+    cleanupScratchProject();
     return false;
 }
 
@@ -156,22 +157,25 @@ void Scratch::cleanupScratchProject() {
     Image::cleanupImages();
     SoundPlayer::cleanupAudio();
     blockLookup.clear();
+
+    for (auto &[id, text] : Render::monitorTexts) {
+        delete text;
+    }
+    Render::monitorTexts.clear();
+
     Render::visibleVariables.clear();
 
     // Clean up ZIP archive if it was initialized
     if (projectType != UNZIPPED) {
-        mz_zip_reader_end(&Unzip::zipArchive);
 
-        // Clear the ZIP buffer and deallocate its memory
-        size_t bufferSize = Unzip::zipBuffer.size();
+        mz_zip_reader_end(&Unzip::zipArchive);
+        if (Unzip::trackedBufferPtr) {
+            MemoryTracker::deallocate(Unzip::trackedBufferPtr, Unzip::trackedBufferSize);
+            Unzip::trackedBufferPtr = nullptr;
+            Unzip::trackedBufferSize = 0;
+        }
         Unzip::zipBuffer.clear();
         Unzip::zipBuffer.shrink_to_fit();
-
-        // Update memory tracker for the buffer
-        if (bufferSize > 0) {
-            MemoryTracker::deallocate(nullptr, bufferSize);
-        }
-
         memset(&Unzip::zipArchive, 0, sizeof(Unzip::zipArchive));
     }
 
