@@ -146,6 +146,7 @@ bool Scratch::startScratchProject() {
             }
         }
     }
+    cleanupScratchProject();
     return false;
 }
 
