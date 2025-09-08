@@ -106,13 +106,8 @@ BlockResult ControlBlocks::createCloneOf(Block &block, Sprite *sprite, bool *wit
     auto it = block.parsedInputs->find("CLONE_OPTION");
     cloneOptions = &sprite->blocks[it->second.literalValue.asString()];
 
-    Sprite *spriteToClone = nullptr;
-
-    if (Scratch::clones < Scratch::maxClones)
-        spriteToClone = new Sprite();
-
+    Sprite *spriteToClone = getAvailableSprite();
     if (!spriteToClone) return BlockResult::CONTINUE;
-    Scratch::clones++;
     if (Scratch::getFieldValue(*cloneOptions, "CLONE_OPTION") == "_myself_") {
         *spriteToClone = *sprite;
     } else {

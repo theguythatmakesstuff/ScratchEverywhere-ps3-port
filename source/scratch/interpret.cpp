@@ -12,7 +12,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
-#include <malloc.h>
 #include <math.h>
 #include <string>
 #include <unordered_map>
@@ -40,6 +39,7 @@ std::unique_ptr<MistConnection> cloudConnection = nullptr;
 #endif
 
 std::vector<Sprite *> sprites;
+std::vector<Sprite> spritePool;
 std::vector<std::string> broadcastQueue;
 std::unordered_map<std::string, Block *> blockLookup;
 std::string answer;
@@ -54,8 +54,6 @@ int Scratch::FPS = 30;
 bool Scratch::fencing = true;
 bool Scratch::miscellaneousLimits = true;
 bool Scratch::shouldStop = false;
-size_t Scratch::clones = 0;
-size_t Scratch::maxClones = 300;
 
 #ifdef ENABLE_CLOUDVARS
 bool cloudProject = false;
@@ -192,15 +190,31 @@ void Scratch::cleanupScratchProject() {
     Scratch::projectHeight = 360;
     Scratch::fencing = true;
     Scratch::miscellaneousLimits = true;
-    Scratch::clones = 0;
-    Scratch::maxClones = 300;
     Render::renderMode = Render::TOP_SCREEN_ONLY;
     Unzip::filePath = "";
-
-    // free memory usage
-    malloc_trim(0);
-
     Log::log("Cleaned up Scratch project.");
+}
+
+void initializeSpritePool(int poolSize) {
+    for (int i = 0; i < poolSize; i++) {
+        Sprite newSprite;
+        newSprite.id = Math::generateRandomString(15);
+        newSprite.isClone = true;
+        newSprite.toDelete = true;
+        newSprite.isDeleted = true;
+        spritePool.push_back(newSprite);
+    }
+}
+
+Sprite *getAvailableSprite() {
+    for (Sprite &sprite : spritePool) {
+        if (sprite.isDeleted) {
+            sprite.isDeleted = false;
+            sprite.toDelete = false;
+            return &sprite;
+        }
+    }
+    return nullptr;
 }
 
 void cleanupSprites() {
@@ -210,6 +224,7 @@ void cleanupSprites() {
         }
     }
     sprites.clear();
+    spritePool.clear();
 }
 
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite *currentSprite) {
@@ -821,7 +836,7 @@ void loadSprites(const nlohmann::json &json) {
     int framerate = 0;
     bool fncng = true;
     bool miscLimits = true;
-    // bool infClones = false;
+    bool infClones = false;
 
     try {
         framerate = config["framerate"].get<int>();
@@ -860,7 +875,7 @@ void loadSprites(const nlohmann::json &json) {
         Log::logWarning("no misc limits property.");
     }
     try {
-        // infClones = !config["runtimeOptions"]["maxClones"].is_null();
+        infClones = !config["runtimeOptions"]["maxClones"].is_null();
     } catch (...) {
         Log::logWarning("No Max clones property.");
     }
@@ -891,6 +906,27 @@ void loadSprites(const nlohmann::json &json) {
         }
     }
 
+    // if infinite clones are enabled, set a (potentially) higher max clone count
+    if (!infClones) initializeSpritePool(300);
+    else {
+        if (OS::getPlatform() == "3DS") {
+            initializeSpritePool(OS::isNew3DS() ? 450 : 300);
+        } else if (OS::getPlatform() == "Wii" || OS::getPlatform() == "Vita") {
+            initializeSpritePool(450);
+        } else if (OS::getPlatform() == "Wii U") {
+            initializeSpritePool(800);
+        } else if (OS::getPlatform() == "GameCube") {
+            initializeSpritePool(300);
+        } else if (OS::getPlatform() == "Switch") {
+            initializeSpritePool(1500);
+        } else if (OS::getPlatform() == "PC") {
+            initializeSpritePool(2000);
+        } else {
+            Log::logWarning("Unknown platform: " + OS::getPlatform() + " doing default clone limit.");
+            initializeSpritePool(300);
+        }
+    }
+
     // get block chains for every block
     for (Sprite *currentSprite : sprites) {
         for (auto &[id, block] : currentSprite->blocks) {
@@ -913,7 +949,6 @@ void loadSprites(const nlohmann::json &json) {
     Unzip::loadingState = "Running Flag block";
 
     Input::applyControls(OS::getScratchFolderLocation() + Unzip::filePath + ".json");
-    malloc_trim(0);
     Log::log("Loaded " + std::to_string(sprites.size()) + " sprites.");
 }
 

@@ -26,6 +26,7 @@ extern BlockExecutor executor;
 extern ProjectType projectType;
 
 extern std::vector<Sprite *> sprites;
+extern std::vector<Sprite> spritePool;
 extern std::vector<std::string> broadcastQueue;
 extern std::unordered_map<std::string, Block *> blockLookup;
 extern bool toExit;
@@ -48,8 +49,6 @@ class Scratch {
     static bool fencing;
     static bool miscellaneousLimits;
     static bool shouldStop;
-    static size_t maxClones;
-    static size_t clones;
 };
 
 /**
@@ -82,6 +81,18 @@ void cleanupSprites();
  * @return The top level parent of the specified `block`.
  */
 Block *getBlockParent(const Block *block);
+
+/**
+ * Initializes a Pool of `Sprite` variables to be used by Clones.
+ * @param poolSize Amount of clones to initialize.
+ */
+void initializeSpritePool(int poolSize);
+
+/**
+ * Gets an available sprite from the `Sprite Pool`.
+ * @return A `Sprite*` if there is any, `nullptr` otherwise.
+ */
+Sprite *getAvailableSprite();
 
 /**
  * Finds a block from the `blockLookup`.
