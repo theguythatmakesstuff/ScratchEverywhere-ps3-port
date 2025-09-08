@@ -255,7 +255,9 @@ void BlockExecutor::runRepeatBlocks() {
             }
         }
     }
+}
 
+void BlockExecutor::cleanupSprites() {
     // Delete clones ready for deletion
     auto it = std::remove_if(sprites.begin(), sprites.end(),
                              [](Sprite *s) { return s->toDelete; });

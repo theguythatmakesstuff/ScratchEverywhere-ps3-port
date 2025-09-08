@@ -77,6 +77,8 @@ class BlockExecutor {
      */
     static std::vector<std::pair<Block *, Sprite *>> runBroadcast(std::string broadcastToRun);
 
+    static void cleanupSprites();
+
     /**
      * Executes a `block` function that's registered through `valueHandlers`.
      * @param block Reference to a block variable

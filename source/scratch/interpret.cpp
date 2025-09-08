@@ -132,6 +132,7 @@ bool Scratch::startScratchProject() {
             BlockExecutor::runRepeatBlocks();
             BlockExecutor::runBroadcasts();
             Render::renderSprites();
+            BlockExecutor::cleanupSprites();
 
             if (shouldStop) {
 #ifdef __WIIU__ // wii u freezes for some reason.. TODO fix that but for now just exit app
@@ -205,11 +206,7 @@ void Scratch::cleanupScratchProject() {
 void cleanupSprites() {
     for (Sprite *sprite : sprites) {
         if (sprite) {
-            if (sprite->isClone) {
-                sprite->isDeleted = true;
-            } else {
-                delete sprite;
-            }
+            delete sprite;
         }
     }
     sprites.clear();
