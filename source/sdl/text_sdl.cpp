@@ -85,7 +85,7 @@ void TextObjectSDL::updateTexture() {
     };
 
     // Create surface from text
-    SDL_Surface *textSurface = TTF_RenderText_Blended(font, text.c_str(), sdlColor);
+    SDL_Surface *textSurface = TTF_RenderUTF8_Blended(font, text.c_str(), sdlColor);
     if (!textSurface) {
         std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
         return;
