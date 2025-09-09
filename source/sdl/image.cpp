@@ -1,5 +1,6 @@
 #include "../scratch/image.hpp"
 #include "../scratch/os.hpp"
+#include "../scratch/unzip.hpp"
 #include "image.hpp"
 #include "miniz/miniz.h"
 #include "render.hpp"
@@ -164,7 +165,7 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
         finalPath = finalPath + "project/";
 
     finalPath = finalPath + filePath;
-    if (Unzip::UnpackedInSD) fullPath = Unzip::filePath + filePath;
+    if (Unzip::UnpackedInSD) finalPath = Unzip::filePath + filePath;
     // SDL_Image *image = new SDL_Image(finalPath);
     SDL_Image *image = MemoryTracker::allocate<SDL_Image>();
     new (image) SDL_Image(finalPath);
