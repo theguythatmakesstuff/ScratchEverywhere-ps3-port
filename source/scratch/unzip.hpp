@@ -199,13 +199,25 @@ class Unzip {
             }
 
         } else {
-            // unzipped project handling...
             file->clear();
             file->seekg(0, std::ios::beg);
+
+            // get file size
+            file->seekg(0, std::ios::end);
+            std::streamsize size = file->tellg();
+            file->seekg(0, std::ios::beg);
+
+            // put file into string
+            std::string json_content;
+            json_content.reserve(size);
+            json_content.assign(std::istreambuf_iterator<char>(*file),
+                                std::istreambuf_iterator<char>());
+
 #ifdef ENABLE_CLOUDVARS
-            projectJSON = {std::istreambuf_iterator<char>(*file), std::istreambuf_iterator<char>()};
+            projectJSON = json_content;
 #endif
-            (*file) >> project_json;
+
+            project_json = nlohmann::json::parse(json_content);
         }
         return project_json;
     }
