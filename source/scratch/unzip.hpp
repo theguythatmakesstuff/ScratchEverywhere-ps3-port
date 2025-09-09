@@ -265,36 +265,6 @@ class Unzip {
         return true;
     }
 
-#ifdef GAMECUBE
-    static bool deleteProjectFolder(const std::string &directory) {
-        DIR *dir = opendir(directory.c_str());
-        if (dir == nullptr) {
-            Log::logWarning("Directory not found: " + directory);
-            return false;
-        }
-
-        struct dirent *entry;
-        while ((entry = readdir(dir)) != nullptr) {
-            std::string name(entry->d_name);
-            if (name == "." || name == "..") continue;
-
-            std::string path = directory + "/" + name;
-            if (remove(path.c_str()) != 0) {
-                Log::logError("Failed to remove file: " + path);
-                closedir(dir);
-                return false;
-            }
-        }
-        closedir(dir);
-
-        if (rmdir(directory.c_str()) != 0) {
-            Log::logError("Failed to remove directory: " + directory);
-            return false;
-        }
-
-        return true;
-    }
-#else
     static bool deleteProjectFolder(const std::string &directory) {
         if (!std::filesystem::exists(directory)) {
             Log::logWarning("Directory does not exist: " + directory);
@@ -314,5 +284,4 @@ class Unzip {
             return false;
         }
     }
-#endif
 };
