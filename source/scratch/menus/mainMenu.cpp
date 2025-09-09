@@ -184,8 +184,12 @@ void ProjectMenu::init() {
     backButton->needsToBeSelected = false;
     backButton->scale = 1.0;
 
-    std::vector<std::string> projectFiles;
+
+
     projectFiles = Unzip::getProjectFiles(OS::getScratchFolderLocation());
+    UnzippedFiles = UnpackMenu::getJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json");
+
+
 
     // initialize text and set positions
     int yPosition = 120;
@@ -202,6 +206,20 @@ void ProjectMenu::init() {
         projectControl->buttonObjects.push_back(project);
         yPosition += 50;
     }
+    for (std::string &file : UnzippedFiles) {
+        ButtonObject *project = new ButtonObject(file, "gfx/menu/projectBoxFast.png", 0, yPosition);
+        project->text->setColor(Math::color(0, 0, 0, 255));
+        project->canBeClicked = false;
+        project->y -= project->text->getSize()[1] / 2;
+        if (project->text->getSize()[0] > project->buttonTexture->image->getWidth() * 0.85) {
+            float scale = (float)project->buttonTexture->image->getWidth() / (project->text->getSize()[0] * 1.15);
+            project->textScale = scale;
+        }
+        projects.push_back(project);
+        projectControl->buttonObjects.push_back(project);
+        yPosition += 50;
+    }
+
     for (size_t i = 0; i < projects.size(); i++) {
         // Check if there's a project above
         if (i > 0) {
@@ -215,7 +233,7 @@ void ProjectMenu::init() {
     }
 
     // check if user has any projects
-    if (projectFiles.size() == 0) {
+    if (projectFiles.size() == 0 && UnzippedFiles.size() == 0) {
         hasProjects = false;
         noProjectsButton = new ButtonObject("", "gfx/menu/noProjects.png", 200, 120, "gfx/menu/Ubuntu-Bold");
         projectControl->selectedObject = noProjectsButton;
@@ -270,13 +288,25 @@ void ProjectMenu::render() {
 
     if (hasProjects) {
         if (projectControl->selectedObject->isPressed({"a"}) || playButton->isPressed({"a"})) {
-            Unzip::filePath = projectControl->selectedObject->text->getText() + ".sb3";
-            MenuManager::loadProject();
-            return;
+
+            if (projectControl->selectedObject->buttonTexture->image->imageId == "projectBoxFast") {
+                // Unpacked sb3
+                Unzip::filePath = projectControl->selectedObject->text->getText();
+                MenuManager::loadProject();
+                return;
+            } else {
+                // normal sb3
+                Unzip::filePath = projectControl->selectedObject->text->getText() + ".sb3";
+                MenuManager::loadProject();
+                return;
+            }
         }
         if (settingsButton->isPressed({"l"})) {
             std::string selectedProject = projectControl->selectedObject->text->getText();
-            ProjectSettings *settings = new ProjectSettings(selectedProject);
+            
+            UnzippedFiles = UnpackMenu::getJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json");
+          
+            ProjectSettings *settings = new ProjectSettings(selectedProject, (std::find(UnzippedFiles.begin(), UnzippedFiles.end(), selectedProject) != UnzippedFiles.end()));
             MenuManager::changeMenu(settings);
             return;
         }
@@ -344,6 +374,8 @@ void ProjectMenu::render() {
 }
 
 void ProjectMenu::cleanup() {
+    projectFiles.clear();
+    UnzippedFiles.clear();
     for (ButtonObject *button : projects) {
         delete button;
     }
@@ -383,8 +415,10 @@ void ProjectMenu::cleanup() {
     isInitialized = false;
 }
 
-ProjectSettings::ProjectSettings(std::string projPath) {
+ProjectSettings::ProjectSettings(std::string projPath, bool existUnpacked) {
+    Log::log(existUnpacked ? "ALREADY" : "NO");
     projectPath = projPath;
+    canUnpacked = !existUnpacked;
     init();
 }
 ProjectSettings::~ProjectSettings() {
@@ -393,10 +427,17 @@ ProjectSettings::~ProjectSettings() {
 
 void ProjectSettings::init() {
     // initialize
-    changeControlsButton = new ButtonObject("Change Controls", "gfx/menu/projectBox.png", 200, 100, "gfx/menu/Ubuntu-Bold");
+  
+    changeControlsButton = new ButtonObject("Change Controls", "gfx/menu/projectBox.png", 200, 81, "gfx/menu/Ubuntu-Bold");
     changeControlsButton->text->setColor(Math::color(0, 0, 0, 255));
-    // bottomScreenButton = new ButtonObject("Bottom Screen", "gfx/menu/projectBox.png", 200, 150, "gfx/menu/Ubuntu-Bold");
+    UnpackProjectButton = new ButtonObject("Unpack Project", "gfx/menu/projectBox.png", 200, 159, "gfx/menu/Ubuntu-Bold");
+    UnpackProjectButton->text->setColor(Math::color(0, 0, 0, 255));
+    DeleteUnpackProjectButton = new ButtonObject("Delete Unpacked Proj.", "gfx/menu/projectBox.png", 200, 159, "gfx/menu/Ubuntu-Bold");
+    DeleteUnpackProjectButton->text->setColor(Math::color(255, 0, 0, 255));
+    // bottomScreenButton = new ButtonObject("Bottom Screen", "gfx/menu/projectBox.png", 200, 150);
     // bottomScreenButton->text->setColor(Math::color(0, 0, 0, 255));
+  
+  
     settingsControl = new ControlObject();
     backButton = new ButtonObject("", "gfx/menu/buttonBack.png", 375, 20, "gfx/menu/Ubuntu-Bold");
     backButton->scale = 1.0;
@@ -406,6 +447,18 @@ void ProjectSettings::init() {
     settingsControl->selectedObject = changeControlsButton;
     changeControlsButton->isSelected = true;
 
+    if (canUnpacked) {
+        changeControlsButton->buttonDown = UnpackProjectButton;
+        changeControlsButton->buttonUp = UnpackProjectButton;
+        UnpackProjectButton->buttonUp = changeControlsButton;
+        UnpackProjectButton->buttonDown = changeControlsButton;
+    } else {
+        changeControlsButton->buttonDown = DeleteUnpackProjectButton;
+        changeControlsButton->buttonUp = DeleteUnpackProjectButton;
+        DeleteUnpackProjectButton->buttonUp = changeControlsButton;
+        DeleteUnpackProjectButton->buttonDown = changeControlsButton;
+    }
+
     // link buttons
     // changeControlsButton->buttonDown = bottomScreenButton;
     // changeControlsButton->buttonUp = bottomScreenButton;
@@ -414,6 +467,7 @@ void ProjectSettings::init() {
 
     // add buttons to control
     settingsControl->buttonObjects.push_back(changeControlsButton);
+    settingsControl->buttonObjects.push_back(UnpackProjectButton);
     // settingsControl->buttonObjects.push_back(bottomScreenButton);
     isInitialized = true;
 }
@@ -429,6 +483,32 @@ void ProjectSettings::render() {
     }
     // if (bottomScreenButton->isPressed()) {
     // }
+    if (UnpackProjectButton->isPressed({"a"}) && canUnpacked) {
+        cleanup();
+        UnpackMenu unpackMenu;
+        unpackMenu.render();
+        
+        Unzip::extractProject(OS::getScratchFolderLocation()+ projectPath + ".sb3", OS::getScratchFolderLocation() + projectPath);
+
+        unpackMenu.addToJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json", projectPath);
+        unpackMenu.cleanup();
+        ProjectMenu *projectMenu = new ProjectMenu();
+        MenuManager::changeMenu(projectMenu);
+        return;
+    }
+
+    if (DeleteUnpackProjectButton->isPressed({"a"}) && !canUnpacked) {
+        cleanup();
+        UnpackMenu unpackMenu;
+        unpackMenu.render();
+        Unzip::deleteProjectFolder(OS::getScratchFolderLocation() + projectPath);
+        unpackMenu.removeFromJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json", projectPath);
+        unpackMenu.cleanup();
+        ProjectMenu *projectMenu = new ProjectMenu();
+        MenuManager::changeMenu(projectMenu);
+        return;
+    }
+
     if (backButton->isPressed({"b", "y"})) {
         ProjectMenu *projectMenu = new ProjectMenu();
         MenuManager::changeMenu(projectMenu);
@@ -439,6 +519,8 @@ void ProjectSettings::render() {
     Render::beginFrame(1, 147, 138, 168);
 
     changeControlsButton->render();
+    if (canUnpacked) UnpackProjectButton->render();
+    if (!canUnpacked) DeleteUnpackProjectButton->render();
     // bottomScreenButton->render();
     settingsControl->render();
     backButton->render();
@@ -449,6 +531,10 @@ void ProjectSettings::cleanup() {
     if (changeControlsButton != nullptr) {
         delete changeControlsButton;
         changeControlsButton = nullptr;
+    }
+    if (UnpackProjectButton != nullptr) {
+        delete UnpackProjectButton;
+        UnpackProjectButton = nullptr;
     }
     if (bottomScreenButton != nullptr) {
         delete bottomScreenButton;
@@ -744,4 +830,114 @@ void ControlsMenu::cleanup() {
     // Input::getInput();
     // Render::endFrame();
     isInitialized = false;
+}
+
+UnpackMenu::UnpackMenu() {
+    init();
+}
+
+UnpackMenu::~UnpackMenu() {
+    cleanup();
+}
+
+void UnpackMenu::init() {
+    Render::renderMode = Render::BOTH_SCREENS;
+
+    infoText = createTextObject("Please wait a moment", 200.0, 100.0);
+    infoText->setScale(1.5f);
+    infoText->setCenterAligned(true);
+    descText = createTextObject("Do not turn off the device", 200.0, 150.0);
+    descText->setScale(0.8f);
+    descText->setCenterAligned(true);
+}
+
+void UnpackMenu::render() {
+
+    Render::beginFrame(0, 181, 165, 111);
+    infoText->render(200, 110);
+    descText->render(200, 140);
+
+    Render::beginFrame(1, 181, 165, 111);
+
+    Render::endFrame();
+}
+
+void UnpackMenu::cleanup() {
+
+    if (infoText != nullptr) {
+        delete infoText;
+        infoText = nullptr;
+    }
+
+    if (descText != nullptr) {
+        delete descText;
+        descText = nullptr;
+    }
+
+    Render::beginFrame(0, 181, 165, 111);
+    Render::beginFrame(1, 181, 165, 111);
+    Render::endFrame();
+    Render::renderMode = Render::BOTH_SCREENS;
+}
+
+void UnpackMenu::addToJsonArray(const std::string &filePath, const std::string &value) {
+    nlohmann::json j;
+
+    std::ifstream inFile(filePath);
+    if (inFile) {
+        inFile >> j;
+    }
+    inFile.close();
+
+    if (!j.contains("items") || !j["items"].is_array()) {
+        j["items"] = nlohmann::json::array();
+    }
+
+    j["items"].push_back(value);
+
+    std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
+
+    std::ofstream outFile(filePath);
+    if (!outFile) {
+        std::cerr << "Failed to write JSON file: " << filePath << std::endl;
+        return;
+    }
+    outFile << j.dump(2);
+    outFile.close();
+}
+
+std::vector<std::string> UnpackMenu::getJsonArray(const std::string &filePath) {
+    std::vector<std::string> result;
+    std::ifstream inFile(filePath);
+    if (!inFile) return result;
+
+    nlohmann::json j;
+    inFile >> j;
+    inFile.close();
+
+    if (j.contains("items") && j["items"].is_array()) {
+        for (const auto &el : j["items"]) {
+            result.push_back(el.get<std::string>());
+        }
+    }
+    return result;
+}
+
+void UnpackMenu::removeFromJsonArray(const std::string &filePath, const std::string &value) {
+    std::ifstream inFile(filePath);
+    if (!inFile) return;
+
+    nlohmann::json j;
+    inFile >> j;
+    inFile.close();
+
+    if (j.contains("items") && j["items"].is_array()) {
+        auto &arr = j["items"];
+        arr.erase(std::remove(arr.begin(), arr.end(), value), arr.end());
+    }
+
+    std::ofstream outFile(filePath);
+    if (!outFile) return;
+    outFile << j.dump(2);
+    outFile.close();
 }
