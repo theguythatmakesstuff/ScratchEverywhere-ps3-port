@@ -127,6 +127,9 @@ bool Render::Init() {
 
     accountProfileClose(&profile);
     accountExit();
+
+    windowWidth = 1280;
+    windowHeight = 720;
 postAccount:
 #elif defined(__OGC__)
     SYS_STDIO_Report(true);
