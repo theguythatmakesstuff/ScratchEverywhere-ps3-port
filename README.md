@@ -79,7 +79,7 @@ Like TurboWarp we have special custom blocks that only work on SE! You can find 
 As this is in a very work in progress state, you will encounter many bugs, crashes, and things that will just not work. 
 
 **List of Known Limitations:**
-- Text will not show up on vector images containing it.
+- Text and embedded bitmap images will not show up on vector images containing it.
 - Extensions (e.g. pen and music extensions) are not yet supported.
 - Some blocks may lead to crashing/unintended behavior (Please open an issue if you know of a block that's causing problems).
 - Performance is poor when using many (~30+) clones (memory management issue).
