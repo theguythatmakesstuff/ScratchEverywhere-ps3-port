@@ -241,7 +241,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
         scaleY = static_cast<double>(SCREEN_HEIGHT) / (Scratch::projectHeight / 2.0);
         heightMultiplier = 1.0;
     }
-    scale = bottom ? 1.0 : std::min(scaleX, scaleY);
+    scale = (bottom && Render::renderMode != Render::BOTTOM_SCREEN_ONLY) ? 1.0 : std::min(scaleX, scaleY);
 
     if (!legacyDrawing) {
         double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
@@ -435,8 +435,10 @@ void Render::renderSprites() {
             }
         }
 
-        if (Render::renderMode != Render::BOTH_SCREENS)
+        if (Render::renderMode != Render::BOTH_SCREENS) {
             drawBlackBars(BOTTOM_SCREEN_WIDTH, SCREEN_HEIGHT);
+            renderVisibleVariables();
+        }
     }
 
     C2D_Flush();

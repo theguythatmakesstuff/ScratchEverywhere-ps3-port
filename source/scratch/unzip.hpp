@@ -284,4 +284,33 @@ class Unzip {
             return false;
         }
     }
+
+    static nlohmann::json getSetting(const std::string &settingName) {
+        std::string folderPath = OS::getScratchFolderLocation() + filePath + ".json";
+
+        std::ifstream file(folderPath);
+        if (!file.good()) {
+            Log::logError("JSON file not found: " + folderPath);
+            return nlohmann::json();
+        }
+
+        nlohmann::json json;
+        try {
+            file >> json;
+        } catch (const nlohmann::json::parse_error &e) {
+            Log::logError("Failed to parse JSON file: " + std::string(e.what()));
+            file.close();
+            return nlohmann::json();
+        }
+        file.close();
+
+        if (!json.contains("settings")) {
+            return nlohmann::json();
+        }
+        if (!json["settings"].contains(settingName)) {
+            return nlohmann::json();
+        }
+
+        return json["settings"][settingName];
+    }
 };

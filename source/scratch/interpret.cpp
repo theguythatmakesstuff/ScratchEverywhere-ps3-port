@@ -886,8 +886,13 @@ void loadSprites(const nlohmann::json &json) {
         Render::renderMode = Render::BOTH_SCREENS;
     else if (wdth == 320 && hght == 240)
         Render::renderMode = Render::BOTTOM_SCREEN_ONLY;
-    else
-        Render::renderMode = Render::TOP_SCREEN_ONLY;
+    else {
+        auto bottomScreen = Unzip::getSetting("bottomScreen");
+        if (!bottomScreen.is_null() && bottomScreen.get<bool>())
+            Render::renderMode = Render::BOTTOM_SCREEN_ONLY;
+        else
+            Render::renderMode = Render::TOP_SCREEN_ONLY;
+    }
 
     // load initial sprite images
     Unzip::loadingState = "Loading images";

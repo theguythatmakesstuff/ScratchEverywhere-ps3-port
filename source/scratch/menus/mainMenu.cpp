@@ -184,12 +184,8 @@ void ProjectMenu::init() {
     backButton->needsToBeSelected = false;
     backButton->scale = 1.0;
 
-
-
     projectFiles = Unzip::getProjectFiles(OS::getScratchFolderLocation());
     UnzippedFiles = UnpackMenu::getJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json");
-
-
 
     // initialize text and set positions
     int yPosition = 120;
@@ -303,9 +299,9 @@ void ProjectMenu::render() {
         }
         if (settingsButton->isPressed({"l"})) {
             std::string selectedProject = projectControl->selectedObject->text->getText();
-            
+
             UnzippedFiles = UnpackMenu::getJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json");
-          
+
             ProjectSettings *settings = new ProjectSettings(selectedProject, (std::find(UnzippedFiles.begin(), UnzippedFiles.end(), selectedProject) != UnzippedFiles.end()));
             MenuManager::changeMenu(settings);
             return;
@@ -427,17 +423,17 @@ ProjectSettings::~ProjectSettings() {
 
 void ProjectSettings::init() {
     // initialize
-  
-    changeControlsButton = new ButtonObject("Change Controls", "gfx/menu/projectBox.png", 200, 81, "gfx/menu/Ubuntu-Bold");
+
+    changeControlsButton = new ButtonObject("Change Controls", "gfx/menu/projectBox.png", 200, 80, "gfx/menu/Ubuntu-Bold");
     changeControlsButton->text->setColor(Math::color(0, 0, 0, 255));
-    UnpackProjectButton = new ButtonObject("Unpack Project", "gfx/menu/projectBox.png", 200, 159, "gfx/menu/Ubuntu-Bold");
+    UnpackProjectButton = new ButtonObject("Unpack Project", "gfx/menu/projectBox.png", 200, 130, "gfx/menu/Ubuntu-Bold");
     UnpackProjectButton->text->setColor(Math::color(0, 0, 0, 255));
-    DeleteUnpackProjectButton = new ButtonObject("Delete Unpacked Proj.", "gfx/menu/projectBox.png", 200, 159, "gfx/menu/Ubuntu-Bold");
+    DeleteUnpackProjectButton = new ButtonObject("Delete Unpacked Proj.", "gfx/menu/projectBox.png", 200, 130, "gfx/menu/Ubuntu-Bold");
     DeleteUnpackProjectButton->text->setColor(Math::color(255, 0, 0, 255));
-    // bottomScreenButton = new ButtonObject("Bottom Screen", "gfx/menu/projectBox.png", 200, 150);
-    // bottomScreenButton->text->setColor(Math::color(0, 0, 0, 255));
-  
-  
+    bottomScreenButton = new ButtonObject("Bottom Screen", "gfx/menu/projectBox.png", 200, 180, "gfx/menu/Ubuntu-Bold");
+    bottomScreenButton->text->setColor(Math::color(0, 0, 0, 255));
+    bottomScreenButton->text->setScale(0.5);
+
     settingsControl = new ControlObject();
     backButton = new ButtonObject("", "gfx/menu/buttonBack.png", 375, 20, "gfx/menu/Ubuntu-Bold");
     backButton->scale = 1.0;
@@ -451,24 +447,29 @@ void ProjectSettings::init() {
         changeControlsButton->buttonDown = UnpackProjectButton;
         changeControlsButton->buttonUp = UnpackProjectButton;
         UnpackProjectButton->buttonUp = changeControlsButton;
-        UnpackProjectButton->buttonDown = changeControlsButton;
+        UnpackProjectButton->buttonDown = bottomScreenButton;
+        bottomScreenButton->buttonDown = changeControlsButton;
+        bottomScreenButton->buttonUp = UnpackProjectButton;
     } else {
         changeControlsButton->buttonDown = DeleteUnpackProjectButton;
         changeControlsButton->buttonUp = DeleteUnpackProjectButton;
         DeleteUnpackProjectButton->buttonUp = changeControlsButton;
-        DeleteUnpackProjectButton->buttonDown = changeControlsButton;
+        DeleteUnpackProjectButton->buttonDown = bottomScreenButton;
+        bottomScreenButton->buttonDown = changeControlsButton;
+        bottomScreenButton->buttonUp = DeleteUnpackProjectButton;
     }
-
-    // link buttons
-    // changeControlsButton->buttonDown = bottomScreenButton;
-    // changeControlsButton->buttonUp = bottomScreenButton;
-    // bottomScreenButton->buttonUp = changeControlsButton;
-    // bottomScreenButton->buttonDown = changeControlsButton;
-
     // add buttons to control
     settingsControl->buttonObjects.push_back(changeControlsButton);
     settingsControl->buttonObjects.push_back(UnpackProjectButton);
-    // settingsControl->buttonObjects.push_back(bottomScreenButton);
+    settingsControl->buttonObjects.push_back(bottomScreenButton);
+
+    nlohmann::json settings = getProjectSettings();
+    if (!settings.is_null() && !settings["settings"].is_null() && settings["settings"]["bottomScreen"].get<bool>()) {
+        bottomScreenButton->text->setText("Bottom Screen: ON");
+    } else {
+        bottomScreenButton->text->setText("Bottom Screen: OFF");
+    }
+
     isInitialized = true;
 }
 void ProjectSettings::render() {
@@ -481,14 +482,18 @@ void ProjectSettings::render() {
         MenuManager::changeMenu(controlsMenu);
         return;
     }
-    // if (bottomScreenButton->isPressed()) {
-    // }
+    if (bottomScreenButton->isPressed()) {
+        nlohmann::json screenSetting;
+        screenSetting["bottomScreen"] = bottomScreenButton->text->getText() == "Bottom Screen: ON" ? false : true;
+        applySettings(screenSetting);
+        bottomScreenButton->text->setText(bottomScreenButton->text->getText() == "Bottom Screen: ON" ? "Bottom Screen: OFF" : "Bottom Screen: ON");
+    }
     if (UnpackProjectButton->isPressed({"a"}) && canUnpacked) {
         cleanup();
         UnpackMenu unpackMenu;
         unpackMenu.render();
-        
-        Unzip::extractProject(OS::getScratchFolderLocation()+ projectPath + ".sb3", OS::getScratchFolderLocation() + projectPath);
+
+        Unzip::extractProject(OS::getScratchFolderLocation() + projectPath + ".sb3", OS::getScratchFolderLocation() + projectPath);
 
         unpackMenu.addToJsonArray(OS::getScratchFolderLocation() + "UnpackedGames.json", projectPath);
         unpackMenu.cleanup();
@@ -521,12 +526,62 @@ void ProjectSettings::render() {
     changeControlsButton->render();
     if (canUnpacked) UnpackProjectButton->render();
     if (!canUnpacked) DeleteUnpackProjectButton->render();
-    // bottomScreenButton->render();
+    bottomScreenButton->render();
     settingsControl->render();
     backButton->render();
 
     Render::endFrame();
 }
+
+nlohmann::json ProjectSettings::getProjectSettings() {
+    nlohmann::json json;
+
+    std::ifstream file(OS::getScratchFolderLocation() + projectPath + ".sb3.json");
+    if (file.is_open()) {
+        file >> json;
+        file.close();
+    } else {
+        Log::logWarning("Failed to open controls file: " + OS::getScratchFolderLocation() + projectPath + ".sb3.json");
+    }
+    return json;
+}
+
+void ProjectSettings::applySettings(const nlohmann::json &settingsData) {
+    std::string folderPath = OS::getScratchFolderLocation() + projectPath;
+    std::string filePath = folderPath + ".sb3" + ".json";
+
+    try {
+        std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
+    } catch (const std::filesystem::filesystem_error &e) {
+        Log::logError("Failed to create directories: " + std::string(e.what()));
+        return;
+    }
+
+    nlohmann::json json;
+    std::ifstream existingFile(filePath);
+    if (existingFile.good()) {
+        try {
+            existingFile >> json;
+        } catch (const nlohmann::json::parse_error &e) {
+            Log::logError("Failed to parse existing JSON file: " + std::string(e.what()));
+            json = nlohmann::json::object();
+        }
+        existingFile.close();
+    }
+
+    json["settings"] = settingsData;
+
+    std::ofstream file(filePath);
+    if (!file) {
+        Log::logError("Failed to create JSON file: " + filePath);
+        return;
+    }
+
+    file << json.dump(2);
+    file.close();
+    Log::log("Settings saved to: " + filePath);
+}
+
 void ProjectSettings::cleanup() {
     if (changeControlsButton != nullptr) {
         delete changeControlsButton;

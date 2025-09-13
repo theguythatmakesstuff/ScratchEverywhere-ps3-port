@@ -2,6 +2,7 @@
 #include "../os.hpp"
 #include "../text.hpp"
 #include "menuObjects.hpp"
+#include <nlohmann/json.hpp>
 
 class Menu {
   public:
@@ -91,6 +92,8 @@ class ProjectSettings : public Menu {
     std::string projectPath;
 
     ProjectSettings(std::string projPath = "", bool existUnpacked = false);
+    nlohmann::json getProjectSettings();
+    void applySettings(const nlohmann::json &settingsData);
     ~ProjectSettings();
 
     void init() override;

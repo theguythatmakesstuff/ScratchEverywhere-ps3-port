@@ -400,8 +400,6 @@ unsigned char *SVGToRGBA(const void *svg_data, size_t svg_size, int &width, int 
         height = 32;
     }
 
-    std::cout << width << " " << height << std::endl;
-
     // Clamp to 3DS limits
     width = clamp(width, 64, 1024);
     height = clamp(height, 64, 1024);
