@@ -70,6 +70,10 @@ Join https://discord.gg/Y2gf5vZHpJ if you need any help with Scratch Everywhere!
 - The `Touching __?` block uses simpler box collision, which may lead to projects working incorrectly.
 - The `Stop 'All'` block brings you back to the project menu.
 
+### Special Custom Blocks
+
+Like TurboWarp we have special custom blocks that only work on SE! You can find a project containing and explaining them here: https://scratchbox.grady.link/project/K26OtTN2WDJ9
+
 ## Limitations
 
 As this is in a very work in progress state, you will encounter many bugs, crashes, and things that will just not work. 
