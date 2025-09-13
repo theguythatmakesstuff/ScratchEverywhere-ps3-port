@@ -62,6 +62,7 @@ Image::Image(std::string filePath) {
             opacity = 1.0;
             if (imageC2Ds.find(rgba.name) == imageC2Ds.end())
                 get_C2D_Image(rgba);
+            ++imageC2Ds[rgba.name].imageUsageCount;
             return;
         }
     }
@@ -559,7 +560,6 @@ bool get_C2D_Image(imageRGBA rgba) {
     MemoryTracker::allocateVRAM(rgba.textureMemSize);
 
     imageC2Ds[rgba.name] = {image};
-    imageC2Ds[rgba.name].imageUsageCount++;
     C3D_FrameSync(); // wait for Async functions to finish
     return true;
 }
