@@ -894,25 +894,6 @@ void loadSprites(const nlohmann::json &json) {
             Render::renderMode = Render::TOP_SCREEN_ONLY;
     }
 
-    // load initial sprite images
-    Unzip::loadingState = "Loading images";
-    int sprIndex = 1;
-    if (projectType == UNZIPPED) {
-        for (auto &currentSprite : sprites) {
-            if (!currentSprite->visible || currentSprite->ghostEffect == 100) continue;
-            Unzip::loadingState = "Loading image " + std::to_string(sprIndex) + " / " + std::to_string(sprites.size());
-            Image::loadImageFromFile(currentSprite->costumes[currentSprite->currentCostume].fullName);
-            sprIndex++;
-        }
-    } else {
-        for (auto &currentSprite : sprites) {
-            if (!currentSprite->visible || currentSprite->ghostEffect == 100) continue;
-            Unzip::loadingState = "Loading image " + std::to_string(sprIndex) + " / " + std::to_string(sprites.size());
-            Image::loadImageFromSB3(&Unzip::zipArchive, currentSprite->costumes[currentSprite->currentCostume].fullName);
-            sprIndex++;
-        }
-    }
-
     // if infinite clones are enabled, set a (potentially) higher max clone count
     if (!infClones) initializeSpritePool(300);
     else {
