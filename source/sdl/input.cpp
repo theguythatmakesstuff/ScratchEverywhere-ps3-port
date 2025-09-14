@@ -29,6 +29,11 @@ extern char nickname[0x21];
 #include <psp2/system_param.h>
 #endif
 
+#ifdef __OGC__
+#include <gccore.h>
+#include <ogc/conf.h>
+#endif
+
 Input::Mouse Input::mousePointer;
 Sprite *Input::draggingSprite = nullptr;
 
@@ -260,9 +265,16 @@ std::string Input::getUsername() {
     sceAppUtilSystemParamGetString(
         SCE_SYSTEM_PARAM_ID_USERNAME,
         username,
-        sizeof(username)
-    );
-    return std::string(reinterpret_cast<char*>(username));
+        sizeof(username));
+    return std::string(reinterpret_cast<char *>(username));
+#elif defined(__OGC__)
+
+    CONF_Init();
+    u8 nickname[24];
+    if (CONF_GetNickName(nickname) != 0) {
+        return std::string(reinterpret_cast<char *>(nickname));
+    }
+
 #endif
     return "Player";
 }
