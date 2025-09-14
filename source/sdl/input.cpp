@@ -24,6 +24,11 @@
 extern char nickname[0x21];
 #endif
 
+#ifdef VITA
+#include <psp2/apputil.h>
+#include <psp2/system_param.h>
+#endif
+
 Input::Mouse Input::mousePointer;
 Sprite *Input::draggingSprite = nullptr;
 
@@ -250,6 +255,14 @@ std::string Input::getUsername() {
     return std::string(miiName, miiName + sizeof(miiName) / sizeof(miiName[0]));
 #elif defined(__SWITCH__)
     if (std::string(nickname) != "") return std::string(nickname);
+#elif defined(VITA)
+    static SceChar8 username[SCE_SYSTEM_PARAM_USERNAME_MAXSIZE];
+    sceAppUtilSystemParamGetString(
+        SCE_SYSTEM_PARAM_ID_USERNAME,
+        username,
+        sizeof(username)
+    );
+    return std::string(reinterpret_cast<char*>(username));
 #endif
     return "Player";
 }
