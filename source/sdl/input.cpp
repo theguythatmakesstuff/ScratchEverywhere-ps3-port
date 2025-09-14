@@ -29,7 +29,7 @@ extern char nickname[0x21];
 #include <psp2/system_param.h>
 #endif
 
-#ifdef __OGC__
+#ifdef WII
 #include <gccore.h>
 #include <ogc/conf.h>
 #endif
@@ -267,7 +267,7 @@ std::string Input::getUsername() {
         username,
         sizeof(username));
     return std::string(reinterpret_cast<char *>(username));
-#elif defined(__OGC__)
+#elif defined(WII)
 
     CONF_Init();
     u8 nickname[24];
