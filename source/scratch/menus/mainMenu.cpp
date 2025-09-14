@@ -203,8 +203,8 @@ void ProjectMenu::init() {
         yPosition += 50;
     }
     for (std::string &file : UnzippedFiles) {
-        ButtonObject *project = new ButtonObject(file, "gfx/menu/projectBoxFast.png", 0, yPosition);
-        project->text->setColor(Math::color(0, 0, 0, 255));
+        ButtonObject *project = new ButtonObject(file, "gfx/menu/projectBoxFast.png", 0, yPosition, "gfx/menu/Ubuntu-Bold");
+        project->text->setColor(Math::color(126, 101, 1, 255));
         project->canBeClicked = false;
         project->y -= project->text->getSize()[1] / 2;
         if (project->text->getSize()[0] > project->buttonTexture->image->getWidth() * 0.85) {
