@@ -323,10 +323,11 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 
 void Render::renderSprites() {
     if (isConsoleInit) renderMode = RenderModes::TOP_SCREEN_ONLY;
-    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
     C2D_TargetClear(topScreen, clrWhite);
     C2D_TargetClear(topScreenRightEye, clrWhite);
     C2D_TargetClear(bottomScreen, clrWhite);
+    C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
 
     float slider = osGet3DSliderState();
     const float depthScale = 8.0f / sprites.size();
@@ -345,7 +346,6 @@ void Render::renderSprites() {
     // ---------- LEFT EYE ----------
     if (Render::renderMode != Render::BOTTOM_SCREEN_ONLY) {
         C2D_SceneBegin(topScreen);
-        C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
 
         for (size_t i = 0; i < spritesByLayer.size(); i++) {
             Sprite *currentSprite = spritesByLayer[i];
@@ -379,7 +379,6 @@ void Render::renderSprites() {
     // ---------- RIGHT EYE ----------
     if (slider > 0.0f && Render::renderMode != Render::BOTTOM_SCREEN_ONLY) {
         C2D_SceneBegin(topScreenRightEye);
-        C3D_DepthTest(false, GPU_ALWAYS, GPU_WRITE_COLOR);
 
         for (size_t i = 0; i < spritesByLayer.size(); i++) {
             Sprite *currentSprite = spritesByLayer[i];
@@ -441,7 +440,6 @@ void Render::renderSprites() {
         }
     }
 
-    C2D_Flush();
     C3D_FrameEnd(0);
     Image::FlushImages();
     osSetSpeedupEnable(true);
