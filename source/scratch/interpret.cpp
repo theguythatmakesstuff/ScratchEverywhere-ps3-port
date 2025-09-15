@@ -233,8 +233,8 @@ std::vector<std::pair<double, double>> getCollisionPoints(Sprite *currentSprite)
     std::vector<std::pair<double, double>> collisionPoints;
 
     // Get sprite dimensions, scaled by size
-    double halfWidth = (currentSprite->spriteWidth * currentSprite->size / 100.0) / 2.0;
-    double halfHeight = (currentSprite->spriteHeight * currentSprite->size / 100.0) / 2.0;
+    const double halfWidth = (currentSprite->spriteWidth * currentSprite->size / 100.0) / (currentSprite->isSVG ? 1.0 : 2.0);
+    const double halfHeight = (currentSprite->spriteHeight * currentSprite->size / 100.0) / (currentSprite->isSVG ? 1.0 : 2.0);
 
     // Calculate rotation in radians
     double rotation = currentSprite->rotation;

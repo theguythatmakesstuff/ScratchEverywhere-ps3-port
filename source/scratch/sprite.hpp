@@ -149,6 +149,7 @@ class Sprite {
   public:
     std::string name;
     std::string id;
+    bool isSVG;
     bool isStage;
     bool draggable;
     bool visible;

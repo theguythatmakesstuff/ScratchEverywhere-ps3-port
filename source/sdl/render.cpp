@@ -340,8 +340,9 @@ void Render::renderSprites() {
             currentSprite->spriteWidth = image->textureRect.w / 2;
             currentSprite->spriteHeight = image->textureRect.h / 2;
             if (image->isSVG) {
+                currentSprite->isSVG = true;
                 image->setScale(image->scale * 2);
-            }
+            } else currentSprite->isSVG = false;
             const double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
             double renderRotation = rotation;
             if (currentSprite->rotationStyle == currentSprite->LEFT_RIGHT) {
@@ -416,7 +417,7 @@ void Render::renderSprites() {
         // std::vector<std::pair<double, double>> collisionPoints = getCollisionPoints(currentSprite);
         // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black points
 
-        // for (const auto& point : collisionPoints) {
+        // for (const auto &point : collisionPoints) {
         //     double screenX = (point.first * scale) + (windowWidth / 2);
         //     double screenY = (point.second * -scale) + (windowHeight / 2);
 
