@@ -91,9 +91,9 @@ void MainMenu::init() {
         splashText->scale = (float)logo->image->getWidth() / (splashText->getSize()[0] * 1.15);
     }
 
-    loadButton = new ButtonObject("", "gfx/menu/play.png", 200, 180, "gfx/menu/Ubuntu-Bold");
+    loadButton = new ButtonObject("", "gfx/menu/play.svg", 200, 180, "gfx/menu/Ubuntu-Bold");
     loadButton->isSelected = true;
-    // settingsButton = new ButtonObject("", "gfx/menu/settings.png", 300, 180, "gfx/menu/Ubuntu-Bold");
+    // settingsButton = new ButtonObject("", "gfx/menu/settings.svg", 300, 180, "gfx/menu/Ubuntu-Bold");
     mainMenuControl = new ControlObject();
     mainMenuControl->selectedObject = loadButton;
     // loadButton->buttonRight = settingsButton;
@@ -180,7 +180,7 @@ ProjectMenu::~ProjectMenu() {
 void ProjectMenu::init() {
 
     projectControl = new ControlObject();
-    backButton = new ButtonObject("", "gfx/menu/buttonBack.png", 375, 20, "gfx/menu/Ubuntu-Bold");
+    backButton = new ButtonObject("", "gfx/menu/buttonBack.svg", 375, 20, "gfx/menu/Ubuntu-Bold");
     backButton->needsToBeSelected = false;
     backButton->scale = 1.0;
 
@@ -190,7 +190,7 @@ void ProjectMenu::init() {
     // initialize text and set positions
     int yPosition = 120;
     for (std::string &file : projectFiles) {
-        ButtonObject *project = new ButtonObject(file.substr(0, file.length() - 4), "gfx/menu/projectBox.png", 0, yPosition, "gfx/menu/Ubuntu-Bold");
+        ButtonObject *project = new ButtonObject(file.substr(0, file.length() - 4), "gfx/menu/projectBox.svg", 0, yPosition, "gfx/menu/Ubuntu-Bold");
         project->text->setColor(Math::color(0, 0, 0, 255));
         project->canBeClicked = false;
         project->y -= project->text->getSize()[1] / 2;
@@ -231,7 +231,7 @@ void ProjectMenu::init() {
     // check if user has any projects
     if (projectFiles.size() == 0 && UnzippedFiles.size() == 0) {
         hasProjects = false;
-        noProjectsButton = new ButtonObject("", "gfx/menu/noProjects.png", 200, 120, "gfx/menu/Ubuntu-Bold");
+        noProjectsButton = new ButtonObject("", "gfx/menu/noProjects.svg", 200, 120, "gfx/menu/Ubuntu-Bold");
         projectControl->selectedObject = noProjectsButton;
         projectControl->selectedObject->isSelected = true;
         noProjectsText = createTextObject("No Scratch projects found!", 0, 0);
@@ -426,18 +426,18 @@ ProjectSettings::~ProjectSettings() {
 void ProjectSettings::init() {
     // initialize
 
-    changeControlsButton = new ButtonObject("Change Controls", "gfx/menu/projectBox.png", 200, 80, "gfx/menu/Ubuntu-Bold");
+    changeControlsButton = new ButtonObject("Change Controls", "gfx/menu/projectBox.svg", 200, 80, "gfx/menu/Ubuntu-Bold");
     changeControlsButton->text->setColor(Math::color(0, 0, 0, 255));
-    UnpackProjectButton = new ButtonObject("Unpack Project", "gfx/menu/projectBox.png", 200, 130, "gfx/menu/Ubuntu-Bold");
+    UnpackProjectButton = new ButtonObject("Unpack Project", "gfx/menu/projectBox.svg", 200, 130, "gfx/menu/Ubuntu-Bold");
     UnpackProjectButton->text->setColor(Math::color(0, 0, 0, 255));
-    DeleteUnpackProjectButton = new ButtonObject("Delete Unpacked Proj.", "gfx/menu/projectBox.png", 200, 130, "gfx/menu/Ubuntu-Bold");
+    DeleteUnpackProjectButton = new ButtonObject("Delete Unpacked Proj.", "gfx/menu/projectBox.svg", 200, 130, "gfx/menu/Ubuntu-Bold");
     DeleteUnpackProjectButton->text->setColor(Math::color(255, 0, 0, 255));
-    bottomScreenButton = new ButtonObject("Bottom Screen", "gfx/menu/projectBox.png", 200, 180, "gfx/menu/Ubuntu-Bold");
+    bottomScreenButton = new ButtonObject("Bottom Screen", "gfx/menu/projectBox.svg", 200, 180, "gfx/menu/Ubuntu-Bold");
     bottomScreenButton->text->setColor(Math::color(0, 0, 0, 255));
     bottomScreenButton->text->setScale(0.5);
 
     settingsControl = new ControlObject();
-    backButton = new ButtonObject("", "gfx/menu/buttonBack.png", 375, 20, "gfx/menu/Ubuntu-Bold");
+    backButton = new ButtonObject("", "gfx/menu/buttonBack.svg", 375, 20, "gfx/menu/Ubuntu-Bold");
     backButton->scale = 1.0;
     backButton->needsToBeSelected = false;
 
@@ -667,7 +667,7 @@ void ControlsMenu::init() {
 
     settingsControl = new ControlObject();
     settingsControl->selectedObject = nullptr;
-    backButton = new ButtonObject("", "gfx/menu/buttonBack.png", 375, 20, "gfx/menu/Ubuntu-Bold");
+    backButton = new ButtonObject("", "gfx/menu/buttonBack.svg", 375, 20, "gfx/menu/Ubuntu-Bold");
     applyButton = new ButtonObject("Apply (Y)", "gfx/menu/optionBox.svg", 200, 230, "gfx/menu/Ubuntu-Bold");
     applyButton->scale = 0.6;
     applyButton->needsToBeSelected = false;

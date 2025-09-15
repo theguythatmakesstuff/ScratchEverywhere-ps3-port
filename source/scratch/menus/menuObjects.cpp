@@ -12,7 +12,9 @@ static float guiScale = 1.0f;
 #endif
 
 double MenuObject::getScaleFactor() {
-
+#ifdef __3DS__
+    return 1.0f;
+#else
     double WindowScale = Render::getWidth() + Render::getHeight();
 
     if (WindowScale > 1600)
@@ -24,6 +26,7 @@ double MenuObject::getScaleFactor() {
     else guiScale = 1.0f;
 
     return guiScale;
+#endif
 }
 
 std::vector<double> MenuObject::getScaledPosition(double xPos, double yPos) {
