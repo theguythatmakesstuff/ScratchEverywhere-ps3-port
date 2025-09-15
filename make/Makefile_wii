@@ -37,7 +37,7 @@ GFXBUILD	:=	$(ROMFS)/gfx
 
 # Config Options
 ENABLE_CLOUDVARS	?=	0
-ENABLE_LOADSCREEN		?=	0
+ENABLE_LOADSCREEN		?=	1
 ENABLE_AUDIO	?=	1
 
 #---------------------------------------------------------------------------------
