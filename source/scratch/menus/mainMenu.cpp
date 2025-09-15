@@ -242,11 +242,13 @@ void ProjectMenu::init() {
 #ifdef __WIIU__
         noProjectInfo->setText("Put Scratch projects in sd:/wiiu/scratch-wiiu/ !");
 #elif defined(__3DS__)
-        noProjectInfo->setText("Project location has moved to sd:/3ds/scratch-everywhere !");
+        noProjectInfo->setText("Put Scratch projects in sd:/3ds/scratch-everywhere/ !");
 #elif defined(WII)
-        noProjectInfo->setText("Put Scratch projects in sd:/apps/scratch-wii !");
+        noProjectInfo->setText("Put Scratch projects in sd:/apps/scratch-wii/ !");
 #elif defined(VITA)
-        noProjectInfo->setText("Put Scratch projects in ux0:data/scratch-vita/ ! If the folder doesn't exist, create it.");
+        noProjectInfo->setText("Put Scratch projects in ux0:data/scratch-vita/ !");
+#elif defined(GAMECUBE)
+        noProjectInfo->setText("Put Scratch projects in SD Card A:/scratch-gamecube/ !");
 #else
         noProjectInfo->setText("Put Scratch projects in the same folder as the app!");
 #endif

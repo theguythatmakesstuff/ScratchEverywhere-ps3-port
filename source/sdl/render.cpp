@@ -48,6 +48,10 @@ char nickname[0x21];
 #include <romfs-ogc.h>
 #endif
 
+#ifdef GAMECUBE
+#include <sdcard/gcsd.h>
+#endif
+
 int windowWidth = 540;
 int windowHeight = 405;
 SDL_Window *window = nullptr;
@@ -141,6 +145,12 @@ postAccount:
         Log::logError("Failed to init romfs.");
         return false;
     }
+
+#ifdef GAMECUBE
+    if (!fatMountSimple("carda", &__io_gcsda))
+        Log::logError("Failed to initialize SD card.");
+#endif
+
 #elif defined(VITA)
     SDL_setenv("VITA_DISABLE_TOUCH_BACK", "1", 1);
 
