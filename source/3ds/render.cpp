@@ -323,7 +323,7 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
 
 void Render::renderSprites() {
     if (isConsoleInit) renderMode = RenderModes::TOP_SCREEN_ONLY;
-    C3D_FrameBegin(C3D_FRAME_NONBLOCK);
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_TargetClear(topScreen, clrWhite);
     C2D_TargetClear(topScreenRightEye, clrWhite);
     C2D_TargetClear(bottomScreen, clrWhite);
@@ -441,6 +441,7 @@ void Render::renderSprites() {
     }
 
     C3D_FrameEnd(0);
+    C2D_Flush();
     Image::FlushImages();
 #ifdef ENABLE_AUDIO
     SoundPlayer::flushAudio();
