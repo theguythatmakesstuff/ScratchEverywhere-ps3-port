@@ -435,6 +435,7 @@ void Render::renderSprites() {
 
     SDL_RenderPresent(renderer);
     Image::FlushImages();
+    SoundPlayer::flushAudio();
 }
 
 std::unordered_map<std::string, TextObject *> Render::monitorTexts;

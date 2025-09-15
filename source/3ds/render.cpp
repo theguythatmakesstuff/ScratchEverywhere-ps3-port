@@ -442,6 +442,9 @@ void Render::renderSprites() {
 
     C3D_FrameEnd(0);
     Image::FlushImages();
+#ifdef ENABLE_AUDIO
+    SoundPlayer::flushAudio();
+#endif
     osSetSpeedupEnable(true);
 }
 

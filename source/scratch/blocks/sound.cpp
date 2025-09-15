@@ -117,8 +117,8 @@ BlockResult SoundBlocks::setVolumeTo(Block &block, Sprite *sprite, bool *without
     Value inputValue = Scratch::getInputValue(block, "VOLUME", sprite);
     for (auto &[id, sound] : sprite->sounds) {
         SoundPlayer::setSoundVolume(sound.fullName, inputValue.asDouble());
-        sprite->volume = SoundPlayer::getSoundVolume(sound.fullName);
     }
+    sprite->volume = inputValue.asDouble();
     return BlockResult::CONTINUE;
 }
 
