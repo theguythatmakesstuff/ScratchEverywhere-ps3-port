@@ -25,10 +25,6 @@ SDL_Audio::~SDL_Audio() {
         audioChunk = nullptr;
     }
     if (music != nullptr) {
-        if (currentStreamedSound == audioId) {
-            SoundPlayer::stopStreamedSound();
-            currentStreamedSound = "";
-        }
         Mix_FreeMusic(music);
         music = nullptr;
     }
