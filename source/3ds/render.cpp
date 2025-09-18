@@ -230,10 +230,9 @@ void renderImage(C2D_Image *image, Sprite *currentSprite, std::string costumeId,
     double spriteSizeX = currentSprite->size * 0.01;
     double spriteSizeY = currentSprite->size * 0.01;
     if (isSVG) {
-        currentSprite->isSVG = true;
         spriteSizeX *= 2;
         spriteSizeY *= 2;
-    } else currentSprite->isSVG = false;
+    }
     double scale;
     double heightMultiplier = 0.5;
     int screenWidth = SCREEN_WIDTH;

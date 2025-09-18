@@ -261,9 +261,14 @@ void cleanupSprites() {
 std::vector<std::pair<double, double>> getCollisionPoints(Sprite *currentSprite) {
     std::vector<std::pair<double, double>> collisionPoints;
 
+    double divisionAmount = 2.0;
+
+    if(currentSprite->costumes[currentSprite->currentCostume].isSVG)
+        divisionAmount = 1.0;
+
     // Get sprite dimensions, scaled by size
-    const double halfWidth = (currentSprite->spriteWidth * currentSprite->size / 100.0) / (currentSprite->isSVG ? 1.0 : 2.0);
-    const double halfHeight = (currentSprite->spriteHeight * currentSprite->size / 100.0) / (currentSprite->isSVG ? 1.0 : 2.0);
+    const double halfWidth = (currentSprite->spriteWidth * currentSprite->size / 100.0) / divisionAmount;
+    const double halfHeight = (currentSprite->spriteHeight * currentSprite->size / 100.0) / divisionAmount;
 
     // Calculate rotation in radians
     double rotation = currentSprite->rotation;
@@ -700,6 +705,10 @@ void loadSprites(const nlohmann::json &json) {
             }
             if (data.contains("dataFormat")) {
                 newCostume.dataFormat = data["dataFormat"];
+                if(newCostume.dataFormat == "svg" || newCostume.dataFormat == "SVG")
+                    newCostume.isSVG = true;
+                else
+                    newCostume.isSVG = false;
             }
             if (data.contains("md5ext")) {
                 newCostume.fullName = data["md5ext"];

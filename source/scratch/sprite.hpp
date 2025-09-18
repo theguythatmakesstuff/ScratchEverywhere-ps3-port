@@ -105,6 +105,7 @@ struct Costume {
     std::string fullName;
     std::string dataFormat;
     int bitmapResolution;
+    bool isSVG;
     double rotationCenterX;
     double rotationCenterY;
 };
@@ -149,7 +150,6 @@ class Sprite {
   public:
     std::string name;
     std::string id;
-    bool isSVG;
     bool isStage;
     bool draggable;
     bool visible;

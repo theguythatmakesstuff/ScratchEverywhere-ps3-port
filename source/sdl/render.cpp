@@ -339,10 +339,12 @@ void Render::renderSprites() {
             image->setScale((currentSprite->size * 0.01) * scale / 2.0f);
             currentSprite->spriteWidth = image->textureRect.w / 2;
             currentSprite->spriteHeight = image->textureRect.h / 2;
-            if (image->isSVG) {
-                currentSprite->isSVG = true;
+
+            // double the image scale if the image is an SVG
+            if (currentSprite->costumes[currentSprite->currentCostume].isSVG) {
                 image->setScale(image->scale * 2);
-            } else currentSprite->isSVG = false;
+            }
+
             const double rotation = Math::degreesToRadians(currentSprite->rotation - 90.0f);
             double renderRotation = rotation;
             if (currentSprite->rotationStyle == currentSprite->LEFT_RIGHT) {

@@ -170,13 +170,6 @@ bool Image::loadImageFromFile(std::string filePath, bool fromScratchProject) {
     SDL_Image *image = MemoryTracker::allocate<SDL_Image>();
     new (image) SDL_Image(finalPath);
 
-    // Check if it's an SVG file
-    bool isSVG = filePath.size() >= 4 &&
-                 (filePath.substr(filePath.size() - 4) == ".svg" ||
-                  filePath.substr(filePath.size() - 4) == ".SVG");
-
-    if (isSVG) image->isSVG = true;
-
     // Track texture memory
     if (image->spriteTexture) {
         size_t textureMemory = image->width * image->height * 4;
@@ -214,20 +207,18 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
     }
 
     // Check if file is bitmap or SVG
-    bool isBitmap = costumeId.size() > 4 && ([](std::string ext) {
+    bool isSupported = costumeId.size() > 4 && ([](std::string ext) {
                         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
                         return ext == ".bmp" || ext == ".gif" || ext == ".jpg" || ext == ".jpeg" ||
                                ext == ".lbm" || ext == ".iff" || ext == ".pcx" || ext == ".png" ||
                                ext == ".pnm" || ext == ".ppm" || ext == ".pgm" || ext == ".pbm" ||
                                ext == ".qoi" || ext == ".tga" || ext == ".tiff" || ext == ".xcf" ||
                                ext == ".xpm" || ext == ".xv" || ext == ".ico" || ext == ".cur" ||
-                               ext == ".ani" || ext == ".webp" || ext == ".avif" || ext == ".jxl";
+                               ext == ".ani" || ext == ".webp" || ext == ".avif" || ext == ".jxl" ||
+                               ext == ".svg";
                     }(costumeId.substr(costumeId.find_last_of('.'))));
-    bool isSVG = costumeId.size() >= 4 &&
-                 (costumeId.substr(costumeId.size() - 4) == ".svg" ||
-                  costumeId.substr(costumeId.size() - 4) == ".SVG");
 
-    if (!isBitmap && !isSVG) {
+    if (!isSupported) {
         Log::logWarning("File is not a supported image format: " + costumeId);
         return;
     }
@@ -270,7 +261,6 @@ void Image::loadImageFromSB3(mz_zip_archive *zip, const std::string &costumeId) 
     // Build SDL_Image object
     SDL_Image *image = MemoryTracker::allocate<SDL_Image>();
     new (image) SDL_Image();
-    if (isSVG) image->isSVG = true;
     image->spriteTexture = texture;
     SDL_QueryTexture(texture, nullptr, nullptr, &image->width, &image->height);
     image->renderRect = {0, 0, image->width, image->height};
