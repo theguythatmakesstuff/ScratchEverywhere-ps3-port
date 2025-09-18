@@ -13,7 +13,8 @@ static float guiScale = 1.0f;
 
 double MenuObject::getScaleFactor() {
 #ifdef __3DS__
-    return 1.0f;
+    guiScale = 1.0f;
+    return guiScale;
 #else
     double WindowScale = Render::getWidth() + Render::getHeight();
 
