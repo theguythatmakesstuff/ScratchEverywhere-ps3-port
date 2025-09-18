@@ -380,7 +380,6 @@ float SoundPlayer::getSoundVolume(const std::string &soundId) {
         return (sdlVolume / 128.0f) * 100.0f;
     }
 #endif
-    // return -1 to indicate sound not found
     return -1.0f;
 }
 
@@ -414,11 +413,13 @@ void SoundPlayer::stopStreamedSound() {
 }
 
 void SoundPlayer::checkAudio() {
+    #ifdef ENABLE_AUDIO
     for (auto &[id, audio] : SDL_Sounds) {
         if (!isSoundPlaying(id)) {
             audio->isPlaying = false;
         }
     }
+    #endif
 }
 
 bool SoundPlayer::isSoundPlaying(const std::string &soundId) {
@@ -438,19 +439,23 @@ bool SoundPlayer::isSoundPlaying(const std::string &soundId) {
 }
 
 bool SoundPlayer::isSoundLoaded(const std::string &soundId) {
+    #ifdef ENABLE_AUDIO
     auto soundFind = SDL_Sounds.find(soundId);
     if (soundFind != SDL_Sounds.end()) {
         return soundFind->second->isLoaded;
     }
+    #endif
     return false;
 }
 
 void SoundPlayer::freeAudio(const std::string &soundId) {
+    #ifdef ENABLE_AUDIO
     auto it = SDL_Sounds.find(soundId);
     if (it != SDL_Sounds.end()) {
         Log::log("A sound has been freed!");
         SDL_Sounds.erase(it);
     } else Log::logWarning("Could not find sound to free: " + soundId);
+    #endif
 }
 
 void SoundPlayer::flushAudio() {
