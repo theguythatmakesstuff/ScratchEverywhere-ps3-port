@@ -107,6 +107,9 @@ void BlockExecutor::registerHandlers() {
     handlers["control_repeat_until"] = ControlBlocks::repeatUntil;
     handlers["control_while"] = ControlBlocks::While;
     handlers["control_forever"] = ControlBlocks::forever;
+    valueHandlers["control_get_counter"] = ControlBlocks::getCounter;
+    handlers["control_clear_counter"] = ControlBlocks::clearCounter;
+    handlers["control_incr_counter"] = ControlBlocks::incrementCounter;
 
     // operators
     valueHandlers["operator_add"] = OperatorBlocks::add;

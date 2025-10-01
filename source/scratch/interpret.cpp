@@ -58,6 +58,8 @@ bool Scratch::fencing = true;
 bool Scratch::miscellaneousLimits = true;
 bool Scratch::shouldStop = false;
 
+double Scratch::counter = 0;
+
 bool Scratch::nextProject = false;
 Value Scratch::dataNextProject;
 
@@ -223,6 +225,7 @@ void Scratch::cleanupScratchProject() {
     Scratch::projectHeight = 360;
     Scratch::fencing = true;
     Scratch::miscellaneousLimits = true;
+    Scratch::counter = 0;
     Render::renderMode = Render::TOP_SCREEN_ONLY;
     // Unzip::filePath = "";
     Log::log("Cleaned up Scratch project.");

@@ -387,3 +387,17 @@ BlockResult ControlBlocks::forever(Block &block, Sprite *sprite, bool *withoutSc
     }
     return BlockResult::RETURN;
 }
+
+Value ControlBlocks::getCounter(Block &block, Sprite *sprite) {
+    return Value(Scratch::counter);
+}
+
+BlockResult ControlBlocks::incrementCounter(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
+    Scratch::counter++;
+    return BlockResult::CONTINUE;
+}
+
+BlockResult ControlBlocks::clearCounter(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
+    Scratch::counter = 0;
+    return BlockResult::CONTINUE;
+}

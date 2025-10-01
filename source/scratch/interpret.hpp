@@ -44,6 +44,8 @@ class Scratch {
     static bool miscellaneousLimits;
     static bool shouldStop;
 
+    static double counter;
+
     static bool nextProject;
     static Value dataNextProject;
 };
