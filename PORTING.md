@@ -14,7 +14,7 @@ If your platform doesn't support SDL2 you have a lot more work, firstly create a
 
 ## Docker
 
-We do require a `Dockerfile` be present for all ports to make building easier. If you don't know how to make one, we can make one for, you just ask.
+We do require a `Dockerfile` be present for all ports to make building easier. If you don't know how to make one, we can make one for you, just ask.
 
 ## Creating a PR
 
