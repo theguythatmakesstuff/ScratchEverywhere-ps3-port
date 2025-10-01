@@ -39,6 +39,7 @@ class Scratch {
     static int projectWidth;
     static int projectHeight;
     static int FPS;
+    static bool turbo;
     static bool fencing;
     static bool miscellaneousLimits;
     static bool shouldStop;
