@@ -1,6 +1,5 @@
 #include "math.hpp"
 #include <algorithm>
-#include <boost/regex.hpp>
 #include <math.h>
 #include <random>
 #include <string>
@@ -25,7 +24,40 @@ int Math::color(int r, int g, int b, int a) {
 }
 
 bool Math::isNumber(const std::string &str) {
-    return boost::regex_match(str, boost::regex("^((0x[\\da-f]+)|(0b[01]+)|(0o[0-7]+)|([+-]?((\\d+(\\.\\d+)?)|((\\d+)?\\.\\d+))(e[+-]?\\d+)?))$", boost::regex::icase)); // I hope I never need to touch this again x2 (it was rewritten, to handle more edge cases).
+    try {
+        std::stod(str);
+        return true;
+    } catch (...) {
+        if (str.length() == 2) return false;
+
+        if (str[0] == '0') {
+            switch (str[1]) {
+            case 'b':
+                try {
+                    std::stoi(str.substr(2, str.length() - 2), 0, 2);
+                    return true;
+                } catch (...) {
+                    return false;
+                }
+            case 'o':
+                try {
+                    std::stoi(str.substr(2, str.length() - 2), 0, 8);
+                    return true;
+                } catch (...) {
+                    return false;
+                }
+            case 'x':
+                try {
+                    std::stoi(str.substr(2, str.length() - 2), 0, 16);
+                    return true;
+                } catch (...) {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
 }
 
 double Math::parseNumber(const std::string &str) {
