@@ -110,6 +110,7 @@ void BlockExecutor::registerHandlers() {
     valueHandlers["control_get_counter"] = ControlBlocks::getCounter;
     handlers["control_clear_counter"] = ControlBlocks::clearCounter;
     handlers["control_incr_counter"] = ControlBlocks::incrementCounter;
+    handlers["control_for_each"] = ControlBlocks::forEach;
 
     // operators
     valueHandlers["operator_add"] = OperatorBlocks::add;
