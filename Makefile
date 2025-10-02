@@ -14,6 +14,8 @@ else ifeq ($(PLATFORM),switch)
 include make/Makefile_switch
 else ifeq ($(PLATFORM),vita)
 include make/Makefile_vita
+else ifeq ($(PLATFORM),ps3)
+include make/Makefile_ps3
 else
     $(error Unknown platform: $(PLATFORM))
 endif
