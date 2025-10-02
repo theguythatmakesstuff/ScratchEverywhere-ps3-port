@@ -174,6 +174,11 @@ void BlockExecutor::registerHandlers() {
     handlers["procedures_definition"] = ProcedureBlocks::definition;
     valueHandlers["argument_reporter_string_number"] = ProcedureBlocks::stringNumber;
     valueHandlers["argument_reporter_boolean"] = ProcedureBlocks::booleanArgument;
+
+    // Other (Don't know where else to put these)
+    valueHandlers["matrix"] = [](Block &block, Sprite *sprite) {
+        return Value(Scratch::getFieldValue(block, "MATRIX"));
+    };
 }
 
 std::vector<Block *> BlockExecutor::runBlock(Block &block, Sprite *sprite, bool *withoutScreenRefresh, bool fromRepeat) {
