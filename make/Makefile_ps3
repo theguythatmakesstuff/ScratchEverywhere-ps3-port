@@ -1,0 +1,128 @@
+#   %###########%
+# /###         ###\
+# \( )         ( )/   Scratch Everywhere! on PS3
+#   %###########%
+#
+# Makefile for PS3 using PSL1GHT SDK
+# PS3 port based on Vita makefile structure
+
+
+# --- INITIAL MAKEFILE SETUP ---
+PHONY := all package clean
+
+TARGET     := scratch-ps3
+BUILD      := build/ps3
+SOURCES    := source source/scratch source/scratch/blocks source/scratch/menus source/sdl source/sdl/audio include/miniz include/nlohmann
+INCLUDES   := include source/scratch source/scratch/blocks source/scratch/menus source/sdl source/sdl/audio include/nlohmann
+GFX_FILES := $(shell find gfx -type f)
+PROJ_FILE := project.sb3
+
+CC := ppu-gcc
+CXX := ppu-g++
+STRIP := ppu-strip
+
+# PS3 SDK paths
+PS3DEV := $(shell ppu-gcc -print-prog-name=ld | sed 's|/ppu/bin/ld||' | head -n1)
+LIBDIRS := -L$(PS3DEV)/ppu/lib -L$(PS3DEV)/portlibs/ppu/lib
+
+
+# --- METADATA/CONFIG ---
+PROJECT_TITLE := Scratch Everywhere!
+PROJECT_TITLEID := NTXS00054
+PROJECT := scratch_everywhere
+
+# Set your config options here
+ENABLE_CLOUDVARS	?=	0 # PS3 cloud variables support to be added later
+ENABLE_AUDIO	?=	1
+ENABLE_LOADSCREEN	?=	1
+
+
+# --- COMPILE FLAGS ---
+# Base compiler flags for PS3
+CFLAGS   := -O2 -Wall -mcpu=cell $(MACHDEP) $(addprefix -I,$(INCLUDES)) -I$(PS3DEV)/ppu/include -I$(PS3DEV)/portlibs/ppu/include
+CXXFLAGS := -O2 -Wall -mcpu=cell $(MACHDEP) -std=c++17 $(addprefix -I,$(INCLUDES)) -I$(PS3DEV)/ppu/include -I$(PS3DEV)/portlibs/ppu/include
+LDFLAGS  := -mcpu=cell $(MACHDEP) $(LIBDIRS)
+
+# Specify PS3 as the target platform + SDL flags
+PS3FLAGS := -D__PS3__ -DSDL_BUILD
+CFLAGS   += $(PS3FLAGS)
+CXXFLAGS += $(PS3FLAGS)
+
+# SDL2 Libraries for PS3
+LIBS := -lSDL2 -lSDL2_image -lSDL2_ttf -lrsx -lgcm_sys -lsysutil -lio -lsysmodule -laudio
+
+# Feature flags
+ifeq ($(ENABLE_AUDIO),1)
+LIBS     += -lSDL2_mixer
+CFLAGS	+=	-DENABLE_AUDIO
+CXXFLAGS += -DENABLE_AUDIO
+endif
+
+ifeq ($(ENABLE_LOADSCREEN),1)
+CFLAGS	+=	-DENABLE_LOADSCREEN
+CXXFLAGS += -DENABLE_LOADSCREEN
+endif
+
+ifeq ($(ENABLE_CLOUDVARS),1)
+CFLAGS		+=	-DENABLE_CLOUDVARS
+CXXFLAGS	+=	-DENABLE_CLOUDVARS
+LIBS		+=	-lcurl
+endif
+
+
+# --- BUILD CONFIGURATION ---
+SRC_C   := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.c))
+SRC_CPP := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.cpp))
+
+OBJS := $(patsubst %,$(BUILD)/%,$(SRC_C:.c=.o) $(SRC_CPP:.cpp=.o))
+OBJ_DIRS := $(sort $(dir $(OBJS)))
+
+# make sure all build artifacts are placed inside BUILD
+PROJECT_PS3 := $(BUILD)/$(TARGET)
+PKG         := $(PROJECT_PS3).pkg
+ELF         := $(PROJECT_PS3).elf
+SELF        := $(PROJECT_PS3).self
+
+all: package
+
+package: $(PKG)
+
+$(PKG): $(SELF)
+	@echo "Building PS3 PKG..."
+	@mkdir -p $(BUILD)/pkg_temp/USRDIR
+	@cp $(SELF) $(BUILD)/pkg_temp/USRDIR/EBOOT.BIN
+	@if [ -f romfs/$(PROJ_FILE) ]; then cp romfs/$(PROJ_FILE) $(BUILD)/pkg_temp/USRDIR/; fi
+	@cp -r gfx $(BUILD)/pkg_temp/USRDIR/
+	@if [ -f gfx/ps3/ICON0.PNG ]; then cp gfx/ps3/ICON0.PNG $(BUILD)/pkg_temp/; fi
+	@if [ -f gfx/ps3/PARAM.SFO ]; then cp gfx/ps3/PARAM.SFO $(BUILD)/pkg_temp/; fi
+	@echo "PKG creation would require ps3-pkg tool (placeholder for now)"
+	@cp $(SELF) $(PKG)
+
+$(SELF): $(ELF)
+	@echo "Converting ELF to SELF..."
+	fself $(ELF) $(SELF)
+
+$(ELF): $(OBJS)
+	@echo "Linking ELF..."
+	$(CXX) $(LDFLAGS) $^ -o $@ $(LIBS)
+
+$(BUILD):
+	mkdir -p $@
+
+$(OBJ_DIRS):
+	mkdir -p $@
+
+$(BUILD)/%.o : %.cpp | $(OBJ_DIRS)
+	@echo "Building $@..."
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+$(BUILD)/%.o : %.c | $(OBJ_DIRS)
+	@echo "Building $@..."
+	$(CC) -c $(CFLAGS) -o $@ $<
+
+clean:
+	rm -f $(PROJECT_PS3).self $(PROJECT_PS3).elf $(PROJECT_PS3).pkg $(OBJS)
+	rm -rf $(BUILD)/pkg_temp
+	rm -rf $(abspath $(OBJ_DIRS))
+
+.PHONY: $(PHONY)
